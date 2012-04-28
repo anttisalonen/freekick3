@@ -16,8 +16,14 @@ void Team::addPlayer(std::shared_ptr<Player> p)
 		int hgt = (mPlayers.size() - 2) / 4;
 		int widx = (mPlayers.size() - 2) % 4;
 		if(hgt >= 2) {
-			p->setHomePosition(RelVector3(widx < 2 ? -0.05f : 0.05f,
-						-0.01f * (mFirst ? 1 : -1), 0));
+			if(mFirst) {
+				p->setHomePosition(RelVector3(widx < 1 ? -0.1f : 0.1f,
+							-0.01f, 0));
+			}
+			else {
+				p->setHomePosition(RelVector3(widx < 1 ? -0.1f : 0.1f,
+							0.15f, 0));
+			}
 		}
 		else {
 			float wdt = (widx - 1.5f) * 0.5f;
@@ -54,6 +60,6 @@ const std::vector<std::shared_ptr<Player>>& Team::getPlayers() const
 
 RelVector3 Team::getPausePosition() const
 {
-	return RelVector3(1.5f, 0.0f, 0.0f);
+	return RelVector3(1.2f, 0.0f, 0.0f);
 }
 
