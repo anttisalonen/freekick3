@@ -3,6 +3,7 @@
 
 #include <vector>
 
+#include "Team.h"
 #include "Player.h"
 #include "Ball.h"
 #include "Referee.h"
@@ -34,11 +35,14 @@ class Match {
 		const Ball* getBall() const;
 		void update(double time);
 		bool matchOver() const;
+		MatchHalf getMatchHalf() const;
+		PlayState getPlayState() const;
+		AbsVector3 convertRelativeToAbsoluteVector(const RelVector3& v) const;
 	private:
 		void applyPlayerAction(const std::shared_ptr<PlayerAction> a,
 				const std::shared_ptr<Player> p, double time);
 		void updateReferee(double time);
-		std::vector<std::shared_ptr<Player>> mPlayers[2];
+		std::shared_ptr<Team> mTeams[2];
 		Ball mBall;
 		Referee mReferee;
 		double mTime;
