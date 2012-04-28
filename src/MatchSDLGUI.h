@@ -44,6 +44,7 @@ class MatchSDLGUI : public MatchGUI {
 		SDL_Surface* mScreen;
 		std::shared_ptr<Texture> mPlayerTexture;
 		std::shared_ptr<Texture> mPitchTexture;
+		std::shared_ptr<Texture> mBallTexture;
 		float mScaleLevel;
 		float mScaleLevelVelocity;
 		Vector3 mCamera;

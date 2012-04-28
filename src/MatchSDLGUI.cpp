@@ -103,7 +103,11 @@ void MatchSDLGUI::drawPlayers()
 
 void MatchSDLGUI::drawBall()
 {
-	/* TODO */
+	const AbsVector3& v(mMatch->getBall()->getPosition());
+	drawSprite(*mBallTexture, Rectangle((mCamera.x + v.v.x) * mScaleLevel + screenWidth * 0.5f,
+				(mCamera.y + v.v.y) * mScaleLevel + screenHeight * 0.5f,
+				mScaleLevel * 0.3f, mScaleLevel * 0.3f),
+			Rectangle(1, 1, -1, -1), 0.1f);
 }
 
 void MatchSDLGUI::startFrame()
@@ -142,6 +146,7 @@ bool MatchSDLGUI::setupScreen()
 
 void MatchSDLGUI::loadTextures()
 {
+	mBallTexture = std::shared_ptr<Texture>(new Texture("share/ball1.png", 0, 8));
 	mPlayerTexture = std::shared_ptr<Texture>(new Texture("share/player1-n.png", 0, 32));
 	mPitchTexture = std::shared_ptr<Texture>(new Texture("share/grass1.png", 0, 0));
 }
