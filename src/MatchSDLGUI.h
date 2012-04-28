@@ -20,6 +20,7 @@ class MatchSDLGUI : public MatchGUI {
 		void finishFrame();
 		bool setupScreen();
 		void loadTextures();
+		bool handleInput();
 		static const char* GLErrorToString(GLenum err);
 		Clock mClock;
 		SDL_Surface* mScreen;

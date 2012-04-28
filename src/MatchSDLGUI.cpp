@@ -61,6 +61,8 @@ void MatchSDLGUI::play()
 	while(!mMatch->matchOver()) {
 		double frameTime = mClock.limitFPS(60);
 		mMatch->update(frameTime);
+		if(handleInput())
+			break;
 		startFrame();
 		drawEnvironment();
 		drawBall();
@@ -131,6 +133,28 @@ bool MatchSDLGUI::setupScreen()
 void MatchSDLGUI::loadTextures()
 {
 	mPlayerTexture = std::shared_ptr<Texture>(new Texture("share/player1-n.png"));
+}
+
+bool MatchSDLGUI::handleInput()
+{
+	bool quitting = false;
+	SDL_Event event;
+	while(SDL_PollEvent(&event)) {
+		switch(event.type) {
+			case SDL_KEYDOWN:
+				if(event.key.keysym.sym == SDLK_ESCAPE)
+					quitting = true;
+				break;
+			case SDL_MOUSEBUTTONUP:
+				break;
+			case SDL_QUIT:
+				quitting = true;
+				break;
+			default:
+				break;
+		}
+	}
+	return quitting;
 }
 
 const char* MatchSDLGUI::GLErrorToString(GLenum err)
