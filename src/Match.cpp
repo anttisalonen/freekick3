@@ -17,6 +17,7 @@ Match::Match()
 		}
 	}
 	mReferee.setMatch(this);
+	mBall = std::shared_ptr<Ball>(new Ball(this));
 }
 
 const Player* Match::getPlayer(unsigned int team, unsigned int idx) const
@@ -28,7 +29,7 @@ const Player* Match::getPlayer(unsigned int team, unsigned int idx) const
 
 const Ball* Match::getBall() const
 {
-	return &mBall;
+	return mBall.get();
 }
 
 void Match::update(double time)

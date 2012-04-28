@@ -46,7 +46,7 @@ class Match {
 				const std::shared_ptr<Player> p, double time);
 		void updateReferee(double time);
 		std::shared_ptr<Team> mTeams[2];
-		Ball mBall;
+		std::shared_ptr<Ball> mBall;
 		Referee mReferee;
 		double mTime;
 		MatchHalf mMatchHalf;
