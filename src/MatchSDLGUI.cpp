@@ -79,8 +79,18 @@ void MatchSDLGUI::drawEnvironment()
 
 void MatchSDLGUI::drawPlayers()
 {
-	drawSprite(*mPlayerTexture, Rectangle(100, 100, 200, 200),
-			Rectangle(1, 1, -1, -1), 0.1f);
+	for(int i = 0; i < 2; i++) {
+		const Player* pl;
+		int j = 0;
+		while(1) {
+			pl = mMatch->getPlayer(i, j);
+			if(!pl)
+				break;
+			j++;
+			drawSprite(*mPlayerTexture, Rectangle(100 + 40 * j, 100 + 240 * i, 200, 200),
+					Rectangle(1, 1, -1, -1), 0.1f);
+		}
+	}
 }
 
 void MatchSDLGUI::drawBall()
