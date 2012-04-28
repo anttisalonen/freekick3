@@ -59,9 +59,11 @@ MatchSDLGUI::~MatchSDLGUI()
 
 void MatchSDLGUI::play()
 {
-	mClock = Clock();
+	double prevTime = Clock::getTime();
 	while(!mMatch->matchOver()) {
-		double frameTime = mClock.limitFPS(60);
+		double newTime = Clock::getTime();
+		double frameTime = newTime - prevTime;
+		prevTime = newTime;
 		mMatch->update(frameTime);
 		if(handleInput(frameTime))
 			break;

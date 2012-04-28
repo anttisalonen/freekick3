@@ -35,7 +35,7 @@ double Clock::limitFPS(int fps)
 	return std::min(diff, maxadv);
 }
 
-double Clock::getTime() const
+double Clock::getTime()
 {
 	struct timeval tv;
 	gettimeofday(&tv, NULL);

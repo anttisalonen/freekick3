@@ -5,8 +5,8 @@ class Clock {
 	public:
 		Clock();
 		double limitFPS(int fps);
+		static double getTime();
 	private:
-		double getTime() const;
 		double mLastTime;
 		double mStatTime;
 		int mFrames;
