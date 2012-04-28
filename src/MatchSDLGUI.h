@@ -7,6 +7,19 @@
 #include "Texture.h"
 #include "Clock.h"
 
+struct Rectangle {
+	inline Rectangle(float x_, float y_, float w_, float h_);
+	float x;
+	float y;
+	float w;
+	float h;
+};
+
+Rectangle::Rectangle(float x_, float y_, float w_, float h_)
+	: x(x_), y(y_), w(w_), h(h_)
+{
+}
+
 class MatchSDLGUI : public MatchGUI {
 	public:
 		MatchSDLGUI(std::shared_ptr<Match> match);
@@ -22,9 +35,13 @@ class MatchSDLGUI : public MatchGUI {
 		void loadTextures();
 		bool handleInput();
 		static const char* GLErrorToString(GLenum err);
+		static void drawSprite(const Texture& t,
+				const Rectangle& vertcoords,
+				const Rectangle& texcoords, float depth);
 		Clock mClock;
 		SDL_Surface* mScreen;
 		std::shared_ptr<Texture> mPlayerTexture;
+		std::shared_ptr<Texture> mPitchTexture;
 };
 
 #endif

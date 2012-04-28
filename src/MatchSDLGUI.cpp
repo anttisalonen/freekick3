@@ -73,22 +73,14 @@ void MatchSDLGUI::play()
 
 void MatchSDLGUI::drawEnvironment()
 {
-	/* TODO */
+	drawSprite(*mPitchTexture, Rectangle(0, 0, 1000, 1000),
+			Rectangle(0, 0, 20, 20), 0);
 }
 
 void MatchSDLGUI::drawPlayers()
 {
-	glBindTexture(GL_TEXTURE_2D, mPlayerTexture->getTexture());
-	glBegin(GL_QUADS);
-	glTexCoord2f(0, 0);
-	glVertex3f(100, 100, 0);
-	glTexCoord2f(1, 0);
-	glVertex3f(300, 100, 0);
-	glTexCoord2f(1, 1);
-	glVertex3f(300, 300, 0);
-	glTexCoord2f(0, 1);
-	glVertex3f(100, 300, 0);
-	glEnd();
+	drawSprite(*mPlayerTexture, Rectangle(100, 100, 200, 200),
+			Rectangle(1, 1, -1, -1), 0.1f);
 }
 
 void MatchSDLGUI::drawBall()
@@ -112,7 +104,7 @@ bool MatchSDLGUI::setupScreen()
 	glDisable(GL_DEPTH_TEST);
 	glEnable(GL_BLEND);
 	glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
-	glClearColor(0, 0, 0, 1);
+	glClearColor(1, 1, 1, 1);
 	glViewport(0, 0, screenWidth, screenHeight);
 	glMatrixMode(GL_PROJECTION);
 	glLoadIdentity();
@@ -132,7 +124,8 @@ bool MatchSDLGUI::setupScreen()
 
 void MatchSDLGUI::loadTextures()
 {
-	mPlayerTexture = std::shared_ptr<Texture>(new Texture("share/player1-n.png"));
+	mPlayerTexture = std::shared_ptr<Texture>(new Texture("share/player1-n.png", 0, 32));
+	mPitchTexture = std::shared_ptr<Texture>(new Texture("share/grass1.png", 0, 0));
 }
 
 bool MatchSDLGUI::handleInput()
@@ -170,5 +163,22 @@ const char* MatchSDLGUI::GLErrorToString(GLenum err)
 		case GL_TABLE_TOO_LARGE: return "GL_TABLE_TOO_LARGE";
 	}
 	return "unknown error";
+}
+
+void MatchSDLGUI::drawSprite(const Texture& t,
+		const Rectangle& vertcoords,
+		const Rectangle& texcoords, float depth)
+{
+	glBindTexture(GL_TEXTURE_2D, t.getTexture());
+	glBegin(GL_QUADS);
+	glTexCoord2f(texcoords.x, texcoords.y);
+	glVertex3f(vertcoords.x, vertcoords.y, depth);
+	glTexCoord2f(texcoords.x + texcoords.w, texcoords.y);
+	glVertex3f(vertcoords.x + vertcoords.w, vertcoords.y, depth);
+	glTexCoord2f(texcoords.x + texcoords.w, texcoords.y + texcoords.h);
+	glVertex3f(vertcoords.x + vertcoords.w, vertcoords.y + vertcoords.h, depth);
+	glTexCoord2f(texcoords.x, texcoords.y + texcoords.h);
+	glVertex3f(vertcoords.x, vertcoords.y + vertcoords.h, depth);
+	glEnd();
 }
 
