@@ -10,7 +10,9 @@ static const int screenWidth = 800;
 static const int screenHeight = 600;
 
 MatchSDLGUI::MatchSDLGUI(std::shared_ptr<Match> match)
-	: MatchGUI(match)
+	: MatchGUI(match),
+	mScaleLevel(10.0f),
+	mScaleLevelVelocity(0.0f)
 {
 	if (SDL_Init(SDL_INIT_EVERYTHING) == -1) {
 		fprintf(stderr, "Unable to init SDL: %s\n", SDL_GetError());
@@ -61,7 +63,7 @@ void MatchSDLGUI::play()
 	while(!mMatch->matchOver()) {
 		double frameTime = mClock.limitFPS(60);
 		mMatch->update(frameTime);
-		if(handleInput())
+		if(handleInput(frameTime))
 			break;
 		startFrame();
 		drawEnvironment();
@@ -73,7 +75,10 @@ void MatchSDLGUI::play()
 
 void MatchSDLGUI::drawEnvironment()
 {
-	drawSprite(*mPitchTexture, Rectangle(0, 0, 1000, 1000),
+	drawSprite(*mPitchTexture, Rectangle((mCamera.x - mMatch->getPitchWidth() * 0.5f) * mScaleLevel + screenWidth * 0.5f,
+				(mCamera.y - mMatch->getPitchHeight() * 0.5f) * mScaleLevel + screenHeight * 0.5f,
+				mScaleLevel * mMatch->getPitchWidth(),
+				mScaleLevel * mMatch->getPitchHeight()),
 			Rectangle(0, 0, 20, 20), 0);
 }
 
@@ -88,8 +93,9 @@ void MatchSDLGUI::drawPlayers()
 				break;
 			j++;
 			const AbsVector3& v(pl->getPosition());
-			drawSprite(*mPlayerTexture, Rectangle(v.v.x * 10.0f,
-						v.v.y * 10.0f, 40, 40),
+			drawSprite(*mPlayerTexture, Rectangle((mCamera.x + v.v.x) * mScaleLevel + screenWidth * 0.5f,
+						(mCamera.y + v.v.y) * mScaleLevel + screenHeight * 0.5f,
+						mScaleLevel, mScaleLevel),
 					Rectangle(1, 1, -1, -1), 0.1f);
 		}
 	}
@@ -140,15 +146,51 @@ void MatchSDLGUI::loadTextures()
 	mPitchTexture = std::shared_ptr<Texture>(new Texture("share/grass1.png", 0, 0));
 }
 
-bool MatchSDLGUI::handleInput()
+bool MatchSDLGUI::handleInput(float frameTime)
 {
 	bool quitting = false;
 	SDL_Event event;
 	while(SDL_PollEvent(&event)) {
 		switch(event.type) {
 			case SDL_KEYDOWN:
-				if(event.key.keysym.sym == SDLK_ESCAPE)
-					quitting = true;
+				switch(event.key.keysym.sym) {
+					case SDLK_ESCAPE:
+						quitting = true;
+						break;
+					case SDLK_w:
+						mCameraVelocity.y -= 1.0f; break;
+					case SDLK_s:
+						mCameraVelocity.y += 1.0f; break;
+					case SDLK_a:
+						mCameraVelocity.x += 1.0f; break;
+					case SDLK_d:
+						mCameraVelocity.x -= 1.0f; break;
+					case SDLK_MINUS:
+					case SDLK_KP_MINUS:
+						mScaleLevelVelocity -= 1.0f; break;
+					case SDLK_PLUS:
+					case SDLK_KP_PLUS:
+						mScaleLevelVelocity += 1.0f; break;
+					default:
+						break;
+				}
+				break;
+			case SDL_KEYUP:
+				switch(event.key.keysym.sym) {
+					case SDLK_w:
+					case SDLK_s:
+						mCameraVelocity.y = 0.0f; break;
+					case SDLK_a:
+					case SDLK_d:
+						mCameraVelocity.x = 0.0f; break;
+					case SDLK_MINUS:
+					case SDLK_KP_MINUS:
+					case SDLK_PLUS:
+					case SDLK_KP_PLUS:
+						mScaleLevelVelocity = 0.0f; break;
+					default:
+						break;
+				}
 				break;
 			case SDL_MOUSEBUTTONUP:
 				break;
@@ -159,7 +201,14 @@ bool MatchSDLGUI::handleInput()
 				break;
 		}
 	}
+	handleInputState(frameTime);
 	return quitting;
+}
+
+void MatchSDLGUI::handleInputState(float frameTime)
+{
+	mCamera += mCameraVelocity * frameTime * 10.0f;
+	mScaleLevel += mScaleLevelVelocity * frameTime * 10.0f;
 }
 
 const char* MatchSDLGUI::GLErrorToString(GLenum err)

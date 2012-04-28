@@ -6,6 +6,7 @@
 #include "MatchGUI.h"
 #include "Texture.h"
 #include "Clock.h"
+#include "Vector3.h"
 
 struct Rectangle {
 	inline Rectangle(float x_, float y_, float w_, float h_);
@@ -33,7 +34,8 @@ class MatchSDLGUI : public MatchGUI {
 		void finishFrame();
 		bool setupScreen();
 		void loadTextures();
-		bool handleInput();
+		bool handleInput(float frameTime);
+		void handleInputState(float frameTime);
 		static const char* GLErrorToString(GLenum err);
 		static void drawSprite(const Texture& t,
 				const Rectangle& vertcoords,
@@ -42,6 +44,10 @@ class MatchSDLGUI : public MatchGUI {
 		SDL_Surface* mScreen;
 		std::shared_ptr<Texture> mPlayerTexture;
 		std::shared_ptr<Texture> mPitchTexture;
+		float mScaleLevel;
+		float mScaleLevelVelocity;
+		Vector3 mCamera;
+		Vector3 mCameraVelocity;
 };
 
 #endif
