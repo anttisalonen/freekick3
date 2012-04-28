@@ -1,3 +1,5 @@
+#include <stdio.h>
+
 #include "Player.h"
 #include "PlayerAIController.h"
 #include "Match.h"
@@ -27,6 +29,7 @@ const RelVector3& Player::getHomePosition() const
 
 void Player::setHomePosition(const RelVector3& p)
 {
+	printf("Set home position to %3.2f, %3.2f\n", p.v.x, p.v.y);
 	mHomePosition = p;
 }
 

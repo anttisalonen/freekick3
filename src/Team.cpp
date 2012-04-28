@@ -20,8 +20,8 @@ void Team::addPlayer(std::shared_ptr<Player> p)
 						-0.01f * (mFirst ? 1 : -1), 0));
 		}
 		else {
-			float wdt = (widx - 1.5f) * 0.7f;
-			p->setHomePosition(RelVector3(wdt, -0.7f + hgt * 0.3f * (mFirst ? 1 : -1), 0));
+			float wdt = (widx - 1.5f) * 0.5f;
+			p->setHomePosition(RelVector3(wdt, (mFirst ? 1 : -1) * -0.7f + hgt * 0.3f * (mFirst ? 1 : -1), 0));
 		}
 	}
 }
@@ -54,6 +54,6 @@ const std::vector<std::shared_ptr<Player>>& Team::getPlayers() const
 
 RelVector3 Team::getPausePosition() const
 {
-	return RelVector3(0.0f, 1.5f, 0.0f);
+	return RelVector3(1.5f, 0.0f, 0.0f);
 }
 
