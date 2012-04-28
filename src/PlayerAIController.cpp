@@ -27,6 +27,11 @@ std::shared_ptr<PlayerAction> PlayerAIController::createMoveActionTo(const AbsVe
 {
 	AbsVector3 v(pos);
 	v.v -= mPlayer->getPosition().v;
-	return std::shared_ptr<PlayerAction>(new RunToPA(v));
+	if(v.v.length() < 1.0f) {
+		return std::shared_ptr<PlayerAction>(new IdlePA());
+	}
+	else {
+		return std::shared_ptr<PlayerAction>(new RunToPA(v));
+	}
 }
 

@@ -6,7 +6,8 @@ Match::Match()
 	: mTime(0),
 	mMatchHalf(MatchHalf::NotStarted),
 	mPlayState(PlayState::OutKickoff),
-	mPitch(Pitch(50.0f, 100.0f))
+	mPitch(Pitch(50.0f, 100.0f)),
+	mAICountdown(0.1f)
 {
 	static const int numPlayers = 11;
 
@@ -34,10 +35,21 @@ const Ball* Match::getBall() const
 
 void Match::update(double time)
 {
+	mAICountdown.doCountdown(time);
+	if(mAICountdown.checkAndRewind()) {
+		mCachedActions.clear();
+	}
 	for(auto& t : mTeams) {
 		for(auto& p : t->getPlayers()) {
-			std::shared_ptr<PlayerAction> a(p->act());
-			applyPlayerAction(a, p, time);
+			auto cache = mCachedActions.find(p);
+			if(cache == mCachedActions.end()) {
+				std::shared_ptr<PlayerAction> a(p->act());
+				applyPlayerAction(a, p, time);
+				mCachedActions.insert(std::make_pair(p, a));
+			}
+			else {
+				applyPlayerAction(cache->second, p, time);
+			}
 		}
 	}
 

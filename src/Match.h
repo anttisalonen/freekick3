@@ -2,7 +2,9 @@
 #define MATCH_H
 
 #include <vector>
+#include <map>
 
+#include "Clock.h"
 #include "Pitch.h"
 #include "Team.h"
 #include "Player.h"
@@ -47,11 +49,13 @@ class Match {
 		void updateReferee(double time);
 		std::shared_ptr<Team> mTeams[2];
 		std::shared_ptr<Ball> mBall;
+		std::map<std::shared_ptr<Player>, std::shared_ptr<PlayerAction>> mCachedActions;
 		Referee mReferee;
 		double mTime;
 		MatchHalf mMatchHalf;
 		PlayState mPlayState;
 		Pitch mPitch;
+		Countdown mAICountdown;
 };
 
 #endif
