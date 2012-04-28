@@ -5,9 +5,8 @@
 #include "Match.h"
 
 Player::Player(Match* match, Team* team)
-	: mMatch(match),
-	mTeam(team),
-	mPosition(match->convertRelativeToAbsoluteVector(team->getPausePosition()))
+	: MatchEntity(match, match->convertRelativeToAbsoluteVector(team->getPausePosition())),
+	mTeam(team)
 {
 	mController = std::shared_ptr<PlayerController>(new PlayerAIController(this));
 }
@@ -15,11 +14,6 @@ Player::Player(Match* match, Team* team)
 std::shared_ptr<PlayerAction> Player::act()
 {
 	return mController->act();
-}
-
-const Match* Player::getMatch() const
-{
-	return mMatch;
 }
 
 const RelVector3& Player::getHomePosition() const
@@ -41,15 +35,5 @@ const Team* Player::getTeam() const
 float Player::getRunSpeed() const
 {
 	return 8.0f;
-}
-
-void Player::move(const AbsVector3& v)
-{
-	mPosition.v += v.v;
-}
-
-const AbsVector3& Player::getPosition() const
-{
-	return mPosition;
 }
 
