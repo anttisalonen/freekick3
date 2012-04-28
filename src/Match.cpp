@@ -5,7 +5,8 @@
 Match::Match()
 	: mTime(0),
 	mMatchHalf(MatchHalf::NotStarted),
-	mPlayState(PlayState::OutKickoff)
+	mPlayState(PlayState::OutKickoff),
+	mPitch(Pitch(50.0f, 100.0f))
 {
 	static const int numPlayers = 11;
 
@@ -70,7 +71,17 @@ void Match::updateReferee(double time)
 
 AbsVector3 Match::convertRelativeToAbsoluteVector(const RelVector3& v) const
 {
-	return AbsVector3(v.v.x * 25.0f, v.v.y * 50.0f, v.v.z);
+	return AbsVector3(v.v.x * mPitch.getWidth() * 0.5f, v.v.y * mPitch.getHeight() * 0.5f, v.v.z);
+}
+
+float Match::getPitchWidth() const
+{
+	return mPitch.getWidth();
+}
+
+float Match::getPitchHeight() const
+{
+	return mPitch.getHeight();
 }
 
 

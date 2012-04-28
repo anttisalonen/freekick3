@@ -3,6 +3,7 @@
 
 #include <vector>
 
+#include "Pitch.h"
 #include "Team.h"
 #include "Player.h"
 #include "Ball.h"
@@ -38,6 +39,8 @@ class Match {
 		MatchHalf getMatchHalf() const;
 		PlayState getPlayState() const;
 		AbsVector3 convertRelativeToAbsoluteVector(const RelVector3& v) const;
+		float getPitchWidth() const;
+		float getPitchHeight() const;
 	private:
 		void applyPlayerAction(const std::shared_ptr<PlayerAction> a,
 				const std::shared_ptr<Player> p, double time);
@@ -48,6 +51,7 @@ class Match {
 		double mTime;
 		MatchHalf mMatchHalf;
 		PlayState mPlayState;
+		Pitch mPitch;
 };
 
 #endif
