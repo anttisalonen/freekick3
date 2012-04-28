@@ -14,8 +14,10 @@ RunToPA::RunToPA(const AbsVector3& v)
 
 void RunToPA::applyPlayerAction(Match& match, Player& p, double time)
 {
-	AbsVector3 v(mDiff.v);
-	v.v *= time;
+	if(mDiff.v.length() < 0.1f)
+		return;
+	AbsVector3 v(mDiff.v.normalized());
+	v.v *= time * p.getRunSpeed();
 	p.move(v);
 }
 

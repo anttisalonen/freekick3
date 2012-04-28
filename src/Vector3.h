@@ -1,6 +1,8 @@
 #ifndef VECTOR3_H
 #define VECTOR3_H
 
+#include <math.h>
+
 class Vector3 {
 	public:
 		inline Vector3();
@@ -14,6 +16,10 @@ class Vector3 {
 		inline void operator+=(const Vector3& rhs);
 		inline Vector3 operator*(float v) const;
 		inline void operator*=(float v);
+		inline Vector3 normalized() const;
+		inline void normalize();
+		inline float length() const;
+		inline float length2() const;
 };
 
 Vector3::Vector3()
@@ -69,5 +75,33 @@ inline void Vector3::operator*=(float v)
 	y *= v;
 	z *= v;
 }
+
+Vector3 Vector3::normalized() const
+{
+	Vector3 r(*this);
+	r.normalize();
+	return r;
+}
+
+void Vector3::normalize()
+{
+	float l = length();
+	if(l != 0.0f) {
+		x /= l;
+		y /= l;
+		z /= l;
+	}
+}
+
+float Vector3::length() const
+{
+	return sqrt(length2());
+}
+
+float Vector3::length2() const
+{
+	return x * x + y * y + z * z;
+}
+
 
 #endif

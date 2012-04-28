@@ -87,7 +87,9 @@ void MatchSDLGUI::drawPlayers()
 			if(!pl)
 				break;
 			j++;
-			drawSprite(*mPlayerTexture, Rectangle(100 + 40 * j, 100 + 240 * i, 200, 200),
+			const AbsVector3& v(pl->getPosition());
+			drawSprite(*mPlayerTexture, Rectangle(v.v.x * 10.0f,
+						v.v.y * 10.0f, 40, 40),
 					Rectangle(1, 1, -1, -1), 0.1f);
 		}
 	}
