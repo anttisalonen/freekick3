@@ -1,0 +1,4 @@
+*.dep
+*.o
+bin/
+tmp/
