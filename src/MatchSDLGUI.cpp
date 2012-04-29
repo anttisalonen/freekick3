@@ -307,7 +307,7 @@ void MatchSDLGUI::drawSprite(const Texture& t,
 	glEnd();
 }
 
-std::shared_ptr<PlayerAction> MatchSDLGUI::act()
+std::shared_ptr<PlayerAction> MatchSDLGUI::act(double time)
 {
 	float kickpower = 0.0f;
 	AbsVector3 toBall = AbsVector3(mMatch->getBall()->getPosition().v - mPlayer->getPosition().v);

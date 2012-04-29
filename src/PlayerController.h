@@ -10,7 +10,7 @@ class PlayerController {
 	public:
 		inline PlayerController(Player* p);
 		virtual ~PlayerController() { }
-		virtual std::shared_ptr<PlayerAction> act() = 0;
+		virtual std::shared_ptr<PlayerAction> act(double time) = 0;
 	protected:
 		Player* mPlayer;
 };

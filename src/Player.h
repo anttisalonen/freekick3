@@ -16,7 +16,7 @@ class Player : public MatchEntity {
 	public:
 		Player(Match* match, Team* team);
 		~Player();
-		std::shared_ptr<PlayerAction> act();
+		std::shared_ptr<PlayerAction> act(double time);
 		const Team* getTeam() const;
 		const RelVector3& getHomePosition() const;
 		void setHomePosition(const RelVector3& p);

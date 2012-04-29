@@ -28,7 +28,7 @@ class MatchSDLGUI : public MatchGUI, public PlayerController {
 		MatchSDLGUI(std::shared_ptr<Match> match);
 		~MatchSDLGUI();
 		void play();
-		std::shared_ptr<PlayerAction> act();
+		std::shared_ptr<PlayerAction> act(double time);
 	private:
 		void drawEnvironment();
 		void drawPlayers();

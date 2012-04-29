@@ -14,7 +14,7 @@ void Referee::setMatch(Match* m)
 	mMatch = m;
 }
 
-std::shared_ptr<RefereeAction> Referee::act()
+std::shared_ptr<RefereeAction> Referee::act(double time)
 {
 	switch(mMatch->getMatchHalf()) {
 		case MatchHalf::NotStarted:

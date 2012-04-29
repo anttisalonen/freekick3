@@ -60,7 +60,7 @@ void Match::update(double time)
 	mBall->update(time);
 	for(auto& t : mTeams) {
 		for(auto& p : t->getPlayers()) {
-			std::shared_ptr<PlayerAction> a(p->act());
+			std::shared_ptr<PlayerAction> a(p->act(time));
 			applyPlayerAction(a, p, time);
 			p->update(time);
 		}
@@ -107,7 +107,7 @@ void Match::applyPlayerAction(const std::shared_ptr<PlayerAction> a, const std::
 
 void Match::updateReferee(double time)
 {
-	std::shared_ptr<RefereeAction> a(mReferee.act());
+	std::shared_ptr<RefereeAction> a(mReferee.act(time));
 	a->applyRefereeAction(*this, mReferee, time);
 }
 

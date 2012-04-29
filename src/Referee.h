@@ -14,7 +14,7 @@ class Referee {
 	public:
 		Referee();
 		void setMatch(Match* m);
-		std::shared_ptr<RefereeAction> act();
+		std::shared_ptr<RefereeAction> act(double time);
 		bool ballKicked(const Player& p, const AbsVector3& vel);
 	private:
 		bool allPlayersOnOwnSideAndReady() const;

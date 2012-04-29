@@ -17,9 +17,9 @@ Player::~Player()
 	delete mAIController;
 }
 
-std::shared_ptr<PlayerAction> Player::act()
+std::shared_ptr<PlayerAction> Player::act(double time)
 {
-	return mController->act();
+	return mController->act(time);
 }
 
 const RelVector3& Player::getHomePosition() const

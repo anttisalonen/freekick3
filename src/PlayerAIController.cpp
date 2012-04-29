@@ -8,7 +8,7 @@ PlayerAIController::PlayerAIController(Player* p)
 {
 }
 
-std::shared_ptr<PlayerAction> PlayerAIController::act()
+std::shared_ptr<PlayerAction> PlayerAIController::act(double time)
 {
 	switch(mPlayer->getMatch()->getMatchHalf()) {
 		case MatchHalf::NotStarted:
