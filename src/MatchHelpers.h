@@ -8,6 +8,8 @@ class MatchHelpers {
 	public:
 		static double distanceToPitch(const Match& m,
 				const AbsVector3& v);
+		static bool allowedToKick(const Match& m,
+				const Player& p);
 };
 
 #endif

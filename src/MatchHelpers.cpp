@@ -19,3 +19,10 @@ double MatchHelpers::distanceToPitch(const Match& m,
 		return sqrt(dvert * dvert + dhoriz * dhoriz);
 }
 
+bool MatchHelpers::allowedToKick(const Match& m,
+		const Player& p)
+{
+	return !playing(m.getMatchHalf()) || playing(m.getPlayState()) ||
+		m.getReferee()->isFirstTeamInControl() == p.getTeam()->isFirst();
+}
+

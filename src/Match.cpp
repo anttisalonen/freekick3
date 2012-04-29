@@ -54,6 +54,11 @@ Ball* Match::getBall()
 	return mBall.get();
 }
 
+const Referee* Match::getReferee() const
+{
+	return &mReferee;
+}
+
 void Match::update(double time)
 {
 	mBall->update(time);

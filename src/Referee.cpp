@@ -143,3 +143,8 @@ std::shared_ptr<RefereeAction> Referee::setOutOfPlay()
 	throw std::runtime_error("Setting out of play even when the ball is in play");
 }
 
+bool Referee::isFirstTeamInControl() const
+{
+	return mFirstTeamInControl;
+}
+

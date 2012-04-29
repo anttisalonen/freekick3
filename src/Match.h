@@ -46,6 +46,7 @@ class Match {
 		Player* getPlayer(unsigned int team, unsigned int idx);
 		const Ball* getBall() const;
 		Ball* getBall();
+		const Referee* getReferee() const;
 		void update(double time);
 		bool matchOver() const;
 		MatchHalf getMatchHalf() const;
