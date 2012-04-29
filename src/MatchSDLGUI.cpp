@@ -250,6 +250,9 @@ void MatchSDLGUI::handleInputState(float frameTime)
 {
 	mCamera += mCameraVelocity * frameTime * 10.0f;
 	mScaleLevel += mScaleLevelVelocity * frameTime * 10.0f;
+	if(!mPlayerKickPower && mPlayerKickPowerVelocity) {
+		mPlayerKickPower = 0.3f;
+	}
 	mPlayerKickPower += mPlayerKickPowerVelocity * frameTime;
 }
 
@@ -288,14 +291,15 @@ void MatchSDLGUI::drawSprite(const Texture& t,
 std::shared_ptr<PlayerAction> MatchSDLGUI::act()
 {
 	float kickpower = 0.0f;
+	AbsVector3 toBall = AbsVector3(mMatch->getBall()->getPosition().v - mPlayer->getPosition().v);
 	if(mPlayerKickPower && !mPlayerKickPowerVelocity) {
 		kickpower = mPlayerKickPower;
 		mPlayerKickPower = 0.0f;
 	}
 	if(!playing(mMatch->getPlayState())) {
-		if((mPlayer->getPosition().v - mMatch->getBall()->getPosition().v).length() > MAX_KICK_DISTANCE) {
+		if(toBall.v.length() > MAX_KICK_DISTANCE) {
 			return std::shared_ptr<PlayerAction>(new
-					RunToPA(AbsVector3((mMatch->getBall()->getPosition().v - mPlayer->getPosition().v).normalized())));
+					RunToPA(AbsVector3(toBall.v.normalized())));
 		}
 	}
 	if(mPlayerControlVelocity.null()) {
@@ -305,11 +309,11 @@ std::shared_ptr<PlayerAction> MatchSDLGUI::act()
 		return std::shared_ptr<PlayerAction>(new KickBallPA(AbsVector3(mPlayerControlVelocity * kickpower)));
 	}
 	else if(playing(mMatch->getPlayState())) {
-		return std::shared_ptr<PlayerAction>(new RunToPA(AbsVector3(mPlayerControlVelocity)));
+		if(!(mPlayerKickPower && toBall.v.length() < MAX_KICK_DISTANCE * 0.7f)) {
+			return std::shared_ptr<PlayerAction>(new RunToPA(AbsVector3(mPlayerControlVelocity)));
+		}
 	}
-	else {
-		return std::shared_ptr<PlayerAction>(new IdlePA());
-	}
+	return std::shared_ptr<PlayerAction>(new IdlePA());
 }
 
 void MatchSDLGUI::setPlayerController()
