@@ -1,3 +1,6 @@
+#include <string>
+#include <stdexcept>
+
 #include "Match.h"
 #include "PlayerActions.h"
 #include "RefereeActions.h"
@@ -22,10 +25,17 @@ Match::Match()
 	mBall = std::shared_ptr<Ball>(new Ball(this));
 }
 
+const Team* Match::getTeam(unsigned int team) const
+{
+	if(team > 2)
+		throw std::runtime_error("Invalid index when getting team");
+	return mTeams[team].get();
+}
+
 const Player* Match::getPlayer(unsigned int team, unsigned int idx) const
 {
 	if(team > 2)
-		return nullptr;
+		throw std::runtime_error("Invalid index when getting player");
 	return mTeams[team]->getPlayer(idx);
 }
 
@@ -51,6 +61,7 @@ void Match::update(double time)
 			else {
 				applyPlayerAction(cache->second, p, time);
 			}
+			p->update(time);
 		}
 	}
 
@@ -67,6 +78,7 @@ MatchHalf Match::getMatchHalf() const
 
 void Match::setMatchHalf(MatchHalf h)
 {
+	std::cout << "Match half is now " << h << "\n";
 	mMatchHalf = h;
 	mPlayState = PlayState::OutKickoff;
 }
@@ -105,6 +117,25 @@ float Match::getPitchWidth() const
 float Match::getPitchHeight() const
 {
 	return mPitch.getHeight();
+}
+
+std::ostream& operator<<(std::ostream& out, const MatchHalf& m)
+{
+	const char* str;
+	switch(m) {
+		case MatchHalf::NotStarted:
+			str = "Not started"; break;
+		case MatchHalf::FirstHalf:
+			str = "First half"; break;
+		case MatchHalf::HalfTimePause:
+			str = "Half time pause"; break;
+		case MatchHalf::SecondHalf:
+			str = "Second half"; break;
+		case MatchHalf::Finished:
+			str = "Finished"; break;
+	}
+	out << str;
+	return out;
 }
 
 

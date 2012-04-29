@@ -3,6 +3,8 @@
 
 #include <memory>
 
+#include "MatchEntity.h"
+
 class Match;
 class RefereeAction;
 
@@ -13,6 +15,7 @@ class Referee {
 		std::shared_ptr<RefereeAction> act();
 	private:
 		bool allPlayersOnOwnSideAndReady() const;
+		bool onPitch(const MatchEntity& m) const;
 		Match* mMatch;
 };
 

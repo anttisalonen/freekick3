@@ -63,3 +63,9 @@ RelVector3 Team::getPausePosition() const
 	return RelVector3(1.2f, 0.0f, 0.0f);
 }
 
+bool Team::isFirst() const
+{
+	return mFirst;
+}
+
+

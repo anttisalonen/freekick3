@@ -4,6 +4,7 @@
 
 void IdlePA::applyPlayerAction(Match& match, Player& p, double time)
 {
+	p.setVelocity(AbsVector3());
 	return;
 }
 
@@ -17,8 +18,7 @@ void RunToPA::applyPlayerAction(Match& match, Player& p, double time)
 	if(mDiff.v.length() < 0.1f)
 		return;
 	AbsVector3 v(mDiff.v.normalized());
-	v.v *= time * p.getRunSpeed();
-	p.move(v);
+	v.v *= p.getRunSpeed();
+	p.setVelocity(v);
 }
-
 

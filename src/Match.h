@@ -1,6 +1,7 @@
 #ifndef MATCH_H
 #define MATCH_H
 
+#include <iostream>
 #include <vector>
 #include <map>
 
@@ -19,6 +20,8 @@ enum class MatchHalf {
 	Finished
 };
 
+std::ostream& operator<<(std::ostream& out, const MatchHalf& m);
+
 enum class PlayState {
 	InPlay,
 	OutKickoff,
@@ -34,6 +37,7 @@ enum class PlayState {
 class Match {
 	public:
 		Match();
+		const Team* getTeam(unsigned int team) const;
 		const Player* getPlayer(unsigned int team, unsigned int idx) const;
 		const Ball* getBall() const;
 		void update(double time);

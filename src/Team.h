@@ -15,6 +15,7 @@ class Team {
 		unsigned int getNumPlayers() const;
 		const std::vector<std::shared_ptr<Player>>& getPlayers() const;
 		RelVector3 getPausePosition() const;
+		bool isFirst() const;
 	private:
 		Match* mMatch;
 		bool mFirst;
