@@ -17,9 +17,13 @@ class Countdown {
 		Countdown(float from);
 		void doCountdown(float howmuch);
 		bool checkAndRewind();
+		void rewind();
+		bool check();
+		bool running();
 	private:
 		float mFrom;
 		float mNow;
+		bool mChecked;
 };
 
 #endif

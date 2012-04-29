@@ -9,8 +9,7 @@ Match::Match()
 	: mTime(0),
 	mMatchHalf(MatchHalf::NotStarted),
 	mPlayState(PlayState::OutKickoff),
-	mPitch(Pitch(50.0f, 100.0f)),
-	mRefCountdown(0.3f)
+	mPitch(Pitch(50.0f, 100.0f))
 {
 	static const int numPlayers = 11;
 
@@ -66,10 +65,7 @@ void Match::update(double time)
 		}
 	}
 
-	mRefCountdown.doCountdown(time);
-	if(mRefCountdown.checkAndRewind()) {
-		updateReferee(time);
-	}
+	updateReferee(time);
 }
 
 MatchHalf Match::getMatchHalf() const

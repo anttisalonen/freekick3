@@ -5,6 +5,7 @@
 
 #include "MatchEntity.h"
 #include "Distance.h"
+#include "Clock.h"
 
 class Match;
 class RefereeAction;
@@ -22,6 +23,8 @@ class Referee {
 		std::shared_ptr<RefereeAction> setOutOfPlay();
 		Match* mMatch;
 		bool mFirstTeamInControl;
+		AbsVector3 mRestartPosition;
+		Countdown mOutOfPlayClock;
 };
 
 #endif

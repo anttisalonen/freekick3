@@ -17,6 +17,11 @@ void MatchEntity::move(const AbsVector3& v)
 	mPosition.v += v.v;
 }
 
+void MatchEntity::setPosition(const AbsVector3& v)
+{
+	mPosition.v = v.v;
+}
+
 void MatchEntity::setVelocity(const AbsVector3& v)
 {
 	mVelocity.v = v.v;

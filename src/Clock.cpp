@@ -44,7 +44,8 @@ double Clock::getTime()
 
 Countdown::Countdown(float from)
 	: mFrom(from),
-	mNow(0)
+	mNow(0),
+	mChecked(true)
 {
 }
 
@@ -56,13 +57,33 @@ void Countdown::doCountdown(float howmuch)
 
 bool Countdown::checkAndRewind()
 {
-	if(mNow <= 0.0f) {
-		mNow = mFrom;
+	if(check()) {
+		rewind();
 		return true;
 	}
 	else {
 		return false;
 	}
+}
+
+void Countdown::rewind()
+{
+	mNow = mFrom;
+	mChecked = false;
+}
+
+bool Countdown::check()
+{
+	bool done = mNow <= 0.0f;
+	if(done) {
+		mChecked = true;
+	}
+	return done;
+}
+
+bool Countdown::running()
+{
+	return !mChecked;
 }
 
 

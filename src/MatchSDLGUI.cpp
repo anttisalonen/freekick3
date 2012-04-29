@@ -121,8 +121,10 @@ void MatchSDLGUI::startFrame()
 {
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 	if(!mFreeCamera) {
-		mCamera.x = mMatch->getBall()->getPosition().v.x;
-		mCamera.y = mMatch->getBall()->getPosition().v.y;
+		if(mMatch->getPlayState() == PlayState::InPlay) {
+			mCamera.x = mMatch->getBall()->getPosition().v.x;
+			mCamera.y = mMatch->getBall()->getPosition().v.y;
+		}
 	}
 }
 

@@ -70,7 +70,6 @@ class Match {
 		MatchHalf mMatchHalf;
 		PlayState mPlayState;
 		Pitch mPitch;
-		Countdown mRefCountdown;
 };
 
 #endif
