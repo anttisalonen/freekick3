@@ -14,6 +14,7 @@ MatchSDLGUI::MatchSDLGUI(std::shared_ptr<Match> match)
 	PlayerController(mMatch->getPlayer(0, 9)),
 	mScaleLevel(15.0f),
 	mScaleLevelVelocity(0.0f),
+	mFreeCamera(false),
 	mPlayerKickPower(0.0f),
 	mPlayerKickPowerVelocity(0.0f)
 {
@@ -81,8 +82,8 @@ void MatchSDLGUI::play()
 
 void MatchSDLGUI::drawEnvironment()
 {
-	drawSprite(*mPitchTexture, Rectangle((mCamera.x - mMatch->getPitchWidth() * 0.5f) * mScaleLevel + screenWidth * 0.5f,
-				(mCamera.y - mMatch->getPitchHeight() * 0.5f) * mScaleLevel + screenHeight * 0.5f,
+	drawSprite(*mPitchTexture, Rectangle((-mCamera.x - mMatch->getPitchWidth() * 0.5f) * mScaleLevel + screenWidth * 0.5f,
+				(-mCamera.y - mMatch->getPitchHeight() * 0.5f) * mScaleLevel + screenHeight * 0.5f,
 				mScaleLevel * mMatch->getPitchWidth(),
 				mScaleLevel * mMatch->getPitchHeight()),
 			Rectangle(0, 0, 20, 20), 0);
@@ -99,8 +100,8 @@ void MatchSDLGUI::drawPlayers()
 				break;
 			j++;
 			const AbsVector3& v(pl->getPosition());
-			drawSprite(*mPlayerTexture, Rectangle((mCamera.x + v.v.x) * mScaleLevel + screenWidth * 0.5f,
-						(mCamera.y + v.v.y) * mScaleLevel + screenHeight * 0.5f,
+			drawSprite(*mPlayerTexture, Rectangle((-mCamera.x + v.v.x) * mScaleLevel + screenWidth * 0.5f,
+						(-mCamera.y + v.v.y) * mScaleLevel + screenHeight * 0.5f,
 						mScaleLevel, mScaleLevel),
 					Rectangle(1, 1, -1, -1), 0.1f);
 		}
@@ -110,8 +111,8 @@ void MatchSDLGUI::drawPlayers()
 void MatchSDLGUI::drawBall()
 {
 	const AbsVector3& v(mMatch->getBall()->getPosition());
-	drawSprite(*mBallTexture, Rectangle((mCamera.x + v.v.x) * mScaleLevel + screenWidth * 0.5f,
-				(mCamera.y + v.v.y) * mScaleLevel + screenHeight * 0.5f,
+	drawSprite(*mBallTexture, Rectangle((-mCamera.x + v.v.x) * mScaleLevel + screenWidth * 0.5f,
+				(-mCamera.y + v.v.y) * mScaleLevel + screenHeight * 0.5f,
 				mScaleLevel * 0.3f, mScaleLevel * 0.3f),
 			Rectangle(1, 1, -1, -1), 0.1f);
 }
@@ -119,6 +120,10 @@ void MatchSDLGUI::drawBall()
 void MatchSDLGUI::startFrame()
 {
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+	if(!mFreeCamera) {
+		mCamera.x = mMatch->getBall()->getPosition().v.x;
+		mCamera.y = mMatch->getBall()->getPosition().v.y;
+	}
 }
 
 void MatchSDLGUI::finishFrame()
@@ -169,13 +174,21 @@ bool MatchSDLGUI::handleInput(float frameTime)
 						quitting = true;
 						break;
 					case SDLK_w:
-						mCameraVelocity.y = -1.0f; break;
+						if(mFreeCamera)
+							mCameraVelocity.y = -1.0f;
+						break;
 					case SDLK_s:
-						mCameraVelocity.y = 1.0f; break;
+						if(mFreeCamera)
+							mCameraVelocity.y = 1.0f;
+						break;
 					case SDLK_a:
-						mCameraVelocity.x = 1.0f; break;
+						if(mFreeCamera)
+							mCameraVelocity.x = 1.0f;
+						break;
 					case SDLK_d:
-						mCameraVelocity.x = -1.0f; break;
+						if(mFreeCamera)
+							mCameraVelocity.x = -1.0f;
+						break;
 					case SDLK_MINUS:
 					case SDLK_KP_MINUS:
 					case SDLK_PAGEDOWN:
@@ -202,10 +215,14 @@ bool MatchSDLGUI::handleInput(float frameTime)
 				switch(event.key.keysym.sym) {
 					case SDLK_w:
 					case SDLK_s:
-						mCameraVelocity.y = 0.0f; break;
+						if(mFreeCamera)
+							mCameraVelocity.y = 0.0f;
+						break;
 					case SDLK_a:
 					case SDLK_d:
-						mCameraVelocity.x = 0.0f; break;
+						if(mFreeCamera)
+							mCameraVelocity.x = 0.0f;
+						break;
 					case SDLK_MINUS:
 					case SDLK_KP_MINUS:
 					case SDLK_PLUS:
@@ -248,7 +265,9 @@ bool MatchSDLGUI::handleInput(float frameTime)
 
 void MatchSDLGUI::handleInputState(float frameTime)
 {
-	mCamera += mCameraVelocity * frameTime * 10.0f;
+	if(mFreeCamera) {
+		mCamera -= mCameraVelocity * frameTime * 10.0f;
+	}
 	mScaleLevel += mScaleLevelVelocity * frameTime * 10.0f;
 	if(!mPlayerKickPower && mPlayerKickPowerVelocity) {
 		mPlayerKickPower = 0.3f;

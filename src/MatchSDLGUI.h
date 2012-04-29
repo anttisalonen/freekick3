@@ -51,6 +51,7 @@ class MatchSDLGUI : public MatchGUI, public PlayerController {
 		std::shared_ptr<Texture> mBallTexture;
 		float mScaleLevel;
 		float mScaleLevelVelocity;
+		bool mFreeCamera;
 		Vector3 mCamera;
 		Vector3 mCameraVelocity;
 		Vector3 mPlayerControlVelocity;
