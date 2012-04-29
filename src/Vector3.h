@@ -20,6 +20,7 @@ class Vector3 {
 		inline void normalize();
 		inline float length() const;
 		inline float length2() const;
+		inline bool null() const;
 };
 
 Vector3::Vector3()
@@ -103,5 +104,9 @@ float Vector3::length2() const
 	return x * x + y * y + z * z;
 }
 
+bool Vector3::null() const
+{
+	return x == 0.0f && y == 0.0f && z == 0.0f;
+}
 
 #endif

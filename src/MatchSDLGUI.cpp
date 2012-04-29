@@ -11,6 +11,7 @@ static const int screenHeight = 600;
 
 MatchSDLGUI::MatchSDLGUI(std::shared_ptr<Match> match)
 	: MatchGUI(match),
+	PlayerController(mMatch->getPlayer(0, 10)),
 	mScaleLevel(10.0f),
 	mScaleLevelVelocity(0.0f)
 {
@@ -59,6 +60,7 @@ MatchSDLGUI::~MatchSDLGUI()
 
 void MatchSDLGUI::play()
 {
+	mPlayer->setController(this);
 	double prevTime = Clock::getTime();
 	while(!mMatch->matchOver()) {
 		double newTime = Clock::getTime();
@@ -165,19 +167,29 @@ bool MatchSDLGUI::handleInput(float frameTime)
 						quitting = true;
 						break;
 					case SDLK_w:
-						mCameraVelocity.y -= 1.0f; break;
+						mCameraVelocity.y = -1.0f; break;
 					case SDLK_s:
-						mCameraVelocity.y += 1.0f; break;
+						mCameraVelocity.y = 1.0f; break;
 					case SDLK_a:
-						mCameraVelocity.x += 1.0f; break;
+						mCameraVelocity.x = 1.0f; break;
 					case SDLK_d:
-						mCameraVelocity.x -= 1.0f; break;
+						mCameraVelocity.x = -1.0f; break;
 					case SDLK_MINUS:
 					case SDLK_KP_MINUS:
-						mScaleLevelVelocity -= 1.0f; break;
+					case SDLK_PAGEDOWN:
+						mScaleLevelVelocity = -1.0f; break;
 					case SDLK_PLUS:
 					case SDLK_KP_PLUS:
-						mScaleLevelVelocity += 1.0f; break;
+					case SDLK_PAGEUP:
+						mScaleLevelVelocity = 1.0f; break;
+					case SDLK_UP:
+						mPlayerControlVelocity.y = 1.0f; break;
+					case SDLK_DOWN:
+						mPlayerControlVelocity.y = -1.0f; break;
+					case SDLK_RIGHT:
+						mPlayerControlVelocity.x = 1.0f; break;
+					case SDLK_LEFT:
+						mPlayerControlVelocity.x = -1.0f; break;
 					default:
 						break;
 				}
@@ -194,7 +206,15 @@ bool MatchSDLGUI::handleInput(float frameTime)
 					case SDLK_KP_MINUS:
 					case SDLK_PLUS:
 					case SDLK_KP_PLUS:
+					case SDLK_PAGEUP:
+					case SDLK_PAGEDOWN:
 						mScaleLevelVelocity = 0.0f; break;
+					case SDLK_UP:
+					case SDLK_DOWN:
+						mPlayerControlVelocity.y = 0.0f; break;
+					case SDLK_RIGHT:
+					case SDLK_LEFT:
+						mPlayerControlVelocity.x = 0.0f; break;
 					default:
 						break;
 				}
@@ -249,4 +269,13 @@ void MatchSDLGUI::drawSprite(const Texture& t,
 	glVertex3f(vertcoords.x, vertcoords.y + vertcoords.h, depth);
 	glEnd();
 }
+
+std::shared_ptr<PlayerAction> MatchSDLGUI::act()
+{
+	if(!mPlayerControlVelocity.null())
+		return std::shared_ptr<PlayerAction>(new RunToPA(AbsVector3(mPlayerControlVelocity)));
+	else
+		return std::shared_ptr<PlayerAction>(new IdlePA());
+}
+
 

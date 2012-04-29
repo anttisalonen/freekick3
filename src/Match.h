@@ -39,6 +39,7 @@ class Match {
 		Match();
 		const Team* getTeam(unsigned int team) const;
 		const Player* getPlayer(unsigned int team, unsigned int idx) const;
+		Player* getPlayer(unsigned int team, unsigned int idx);
 		const Ball* getBall() const;
 		void update(double time);
 		bool matchOver() const;
@@ -60,7 +61,6 @@ class Match {
 		MatchHalf mMatchHalf;
 		PlayState mPlayState;
 		Pitch mPitch;
-		Countdown mAICountdown;
 		Countdown mRefCountdown;
 };
 

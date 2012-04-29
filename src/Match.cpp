@@ -10,7 +10,6 @@ Match::Match()
 	mMatchHalf(MatchHalf::NotStarted),
 	mPlayState(PlayState::OutKickoff),
 	mPitch(Pitch(50.0f, 100.0f)),
-	mAICountdown(0.1f),
 	mRefCountdown(0.3f)
 {
 	static const int numPlayers = 11;
@@ -39,6 +38,13 @@ const Player* Match::getPlayer(unsigned int team, unsigned int idx) const
 	return mTeams[team]->getPlayer(idx);
 }
 
+Player* Match::getPlayer(unsigned int team, unsigned int idx)
+{
+	if(team > 2)
+		throw std::runtime_error("Invalid index when getting player");
+	return mTeams[team]->getPlayer(idx);
+}
+
 const Ball* Match::getBall() const
 {
 	return mBall.get();
@@ -46,21 +52,10 @@ const Ball* Match::getBall() const
 
 void Match::update(double time)
 {
-	mAICountdown.doCountdown(time);
-	if(mAICountdown.checkAndRewind()) {
-		mCachedActions.clear();
-	}
 	for(auto& t : mTeams) {
 		for(auto& p : t->getPlayers()) {
-			auto cache = mCachedActions.find(p);
-			if(cache == mCachedActions.end()) {
-				std::shared_ptr<PlayerAction> a(p->act());
-				applyPlayerAction(a, p, time);
-				mCachedActions.insert(std::make_pair(p, a));
-			}
-			else {
-				applyPlayerAction(cache->second, p, time);
-			}
+			std::shared_ptr<PlayerAction> a(p->act());
+			applyPlayerAction(a, p, time);
 			p->update(time);
 		}
 	}

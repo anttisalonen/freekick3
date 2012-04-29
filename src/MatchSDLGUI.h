@@ -7,6 +7,8 @@
 #include "Texture.h"
 #include "Clock.h"
 #include "Vector3.h"
+#include "PlayerController.h"
+#include "PlayerActions.h"
 
 struct Rectangle {
 	inline Rectangle(float x_, float y_, float w_, float h_);
@@ -21,11 +23,12 @@ Rectangle::Rectangle(float x_, float y_, float w_, float h_)
 {
 }
 
-class MatchSDLGUI : public MatchGUI {
+class MatchSDLGUI : public MatchGUI, public PlayerController {
 	public:
 		MatchSDLGUI(std::shared_ptr<Match> match);
 		~MatchSDLGUI();
 		void play();
+		std::shared_ptr<PlayerAction> act();
 	private:
 		void drawEnvironment();
 		void drawPlayers();
@@ -49,6 +52,7 @@ class MatchSDLGUI : public MatchGUI {
 		float mScaleLevelVelocity;
 		Vector3 mCamera;
 		Vector3 mCameraVelocity;
+		Vector3 mPlayerControlVelocity;
 };
 
 #endif

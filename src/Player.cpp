@@ -8,7 +8,13 @@ Player::Player(Match* match, Team* team)
 	: MatchEntity(match, match->convertRelativeToAbsoluteVector(team->getPausePosition())),
 	mTeam(team)
 {
-	mController = std::shared_ptr<PlayerController>(new PlayerAIController(this));
+	mAIController = new PlayerAIController(this);
+	setAIControlled();
+}
+
+Player::~Player()
+{
+	delete mAIController;
 }
 
 std::shared_ptr<PlayerAction> Player::act()
@@ -35,5 +41,15 @@ const Team* Player::getTeam() const
 float Player::getRunSpeed() const
 {
 	return 8.0f;
+}
+
+void Player::setController(PlayerController* c)
+{
+	mController = c;
+}
+
+void Player::setAIControlled()
+{
+	mController = mAIController;
 }
 
