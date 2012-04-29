@@ -220,6 +220,14 @@ bool MatchSDLGUI::handleInput(float frameTime)
 				}
 				break;
 			case SDL_MOUSEBUTTONUP:
+				switch(event.button.button) {
+					case SDL_BUTTON_WHEELUP:
+						mScaleLevel += 4.0f; break;
+					case SDL_BUTTON_WHEELDOWN:
+						mScaleLevel -= 4.0f; break;
+					default:
+						break;
+				}
 				break;
 			case SDL_QUIT:
 				quitting = true;
