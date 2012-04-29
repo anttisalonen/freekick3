@@ -56,4 +56,25 @@ bool Referee::onPitch(const MatchEntity& m) const
 	return v.v.x >= -pw2 && v.v.y >= -ph2 && v.v.x <= pw2 && v.v.y <= ph2;
 }
 
+bool Referee::ballKicked(const Player& p, const AbsVector3& vel)
+{
+	switch(mMatch->getMatchHalf()) {
+		case MatchHalf::NotStarted:
+		case MatchHalf::HalfTimePause:
+			return false;
+		case MatchHalf::FirstHalf:
+		case MatchHalf::SecondHalf:
+			switch(mMatch->getPlayState()) {
+				case PlayState::InPlay:
+					return true;
+				default:
+					/* TODO: record controlling team */
+					mMatch->setPlayState(PlayState::InPlay);
+					return true;
+			}
+		case MatchHalf::Finished:
+			return true;
+	}
+	return false;
+}
 

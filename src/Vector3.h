@@ -1,6 +1,7 @@
 #ifndef VECTOR3_H
 #define VECTOR3_H
 
+#include <iostream>
 #include <math.h>
 
 class Vector3 {
@@ -22,6 +23,12 @@ class Vector3 {
 		inline float length2() const;
 		inline bool null() const;
 };
+
+inline std::ostream& operator<<(std::ostream& out, const Vector3& vec)
+{
+	out << "(" << vec.x << ", " << vec.y << ", " << vec.z << ")";
+	return out;
+}
 
 Vector3::Vector3()
 	: x(0.0f),

@@ -50,8 +50,14 @@ const Ball* Match::getBall() const
 	return mBall.get();
 }
 
+Ball* Match::getBall()
+{
+	return mBall.get();
+}
+
 void Match::update(double time)
 {
+	mBall->update(time);
 	for(auto& t : mTeams) {
 		for(auto& p : t->getPlayers()) {
 			std::shared_ptr<PlayerAction> a(p->act());
@@ -76,6 +82,12 @@ void Match::setMatchHalf(MatchHalf h)
 	std::cout << "Match half is now " << h << "\n";
 	mMatchHalf = h;
 	mPlayState = PlayState::OutKickoff;
+}
+
+void Match::setPlayState(PlayState h)
+{
+	std::cout << "Play state is now " << h << "\n";
+	mPlayState = h;
 }
 
 PlayState Match::getPlayState() const
@@ -133,4 +145,51 @@ std::ostream& operator<<(std::ostream& out, const MatchHalf& m)
 	return out;
 }
 
+bool playing(MatchHalf h)
+{
+	return h == MatchHalf::FirstHalf || h == MatchHalf::SecondHalf;
+}
+
+std::ostream& operator<<(std::ostream& out, const PlayState& m)
+{
+	const char* str;
+	switch(m) {
+		case PlayState::InPlay:
+			str = "In play"; break;
+		case PlayState::OutKickoff:
+			str = "Kick off"; break;
+		case PlayState::OutThrowin:
+			str = "Throw in"; break;
+		case PlayState::OutGoalkick:
+			str = "Goal kick"; break;
+		case PlayState::OutCornerkick:
+			str = "Corner kick"; break;
+		case PlayState::OutIndirectFreekick:
+			str = "Indirect free kick"; break;
+		case PlayState::OutDirectFreekick:
+			str = "Direct free kick"; break;
+		case PlayState::OutPenaltykick:
+			str = "Penalty"; break;
+		case PlayState::OutDroppedball:
+			str = "Dropped ball"; break;
+	}
+	out << str;
+	return out;
+}
+
+bool playing(PlayState h)
+{
+	return h == PlayState::InPlay;
+}
+
+bool Match::kickBall(const Player& p, const AbsVector3& v)
+{
+	if(mReferee.ballKicked(p, v)) {
+		mBall->setVelocity(v);
+		return true;
+	}
+	else {
+		return false;
+	}
+}
 

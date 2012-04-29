@@ -25,5 +25,13 @@ class ChangeMatchHalfRA : public RefereeAction {
 		MatchHalf mMatchHalf;
 };
 
+class ChangePlayStateRA : public RefereeAction {
+	public:
+		ChangePlayStateRA(PlayState h);
+		void applyRefereeAction(Match& match, const Referee& p, double time);
+	private:
+		PlayState mPlayState;
+};
+
 #endif
 

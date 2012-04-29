@@ -11,9 +11,11 @@ static const int screenHeight = 600;
 
 MatchSDLGUI::MatchSDLGUI(std::shared_ptr<Match> match)
 	: MatchGUI(match),
-	PlayerController(mMatch->getPlayer(0, 10)),
-	mScaleLevel(10.0f),
-	mScaleLevelVelocity(0.0f)
+	PlayerController(mMatch->getPlayer(0, 9)),
+	mScaleLevel(15.0f),
+	mScaleLevelVelocity(0.0f),
+	mPlayerKickPower(0.0f),
+	mPlayerKickPowerVelocity(0.0f)
 {
 	if (SDL_Init(SDL_INIT_EVERYTHING) == -1) {
 		fprintf(stderr, "Unable to init SDL: %s\n", SDL_GetError());
@@ -60,13 +62,13 @@ MatchSDLGUI::~MatchSDLGUI()
 
 void MatchSDLGUI::play()
 {
-	mPlayer->setController(this);
 	double prevTime = Clock::getTime();
 	while(!mMatch->matchOver()) {
 		double newTime = Clock::getTime();
 		double frameTime = newTime - prevTime;
 		prevTime = newTime;
 		mMatch->update(frameTime);
+		setPlayerController();
 		if(handleInput(frameTime))
 			break;
 		startFrame();
@@ -190,6 +192,8 @@ bool MatchSDLGUI::handleInput(float frameTime)
 						mPlayerControlVelocity.x = 1.0f; break;
 					case SDLK_LEFT:
 						mPlayerControlVelocity.x = -1.0f; break;
+					case SDLK_RCTRL:
+						mPlayerKickPowerVelocity = 1.0f; break;
 					default:
 						break;
 				}
@@ -215,6 +219,8 @@ bool MatchSDLGUI::handleInput(float frameTime)
 					case SDLK_RIGHT:
 					case SDLK_LEFT:
 						mPlayerControlVelocity.x = 0.0f; break;
+					case SDLK_RCTRL:
+						mPlayerKickPowerVelocity = 0.0f; break;
 					default:
 						break;
 				}
@@ -244,6 +250,7 @@ void MatchSDLGUI::handleInputState(float frameTime)
 {
 	mCamera += mCameraVelocity * frameTime * 10.0f;
 	mScaleLevel += mScaleLevelVelocity * frameTime * 10.0f;
+	mPlayerKickPower += mPlayerKickPowerVelocity * frameTime;
 }
 
 const char* MatchSDLGUI::GLErrorToString(GLenum err)
@@ -280,10 +287,43 @@ void MatchSDLGUI::drawSprite(const Texture& t,
 
 std::shared_ptr<PlayerAction> MatchSDLGUI::act()
 {
-	if(!mPlayerControlVelocity.null())
-		return std::shared_ptr<PlayerAction>(new RunToPA(AbsVector3(mPlayerControlVelocity)));
-	else
+	float kickpower = 0.0f;
+	if(mPlayerKickPower && !mPlayerKickPowerVelocity) {
+		kickpower = mPlayerKickPower;
+		mPlayerKickPower = 0.0f;
+	}
+	if(!playing(mMatch->getPlayState())) {
+		if((mPlayer->getPosition().v - mMatch->getBall()->getPosition().v).length() > MAX_KICK_DISTANCE) {
+			return std::shared_ptr<PlayerAction>(new
+					RunToPA(AbsVector3((mMatch->getBall()->getPosition().v - mPlayer->getPosition().v).normalized())));
+		}
+	}
+	if(mPlayerControlVelocity.null()) {
 		return std::shared_ptr<PlayerAction>(new IdlePA());
+	}
+	if(kickpower) {
+		return std::shared_ptr<PlayerAction>(new KickBallPA(AbsVector3(mPlayerControlVelocity * kickpower)));
+	}
+	else if(playing(mMatch->getPlayState())) {
+		return std::shared_ptr<PlayerAction>(new RunToPA(AbsVector3(mPlayerControlVelocity)));
+	}
+	else {
+		return std::shared_ptr<PlayerAction>(new IdlePA());
+	}
+}
+
+void MatchSDLGUI::setPlayerController()
+{
+	if(playing(mMatch->getMatchHalf())) {
+		if(mPlayer->isAIControlled()) {
+			mPlayer->setController(this);
+			mPlayerKickPower = 0.0f;
+			printf("Now controlling\n");
+		}
+	}
+	else if(!mPlayer->isAIControlled()) {
+		mPlayer->setAIControlled();
+	}
 }
 
 

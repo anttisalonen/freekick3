@@ -20,9 +20,11 @@ class Player : public MatchEntity {
 		const Team* getTeam() const;
 		const RelVector3& getHomePosition() const;
 		void setHomePosition(const RelVector3& p);
-		float getRunSpeed() const; // m/s
+		double getRunSpeed() const; // m/s
+		double getMaximumKickPower() const; // ball speed in m/s
 		void setController(PlayerController* c);
 		void setAIControlled();
+		bool isAIControlled() const;
 	private:
 		Team* mTeam;
 		PlayerController* mController;

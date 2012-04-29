@@ -21,6 +21,7 @@ enum class MatchHalf {
 };
 
 std::ostream& operator<<(std::ostream& out, const MatchHalf& m);
+bool playing(MatchHalf h);
 
 enum class PlayState {
 	InPlay,
@@ -34,6 +35,9 @@ enum class PlayState {
 	OutDroppedball
 };
 
+std::ostream& operator<<(std::ostream& out, const PlayState& m);
+bool playing(PlayState h);
+
 class Match {
 	public:
 		Match();
@@ -41,14 +45,17 @@ class Match {
 		const Player* getPlayer(unsigned int team, unsigned int idx) const;
 		Player* getPlayer(unsigned int team, unsigned int idx);
 		const Ball* getBall() const;
+		Ball* getBall();
 		void update(double time);
 		bool matchOver() const;
 		MatchHalf getMatchHalf() const;
 		void setMatchHalf(MatchHalf h);
+		void setPlayState(PlayState h);
 		PlayState getPlayState() const;
 		AbsVector3 convertRelativeToAbsoluteVector(const RelVector3& v) const;
 		float getPitchWidth() const;
 		float getPitchHeight() const;
+		bool kickBall(const Player& p, const AbsVector3& v);
 	private:
 		void applyPlayerAction(const std::shared_ptr<PlayerAction> a,
 				const std::shared_ptr<Player> p, double time);

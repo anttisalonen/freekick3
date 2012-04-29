@@ -17,4 +17,15 @@ void ChangeMatchHalfRA::applyRefereeAction(Match& match, const Referee& p, doubl
 	match.setMatchHalf(mMatchHalf);
 }
 
+ChangePlayStateRA::ChangePlayStateRA(PlayState h)
+	: mPlayState(h)
+{
+}
+
+void ChangePlayStateRA::applyRefereeAction(Match& match, const Referee& p, double time)
+{
+	match.setPlayState(mPlayState);
+}
+
+
 

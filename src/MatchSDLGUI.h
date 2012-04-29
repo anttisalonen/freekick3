@@ -39,6 +39,7 @@ class MatchSDLGUI : public MatchGUI, public PlayerController {
 		void loadTextures();
 		bool handleInput(float frameTime);
 		void handleInputState(float frameTime);
+		void setPlayerController();
 		static const char* GLErrorToString(GLenum err);
 		static void drawSprite(const Texture& t,
 				const Rectangle& vertcoords,
@@ -53,6 +54,8 @@ class MatchSDLGUI : public MatchGUI, public PlayerController {
 		Vector3 mCamera;
 		Vector3 mCameraVelocity;
 		Vector3 mPlayerControlVelocity;
+		double mPlayerKickPower;
+		double mPlayerKickPowerVelocity;
 };
 
 #endif
