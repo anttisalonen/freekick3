@@ -53,6 +53,7 @@ class Match {
 		void setPlayState(PlayState h);
 		PlayState getPlayState() const;
 		AbsVector3 convertRelativeToAbsoluteVector(const RelVector3& v) const;
+		RelVector3 convertAbsoluteToRelativeVector(const AbsVector3& v) const;
 		float getPitchWidth() const;
 		float getPitchHeight() const;
 		bool kickBall(const Player& p, const AbsVector3& v);

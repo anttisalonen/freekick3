@@ -19,7 +19,9 @@ class Referee {
 	private:
 		bool allPlayersOnOwnSideAndReady() const;
 		bool onPitch(const MatchEntity& m) const;
+		std::shared_ptr<RefereeAction> setOutOfPlay();
 		Match* mMatch;
+		bool mFirstTeamInControl;
 };
 
 #endif

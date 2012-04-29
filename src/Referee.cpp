@@ -1,8 +1,11 @@
+#include <stdexcept>
+
 #include "Referee.h"
 #include "RefereeActions.h"
 
 Referee::Referee()
-	: mMatch(nullptr)
+	: mMatch(nullptr),
+	mFirstTeamInControl(true)
 {
 }
 
@@ -16,14 +19,21 @@ std::shared_ptr<RefereeAction> Referee::act()
 	switch(mMatch->getMatchHalf()) {
 		case MatchHalf::NotStarted:
 		case MatchHalf::HalfTimePause:
-			if(allPlayersOnOwnSideAndReady())
+			if(allPlayersOnOwnSideAndReady()) {
+				mFirstTeamInControl = mMatch->getMatchHalf() == MatchHalf::NotStarted;
 				return std::shared_ptr<RefereeAction>(new ChangeMatchHalfRA(MatchHalf::FirstHalf));
-			else
-				break;
+			}
+			break;
+
 		case MatchHalf::FirstHalf:
 		case MatchHalf::SecondHalf:
-			/* TODO */
+			if(mMatch->getPlayState() == PlayState::InPlay) {
+				if(!onPitch(*mMatch->getBall())) {
+					return setOutOfPlay();
+				}
+			}
 			break;
+
 		case MatchHalf::Finished:
 			break;
 	}
@@ -62,19 +72,47 @@ bool Referee::ballKicked(const Player& p, const AbsVector3& vel)
 		case MatchHalf::NotStarted:
 		case MatchHalf::HalfTimePause:
 			return false;
+
 		case MatchHalf::FirstHalf:
 		case MatchHalf::SecondHalf:
 			switch(mMatch->getPlayState()) {
 				case PlayState::InPlay:
 					return true;
 				default:
-					/* TODO: record controlling team */
-					mMatch->setPlayState(PlayState::InPlay);
-					return true;
+					if(p.getTeam()->isFirst() == mFirstTeamInControl) {
+						mMatch->setPlayState(PlayState::InPlay);
+						mFirstTeamInControl = p.getTeam()->isFirst();
+						return true;
+					}
+					else {
+						return false;
+					}
 			}
+
 		case MatchHalf::Finished:
 			return true;
 	}
 	return false;
+}
+
+std::shared_ptr<RefereeAction> Referee::setOutOfPlay()
+{
+	mFirstTeamInControl = !mFirstTeamInControl;
+	std::cout << "Ball position: " << mMatch->getBall()->getPosition().v << "\n";
+	RelVector3 bp(mMatch->convertAbsoluteToRelativeVector(mMatch->getBall()->getPosition()));
+	std::cout << "Relative ball position: " << bp.v << "\n";
+	if(bp.v.x < -1.0f || bp.v.x > 1.0f) {
+		return std::shared_ptr<RefereeAction>(new ChangePlayStateRA(PlayState::OutThrowin));
+	}
+	if(bp.v.y < -1.0f || bp.v.y > 1.0f) {
+		if((((bp.v.y < -1.0f) != mFirstTeamInControl) && (mMatch->getMatchHalf() == MatchHalf::FirstHalf)) ||
+		   (((bp.v.y < -1.0f) == mFirstTeamInControl) && (mMatch->getMatchHalf() == MatchHalf::SecondHalf))) {
+			return std::shared_ptr<RefereeAction>(new ChangePlayStateRA(PlayState::OutCornerkick));
+		}
+		else {
+			return std::shared_ptr<RefereeAction>(new ChangePlayStateRA(PlayState::OutGoalkick));
+		}
+	}
+	throw std::runtime_error("Setting out of play even when the ball is in play");
 }
 

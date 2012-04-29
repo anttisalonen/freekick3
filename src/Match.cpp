@@ -116,6 +116,11 @@ AbsVector3 Match::convertRelativeToAbsoluteVector(const RelVector3& v) const
 	return AbsVector3(v.v.x * mPitch.getWidth() * 0.5f, v.v.y * mPitch.getHeight() * 0.5f, v.v.z);
 }
 
+RelVector3 Match::convertAbsoluteToRelativeVector(const AbsVector3& v) const
+{
+	return RelVector3(v.v.x / mPitch.getWidth() * 2.0f, v.v.y / mPitch.getHeight() * 2.0f, v.v.z);
+}
+
 float Match::getPitchWidth() const
 {
 	return mPitch.getWidth();
