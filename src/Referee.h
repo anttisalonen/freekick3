@@ -26,6 +26,7 @@ class Referee {
 		bool mFirstTeamInControl;
 		AbsVector3 mRestartPosition;
 		Countdown mOutOfPlayClock;
+		Countdown mWaitForResumeClock;
 };
 
 #endif

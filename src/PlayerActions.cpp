@@ -25,8 +25,9 @@ void RunToPA::applyPlayerAction(Match& match, Player& p, double time)
 	p.setVelocity(v);
 }
 
-KickBallPA::KickBallPA(const AbsVector3& v)
-	: mDiff(v)
+KickBallPA::KickBallPA(const AbsVector3& v, bool absolute)
+	: mDiff(v),
+	mAbsolute(absolute)
 {
 }
 
@@ -35,6 +36,10 @@ void KickBallPA::applyPlayerAction(Match& match, Player& p, double time)
 	if((p.getPosition().v - match.getBall()->getPosition().v).length() > MAX_KICK_DISTANCE) {
 		std::cout << "Can't kick - too far away\n";
 		return;
+	}
+	if(mAbsolute) {
+		mAbsolute = false;
+		mDiff.v = mDiff.v - p.getPosition().v;
 	}
 	if(mDiff.v.length() > 1.0f)
 		mDiff.v.normalize();

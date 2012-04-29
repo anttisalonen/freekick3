@@ -1,3 +1,5 @@
+#include <assert.h>
+
 #include "MatchHelpers.h"
 
 double MatchHelpers::distanceToPitch(const Match& m,
@@ -26,3 +28,29 @@ bool MatchHelpers::allowedToKick(const Match& m,
 		m.getReferee()->isFirstTeamInControl() == p.getTeam()->isFirst();
 }
 
+bool MatchHelpers::nearestOwnPlayerTo(const Match& m,
+		const Player& p, const AbsVector3& v)
+{
+	float smallest_dist = 1000000.0f;
+	bool is_nearest = false;
+	for(const auto& tp : p.getTeam()->getPlayers()) {
+		float this_dist = (v.v - tp->getPosition().v).length();
+		if(this_dist < smallest_dist) {
+			smallest_dist = this_dist;
+			is_nearest = &p == &*tp;
+		}
+	}
+	return is_nearest;
+}
+
+AbsVector3 MatchHelpers::oppositeGoalPosition(const Player& p)
+{
+	const Match* m = p.getMatch();
+	assert(m);
+	if(p.getTeam()->isFirst() == (m->getMatchHalf() == MatchHalf::FirstHalf)) {
+		return m->convertRelativeToAbsoluteVector(RelVector3(Vector3(0, 1, 0)));
+	}
+	else {
+		return m->convertRelativeToAbsoluteVector(RelVector3(Vector3(0, -1, 0)));
+	}
+}

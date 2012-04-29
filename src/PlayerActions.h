@@ -31,10 +31,11 @@ class KickBallPA : public PlayerAction {
 	public:
 		// the vector length should be between 0 and 1,
 		// 1 being the maximum power
-		KickBallPA(const AbsVector3& v);
+		KickBallPA(const AbsVector3& v, bool absolute = false);
 		void applyPlayerAction(Match& match, Player& p, double time);
 	private:
 		AbsVector3 mDiff;
+		bool mAbsolute;
 };
 
 #endif

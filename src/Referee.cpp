@@ -7,7 +7,8 @@
 Referee::Referee()
 	: mMatch(nullptr),
 	mFirstTeamInControl(true),
-	mOutOfPlayClock(1.0f)
+	mOutOfPlayClock(1.0f),
+	mWaitForResumeClock(0.1f)
 {
 }
 
@@ -31,9 +32,15 @@ std::shared_ptr<RefereeAction> Referee::act(double time)
 		case MatchHalf::SecondHalf:
 			if(!mOutOfPlayClock.running()) {
 				if(mMatch->getPlayState() == PlayState::InPlay) {
-					if(!onPitch(*mMatch->getBall())) {
-						mOutOfPlayClock.rewind();
-						return setOutOfPlay();
+					if(!mWaitForResumeClock.running()) {
+						if(!onPitch(*mMatch->getBall())) {
+							mOutOfPlayClock.rewind();
+							return setOutOfPlay();
+						}
+					}
+					else {
+						mWaitForResumeClock.doCountdown(time);
+						mWaitForResumeClock.check();
 					}
 				}
 			}
@@ -89,11 +96,13 @@ bool Referee::ballKicked(const Player& p, const AbsVector3& vel)
 		case MatchHalf::SecondHalf:
 			switch(mMatch->getPlayState()) {
 				case PlayState::InPlay:
+					mFirstTeamInControl = p.getTeam()->isFirst();
 					return true;
 				default:
 					if(p.getTeam()->isFirst() == mFirstTeamInControl) {
 						mMatch->setPlayState(PlayState::InPlay);
 						mFirstTeamInControl = p.getTeam()->isFirst();
+						mWaitForResumeClock.rewind();
 						return true;
 					}
 					else {

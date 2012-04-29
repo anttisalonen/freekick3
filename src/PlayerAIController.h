@@ -3,6 +3,7 @@
 
 #include "PlayerController.h"
 #include "Distance.h"
+#include "Clock.h"
 
 class PlayerAIController : public PlayerController {
 	public:
@@ -10,6 +11,7 @@ class PlayerAIController : public PlayerController {
 		std::shared_ptr<PlayerAction> act(double time);
 	private:
 		std::shared_ptr<PlayerAction> createMoveActionTo(const AbsVector3& pos) const;
+		Countdown mKickInTimer;
 };
 
 #endif

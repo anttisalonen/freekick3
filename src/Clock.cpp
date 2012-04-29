@@ -44,7 +44,7 @@ double Clock::getTime()
 
 Countdown::Countdown(float from)
 	: mFrom(from),
-	mNow(0),
+	mNow(from),
 	mChecked(true)
 {
 }

@@ -10,6 +10,9 @@ class MatchHelpers {
 				const AbsVector3& v);
 		static bool allowedToKick(const Match& m,
 				const Player& p);
+		static bool nearestOwnPlayerTo(const Match& m,
+				const Player& p, const AbsVector3& v);
+		static AbsVector3 oppositeGoalPosition(const Player& p);
 };
 
 #endif
