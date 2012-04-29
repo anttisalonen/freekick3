@@ -13,6 +13,8 @@ Match::Match()
 {
 	static const int numPlayers = 11;
 
+	mScore[0] = mScore[1] = 0;
+
 	for(int j = 0; j < 2; j++) {
 		mTeams[j] = std::shared_ptr<Team>(new Team(this, j == 0));
 		for(int i = 0; i < numPlayers; i++) {
@@ -204,3 +206,7 @@ double Match::getRollInertiaFactor() const
 	return 0.97;
 }
 
+void Match::addGoal(bool forFirst)
+{
+	mScore[forFirst ? 0 : 1]++;
+}

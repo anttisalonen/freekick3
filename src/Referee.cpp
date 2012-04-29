@@ -118,6 +118,18 @@ std::shared_ptr<RefereeAction> Referee::setOutOfPlay()
 		return std::shared_ptr<RefereeAction>(new ChangePlayStateRA(PlayState::OutThrowin));
 	}
 	if(bp.v.y < -1.0f || bp.v.y > 1.0f) {
+		if(abs(mMatch->getBall()->getPosition().v.x) < 3.66f) {
+			// goal
+			mRestartPosition.v.x = 0.0f;
+			mRestartPosition.v.y = 0.0f;
+			if(bp.v.y > 1.0f) {
+				mMatch->addGoal(mMatch->getMatchHalf() == MatchHalf::FirstHalf);
+			}
+			else {
+				mMatch->addGoal(mMatch->getMatchHalf() != MatchHalf::FirstHalf);
+			}
+			return std::shared_ptr<RefereeAction>(new ChangePlayStateRA(PlayState::OutKickoff));
+		}
 		if((((bp.v.y < -1.0f) != mFirstTeamInControl) && (mMatch->getMatchHalf() == MatchHalf::FirstHalf)) ||
 		   (((bp.v.y < -1.0f) == mFirstTeamInControl) && (mMatch->getMatchHalf() == MatchHalf::SecondHalf))) {
 			if(bp.v.x == 0.0f)

@@ -59,6 +59,7 @@ class Match {
 		float getPitchHeight() const;
 		bool kickBall(const Player& p, const AbsVector3& v);
 		double getRollInertiaFactor() const;
+		void addGoal(bool forFirst);
 	private:
 		void applyPlayerAction(const std::shared_ptr<PlayerAction> a,
 				const std::shared_ptr<Player> p, double time);
@@ -71,6 +72,7 @@ class Match {
 		MatchHalf mMatchHalf;
 		PlayState mPlayState;
 		Pitch mPitch;
+		int mScore[2];
 };
 
 #endif
