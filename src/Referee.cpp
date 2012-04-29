@@ -1,5 +1,6 @@
 #include <stdexcept>
 
+#include "Math.h"
 #include "Referee.h"
 #include "RefereeActions.h"
 
@@ -32,7 +33,6 @@ std::shared_ptr<RefereeAction> Referee::act(double time)
 				if(mMatch->getPlayState() == PlayState::InPlay) {
 					if(!onPitch(*mMatch->getBall())) {
 						mOutOfPlayClock.rewind();
-						mRestartPosition = mMatch->getBall()->getPosition();
 						return setOutOfPlay();
 					}
 				}
@@ -114,14 +114,29 @@ std::shared_ptr<RefereeAction> Referee::setOutOfPlay()
 	RelVector3 bp(mMatch->convertAbsoluteToRelativeVector(mMatch->getBall()->getPosition()));
 	std::cout << "Relative ball position: " << bp.v << "\n";
 	if(bp.v.x < -1.0f || bp.v.x > 1.0f) {
+		mRestartPosition = mMatch->getBall()->getPosition();
 		return std::shared_ptr<RefereeAction>(new ChangePlayStateRA(PlayState::OutThrowin));
 	}
 	if(bp.v.y < -1.0f || bp.v.y > 1.0f) {
 		if((((bp.v.y < -1.0f) != mFirstTeamInControl) && (mMatch->getMatchHalf() == MatchHalf::FirstHalf)) ||
 		   (((bp.v.y < -1.0f) == mFirstTeamInControl) && (mMatch->getMatchHalf() == MatchHalf::SecondHalf))) {
+			if(bp.v.x == 0.0f)
+				bp.v.x = 1.0f;
+			if(bp.v.y == 0.0f)
+				bp.v.y = 1.0f;
+			mRestartPosition.v.x = signum(bp.v.x) * mMatch->getPitchWidth() * 0.5f;
+			mRestartPosition.v.y = signum(bp.v.y) * mMatch->getPitchHeight() * 0.5f;
 			return std::shared_ptr<RefereeAction>(new ChangePlayStateRA(PlayState::OutCornerkick));
 		}
 		else {
+			mRestartPosition.v.x = 5.0f; // TODO: revisit
+			if(bp.v.x < 0) {
+				mRestartPosition.v.x = -mRestartPosition.v.x;
+			}
+			mRestartPosition.v.y = mMatch->getPitchHeight() * 0.5f - 4.0f; // TODO: revisit
+			if(bp.v.y < 0) {
+				mRestartPosition.v.y = -mRestartPosition.v.y;
+			}
 			return std::shared_ptr<RefereeAction>(new ChangePlayStateRA(PlayState::OutGoalkick));
 		}
 	}

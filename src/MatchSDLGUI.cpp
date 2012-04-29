@@ -1,10 +1,11 @@
-#include "MatchSDLGUI.h"
-
 #include <stdexcept>
 
 #include <SDL_image.h>
 #include <SDL_ttf.h>
 #include <GL/gl.h>
+
+#include "MatchSDLGUI.h"
+#include "MatchHelpers.h"
 
 static const int screenWidth = 800;
 static const int screenHeight = 600;
@@ -121,7 +122,8 @@ void MatchSDLGUI::startFrame()
 {
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 	if(!mFreeCamera) {
-		if(mMatch->getPlayState() == PlayState::InPlay) {
+		if(mMatch->getPlayState() == PlayState::InPlay ||
+				MatchHelpers::distanceToPitch(*mMatch, mMatch->getBall()->getPosition()) < MAX_KICK_DISTANCE) {
 			mCamera.x = mMatch->getBall()->getPosition().v.x;
 			mCamera.y = mMatch->getBall()->getPosition().v.y;
 		}
