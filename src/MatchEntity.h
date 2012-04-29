@@ -14,8 +14,8 @@ class MatchEntity {
 		void setVelocity(const AbsVector3& v);
 		const AbsVector3& getPosition() const;
 		const AbsVector3& getVelocity() const;
-		void update(float time);
-	private:
+		virtual void update(float time);
+	protected:
 		Match* mMatch;
 		AbsVector3 mPosition;
 		AbsVector3 mVelocity;

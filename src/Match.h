@@ -56,6 +56,7 @@ class Match {
 		float getPitchWidth() const;
 		float getPitchHeight() const;
 		bool kickBall(const Player& p, const AbsVector3& v);
+		double getRollInertiaFactor() const;
 	private:
 		void applyPlayerAction(const std::shared_ptr<PlayerAction> a,
 				const std::shared_ptr<Player> p, double time);

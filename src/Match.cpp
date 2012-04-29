@@ -193,3 +193,8 @@ bool Match::kickBall(const Player& p, const AbsVector3& v)
 	}
 }
 
+double Match::getRollInertiaFactor() const
+{
+	return 0.97;
+}
+

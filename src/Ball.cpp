@@ -6,3 +6,10 @@ Ball::Ball(Match* match)
 {
 }
 
+void Ball::update(float time)
+{
+	MatchEntity::update(time);
+	if(mPosition.v.z < 0.1f)
+		mVelocity.v *= 1.0f - time * mMatch->getRollInertiaFactor();
+}
+

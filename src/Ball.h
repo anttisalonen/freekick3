@@ -8,6 +8,7 @@ class Match;
 class Ball : public MatchEntity {
 	public:
 		Ball(Match* match);
+		void update(float time) override;
 };
 
 #endif
