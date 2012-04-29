@@ -39,6 +39,7 @@ class Match {
 		void update(double time);
 		bool matchOver() const;
 		MatchHalf getMatchHalf() const;
+		void setMatchHalf(MatchHalf h);
 		PlayState getPlayState() const;
 		AbsVector3 convertRelativeToAbsoluteVector(const RelVector3& v) const;
 		float getPitchWidth() const;
@@ -56,6 +57,7 @@ class Match {
 		PlayState mPlayState;
 		Pitch mPitch;
 		Countdown mAICountdown;
+		Countdown mRefCountdown;
 };
 
 #endif

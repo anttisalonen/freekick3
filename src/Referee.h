@@ -12,6 +12,7 @@ class Referee {
 		void setMatch(Match* m);
 		std::shared_ptr<RefereeAction> act();
 	private:
+		bool allPlayersOnOwnSideAndReady() const;
 		Match* mMatch;
 };
 
