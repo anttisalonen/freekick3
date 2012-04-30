@@ -9,7 +9,7 @@ Match::Match()
 	: mTime(0),
 	mMatchHalf(MatchHalf::NotStarted),
 	mPlayState(PlayState::OutKickoff),
-	mPitch(Pitch(50.0f, 100.0f))
+	mPitch(Pitch(68.0f, 105.0f))
 {
 	static const int numPlayers = 11;
 

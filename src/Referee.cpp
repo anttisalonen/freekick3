@@ -150,11 +150,11 @@ std::shared_ptr<RefereeAction> Referee::setOutOfPlay()
 			return std::shared_ptr<RefereeAction>(new ChangePlayStateRA(PlayState::OutCornerkick));
 		}
 		else {
-			mRestartPosition.v.x = 5.0f; // TODO: revisit
+			mRestartPosition.v.x = 9.16f;
 			if(bp.v.x < 0) {
 				mRestartPosition.v.x = -mRestartPosition.v.x;
 			}
-			mRestartPosition.v.y = mMatch->getPitchHeight() * 0.5f - 4.0f; // TODO: revisit
+			mRestartPosition.v.y = mMatch->getPitchHeight() * 0.5f - 5.5f;
 			if(bp.v.y < 0) {
 				mRestartPosition.v.y = -mRestartPosition.v.y;
 			}
