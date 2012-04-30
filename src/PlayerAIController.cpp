@@ -9,6 +9,10 @@ PlayerAIController::PlayerAIController(Player* p)
 	: PlayerController(p),
 	mKickInTimer(1.0f)
 {
+	if(p->isGoalkeeper())
+		mCurrentPlayState = std::shared_ptr<PlayerController>(new AIGoalkeeperState(p));
+	else
+		mCurrentPlayState = std::shared_ptr<PlayerController>(new AIDefendState(p));
 }
 
 std::shared_ptr<PlayerAction> PlayerAIController::act(double time)
@@ -22,8 +26,7 @@ std::shared_ptr<PlayerAction> PlayerAIController::act(double time)
 		default:
 			switch(mPlayer->getMatch()->getPlayState()) {
 				case PlayState::InPlay:
-					/* TODO */
-					return std::shared_ptr<PlayerAction>(new IdlePA());
+					return mCurrentPlayState->act(time);
 
 				default:
 					if(MatchHelpers::allowedToKick(*mPlayer->getMatch(), *mPlayer)) {

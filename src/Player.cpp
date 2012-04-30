@@ -4,9 +4,10 @@
 #include "PlayerAIController.h"
 #include "Match.h"
 
-Player::Player(Match* match, Team* team)
+Player::Player(Match* match, Team* team, bool goalkeeper)
 	: MatchEntity(match, match->convertRelativeToAbsoluteVector(team->getPausePosition())),
-	mTeam(team)
+	mTeam(team),
+	mGoalkeeper(goalkeeper)
 {
 	mAIController = new PlayerAIController(this);
 	setAIControlled();
@@ -63,4 +64,8 @@ bool Player::isAIControlled() const
 	return mController == mAIController;
 }
 
+bool Player::isGoalkeeper() const
+{
+	return mGoalkeeper;
+}
 

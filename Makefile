@@ -16,8 +16,9 @@ BIN     = $(BINDIR)/$(BINNAME)
 SRCDIR = src
 
 SRCFILES = Pitch.cpp Ball.cpp Match.cpp MatchHelpers.cpp MatchEntity.cpp Team.cpp Player.cpp \
+	   PlayerAIController.cpp AIGoalkeeperState.cpp AIDefendState.cpp \
 	   MatchSDLGUI.cpp \
-	   Clock.cpp Referee.cpp RefereeActions.cpp PlayerAIController.cpp \
+	   Clock.cpp Referee.cpp RefereeActions.cpp \
 	   PlayerActions.cpp Texture.cpp main.cpp
 
 SRCS = $(addprefix $(SRCDIR)/, $(SRCFILES))

@@ -18,7 +18,7 @@ Match::Match()
 	for(int j = 0; j < 2; j++) {
 		mTeams[j] = std::shared_ptr<Team>(new Team(this, j == 0));
 		for(int i = 0; i < numPlayers; i++) {
-			mTeams[j]->addPlayer(std::shared_ptr<Player>(new Player(this, mTeams[j].get())));
+			mTeams[j]->addPlayer(std::shared_ptr<Player>(new Player(this, mTeams[j].get(), i == 0)));
 		}
 	}
 	mReferee.setMatch(this);
