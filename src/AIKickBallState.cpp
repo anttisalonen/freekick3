@@ -3,12 +3,12 @@
 #include "MatchHelpers.h"
 #include "PlayerAIController.h"
 
-AIKickBallState::AIKickBallState(Player* p, PlayerAIController* m)
+AIKickBallState::AIKickBallState(Player* p, AIPlayController* m)
 	: AIState(p, m)
 {
 }
 
-std::shared_ptr<PlayerAction> AIKickBallState::act(double time)
+std::shared_ptr<PlayerAction> AIKickBallState::actOnBall(double time)
 {
 	double passscore = 0.0;
 	double dribblescore = 0.0;
@@ -20,7 +20,7 @@ std::shared_ptr<PlayerAction> AIKickBallState::act(double time)
 	passscore = getBestPassTarget(passplayer);
 	dribblescore = getBestDribbleTarget(&dribbletarget);
 	shootscore = getBestShootTarget(&shoottarget);
-	mMainAI->setNewPlayState(std::shared_ptr<PlayerController>(new AIOffensiveState(mPlayer, mMainAI)));
+	mPlayController->setNewState(std::shared_ptr<AIState>(new AIOffensiveState(mPlayer, mPlayController)));
 	if(passscore >= dribblescore && passscore >= shootscore) {
 		return std::shared_ptr<PlayerAction>(new KickBallPA(passplayer->getPosition()));
 	}
@@ -32,6 +32,16 @@ std::shared_ptr<PlayerAction> AIKickBallState::act(double time)
 	}
 
 	return std::shared_ptr<PlayerAction>(new IdlePA());
+}
+
+std::shared_ptr<PlayerAction> AIKickBallState::actNearBall(double time)
+{
+	return mPlayController->switchState(std::shared_ptr<AIState>(new AIDefendState(mPlayer, mPlayController)), time);
+}
+
+std::shared_ptr<PlayerAction> AIKickBallState::actOffBall(double time)
+{
+	return switchState(std::shared_ptr<AIState>(new AIDefendState(mPlayer, mPlayController)), time);
 }
 
 double AIKickBallState::getBestPassTarget(Player* p)
