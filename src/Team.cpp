@@ -8,8 +8,9 @@ Team::Team(Match* match, bool first)
 {
 }
 
-void Team::addPlayer(std::shared_ptr<Player> p)
+void Team::addPlayer()
 {
+	std::shared_ptr<Player> p(new Player(mMatch, this, mPlayers.size() == 0));
 	mPlayers.push_back(p);
 	if(mPlayers.size() == 1) {
 		p->setHomePosition(RelVector3(0, -0.95f * (mFirst ? 1 : -1), 0));
@@ -31,6 +32,10 @@ void Team::addPlayer(std::shared_ptr<Player> p)
 			float wdt = (widx - 1.5f) * 0.5f;
 			p->setHomePosition(RelVector3(wdt, (mFirst ? 1 : -1) * -0.7f + hgt * 0.3f * (mFirst ? 1 : -1), 0));
 		}
+	}
+
+	if(mPlayers.size() > 5) {
+		p->setPlayerTactics(PlayerTactics(true));
 	}
 }
 

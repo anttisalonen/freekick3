@@ -6,6 +6,7 @@
 #include "MatchEntity.h"
 #include "Distance.h"
 #include "Clock.h"
+#include "PlayerTactics.h"
 
 class Match;
 class Team;
@@ -30,6 +31,8 @@ class Player : public MatchEntity {
 		void ballKicked();
 		bool canKickBall() const;
 		void update(float time) override;
+		void setPlayerTactics(const PlayerTactics& t);
+		const PlayerTactics& getTactics() const;
 	private:
 		Team* mTeam;
 		PlayerController* mController;
@@ -37,6 +40,7 @@ class Player : public MatchEntity {
 		RelVector3 mHomePosition;
 		bool mGoalkeeper;
 		Countdown mBallKickedTimer;
+		PlayerTactics mTactics;
 };
 
 #endif

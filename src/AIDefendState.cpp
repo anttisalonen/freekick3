@@ -13,9 +13,7 @@ std::shared_ptr<PlayerAction> AIDefendState::act(double time)
 {
 	if(mPlayer->getTeam()->getPlayerNearestToBall() == mPlayer) {
 		if(MatchHelpers::canKickBall(*mPlayer)) {
-			std::shared_ptr<PlayerController> newstate(std::shared_ptr<PlayerController>(new AIKickBallState(mPlayer, mMainAI)));
-			mMainAI->setNewPlayState(newstate);
-			return newstate->act(time);
+			return switchState(std::shared_ptr<AIState>(new AIKickBallState(mPlayer, mMainAI)), time);
 		}
 		else {
 			return AIHelpers::createMoveActionTo(*mPlayer,
@@ -23,8 +21,13 @@ std::shared_ptr<PlayerAction> AIDefendState::act(double time)
 		}
 	}
 	else {
-		/* TODO */
-		return std::shared_ptr<PlayerAction>(new IdlePA());
+		if(mPlayer->getTactics().mOffensive) {
+			return switchState(std::shared_ptr<AIState>(new AIOffensiveState(mPlayer, mMainAI)), time);
+		}
+		else {
+			/* TODO */
+			return std::shared_ptr<PlayerAction>(new IdlePA());
+		}
 	}
 }
 

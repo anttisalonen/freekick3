@@ -87,4 +87,13 @@ void Player::update(float time)
 	mBallKickedTimer.check();
 }
 
+void Player::setPlayerTactics(const PlayerTactics& t)
+{
+	mTactics = t;
+}
+
+const PlayerTactics& Player::getTactics() const
+{
+	return mTactics;
+}
 

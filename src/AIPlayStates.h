@@ -9,8 +9,9 @@
 
 class AIState : public PlayerController {
 	public:
-		inline AIState(Player* p, PlayerAIController* m);
+		AIState(Player* p, PlayerAIController* m);
 	protected:
+		std::shared_ptr<PlayerAction> switchState(std::shared_ptr<AIState> newstate, double time);
 		PlayerAIController* mMainAI;
 };
 
@@ -42,12 +43,6 @@ class AIOffensiveState : public AIState {
 		std::shared_ptr<PlayerAction> act(double time);
 };
 
-
-AIState::AIState(Player* p, PlayerAIController* m)
-	: PlayerController(p),
-	mMainAI(m)
-{
-}
 
 #endif
 

@@ -18,7 +18,7 @@ SRCDIR = src
 SRCFILES = Clock.cpp Texture.cpp Pitch.cpp Ball.cpp \
 	   Match.cpp MatchHelpers.cpp MatchEntity.cpp Team.cpp Player.cpp PlayerActions.cpp \
 	   Referee.cpp RefereeActions.cpp \
-	   PlayerAIController.cpp AIHelpers.cpp AIGoalkeeperState.cpp AIDefendState.cpp \
+	   PlayerAIController.cpp AIPlayStates.cpp AIHelpers.cpp AIGoalkeeperState.cpp AIDefendState.cpp \
 	   AIKickBallState.cpp AIOffensiveState.cpp \
 	   MatchSDLGUI.cpp \
 	   main.cpp

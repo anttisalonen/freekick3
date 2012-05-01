@@ -9,7 +9,7 @@
 class Team {
 	public:
 		Team(Match* match, bool first);
-		void addPlayer(std::shared_ptr<Player> p);
+		void addPlayer();
 		Player* getPlayer(unsigned int idx);
 		const Player* getPlayer(unsigned int idx) const;
 		unsigned int getNumPlayers() const;
