@@ -50,7 +50,6 @@ const char* AIAction::getName() const
 AINullAction::AINullAction(const Player* p)
 	: AIAction(mActionName, p)
 {
-	/* TODO */
 	mScore = 0.0;
 	mAction = std::shared_ptr<PlayerAction>(new IdlePA());
 }
@@ -62,7 +61,7 @@ AIShootAction::AIShootAction(const Player* p)
 {
 	/* TODO */
 	mScore = 1.0;
-	mAction = std::shared_ptr<PlayerAction>(new KickBallPA(MatchHelpers::oppositeGoalPosition(*p)));
+	mAction = std::shared_ptr<PlayerAction>(new KickBallPA(MatchHelpers::oppositeGoalPosition(*p), true));
 }
 
 const char* AIShootAction::mActionName = "Shoot";
@@ -72,7 +71,7 @@ AIDribbleAction::AIDribbleAction(const Player* p)
 {
 	/* TODO */
 	mScore = 0.0;
-	mAction = std::shared_ptr<PlayerAction>(new KickBallPA(MatchHelpers::oppositeGoalPosition(*p)));
+	mAction = std::shared_ptr<PlayerAction>(new KickBallPA(MatchHelpers::oppositeGoalPosition(*p), true));
 }
 
 const char* AIDribbleAction::mActionName = "Dribble";
@@ -82,7 +81,7 @@ AIPassAction::AIPassAction(const Player* p)
 {
 	/* TODO */
 	mScore = 1.0;
-	mAction = std::shared_ptr<PlayerAction>(new KickBallPA(MatchHelpers::oppositeGoalPosition(*p)));
+	mAction = std::shared_ptr<PlayerAction>(new KickBallPA(MatchHelpers::oppositeGoalPosition(*p), true));
 }
 
 const char* AIPassAction::mActionName = "Pass";

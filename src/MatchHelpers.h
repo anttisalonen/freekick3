@@ -17,6 +17,7 @@ class MatchHelpers {
 		static Player* nearestOwnPlayerToBall(const Team& t);
 		static Player* nearestOwnPlayerTo(const Team& t, const AbsVector3& v);
 		static bool nearestOwnPlayerTo(const Player& p, const AbsVector3& v);
+		static bool myTeamInControl(const Player& p);
 };
 
 #endif

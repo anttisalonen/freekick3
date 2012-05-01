@@ -77,3 +77,8 @@ bool MatchHelpers::canKickBall(const Player& p)
 		MatchEntity::distanceBetween(p, *p.getMatch()->getBall()) <= MAX_KICK_DISTANCE;
 }
 
+bool MatchHelpers::myTeamInControl(const Player& p)
+{
+	return p.getMatch()->getReferee()->isFirstTeamInControl() == p.getTeam()->isFirst();
+}
+
