@@ -15,7 +15,7 @@ BIN     = $(BINDIR)/$(BINNAME)
 
 SRCDIR = src
 
-SRCFILES = Clock.cpp Texture.cpp Pitch.cpp Ball.cpp \
+SRCFILES = Clock.cpp SDLSurface.cpp Texture.cpp Pitch.cpp Ball.cpp \
 	   Match.cpp MatchHelpers.cpp MatchEntity.cpp Team.cpp Player.cpp PlayerActions.cpp \
 	   Referee.cpp RefereeActions.cpp \
 	   PlayerAIController.cpp AIActions.cpp AIPlayStates.cpp AIHelpers.cpp \

@@ -46,7 +46,8 @@ class MatchSDLGUI : public MatchGUI, public PlayerController {
 				const Rectangle& texcoords, float depth);
 		Clock mClock;
 		SDL_Surface* mScreen;
-		std::shared_ptr<Texture> mPlayerTexture;
+		std::shared_ptr<Texture> mPlayerTextureHome;
+		std::shared_ptr<Texture> mPlayerTextureAway;
 		std::shared_ptr<Texture> mPitchTexture;
 		std::shared_ptr<Texture> mBallTexture;
 		float mScaleLevel;

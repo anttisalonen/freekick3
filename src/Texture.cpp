@@ -7,16 +7,21 @@
 
 #include "Texture.h"
 
+Texture::Texture(const SDLSurface& surf, unsigned int startrow, unsigned int height)
+{
+	setupSDLSurface(surf, startrow, height);
+}
+
 Texture::Texture(const char* filename, unsigned int startrow, unsigned int height)
 {
-	SDL_Surface* surf = IMG_Load(filename);
-	if(!surf) {
-		std::stringstream ss;
-		ss << "Could not load image " << filename << ": " << SDL_GetError();
-		throw std::runtime_error(ss.str());
-	}
+	SDLSurface surf(filename);
+	setupSDLSurface(surf, startrow, height);
+}
+
+void Texture::setupSDLSurface(const SDLSurface& s, unsigned int startrow, unsigned int height)
+{
+	const SDL_Surface* surf = s.getSurface();
 	bool hasAlpha = surf->format->BytesPerPixel == 4;
-	printf("%s has %d bpp\n", filename, surf->format->BytesPerPixel);
 	glGenTextures(1, &mTexture);
 	glBindTexture(GL_TEXTURE_2D, mTexture);
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
@@ -24,7 +29,6 @@ Texture::Texture(const char* filename, unsigned int startrow, unsigned int heigh
 	glTexImage2D(GL_TEXTURE_2D, 0, surf->format->BytesPerPixel, surf->w, height ? height : surf->h,
 			0, hasAlpha ? GL_RGBA : GL_RGB, GL_UNSIGNED_BYTE,
 			(char*)surf->pixels + startrow * surf->w * surf->format->BytesPerPixel);
-	SDL_FreeSurface(surf);
 }
 
 Texture::~Texture()
