@@ -81,7 +81,7 @@ bool Countdown::check()
 	return done;
 }
 
-bool Countdown::running()
+bool Countdown::running() const
 {
 	return !mChecked;
 }

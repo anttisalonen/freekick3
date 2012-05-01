@@ -5,6 +5,7 @@
 
 #include "MatchEntity.h"
 #include "Distance.h"
+#include "Clock.h"
 
 class Match;
 class Team;
@@ -26,12 +27,16 @@ class Player : public MatchEntity {
 		void setAIControlled();
 		bool isAIControlled() const;
 		bool isGoalkeeper() const;
+		void ballKicked();
+		bool canKickBall() const;
+		void update(float time) override;
 	private:
 		Team* mTeam;
 		PlayerController* mController;
 		PlayerAIController* mAIController;
 		RelVector3 mHomePosition;
 		bool mGoalkeeper;
+		Countdown mBallKickedTimer;
 };
 
 #endif

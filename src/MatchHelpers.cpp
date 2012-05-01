@@ -21,26 +21,42 @@ double MatchHelpers::distanceToPitch(const Match& m,
 		return sqrt(dvert * dvert + dhoriz * dhoriz);
 }
 
-bool MatchHelpers::allowedToKick(const Match& m,
-		const Player& p)
+bool MatchHelpers::allowedToKick(const Player& p)
 {
-	return !playing(m.getMatchHalf()) || playing(m.getPlayState()) ||
-		m.getReferee()->isFirstTeamInControl() == p.getTeam()->isFirst();
+	const Match* m = p.getMatch();
+	assert(m);
+	return !playing(m->getMatchHalf()) || playing(m->getPlayState()) ||
+		m->getReferee()->isFirstTeamInControl() == p.getTeam()->isFirst();
 }
 
-bool MatchHelpers::nearestOwnPlayerTo(const Match& m,
-		const Player& p, const AbsVector3& v)
+Player* MatchHelpers::nearestOwnPlayerToPlayer(const Team& t, const Player& p)
 {
+	return nearestOwnPlayerTo(t, p.getPosition());
+}
+
+Player* MatchHelpers::nearestOwnPlayerToBall(const Team& t)
+{
+	return nearestOwnPlayerTo(t, t.getMatch()->getBall()->getPosition());
+}
+
+Player* MatchHelpers::nearestOwnPlayerTo(const Team& t, const AbsVector3& v)
+{
+	Player* np = nullptr;
 	float smallest_dist = 1000000.0f;
-	bool is_nearest = false;
-	for(const auto& tp : p.getTeam()->getPlayers()) {
+	for(const auto& tp : t.getPlayers()) {
 		float this_dist = (v.v - tp->getPosition().v).length();
 		if(this_dist < smallest_dist) {
 			smallest_dist = this_dist;
-			is_nearest = &p == &*tp;
+			np = &*tp;
 		}
 	}
-	return is_nearest;
+	return np;
+}
+
+bool MatchHelpers::nearestOwnPlayerTo(const Player& p, const AbsVector3& v)
+{
+	Player* np = nearestOwnPlayerTo(*p.getTeam(), v);
+	return &p == np;
 }
 
 AbsVector3 MatchHelpers::oppositeGoalPosition(const Player& p)
@@ -54,3 +70,10 @@ AbsVector3 MatchHelpers::oppositeGoalPosition(const Player& p)
 		return m->convertRelativeToAbsoluteVector(RelVector3(Vector3(0, -1, 0)));
 	}
 }
+
+bool MatchHelpers::canKickBall(const Player& p)
+{
+	return p.canKickBall() && allowedToKick(p) &&
+		MatchEntity::distanceBetween(p, *p.getMatch()->getBall()) <= MAX_KICK_DISTANCE;
+}
+

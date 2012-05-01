@@ -16,10 +16,16 @@ class Team {
 		const std::vector<std::shared_ptr<Player>>& getPlayers() const;
 		RelVector3 getPausePosition() const;
 		bool isFirst() const;
+		void act(double time);
+		const Match* getMatch() const;
+
+		Player* getPlayerNearestToBall() const;
 	private:
+		void updatePlayerNearestToBall();
 		Match* mMatch;
 		bool mFirst;
 		std::vector<std::shared_ptr<Player>> mPlayers;
+		Player* mPlayerNearestToBall;
 };
 
 #endif

@@ -57,7 +57,7 @@ class Match {
 		RelVector3 convertAbsoluteToRelativeVector(const AbsVector3& v) const;
 		float getPitchWidth() const;
 		float getPitchHeight() const;
-		bool kickBall(const Player& p, const AbsVector3& v);
+		bool kickBall(Player* p, const AbsVector3& v);
 		double getRollInertiaFactor() const;
 		void addGoal(bool forFirst);
 	private:

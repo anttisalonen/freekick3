@@ -10,6 +10,7 @@ class PlayerAIController : public PlayerController {
 	public:
 		PlayerAIController(Player* p);
 		std::shared_ptr<PlayerAction> act(double time);
+		void setNewPlayState(std::shared_ptr<PlayerController> p);
 	protected:
 		std::shared_ptr<PlayerAction> createMoveActionTo(const AbsVector3& pos) const;
 	private:

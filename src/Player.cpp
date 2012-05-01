@@ -7,7 +7,8 @@
 Player::Player(Match* match, Team* team, bool goalkeeper)
 	: MatchEntity(match, match->convertRelativeToAbsoluteVector(team->getPausePosition())),
 	mTeam(team),
-	mGoalkeeper(goalkeeper)
+	mGoalkeeper(goalkeeper),
+	mBallKickedTimer(1.0f)
 {
 	mAIController = new PlayerAIController(this);
 	setAIControlled();
@@ -68,4 +69,22 @@ bool Player::isGoalkeeper() const
 {
 	return mGoalkeeper;
 }
+
+void Player::ballKicked()
+{
+	mBallKickedTimer.rewind();
+}
+
+bool Player::canKickBall() const
+{
+	return !mBallKickedTimer.running();
+}
+
+void Player::update(float time)
+{
+	MatchEntity::update(time);
+	mBallKickedTimer.doCountdown(time);
+	mBallKickedTimer.check();
+}
+
 

@@ -15,11 +15,13 @@ BIN     = $(BINDIR)/$(BINNAME)
 
 SRCDIR = src
 
-SRCFILES = Pitch.cpp Ball.cpp Match.cpp MatchHelpers.cpp MatchEntity.cpp Team.cpp Player.cpp \
-	   PlayerAIController.cpp AIGoalkeeperState.cpp AIDefendState.cpp \
+SRCFILES = Clock.cpp Texture.cpp Pitch.cpp Ball.cpp \
+	   Match.cpp MatchHelpers.cpp MatchEntity.cpp Team.cpp Player.cpp PlayerActions.cpp \
+	   Referee.cpp RefereeActions.cpp \
+	   PlayerAIController.cpp AIHelpers.cpp AIGoalkeeperState.cpp AIDefendState.cpp \
+	   AIKickBallState.cpp AIOffensiveState.cpp \
 	   MatchSDLGUI.cpp \
-	   Clock.cpp Referee.cpp RefereeActions.cpp \
-	   PlayerActions.cpp Texture.cpp main.cpp
+	   main.cpp
 
 SRCS = $(addprefix $(SRCDIR)/, $(SRCFILES))
 OBJS = $(SRCS:.cpp=.o)

@@ -2,6 +2,7 @@
 #include <stdexcept>
 
 #include "Match.h"
+#include "MatchHelpers.h"
 #include "PlayerActions.h"
 #include "RefereeActions.h"
 
@@ -65,6 +66,7 @@ void Match::update(double time)
 {
 	mBall->update(time);
 	for(auto& t : mTeams) {
+		t->act(time);
 		for(auto& p : t->getPlayers()) {
 			std::shared_ptr<PlayerAction> a(p->act(time));
 			applyPlayerAction(a, p, time);
@@ -190,10 +192,11 @@ bool playing(PlayState h)
 	return h == PlayState::InPlay;
 }
 
-bool Match::kickBall(const Player& p, const AbsVector3& v)
+bool Match::kickBall(Player* p, const AbsVector3& v)
 {
-	if(mReferee.ballKicked(p, v)) {
+	if(MatchHelpers::canKickBall(*p) && mReferee.ballKicked(*p, v)) {
 		mBall->setVelocity(v);
+		p->ballKicked();
 		return true;
 	}
 	else {

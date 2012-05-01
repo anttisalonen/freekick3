@@ -7,17 +7,47 @@
 #include "PlayerController.h"
 #include "Match.h"
 
-class AIGoalkeeperState : public PlayerController {
+class AIState : public PlayerController {
 	public:
-		AIGoalkeeperState(Player* p);
+		inline AIState(Player* p, PlayerAIController* m);
+	protected:
+		PlayerAIController* mMainAI;
+};
+
+class AIGoalkeeperState : public AIState {
+	public:
+		AIGoalkeeperState(Player* p, PlayerAIController* m);
 		std::shared_ptr<PlayerAction> act(double time);
 };
 
-class AIDefendState : public PlayerController {
+class AIDefendState : public AIState {
 	public:
-		AIDefendState(Player* p);
+		AIDefendState(Player* p, PlayerAIController* m);
 		std::shared_ptr<PlayerAction> act(double time);
 };
+
+class AIKickBallState : public AIState {
+	public:
+		AIKickBallState(Player* p, PlayerAIController* m);
+		std::shared_ptr<PlayerAction> act(double time);
+	protected:
+		double getBestPassTarget(Player* p);
+		double getBestDribbleTarget(AbsVector3* v);
+		double getBestShootTarget(AbsVector3* v);
+};
+
+class AIOffensiveState : public AIState {
+	public:
+		AIOffensiveState(Player* p, PlayerAIController* m);
+		std::shared_ptr<PlayerAction> act(double time);
+};
+
+
+AIState::AIState(Player* p, PlayerAIController* m)
+	: PlayerController(p),
+	mMainAI(m)
+{
+}
 
 #endif
 

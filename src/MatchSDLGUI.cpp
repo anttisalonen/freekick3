@@ -319,7 +319,7 @@ std::shared_ptr<PlayerAction> MatchSDLGUI::act(double time)
 		kickpower = mPlayerKickPower;
 		mPlayerKickPower = 0.0f;
 	}
-	if(!playing(mMatch->getPlayState()) && MatchHelpers::allowedToKick(*mMatch, *mPlayer)) {
+	if(!playing(mMatch->getPlayState()) && MatchHelpers::allowedToKick(*mPlayer)) {
 		if(toBall.v.length() > MAX_KICK_DISTANCE) {
 			return std::shared_ptr<PlayerAction>(new
 					RunToPA(AbsVector3(toBall.v.normalized())));

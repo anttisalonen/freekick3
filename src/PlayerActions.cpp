@@ -3,6 +3,7 @@
 
 #include "PlayerActions.h"
 #include "Match.h"
+#include "MatchHelpers.h"
 #include "Player.h"
 
 void IdlePA::applyPlayerAction(Match& match, Player& p, double time)
@@ -33,8 +34,8 @@ KickBallPA::KickBallPA(const AbsVector3& v, bool absolute)
 
 void KickBallPA::applyPlayerAction(Match& match, Player& p, double time)
 {
-	if((p.getPosition().v - match.getBall()->getPosition().v).length() > MAX_KICK_DISTANCE) {
-		std::cout << "Can't kick - too far away\n";
+	if(!MatchHelpers::canKickBall(p)) {
+		std::cout << "Can't kick - too far away or too soon\n";
 		return;
 	}
 	if(mAbsolute) {
@@ -46,7 +47,7 @@ void KickBallPA::applyPlayerAction(Match& match, Player& p, double time)
 	AbsVector3 v(mDiff);
 	v.v *= p.getMaximumKickPower();
 	std::cout << "Setting ball velocity to " << v.v << "\n";
-	match.kickBall(p, v);
+	match.kickBall(&p, v);
 }
 
 

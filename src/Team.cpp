@@ -1,8 +1,10 @@
 #include "Team.h"
+#include "MatchHelpers.h"
 
 Team::Team(Match* match, bool first)
 	: mMatch(match),
-	mFirst(first)
+	mFirst(first),
+	mPlayerNearestToBall(nullptr)
 {
 }
 
@@ -48,6 +50,11 @@ const Player* Team::getPlayer(unsigned int idx) const
 		return mPlayers[idx].get();
 }
 
+const Match* Team::getMatch() const
+{
+	return mMatch;
+}
+
 unsigned int Team::getNumPlayers() const
 {
 	return mPlayers.size();
@@ -68,4 +75,19 @@ bool Team::isFirst() const
 	return mFirst;
 }
 
+void Team::act(double time)
+{
+	updatePlayerNearestToBall();
+}
+
+Player* Team::getPlayerNearestToBall() const
+{
+	return mPlayerNearestToBall;
+}
+
+void Team::updatePlayerNearestToBall()
+{
+	if(mPlayers.size())
+		mPlayerNearestToBall = MatchHelpers::nearestOwnPlayerToBall(*this);
+}
 

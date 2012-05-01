@@ -19,7 +19,7 @@ class Countdown {
 		bool checkAndRewind();
 		void rewind();
 		bool check();
-		bool running();
+		bool running() const;
 	private:
 		float mFrom;
 		float mNow;

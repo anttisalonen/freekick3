@@ -42,3 +42,4 @@ void MatchEntity::update(float time)
 	mPosition.v += mVelocity.v * time;
 }
 
+

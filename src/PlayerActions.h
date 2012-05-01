@@ -6,8 +6,6 @@
 class Match;
 class Player;
 
-#define MAX_KICK_DISTANCE 1.0
-
 class PlayerAction {
 	public:
 		virtual ~PlayerAction() { }
