@@ -35,7 +35,6 @@ KickBallPA::KickBallPA(const AbsVector3& v, bool absolute)
 void KickBallPA::applyPlayerAction(Match& match, Player& p, double time)
 {
 	if(!MatchHelpers::canKickBall(p)) {
-		std::cout << "Can't kick - too far away or too soon\n";
 		return;
 	}
 	if(mAbsolute) {

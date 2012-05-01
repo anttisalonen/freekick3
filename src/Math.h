@@ -1,6 +1,8 @@
 #ifndef MATH_H
 #define MATH_H
 
+#include "Vector3.h"
+
 template <typename T>
 T signum(T v)
 {
@@ -11,6 +13,13 @@ T signum(T v)
 	else
 		return 0;
 }
+
+class Math {
+	public:
+		static double pointToLineDistance(const Vector3& l1,
+				const Vector3& l2,
+				const Vector3& p);
+};
 
 #endif
 

@@ -119,9 +119,7 @@ bool Referee::ballKicked(const Player& p, const AbsVector3& vel)
 std::shared_ptr<RefereeAction> Referee::setOutOfPlay()
 {
 	mFirstTeamInControl = !mFirstTeamInControl;
-	std::cout << "Ball position: " << mMatch->getBall()->getPosition().v << "\n";
 	RelVector3 bp(mMatch->convertAbsoluteToRelativeVector(mMatch->getBall()->getPosition()));
-	std::cout << "Relative ball position: " << bp.v << "\n";
 	if(bp.v.x < -1.0f || bp.v.x > 1.0f) {
 		mRestartPosition = mMatch->getBall()->getPosition();
 		return std::shared_ptr<RefereeAction>(new ChangePlayStateRA(PlayState::OutThrowin));
