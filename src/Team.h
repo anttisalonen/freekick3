@@ -18,14 +18,18 @@ class Team {
 		bool isFirst() const;
 		void act(double time);
 		const Match* getMatch() const;
-
 		Player* getPlayerNearestToBall() const;
+		float getSupportingPositionScoreAt(const AbsVector3& pos) const;
 	private:
 		void updatePlayerNearestToBall();
+		void updateSupportingPositions();
+		float calculateSupportingPositionScoreAt(const AbsVector3& pos) const;
 		Match* mMatch;
 		bool mFirst;
 		std::vector<std::shared_ptr<Player>> mPlayers;
 		Player* mPlayerNearestToBall;
+		Countdown mSupportingPositionsTimer;
+		std::vector<std::vector<float>> mSupportingPositions;
 };
 
 #endif

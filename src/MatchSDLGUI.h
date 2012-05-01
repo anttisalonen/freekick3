@@ -1,8 +1,13 @@
 #ifndef MATCHSDLGUI_H
 #define MATCHSDLGUI_H
 
-#include <SDL.h>
+#include <memory>
+#include <map>
 
+#include <SDL.h>
+#include <SDL_ttf.h>
+
+#include "Color.h"
 #include "MatchGUI.h"
 #include "Texture.h"
 #include "Clock.h"
@@ -23,6 +28,46 @@ Rectangle::Rectangle(float x_, float y_, float w_, float h_)
 {
 }
 
+struct FontConfig {
+	inline FontConfig(const char* str, const Color& c);
+	inline bool operator==(const FontConfig& f) const;
+	inline bool operator<(const FontConfig& f) const;
+	std::string mText;
+	Color mColor;
+};
+
+FontConfig::FontConfig(const char* str, const Color& c)
+	: mText(str),
+	mColor(c)
+{
+}
+
+bool FontConfig::operator==(const FontConfig& f) const
+{
+	return mText == f.mText && mColor == f.mColor;
+}
+
+bool FontConfig::operator<(const FontConfig& f) const
+{
+	if(mText != f.mText)
+		return mText < f.mText;
+	return mColor < f.mColor;
+}
+
+struct TextTexture {
+	inline TextTexture(std::shared_ptr<Texture> t, unsigned int w, unsigned int h);
+	std::shared_ptr<Texture> mTexture;
+	unsigned int mWidth;
+	unsigned int mHeight;
+};
+
+TextTexture::TextTexture(std::shared_ptr< Texture> t, unsigned int w, unsigned int h)
+	: mTexture(t),
+	mWidth(w),
+	mHeight(h)
+{
+}
+
 class MatchSDLGUI : public MatchGUI, public PlayerController {
 	public:
 		MatchSDLGUI(std::shared_ptr<Match> match);
@@ -37,6 +82,7 @@ class MatchSDLGUI : public MatchGUI, public PlayerController {
 		void finishFrame();
 		bool setupScreen();
 		void loadTextures();
+		void loadFont();
 		bool handleInput(float frameTime);
 		void handleInputState(float frameTime);
 		void setPlayerController();
@@ -44,6 +90,9 @@ class MatchSDLGUI : public MatchGUI, public PlayerController {
 		static void drawSprite(const Texture& t,
 				const Rectangle& vertcoords,
 				const Rectangle& texcoords, float depth);
+		void drawText(float x, float y,
+				const FontConfig& f,
+				bool screencoordinates, bool centered);
 		Clock mClock;
 		SDL_Surface* mScreen;
 		std::shared_ptr<Texture> mPlayerTextureHome;
@@ -58,6 +107,8 @@ class MatchSDLGUI : public MatchGUI, public PlayerController {
 		Vector3 mPlayerControlVelocity;
 		double mPlayerKickPower;
 		double mPlayerKickPowerVelocity;
+		TTF_Font* mFont;
+		std::map<FontConfig, std::shared_ptr<TextTexture>> mTextMap;
 };
 
 #endif

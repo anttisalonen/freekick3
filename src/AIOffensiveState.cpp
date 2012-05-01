@@ -25,8 +25,8 @@ std::shared_ptr<PlayerAction> AIOffensiveState::actOffBall(double time)
 		return mPlayController->switchState(std::shared_ptr<AIState>(new AIDefendState(mPlayer, mPlayController)), time);
 	}
 	else {
-		/* TODO */
-		return std::shared_ptr<PlayerAction>(new IdlePA());
+		return AIHelpers::createMoveActionTo(*mPlayer,
+				AIHelpers::getSupportingPosition(*mPlayer));
 	}
 }
 

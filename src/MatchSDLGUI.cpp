@@ -1,4 +1,7 @@
+#include <assert.h>
+
 #include <stdexcept>
+#include <sstream>
 
 #include <SDL_image.h>
 #include <SDL_ttf.h>
@@ -17,7 +20,8 @@ MatchSDLGUI::MatchSDLGUI(std::shared_ptr<Match> match)
 	mScaleLevelVelocity(0.0f),
 	mFreeCamera(false),
 	mPlayerKickPower(0.0f),
-	mPlayerKickPowerVelocity(0.0f)
+	mPlayerKickPowerVelocity(0.0f),
+	mFont(nullptr)
 {
 	if (SDL_Init(SDL_INIT_EVERYTHING) == -1) {
 		fprintf(stderr, "Unable to init SDL: %s\n", SDL_GetError());
@@ -49,6 +53,7 @@ MatchSDLGUI::MatchSDLGUI(std::shared_ptr<Match> match)
 	SDL_EnableKeyRepeat(0, SDL_DEFAULT_REPEAT_INTERVAL);
 
 	loadTextures();
+	loadFont();
 
 	if(!setupScreen()) {
 		fprintf(stderr, "Unable to setup screen\n");
@@ -58,8 +63,19 @@ MatchSDLGUI::MatchSDLGUI(std::shared_ptr<Match> match)
 
 MatchSDLGUI::~MatchSDLGUI()
 {
+	if(mFont)
+		TTF_CloseFont(mFont);
 	TTF_Quit();
 	SDL_Quit();
+}
+
+void MatchSDLGUI::loadFont()
+{
+	mFont = TTF_OpenFont("share/DejaVuSans.ttf", 12);
+	if(!mFont) {
+		fprintf(stderr, "Could not open font: %s\n", TTF_GetError());
+		throw std::runtime_error("Loading font");
+	}
 }
 
 void MatchSDLGUI::play()
@@ -88,6 +104,24 @@ void MatchSDLGUI::drawEnvironment()
 				mScaleLevel * mMatch->getPitchWidth(),
 				mScaleLevel * mMatch->getPitchHeight()),
 			Rectangle(0, 0, 20, 20), 0);
+	std::stringstream result;
+	result << mMatch->getScore(false) << " - " << mMatch->getScore(true);
+	drawText(10, 10, FontConfig(result.str().c_str(), Color(0, 0, 0)), true, false);
+
+	const Team* t = mMatch->getTeam(1);
+	for(int j = -mMatch->getPitchHeight() * 0.5f + 8; j < mMatch->getPitchHeight() * 0.5 - 8; j += 8) {
+		for(int i = -mMatch->getPitchWidth() * 0.5f + 8; i < mMatch->getPitchWidth() * 0.5 - 8; i += 8) {
+			float score = t->getSupportingPositionScoreAt(AbsVector3(i, j, 0));
+			int iscore(score);
+			char buf[128];
+			sprintf(buf, "%d", iscore);
+			if(iscore < 0)
+				iscore = 0;
+			if(iscore > 255)
+				iscore = 255;
+			drawText(i, j, FontConfig(buf, Color(iscore, iscore, iscore)), false, false);
+		}
+	}
 }
 
 void MatchSDLGUI::drawPlayers()
@@ -104,7 +138,7 @@ void MatchSDLGUI::drawPlayers()
 			drawSprite(pl->getTeam()->isFirst() ? *mPlayerTextureHome : *mPlayerTextureAway,
 					Rectangle((-mCamera.x + v.v.x) * mScaleLevel + screenWidth * 0.5f,
 						(-mCamera.y + v.v.y) * mScaleLevel + screenHeight * 0.5f,
-						mScaleLevel, mScaleLevel),
+						mScaleLevel * 2.0f, mScaleLevel * 2.0f),
 					Rectangle(1, 1, -1, -1), 0.1f);
 		}
 	}
@@ -115,7 +149,7 @@ void MatchSDLGUI::drawBall()
 	const AbsVector3& v(mMatch->getBall()->getPosition());
 	drawSprite(*mBallTexture, Rectangle((-mCamera.x + v.v.x) * mScaleLevel + screenWidth * 0.5f,
 				(-mCamera.y + v.v.y) * mScaleLevel + screenHeight * 0.5f,
-				mScaleLevel * 0.3f, mScaleLevel * 0.3f),
+				mScaleLevel * 0.6f, mScaleLevel * 0.6f),
 			Rectangle(1, 1, -1, -1), 0.1f);
 }
 
@@ -358,4 +392,44 @@ void MatchSDLGUI::setPlayerController()
 	}
 }
 
+void MatchSDLGUI::drawText(float x, float y,
+		const FontConfig& f,
+		bool screencoordinates, bool centered)
+{
+	auto it = mTextMap.find(f);
+	if(it == mTextMap.end()) {
+		SDL_Surface* text;
+		SDL_Color color = {f.mColor.r, f.mColor.g, f.mColor.b};
+
+		text = TTF_RenderUTF8_Blended(mFont, f.mText.c_str(), color);
+		if(!text) {
+			fprintf(stderr, "Could not render text: %s\n",
+					TTF_GetError());
+			return;
+		}
+		else {
+			std::shared_ptr<Texture> texture(new Texture(text));
+			std::shared_ptr<TextTexture> ttexture(new TextTexture(texture, text->w, text->h));
+			auto it2 = mTextMap.insert(std::make_pair(f, ttexture));
+			it = it2.first;
+			SDL_FreeSurface(text);
+		}
+
+	}
+
+	assert(it != mTextMap.end());
+	if(screencoordinates) {
+		drawSprite(*it->second->mTexture, Rectangle(x, y,
+					3.0f * it->second->mWidth,
+					3.0f * it->second->mHeight),
+				Rectangle(0, 1, 1, -1), 5.0f);
+	}
+	else {
+		drawSprite(*it->second->mTexture, Rectangle((-mCamera.x + x) * mScaleLevel + screenWidth * 0.5f,
+					(-mCamera.y + y) * mScaleLevel + screenHeight * 0.5f,
+					mScaleLevel * 0.1f * it->second->mWidth,
+					mScaleLevel * 0.1f * it->second->mHeight),
+				Rectangle(0, 1, 1, -1), 5.0f);
+	}
+}
 

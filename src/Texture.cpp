@@ -9,18 +9,22 @@
 
 Texture::Texture(const SDLSurface& surf, unsigned int startrow, unsigned int height)
 {
-	setupSDLSurface(surf, startrow, height);
+	setupSDLSurface(surf.getSurface(), startrow, height);
 }
 
 Texture::Texture(const char* filename, unsigned int startrow, unsigned int height)
 {
 	SDLSurface surf(filename);
+	setupSDLSurface(surf.getSurface(), startrow, height);
+}
+
+Texture::Texture(const SDL_Surface* surf, unsigned int startrow, unsigned int height)
+{
 	setupSDLSurface(surf, startrow, height);
 }
 
-void Texture::setupSDLSurface(const SDLSurface& s, unsigned int startrow, unsigned int height)
+void Texture::setupSDLSurface(const SDL_Surface* surf, unsigned int startrow, unsigned int height)
 {
-	const SDL_Surface* surf = s.getSurface();
 	bool hasAlpha = surf->format->BytesPerPixel == 4;
 	glGenTextures(1, &mTexture);
 	glBindTexture(GL_TEXTURE_2D, mTexture);

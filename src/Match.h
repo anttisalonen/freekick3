@@ -60,6 +60,7 @@ class Match {
 		bool kickBall(Player* p, const AbsVector3& v);
 		double getRollInertiaFactor() const;
 		void addGoal(bool forFirst);
+		int getScore(bool first) const;
 	private:
 		void applyPlayerAction(const std::shared_ptr<PlayerAction> a,
 				const std::shared_ptr<Player> p, double time);

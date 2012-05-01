@@ -213,3 +213,10 @@ void Match::addGoal(bool forFirst)
 {
 	mScore[forFirst ? 0 : 1]++;
 }
+
+int Match::getScore(bool first) const
+{
+	return mScore[first ? 0 : 1];
+}
+
+

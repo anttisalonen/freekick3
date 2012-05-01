@@ -61,14 +61,7 @@ bool MatchHelpers::nearestOwnPlayerTo(const Player& p, const AbsVector3& v)
 
 AbsVector3 MatchHelpers::oppositeGoalPosition(const Player& p)
 {
-	const Match* m = p.getMatch();
-	assert(m);
-	if(attacksUp(p)) {
-		return m->convertRelativeToAbsoluteVector(RelVector3(Vector3(0, 1, 0)));
-	}
-	else {
-		return m->convertRelativeToAbsoluteVector(RelVector3(Vector3(0, -1, 0)));
-	}
+	return oppositeGoalPosition(*p.getTeam());
 }
 
 AbsVector3 MatchHelpers::oppositePenaltySpotPosition(const Player& p)
@@ -79,6 +72,18 @@ AbsVector3 MatchHelpers::oppositePenaltySpotPosition(const Player& p)
 	else
 		v.v.y += 11.0f;
 	return v;
+}
+
+AbsVector3 MatchHelpers::oppositeGoalPosition(const Team& t)
+{
+	const Match* m = t.getMatch();
+	assert(m);
+	if(attacksUp(t)) {
+		return m->convertRelativeToAbsoluteVector(RelVector3(Vector3(0, 1, 0)));
+	}
+	else {
+		return m->convertRelativeToAbsoluteVector(RelVector3(Vector3(0, -1, 0)));
+	}
 }
 
 bool MatchHelpers::canKickBall(const Player& p)
@@ -92,9 +97,14 @@ bool MatchHelpers::myTeamInControl(const Player& p)
 	return p.getMatch()->getReferee()->isFirstTeamInControl() == p.getTeam()->isFirst();
 }
 
+const std::vector<std::shared_ptr<Player>>& MatchHelpers::getOpposingPlayers(const Team& t)
+{
+	return getTeamPlayers(*t.getMatch(), t.isFirst() ? 1 : 0);
+}
+
 const std::vector<std::shared_ptr<Player>>& MatchHelpers::getOpposingPlayers(const Player& p)
 {
-	return getTeamPlayers(*p.getMatch(), p.getTeam()->isFirst() ? 1 : 0);
+	return getOpposingPlayers(*p.getTeam());
 }
 
 const std::vector<std::shared_ptr<Player>>& MatchHelpers::getOwnPlayers(const Player& p)
@@ -112,6 +122,11 @@ const std::vector<std::shared_ptr<Player>>& MatchHelpers::getTeamPlayers(const M
 bool MatchHelpers::attacksUp(const Player& p)
 {
 	return p.getTeam()->isFirst() == (p.getMatch()->getMatchHalf() == MatchHalf::FirstHalf);
+}
+
+bool MatchHelpers::attacksUp(const Team& t)
+{
+	return t.isFirst() == (t.getMatch()->getMatchHalf() == MatchHalf::FirstHalf);
 }
 
 

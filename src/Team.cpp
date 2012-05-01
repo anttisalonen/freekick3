@@ -1,11 +1,26 @@
+#include <assert.h>
+
 #include "Team.h"
 #include "MatchHelpers.h"
+
+#define SUPPORTING_POS_RESOLUTION 4
 
 Team::Team(Match* match, bool first)
 	: mMatch(match),
 	mFirst(first),
-	mPlayerNearestToBall(nullptr)
+	mPlayerNearestToBall(nullptr),
+	mSupportingPositionsTimer(0.5f)
 {
+	for(unsigned int j = SUPPORTING_POS_RESOLUTION * 2;
+			j <= match->getPitchHeight() - SUPPORTING_POS_RESOLUTION;
+			j += SUPPORTING_POS_RESOLUTION) {
+		mSupportingPositions.push_back(std::vector<float>());
+		for(unsigned int i = SUPPORTING_POS_RESOLUTION * 2;
+				i <= match->getPitchWidth() - SUPPORTING_POS_RESOLUTION;
+				i += SUPPORTING_POS_RESOLUTION * 2) {
+			mSupportingPositions[mSupportingPositions.size() - 1].push_back(0.0f);
+		}
+	}
 }
 
 void Team::addPlayer()
@@ -83,6 +98,10 @@ bool Team::isFirst() const
 void Team::act(double time)
 {
 	updatePlayerNearestToBall();
+	mSupportingPositionsTimer.doCountdown(time);
+	if(mSupportingPositionsTimer.checkAndRewind()) {
+		updateSupportingPositions();
+	}
 }
 
 Player* Team::getPlayerNearestToBall() const
@@ -95,4 +114,62 @@ void Team::updatePlayerNearestToBall()
 	if(mPlayers.size())
 		mPlayerNearestToBall = MatchHelpers::nearestOwnPlayerToBall(*this);
 }
+
+float Team::getSupportingPositionScoreAt(const AbsVector3& pos) const
+{
+	unsigned int i = std::max(0, (int)(pos.v.x + mMatch->getPitchWidth() * 0.5f) / SUPPORTING_POS_RESOLUTION - 2);
+	unsigned int j = std::max(0, (int)(pos.v.y + mMatch->getPitchHeight() * 0.5f) / SUPPORTING_POS_RESOLUTION - 2);
+	if(j >= mSupportingPositions.size())
+		j = mSupportingPositions.size() - 1;
+	if(i >= mSupportingPositions[j].size())
+		i = mSupportingPositions[j].size() - 1;
+	// printf("Support coords: (%3.1f, %3.1f) => (%d, %d) = %3.3f\n", pos.v.x, pos.v.y, i, j, mSupportingPositions[j][i]);
+	return mSupportingPositions.at(j).at(i);
+}
+
+void Team::updateSupportingPositions()
+{
+	for(unsigned int j = 0; j < mSupportingPositions.size(); j++) {
+		for(unsigned int i = 0; i < mSupportingPositions[j].size(); i++) {
+			mSupportingPositions.at(j).at(i) =
+				calculateSupportingPositionScoreAt(AbsVector3(-mMatch->getPitchWidth() * 0.5f +
+							SUPPORTING_POS_RESOLUTION * (i + 2),
+							-mMatch->getPitchHeight() * 0.5f +
+							SUPPORTING_POS_RESOLUTION * (j + 2), 0));
+		}
+	}
+}
+
+float Team::calculateSupportingPositionScoreAt(const AbsVector3& pos) const
+{
+	float pts = 200.0f;
+	float distToGoal = (pos.v - MatchHelpers::oppositeGoalPosition(*this).v).length();
+	// std::cout << "Distance to goal: " << distToGoal << "; ";
+	pts -= distToGoal;
+	assert(pos.v.x > -mMatch->getPitchWidth());
+	assert(pos.v.x < mMatch->getPitchWidth());
+	assert(pos.v.y > -mMatch->getPitchHeight());
+	assert(pos.v.y < mMatch->getPitchHeight());
+	if(pts > 0) {
+		float distToBall = (pos.v - mMatch->getBall()->getPosition().v).length();
+		if(distToBall < 5.0f || distToBall > 40.0f) {
+			pts = 0;
+		}
+	}
+	if(pts > 0) {
+		for(auto op : MatchHelpers::getOpposingPlayers(*this)) {
+			float distToPl = (pos.v - op->getPosition().v).length();
+			if(distToPl < 20.0f) {
+				pts -= 20.0 - distToPl;
+				// std::cout << "Distance to player: " << distToPl << "; ";
+				if(pts < 0)
+					break;
+			}
+		}
+	}
+	pts = std::max(0.0f, pts);
+	// std::cout << "Total points: " << pts << "\n";
+	return pts;
+}
+
 
