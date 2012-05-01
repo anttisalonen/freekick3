@@ -54,10 +54,6 @@ class AIKickBallState : public AIState {
 		std::shared_ptr<PlayerAction> actOnBall(double time);
 		std::shared_ptr<PlayerAction> actNearBall(double time);
 		std::shared_ptr<PlayerAction> actOffBall(double time);
-	protected:
-		double getBestPassTarget(Player* p);
-		double getBestDribbleTarget(AbsVector3* v);
-		double getBestShootTarget(AbsVector3* v);
 };
 
 class AIOffensiveState : public AIState {
