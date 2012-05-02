@@ -1,4 +1,5 @@
 #include "AIPlayStates.h"
+#include "AIActions.h"
 #include "PlayerActions.h"
 #include "PlayerAIController.h"
 #include "MatchHelpers.h"
@@ -26,8 +27,15 @@ std::shared_ptr<PlayerAction> AIDefendState::actOffBall(double time)
 		return mPlayController->switchState(std::shared_ptr<AIState>(new AIOffensiveState(mPlayer, mPlayController)), time);
 	}
 	else {
-		/* TODO */
-		return std::shared_ptr<PlayerAction>(new IdlePA());
+		std::vector<std::shared_ptr<AIAction>> actions;
+		actions.push_back(std::shared_ptr<AIAction>(new AIFetchBallAction(mPlayer)));
+		actions.push_back(std::shared_ptr<AIAction>(new AIBlockAction(mPlayer)));
+		actions.push_back(std::shared_ptr<AIAction>(new AIGuardAction(mPlayer)));
+		AIActionChooser actionchooser(actions);
+
+		std::shared_ptr<AIAction> best = actionchooser.getBestAction();
+		mDescription = std::string("Defending - ") + best->getName();
+		return best->getAction();
 	}
 }
 

@@ -37,6 +37,11 @@ void AIPlayController::setNewState(std::shared_ptr<AIState> newstate)
 	mCurrentState = newstate;
 }
 
+const std::string& AIPlayController::getDescription() const
+{
+	return mCurrentState->getDescription();
+}
+
 AIState::AIState(Player* p, AIPlayController* m)
 	: mPlayer(p),
 	mPlayController(m)
@@ -53,5 +58,8 @@ void AIState::setNewState(std::shared_ptr<AIState> newstate)
 	mPlayController->setNewState(newstate);
 }
 
-
+const std::string& AIState::getDescription() const
+{
+	return mDescription;
+}
 

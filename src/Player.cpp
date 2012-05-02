@@ -19,6 +19,11 @@ Player::~Player()
 	delete mAIController;
 }
 
+const PlayerAIController* Player::getAIController() const
+{
+	return mAIController;
+}
+
 std::shared_ptr<PlayerAction> Player::act(double time)
 {
 	return mController->act(time);

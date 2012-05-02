@@ -20,10 +20,11 @@ std::shared_ptr<PlayerAction> AIHelpers::createMoveActionTo(const Player& p,
 
 AbsVector3 AIHelpers::getSupportingPosition(const Player& p)
 {
-	float best = -1.0f;
+	float best = 0.001f;
 	AbsVector3 sp(p.getPosition());
-	const int range = 32;
-	const int step = 8;
+	sp.v.y = 0.0f; // move stuck player towards middle
+	const int range = 40;
+	const int step = 5;
 	int minx = int(p.getMatch()->getPitchWidth() * -0.5f + 1);
 	int maxx = int(-minx);
 	int miny = int(p.getMatch()->getPitchHeight() * -0.5f + 1);

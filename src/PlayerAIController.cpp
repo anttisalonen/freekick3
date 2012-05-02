@@ -62,11 +62,23 @@ std::shared_ptr<PlayerAction> PlayerAIController::act(double time)
 						}
 					}
 					else {
-						/* TODO: move to a good position */
-						return std::shared_ptr<PlayerAction>(new IdlePA());
+						if(mPlayer->getMatch()->getPlayState() == PlayState::OutKickoff) {
+							return AIHelpers::createMoveActionTo(*mPlayer,
+									mPlayer->getMatch()->convertRelativeToAbsoluteVector(mPlayer->getHomePosition()));
+						}
+						else {
+							/* TODO: move to a good position */
+							return std::shared_ptr<PlayerAction>(new IdlePA());
+						}
 					}
 			}
 	}
 	throw std::runtime_error("AI error: no state handler");
 }
+
+const std::string& PlayerAIController::getDescription() const
+{
+	return mPlayState->getDescription();
+}
+
 

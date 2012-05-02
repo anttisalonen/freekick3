@@ -55,4 +55,22 @@ class AIPassAction : public AIAction {
 		static const char* mActionName;
 };
 
+class AIFetchBallAction : public AIAction {
+	public:
+		AIFetchBallAction(const Player* p);
+		static const char* mActionName;
+};
+
+class AIGuardAction : public AIAction {
+	public:
+		AIGuardAction(const Player* p);
+		static const char* mActionName;
+};
+
+class AIBlockAction : public AIAction {
+	public:
+		AIBlockAction(const Player* p);
+		static const char* mActionName;
+};
+
 #endif

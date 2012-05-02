@@ -8,7 +8,7 @@ int main(int argc, char** argv)
 {
 	try {
 		std::shared_ptr<Match> match(new Match());
-		std::unique_ptr<MatchSDLGUI> matchGUI(new MatchSDLGUI(match));
+		std::unique_ptr<MatchSDLGUI> matchGUI(new MatchSDLGUI(match, argc, argv));
 		matchGUI->play();
 	}
 	catch (std::exception& e) {

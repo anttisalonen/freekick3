@@ -142,32 +142,39 @@ void Team::updateSupportingPositions()
 
 float Team::calculateSupportingPositionScoreAt(const AbsVector3& pos) const
 {
-	float pts = 200.0f;
+	float pts = 1.0f;
 	float distToGoal = (pos.v - MatchHelpers::oppositeGoalPosition(*this).v).length();
 	// std::cout << "Distance to goal: " << distToGoal << "; ";
-	pts -= distToGoal;
+	pts -= 0.01f * distToGoal;
 	assert(pos.v.x > -mMatch->getPitchWidth());
 	assert(pos.v.x < mMatch->getPitchWidth());
 	assert(pos.v.y > -mMatch->getPitchHeight());
 	assert(pos.v.y < mMatch->getPitchHeight());
 	if(pts > 0) {
 		float distToBall = (pos.v - mMatch->getBall()->getPosition().v).length();
+		// corresponds rather directly to how defensive the team plays
 		if(distToBall < 5.0f || distToBall > 40.0f) {
 			pts = 0;
 		}
 	}
+	int offsideplayers = 0;
 	if(pts > 0) {
 		for(auto op : MatchHelpers::getOpposingPlayers(*this)) {
 			float distToPl = (pos.v - op->getPosition().v).length();
-			if(distToPl < 20.0f) {
-				pts -= 20.0 - distToPl;
+			if((op->getPosition().v.y >= pos.v.y) == MatchHelpers::attacksUp(*this))
+				offsideplayers++;
+			if(distToPl < 8.0f) {
+				pts -= (8.0 - distToPl) / 16.0f;
 				// std::cout << "Distance to player: " << distToPl << "; ";
 				if(pts < 0)
 					break;
 			}
 		}
 	}
-	pts = std::max(0.0f, pts);
+	if(offsideplayers < 2 && (mMatch->getBall()->getPosition().v.y < pos.v.y) == MatchHelpers::attacksUp(*this))
+		pts = 0.0f;
+	else
+		pts = std::max(0.0f, pts);
 	// std::cout << "Total points: " << pts << "\n";
 	return pts;
 }

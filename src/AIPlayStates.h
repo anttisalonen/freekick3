@@ -2,6 +2,7 @@
 #define AIPLAYSTATES_H
 
 #include <memory>
+#include <string>
 
 #include "Player.h"
 #include "PlayerController.h"
@@ -15,6 +16,7 @@ class AIPlayController : public PlayerController {
 		std::shared_ptr<PlayerAction> act(double time);
 		std::shared_ptr<PlayerAction> switchState(std::shared_ptr<AIState> newstate, double time);
 		void setNewState(std::shared_ptr<AIState> newstate);
+		const std::string& getDescription() const;
 	private:
 		std::shared_ptr<AIState> mCurrentState;
 };
@@ -25,11 +27,13 @@ class AIState {
 		virtual std::shared_ptr<PlayerAction> actOnBall(double time) = 0;
 		virtual std::shared_ptr<PlayerAction> actNearBall(double time) = 0;
 		virtual std::shared_ptr<PlayerAction> actOffBall(double time) = 0;
+		const std::string& getDescription() const;
 	protected:
 		std::shared_ptr<PlayerAction> switchState(std::shared_ptr<AIState> newstate, double time);
 		void setNewState(std::shared_ptr<AIState> newstate);
 		Player* mPlayer;
 		AIPlayController* mPlayController;
+		std::string mDescription;
 };
 
 class AIGoalkeeperState : public AIState {

@@ -19,7 +19,9 @@ std::shared_ptr<PlayerAction> AIKickBallState::actOnBall(double time)
 
 	mPlayController->setNewState(std::shared_ptr<AIState>(new AIOffensiveState(mPlayer, mPlayController)));
 
-	return actionchooser.getBestAction()->getAction();
+	std::shared_ptr<AIAction> best = actionchooser.getBestAction();
+	mDescription = std::string("Defending - ") + best->getName();
+	return best->getAction();
 }
 
 std::shared_ptr<PlayerAction> AIKickBallState::actNearBall(double time)

@@ -53,15 +53,16 @@ Player* MatchHelpers::nearestOwnPlayerTo(const Team& t, const AbsVector3& v)
 	return np;
 }
 
+Player* MatchHelpers::nearestOppositePlayerToBall(const Team& t)
+{
+	const Team* t2 = t.isFirst() ? t.getMatch()->getTeam(1) : t.getMatch()->getTeam(0);
+	return nearestOwnPlayerToBall(*t2);
+}
+
 bool MatchHelpers::nearestOwnPlayerTo(const Player& p, const AbsVector3& v)
 {
 	Player* np = nearestOwnPlayerTo(*p.getTeam(), v);
 	return &p == np;
-}
-
-AbsVector3 MatchHelpers::oppositeGoalPosition(const Player& p)
-{
-	return oppositeGoalPosition(*p.getTeam());
 }
 
 AbsVector3 MatchHelpers::oppositePenaltySpotPosition(const Player& p)
@@ -72,6 +73,28 @@ AbsVector3 MatchHelpers::oppositePenaltySpotPosition(const Player& p)
 	else
 		v.v.y += 11.0f;
 	return v;
+}
+
+AbsVector3 MatchHelpers::ownGoalPosition(const Player& p)
+{
+	return ownGoalPosition(*p.getTeam());
+}
+
+AbsVector3 MatchHelpers::ownGoalPosition(const Team& t)
+{
+	const Match* m = t.getMatch();
+	assert(m);
+	if(attacksUp(t)) {
+		return m->convertRelativeToAbsoluteVector(RelVector3(Vector3(0, -1, 0)));
+	}
+	else {
+		return m->convertRelativeToAbsoluteVector(RelVector3(Vector3(0, 1, 0)));
+	}
+}
+
+AbsVector3 MatchHelpers::oppositeGoalPosition(const Player& p)
+{
+	return oppositeGoalPosition(*p.getTeam());
 }
 
 AbsVector3 MatchHelpers::oppositeGoalPosition(const Team& t)
@@ -127,6 +150,12 @@ bool MatchHelpers::attacksUp(const Player& p)
 bool MatchHelpers::attacksUp(const Team& t)
 {
 	return t.isFirst() == (t.getMatch()->getMatchHalf() == MatchHalf::FirstHalf);
+}
+
+const Team* MatchHelpers::getOpposingTeam(const Player& p)
+{
+	unsigned int idx = p.getTeam()->isFirst() ? 1 : 0;
+	return p.getMatch()->getTeam(idx);
 }
 
 

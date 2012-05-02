@@ -33,6 +33,7 @@ class Player : public MatchEntity {
 		void update(float time) override;
 		void setPlayerTactics(const PlayerTactics& t);
 		const PlayerTactics& getTactics() const;
+		const PlayerAIController* getAIController() const;
 	private:
 		Team* mTeam;
 		PlayerController* mController;

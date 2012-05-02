@@ -1,4 +1,5 @@
 #include <assert.h>
+#include <string.h>
 
 #include <stdexcept>
 #include <sstream>
@@ -9,11 +10,12 @@
 
 #include "MatchSDLGUI.h"
 #include "MatchHelpers.h"
+#include "PlayerAIController.h"
 
 static const int screenWidth = 800;
 static const int screenHeight = 600;
 
-MatchSDLGUI::MatchSDLGUI(std::shared_ptr<Match> match)
+MatchSDLGUI::MatchSDLGUI(std::shared_ptr<Match> match, int argc, char** argv)
 	: MatchGUI(match),
 	PlayerController(mMatch->getPlayer(0, 9)),
 	mScaleLevel(15.0f),
@@ -21,7 +23,8 @@ MatchSDLGUI::MatchSDLGUI(std::shared_ptr<Match> match)
 	mFreeCamera(false),
 	mPlayerKickPower(0.0f),
 	mPlayerKickPowerVelocity(0.0f),
-	mFont(nullptr)
+	mFont(nullptr),
+	mObserver(false)
 {
 	if (SDL_Init(SDL_INIT_EVERYTHING) == -1) {
 		fprintf(stderr, "Unable to init SDL: %s\n", SDL_GetError());
@@ -59,6 +62,12 @@ MatchSDLGUI::MatchSDLGUI(std::shared_ptr<Match> match)
 		fprintf(stderr, "Unable to setup screen\n");
 		throw std::runtime_error("Setup screen");
 	}
+
+	for(int i = 1; i < argc; i++) {
+		if(!strcmp(argv[i], "-o")) {
+			mObserver = true;
+		}
+	}
 }
 
 MatchSDLGUI::~MatchSDLGUI()
@@ -81,12 +90,15 @@ void MatchSDLGUI::loadFont()
 void MatchSDLGUI::play()
 {
 	double prevTime = Clock::getTime();
+	if(mObserver)
+		mFreeCamera = true;
 	while(!mMatch->matchOver()) {
 		double newTime = Clock::getTime();
 		double frameTime = newTime - prevTime;
 		prevTime = newTime;
 		mMatch->update(frameTime);
-		setPlayerController();
+		if(!mObserver)
+			setPlayerController();
 		if(handleInput(frameTime))
 			break;
 		startFrame();
@@ -106,20 +118,20 @@ void MatchSDLGUI::drawEnvironment()
 			Rectangle(0, 0, 20, 20), 0);
 	std::stringstream result;
 	result << mMatch->getScore(false) << " - " << mMatch->getScore(true);
-	drawText(10, 10, FontConfig(result.str().c_str(), Color(0, 0, 0)), true, false);
+	drawText(10, 10, FontConfig(result.str().c_str(), Color(0, 0, 0), 3.0f), true, false);
 
 	const Team* t = mMatch->getTeam(1);
 	for(int j = -mMatch->getPitchHeight() * 0.5f + 8; j < mMatch->getPitchHeight() * 0.5 - 8; j += 8) {
 		for(int i = -mMatch->getPitchWidth() * 0.5f + 8; i < mMatch->getPitchWidth() * 0.5 - 8; i += 8) {
 			float score = t->getSupportingPositionScoreAt(AbsVector3(i, j, 0));
-			int iscore(score);
+			int iscore(score * 255.0f);
 			char buf[128];
 			sprintf(buf, "%d", iscore);
 			if(iscore < 0)
 				iscore = 0;
 			if(iscore > 255)
 				iscore = 255;
-			drawText(i, j, FontConfig(buf, Color(iscore, iscore, iscore)), false, false);
+			drawText(i, j, FontConfig(buf, Color(iscore, iscore, iscore), 0.1f), false, false);
 		}
 	}
 }
@@ -140,6 +152,9 @@ void MatchSDLGUI::drawPlayers()
 						(-mCamera.y + v.v.y) * mScaleLevel + screenHeight * 0.5f,
 						mScaleLevel * 2.0f, mScaleLevel * 2.0f),
 					Rectangle(1, 1, -1, -1), 0.1f);
+			drawText(v.v.x, v.v.y,
+					FontConfig(pl->getAIController()->getDescription().c_str(),
+						Color(0, 0, 0), 0.05f), false, false);
 		}
 	}
 }
@@ -396,6 +411,8 @@ void MatchSDLGUI::drawText(float x, float y,
 		const FontConfig& f,
 		bool screencoordinates, bool centered)
 {
+	if(f.mText.size() == 0)
+		return;
 	auto it = mTextMap.find(f);
 	if(it == mTextMap.end()) {
 		SDL_Surface* text;
@@ -420,15 +437,15 @@ void MatchSDLGUI::drawText(float x, float y,
 	assert(it != mTextMap.end());
 	if(screencoordinates) {
 		drawSprite(*it->second->mTexture, Rectangle(x, y,
-					3.0f * it->second->mWidth,
-					3.0f * it->second->mHeight),
+					it->first.mScale * it->second->mWidth,
+					it->first.mScale * it->second->mHeight),
 				Rectangle(0, 1, 1, -1), 5.0f);
 	}
 	else {
 		drawSprite(*it->second->mTexture, Rectangle((-mCamera.x + x) * mScaleLevel + screenWidth * 0.5f,
 					(-mCamera.y + y) * mScaleLevel + screenHeight * 0.5f,
-					mScaleLevel * 0.1f * it->second->mWidth,
-					mScaleLevel * 0.1f * it->second->mHeight),
+					mScaleLevel * it->first.mScale * it->second->mWidth,
+					mScaleLevel * it->first.mScale * it->second->mHeight),
 				Rectangle(0, 1, 1, -1), 5.0f);
 	}
 }

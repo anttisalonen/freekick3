@@ -167,3 +167,20 @@ bool Referee::isFirstTeamInControl() const
 	return mFirstTeamInControl;
 }
 
+bool Referee::kickSiteClear() const
+{
+	if(!playing(mMatch->getMatchHalf()))
+		return true;
+
+	switch(mMatch->getPlayState()) {
+		case PlayState::InPlay:
+			return true;
+		case PlayState::OutKickoff:
+			return allPlayersOnOwnSideAndReady();
+		default:
+			/* TODO: add restarts here when AI is able to clear site */
+			return true;
+	}
+	return true;
+}
+

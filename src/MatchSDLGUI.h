@@ -29,29 +29,33 @@ Rectangle::Rectangle(float x_, float y_, float w_, float h_)
 }
 
 struct FontConfig {
-	inline FontConfig(const char* str, const Color& c);
+	inline FontConfig(const char* str, const Color& c, float scale);
 	inline bool operator==(const FontConfig& f) const;
 	inline bool operator<(const FontConfig& f) const;
 	std::string mText;
 	Color mColor;
+	float mScale;
 };
 
-FontConfig::FontConfig(const char* str, const Color& c)
+FontConfig::FontConfig(const char* str, const Color& c, float scale)
 	: mText(str),
-	mColor(c)
+	mColor(c),
+	mScale(scale)
 {
 }
 
 bool FontConfig::operator==(const FontConfig& f) const
 {
-	return mText == f.mText && mColor == f.mColor;
+	return mText == f.mText && mColor == f.mColor && mScale == f.mScale;
 }
 
 bool FontConfig::operator<(const FontConfig& f) const
 {
 	if(mText != f.mText)
 		return mText < f.mText;
-	return mColor < f.mColor;
+	if(!(mColor == f.mColor))
+		return mColor < f.mColor;
+	return mScale < f.mScale;
 }
 
 struct TextTexture {
@@ -70,7 +74,7 @@ TextTexture::TextTexture(std::shared_ptr< Texture> t, unsigned int w, unsigned i
 
 class MatchSDLGUI : public MatchGUI, public PlayerController {
 	public:
-		MatchSDLGUI(std::shared_ptr<Match> match);
+		MatchSDLGUI(std::shared_ptr<Match> match, int argc, char** argv);
 		~MatchSDLGUI();
 		void play();
 		std::shared_ptr<PlayerAction> act(double time);
@@ -109,6 +113,7 @@ class MatchSDLGUI : public MatchGUI, public PlayerController {
 		double mPlayerKickPowerVelocity;
 		TTF_Font* mFont;
 		std::map<FontConfig, std::shared_ptr<TextTexture>> mTextMap;
+		bool mObserver;
 };
 
 #endif
