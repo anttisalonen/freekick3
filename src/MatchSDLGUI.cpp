@@ -150,7 +150,7 @@ void MatchSDLGUI::drawPlayers()
 			j++;
 			const AbsVector3& v(pl->getPosition());
 			drawSprite(pl->getTeam()->isFirst() ? *mPlayerTextureHome : *mPlayerTextureAway,
-					Rectangle((-mCamera.x + v.v.x - 16.0f / screenWidth) * mScaleLevel + screenWidth * 0.5f,
+					Rectangle((-mCamera.x + v.v.x - 0.8f) * mScaleLevel + screenWidth * 0.5f,
 						(-mCamera.y + v.v.y) * mScaleLevel + screenHeight * 0.5f,
 						mScaleLevel * 2.0f, mScaleLevel * 2.0f),
 					Rectangle(1, 1, -1, -1), 0.1f);
@@ -159,7 +159,7 @@ void MatchSDLGUI::drawPlayers()
 						Color(0, 0, 0), 0.05f), false, true);
 			char buf[128];
 			sprintf(buf, "%d", pl->getShirtNumber());
-			drawText(v.v.x + 0.8f, v.v.y + 2.0f,
+			drawText(v.v.x, v.v.y + 2.0f,
 					FontConfig(buf, !mObserver && pl->getTeam()->isFirst() &&
 						pl->getShirtNumber() == controlledPlayerIndex + 1 ?
 						Color(255, 255, 255) : Color(30, 30, 30), 0.05f),
