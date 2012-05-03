@@ -48,12 +48,12 @@ const Team* Player::getTeam() const
 
 double Player::getRunSpeed() const
 {
-	return 8.0f;
+	return 8.0f * mSkills.RunSpeed;
 }
 
 double Player::getMaximumKickPower() const
 {
-	return 40.0f;
+	return 40.0f * mSkills.KickPower;
 }
 
 void Player::setController(PlayerController* c)
@@ -106,5 +106,10 @@ const PlayerTactics& Player::getTactics() const
 int Player::getShirtNumber() const
 {
 	return mShirtNumber;
+}
+
+const PlayerSkills& Player::getSkills() const
+{
+	return mSkills;
 }
 

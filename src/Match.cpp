@@ -195,7 +195,11 @@ bool playing(PlayState h)
 bool Match::kickBall(Player* p, const AbsVector3& v)
 {
 	if(MatchHelpers::canKickBall(*p) && mReferee.ballKicked(*p, v)) {
-		mBall->setVelocity(v);
+		bool kickSuccessful = mBall->getVelocity().v.length() / 80.0f < p->getSkills().BallControl;
+		if(kickSuccessful)
+			mBall->setVelocity(v);
+		else
+			mBall->setVelocity(AbsVector3(v.v.normalized() * 5.0f));
 		p->ballKicked();
 		return true;
 	}

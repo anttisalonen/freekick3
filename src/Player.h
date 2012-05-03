@@ -14,6 +14,16 @@ class PlayerAction;
 class PlayerController;
 class PlayerAIController;
 
+struct PlayerSkills {
+	PlayerSkills()
+		: KickPower(1.0f),
+		RunSpeed(1.0f),
+		BallControl(1.0f) { }
+	float KickPower;
+	float RunSpeed;
+	float BallControl;
+};
+
 class Player : public MatchEntity {
 	public:
 		Player(Match* match, Team* team, int shirtnumber, bool goalkeeper);
@@ -35,6 +45,7 @@ class Player : public MatchEntity {
 		const PlayerTactics& getTactics() const;
 		const PlayerAIController* getAIController() const;
 		int getShirtNumber() const;
+		const PlayerSkills& getSkills() const;
 	private:
 		Team* mTeam;
 		int mShirtNumber;
@@ -44,6 +55,7 @@ class Player : public MatchEntity {
 		bool mGoalkeeper;
 		Countdown mBallKickedTimer;
 		PlayerTactics mTactics;
+		PlayerSkills mSkills;
 };
 
 #endif
