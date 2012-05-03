@@ -120,7 +120,7 @@ void MatchSDLGUI::drawEnvironment()
 				mScaleLevel * mMatch->getPitchHeight()),
 			Rectangle(0, 0, 20, 20), 0);
 	std::stringstream result;
-	result << mMatch->getScore(false) << " - " << mMatch->getScore(true);
+	result << mMatch->getScore(true) << " - " << mMatch->getScore(false);
 	drawText(10, 10, FontConfig(result.str().c_str(), Color(0, 0, 0), 3.0f), true, false);
 
 	const Team* t = mMatch->getTeam(1);
