@@ -379,24 +379,30 @@ std::shared_ptr<PlayerAction> MatchSDLGUI::act(double time)
 	float kickpower = 0.0f;
 	AbsVector3 toBall = AbsVector3(mMatch->getBall()->getPosition().v - mPlayer->getPosition().v);
 	if(mPlayerKickPower && !mPlayerKickPowerVelocity) {
+		// about to kick
 		kickpower = mPlayerKickPower;
 		mPlayerKickPower = 0.0f;
 	}
 	if(!playing(mMatch->getPlayState()) && MatchHelpers::allowedToKick(*mPlayer)) {
+		// restart
 		if(toBall.v.length() > MAX_KICK_DISTANCE) {
 			return std::shared_ptr<PlayerAction>(new
 					RunToPA(AbsVector3(toBall.v.normalized())));
 		}
 	}
-	if(mPlayerControlVelocity.null()) {
-		return std::shared_ptr<PlayerAction>(new IdlePA());
-	}
 	if(kickpower) {
+		// kicking
 		return std::shared_ptr<PlayerAction>(new KickBallPA(AbsVector3(mPlayerControlVelocity * kickpower)));
 	}
 	else if(playing(mMatch->getPlayState())) {
-		if(!(mPlayerKickPower && toBall.v.length() < MAX_KICK_DISTANCE * 0.7f)) {
+		if(!mPlayerControlVelocity.null() && (!mPlayerKickPower || toBall.v.length() >= MAX_KICK_DISTANCE * 0.7f)) {
+			// not on ball and not about to kick => run around
 			return std::shared_ptr<PlayerAction>(new RunToPA(AbsVector3(mPlayerControlVelocity)));
+		}
+		else if(mPlayerKickPower && toBall.v.length() < MAX_KICK_DISTANCE) {
+			// powering kick up => stay on ball
+			return std::shared_ptr<PlayerAction>(new
+					RunToPA(AbsVector3(toBall.v.normalized())));
 		}
 	}
 	return std::shared_ptr<PlayerAction>(new IdlePA());
