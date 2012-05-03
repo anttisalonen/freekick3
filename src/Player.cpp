@@ -4,9 +4,10 @@
 #include "PlayerAIController.h"
 #include "Match.h"
 
-Player::Player(Match* match, Team* team, bool goalkeeper)
+Player::Player(Match* match, Team* team, int shirtnumber, bool goalkeeper)
 	: MatchEntity(match, match->convertRelativeToAbsoluteVector(team->getPausePosition())),
 	mTeam(team),
+	mShirtNumber(shirtnumber),
 	mGoalkeeper(goalkeeper),
 	mBallKickedTimer(1.0f)
 {
@@ -100,5 +101,10 @@ void Player::setPlayerTactics(const PlayerTactics& t)
 const PlayerTactics& Player::getTactics() const
 {
 	return mTactics;
+}
+
+int Player::getShirtNumber() const
+{
+	return mShirtNumber;
 }
 

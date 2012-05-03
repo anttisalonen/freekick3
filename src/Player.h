@@ -16,7 +16,7 @@ class PlayerAIController;
 
 class Player : public MatchEntity {
 	public:
-		Player(Match* match, Team* team, bool goalkeeper);
+		Player(Match* match, Team* team, int shirtnumber, bool goalkeeper);
 		~Player();
 		std::shared_ptr<PlayerAction> act(double time);
 		const Team* getTeam() const;
@@ -34,8 +34,10 @@ class Player : public MatchEntity {
 		void setPlayerTactics(const PlayerTactics& t);
 		const PlayerTactics& getTactics() const;
 		const PlayerAIController* getAIController() const;
+		int getShirtNumber() const;
 	private:
 		Team* mTeam;
+		int mShirtNumber;
 		PlayerController* mController;
 		PlayerAIController* mAIController;
 		RelVector3 mHomePosition;

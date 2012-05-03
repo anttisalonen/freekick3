@@ -15,9 +15,11 @@
 static const int screenWidth = 800;
 static const int screenHeight = 600;
 
+static const int controlledPlayerIndex = 9;
+
 MatchSDLGUI::MatchSDLGUI(std::shared_ptr<Match> match, int argc, char** argv)
 	: MatchGUI(match),
-	PlayerController(mMatch->getPlayer(0, 9)),
+	PlayerController(mMatch->getPlayer(0, controlledPlayerIndex)),
 	mScaleLevel(15.0f),
 	mScaleLevelVelocity(0.0f),
 	mFreeCamera(false),
@@ -148,13 +150,20 @@ void MatchSDLGUI::drawPlayers()
 			j++;
 			const AbsVector3& v(pl->getPosition());
 			drawSprite(pl->getTeam()->isFirst() ? *mPlayerTextureHome : *mPlayerTextureAway,
-					Rectangle((-mCamera.x + v.v.x) * mScaleLevel + screenWidth * 0.5f,
+					Rectangle((-mCamera.x + v.v.x - 16.0f / screenWidth) * mScaleLevel + screenWidth * 0.5f,
 						(-mCamera.y + v.v.y) * mScaleLevel + screenHeight * 0.5f,
 						mScaleLevel * 2.0f, mScaleLevel * 2.0f),
 					Rectangle(1, 1, -1, -1), 0.1f);
 			drawText(v.v.x, v.v.y,
 					FontConfig(pl->getAIController()->getDescription().c_str(),
-						Color(0, 0, 0), 0.05f), false, false);
+						Color(0, 0, 0), 0.05f), false, true);
+			char buf[128];
+			sprintf(buf, "%d", pl->getShirtNumber());
+			drawText(v.v.x + 0.8f, v.v.y + 2.0f,
+					FontConfig(buf, !mObserver && pl->getTeam()->isFirst() &&
+						pl->getShirtNumber() == controlledPlayerIndex + 1 ?
+						Color(255, 255, 255) : Color(30, 30, 30), 0.05f),
+						false, true);
 		}
 	}
 }
@@ -435,18 +444,26 @@ void MatchSDLGUI::drawText(float x, float y,
 	}
 
 	assert(it != mTextMap.end());
+	float spritex, spritey;
+	float spritewidth, spriteheight;
 	if(screencoordinates) {
-		drawSprite(*it->second->mTexture, Rectangle(x, y,
-					it->first.mScale * it->second->mWidth,
-					it->first.mScale * it->second->mHeight),
-				Rectangle(0, 1, 1, -1), 5.0f);
+		spritex = x;
+		spritey = y;
+		spritewidth  = it->first.mScale * it->second->mWidth;
+		spriteheight = it->first.mScale * it->second->mHeight;
 	}
 	else {
-		drawSprite(*it->second->mTexture, Rectangle((-mCamera.x + x) * mScaleLevel + screenWidth * 0.5f,
-					(-mCamera.y + y) * mScaleLevel + screenHeight * 0.5f,
-					mScaleLevel * it->first.mScale * it->second->mWidth,
-					mScaleLevel * it->first.mScale * it->second->mHeight),
-				Rectangle(0, 1, 1, -1), 5.0f);
+		spritex = (-mCamera.x + x) * mScaleLevel + screenWidth * 0.5f;
+		spritey = (-mCamera.y + y) * mScaleLevel + screenHeight * 0.5f;
+		spritewidth  = mScaleLevel * it->first.mScale * it->second->mWidth;
+		spriteheight = mScaleLevel * it->first.mScale * it->second->mHeight;
 	}
+	if(centered) {
+		spritex -= spritewidth * 0.5f;
+	}
+
+	drawSprite(*it->second->mTexture, Rectangle(spritex, spritey,
+				spritewidth, spriteheight),
+			Rectangle(0, 1, 1, -1), 5.0);
 }
 
