@@ -73,4 +73,10 @@ class AIBlockAction : public AIAction {
 		static const char* mActionName;
 };
 
+class AIBlockPassAction : public AIAction {
+	public:
+		AIBlockPassAction(const Player* p);
+		static const char* mActionName;
+};
+
 #endif

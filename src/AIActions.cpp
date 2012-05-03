@@ -170,12 +170,12 @@ const char* AIFetchBallAction::mActionName = "Fetch";
 AIGuardAction::AIGuardAction(const Player* p)
 	: AIAction(mActionName, p)
 {
+	// action to move between opposing supporting player and own goal
 	AbsVector3 owngoal = MatchHelpers::ownGoalPosition(*p);
 	float highestdangerousness = -1.0f;
 	AbsVector3 tgtpos(p->getPosition());
 	for(auto op : MatchHelpers::getOpposingPlayers(*p)) {
 		float dangerousness = MatchHelpers::getOpposingTeam(*p)->getSupportingPositionScoreAt(op->getPosition());
-		// float disttome = ((op->getPosition().v + p->getPosition().v) * 0.5f).length();
 		for(auto pl : MatchHelpers::getOwnPlayers(*p)) {
 			if(&*pl == p)
 				continue;
@@ -200,12 +200,14 @@ const char* AIGuardAction::mActionName = "Guard";
 AIBlockAction::AIBlockAction(const Player* p)
 	: AIAction(mActionName, p)
 {
+	// action to move between the opposing player holding the ball
+	// and own goal
 	AbsVector3 owngoal = MatchHelpers::ownGoalPosition(*p);
 	const Player* op = MatchHelpers::nearestOppositePlayerToBall(*p->getTeam());
 	float disttogoal = (owngoal.v - op->getPosition().v).length();
-	mScore = ((40.0f - disttogoal) / 40.0f);
+	mScore = std::min(1.0f, (100.0f - disttogoal) / 50.0f);
 	for(auto pl : MatchHelpers::getOwnPlayers(*p)) {
-		if(&*pl == p)
+		if(&*pl == p || pl->isGoalkeeper())
 			continue;
 		float disttoown = Math::pointToLineDistance(op->getPosition().v,
 				owngoal.v,
@@ -219,5 +221,30 @@ AIBlockAction::AIBlockAction(const Player* p)
 }
 
 const char* AIBlockAction::mActionName = "Block";
+
+AIBlockPassAction::AIBlockPassAction(const Player* p)
+	: AIAction(mActionName, p)
+{
+	// action to move between opposing supporting player and opponent holding the ball
+	AbsVector3 owngoal = MatchHelpers::ownGoalPosition(*p);
+	const Player* op = MatchHelpers::nearestOppositePlayerToBall(*p->getTeam());
+	AbsVector3 bestpos(p->getPosition());
+	mScore = -1.0f;
+	for(auto pl : MatchHelpers::getOpposingPlayers(*p)) {
+		if(op == &*pl || pl->isGoalkeeper())
+			continue;
+		float disttogoal = (owngoal.v - pl->getPosition().v).length();
+		if(disttogoal > 50.0f)
+			continue;
+		float thisscore = (50.0f - disttogoal) / 50.0f;
+		if(thisscore > mScore) {
+			mScore = thisscore;
+			bestpos = pl->getPosition();
+		}
+	}
+	mAction = AIHelpers::createMoveActionTo(*p, AbsVector3((p->getPosition().v + bestpos.v) * 0.5f));
+}
+
+const char* AIBlockPassAction::mActionName = "Block pass";
 
 
