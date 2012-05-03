@@ -97,6 +97,7 @@ class MatchSDLGUI : public MatchGUI, public PlayerController {
 		void drawText(float x, float y,
 				const FontConfig& f,
 				bool screencoordinates, bool centered);
+		AbsVector3 getMousePositionOnPitch() const;
 		Clock mClock;
 		SDL_Surface* mScreen;
 		std::shared_ptr<Texture> mPlayerTextureHome;
@@ -114,6 +115,7 @@ class MatchSDLGUI : public MatchGUI, public PlayerController {
 		TTF_Font* mFont;
 		std::map<FontConfig, std::shared_ptr<TextTexture>> mTextMap;
 		bool mObserver;
+		bool mMouseAim;
 };
 
 #endif

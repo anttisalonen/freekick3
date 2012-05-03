@@ -26,7 +26,8 @@ MatchSDLGUI::MatchSDLGUI(std::shared_ptr<Match> match, int argc, char** argv)
 	mPlayerKickPower(0.0f),
 	mPlayerKickPowerVelocity(0.0f),
 	mFont(nullptr),
-	mObserver(false)
+	mObserver(false),
+	mMouseAim(false)
 {
 	if (SDL_Init(SDL_INIT_EVERYTHING) == -1) {
 		fprintf(stderr, "Unable to init SDL: %s\n", SDL_GetError());
@@ -278,6 +279,7 @@ bool MatchSDLGUI::handleInput(float frameTime)
 						break;
 				}
 				break;
+
 			case SDL_KEYUP:
 				switch(event.key.keysym.sym) {
 					case SDLK_w:
@@ -309,8 +311,23 @@ bool MatchSDLGUI::handleInput(float frameTime)
 						break;
 				}
 				break;
+
+			case SDL_MOUSEBUTTONDOWN:
+				switch(event.button.button) {
+					case SDL_BUTTON_LEFT:
+						mPlayerKickPowerVelocity = 1.0f;
+						mMouseAim = true;
+						getMousePositionOnPitch();
+						break;
+				}
+				break;
+
 			case SDL_MOUSEBUTTONUP:
 				switch(event.button.button) {
+					case SDL_BUTTON_LEFT:
+						mPlayerKickPowerVelocity = 0.0f;
+						break;
+
 					case SDL_BUTTON_WHEELUP:
 						mScaleLevel += 4.0f; break;
 					case SDL_BUTTON_WHEELDOWN:
@@ -319,6 +336,7 @@ bool MatchSDLGUI::handleInput(float frameTime)
 						break;
 				}
 				break;
+
 			case SDL_QUIT:
 				quitting = true;
 				break;
@@ -377,11 +395,14 @@ void MatchSDLGUI::drawSprite(const Texture& t,
 std::shared_ptr<PlayerAction> MatchSDLGUI::act(double time)
 {
 	float kickpower = 0.0f;
+	bool mouseaim = false;
 	AbsVector3 toBall = AbsVector3(mMatch->getBall()->getPosition().v - mPlayer->getPosition().v);
 	if(mPlayerKickPower && !mPlayerKickPowerVelocity) {
 		// about to kick
 		kickpower = mPlayerKickPower;
 		mPlayerKickPower = 0.0f;
+		mouseaim = mMouseAim;
+		mMouseAim = false;
 	}
 	if(!playing(mMatch->getPlayState()) && MatchHelpers::allowedToKick(*mPlayer)) {
 		// restart
@@ -392,7 +413,12 @@ std::shared_ptr<PlayerAction> MatchSDLGUI::act(double time)
 	}
 	if(kickpower) {
 		// kicking
-		return std::shared_ptr<PlayerAction>(new KickBallPA(AbsVector3(mPlayerControlVelocity * kickpower)));
+		if(!mouseaim) {
+			return std::shared_ptr<PlayerAction>(new KickBallPA(AbsVector3(mPlayerControlVelocity * kickpower)));
+		}
+		else {
+			return std::shared_ptr<PlayerAction>(new KickBallPA(getMousePositionOnPitch(), true));
+		}
 	}
 	else if(playing(mMatch->getPlayState())) {
 		if(!mPlayerControlVelocity.null() && (!mPlayerKickPower || toBall.v.length() >= MAX_KICK_DISTANCE * 0.7f)) {
@@ -472,4 +498,19 @@ void MatchSDLGUI::drawText(float x, float y,
 				spritewidth, spriteheight),
 			Rectangle(0, 1, 1, -1), 5.0);
 }
+
+AbsVector3 MatchSDLGUI::getMousePositionOnPitch() const
+{
+	int xp, yp;
+	float x, y;
+	SDL_GetMouseState(&xp, &yp);
+	yp = screenHeight - yp;
+
+	x = float(xp) / mScaleLevel + mCamera.x - (screenWidth / (2.0f * mScaleLevel));
+	y = float(yp) / mScaleLevel + mCamera.y - (screenHeight / (2.0f * mScaleLevel));
+
+	printf("Position at (%3.3f, %3.3f)\n", x, y);
+	return AbsVector3(x, y, 0);
+}
+
 
