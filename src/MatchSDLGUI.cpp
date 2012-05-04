@@ -421,14 +421,14 @@ std::shared_ptr<PlayerAction> MatchSDLGUI::act(double time)
 		}
 	}
 	else if(playing(mMatch->getPlayState())) {
-		if(!mPlayerControlVelocity.null() && (!mPlayerKickPower || toBall.v.length() >= MAX_KICK_DISTANCE * 0.7f)) {
-			// not on ball and not about to kick => run around
-			return std::shared_ptr<PlayerAction>(new RunToPA(AbsVector3(mPlayerControlVelocity)));
-		}
-		else if(mPlayerKickPower && toBall.v.length() < MAX_KICK_DISTANCE) {
-			// powering kick up => stay on ball
+		if(mPlayerKickPowerVelocity) {
+			// powering kick up => run to/stay on ball
 			return std::shared_ptr<PlayerAction>(new
 					RunToPA(AbsVector3(toBall.v.normalized())));
+		}
+		if(!mPlayerControlVelocity.null()) {
+			// not about to kick => run around
+			return std::shared_ptr<PlayerAction>(new RunToPA(AbsVector3(mPlayerControlVelocity)));
 		}
 	}
 	return std::shared_ptr<PlayerAction>(new IdlePA());
