@@ -13,6 +13,7 @@ class MatchEntity {
 		void move(const AbsVector3& v);
 		void setVelocity(const AbsVector3& v);
 		void setPosition(const AbsVector3& v);
+		void setAcceleration(const AbsVector3& v);
 		const AbsVector3& getPosition() const;
 		const AbsVector3& getVelocity() const;
 		virtual void update(float time);
@@ -24,6 +25,7 @@ class MatchEntity {
 		Match* mMatch;
 		AbsVector3 mPosition;
 		AbsVector3 mVelocity;
+		AbsVector3 mAcceleration;
 };
 
 AbsVector3 MatchEntity::vectorFromTo(const MatchEntity& me1,

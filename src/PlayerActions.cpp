@@ -22,8 +22,7 @@ void RunToPA::applyPlayerAction(Match& match, Player& p, double time)
 	if(mDiff.v.length() < 0.1f)
 		return;
 	AbsVector3 v(mDiff.v.normalized());
-	v.v *= p.getRunSpeed();
-	p.setVelocity(v);
+	p.setAcceleration(v.v * 50.0f); /* TODO: use a player skill as the coefficient */
 }
 
 KickBallPA::KickBallPA(const AbsVector3& v, bool absolute)
@@ -47,6 +46,7 @@ void KickBallPA::applyPlayerAction(Match& match, Player& p, double time)
 	v.v *= p.getMaximumKickPower();
 	std::cout << "Setting ball velocity to " << v.v << "\n";
 	match.kickBall(&p, v);
+	p.setVelocity(AbsVector3());
 }
 
 

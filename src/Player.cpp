@@ -89,6 +89,10 @@ bool Player::canKickBall() const
 void Player::update(float time)
 {
 	MatchEntity::update(time);
+	if(mVelocity.v.length() > getRunSpeed()) {
+		mVelocity.v.normalize();
+		mVelocity.v *= getRunSpeed();
+	}
 	mBallKickedTimer.doCountdown(time);
 	mBallKickedTimer.check();
 }

@@ -27,6 +27,11 @@ void MatchEntity::setVelocity(const AbsVector3& v)
 	mVelocity.v = v.v;
 }
 
+void MatchEntity::setAcceleration(const AbsVector3& v)
+{
+	mAcceleration.v = v.v;
+}
+
 const AbsVector3& MatchEntity::getPosition() const
 {
 	return mPosition;
@@ -40,6 +45,8 @@ const AbsVector3& MatchEntity::getVelocity() const
 void MatchEntity::update(float time)
 {
 	mPosition.v += mVelocity.v * time;
+	mVelocity.v += mAcceleration.v * time;
+	mAcceleration = AbsVector3();
 }
 
 

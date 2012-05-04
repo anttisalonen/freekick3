@@ -98,7 +98,7 @@ AIDribbleAction::AIDribbleAction(const Player* p)
 		vec.v.y = 1.0;
 	else
 		vec.v.y = -1.0;
-	vec.v *= 0.35;
+	vec.v *= 0.30;
 	mAction = std::shared_ptr<PlayerAction>(new KickBallPA(vec));
 	for(auto op : MatchHelpers::getOpposingPlayers(*p)) {
 		float dist = Math::pointToLineDistance(p->getPosition().v,
