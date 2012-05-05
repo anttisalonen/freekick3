@@ -11,4 +11,3 @@ double Math::pointToLineDistance(const Vector3& l1,
 	else
 		return (p - l1).length();
 }
-

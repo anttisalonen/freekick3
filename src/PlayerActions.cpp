@@ -44,7 +44,6 @@ void KickBallPA::applyPlayerAction(Match& match, Player& p, double time)
 		mDiff.v.normalize();
 	AbsVector3 v(mDiff);
 	v.v *= p.getMaximumKickPower();
-	std::cout << "Setting ball velocity to " << v.v << "\n";
 	match.kickBall(&p, v);
 	p.setVelocity(AbsVector3());
 }

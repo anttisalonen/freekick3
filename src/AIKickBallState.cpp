@@ -17,7 +17,10 @@ std::shared_ptr<PlayerAction> AIKickBallState::actOnBall(double time)
 	actions.push_back(std::shared_ptr<AIAction>(new AIDribbleAction(mPlayer)));
 	AIActionChooser actionchooser(actions);
 
-	mPlayController->setNewState(std::shared_ptr<AIState>(new AIOffensiveState(mPlayer, mPlayController)));
+	if(mPlayer->isGoalkeeper())
+		mPlayController->setNewState(std::shared_ptr<AIState>(new AIGoalkeeperState(mPlayer, mPlayController)));
+	else
+		mPlayController->setNewState(std::shared_ptr<AIState>(new AIOffensiveState(mPlayer, mPlayController)));
 
 	std::shared_ptr<AIAction> best = actionchooser.getBestAction();
 	mDescription = std::string("Defending - ") + best->getName();

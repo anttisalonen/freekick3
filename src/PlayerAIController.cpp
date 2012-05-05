@@ -67,8 +67,7 @@ std::shared_ptr<PlayerAction> PlayerAIController::act(double time)
 									mPlayer->getMatch()->convertRelativeToAbsoluteVector(mPlayer->getHomePosition()));
 						}
 						else {
-							/* TODO: move to a good position */
-							return std::shared_ptr<PlayerAction>(new IdlePA());
+							return mPlayState->actOnRestart(time);
 						}
 					}
 			}

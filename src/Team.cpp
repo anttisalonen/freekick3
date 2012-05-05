@@ -154,9 +154,11 @@ float Team::calculateSupportingPositionScoreAt(const AbsVector3& pos) const
 	if(pts > 0) {
 		float distToBall = (pos.v - mMatch->getBall()->getPosition().v).length();
 		// corresponds rather directly to how defensive the team plays
-		if(distToBall < 5.0f || distToBall > 40.0f) {
-			pts = 0;
-		}
+		const float optimumDist = 30.0f;
+		float distFromOptimum = abs(optimumDist - distToBall);
+		float coefficient = std::max(0.0f, (optimumDist - distFromOptimum) / optimumDist);
+		if(distToBall > optimumDist || distToGoal > 30.0f)
+			pts *= coefficient;
 	}
 	int offsideplayers = 0;
 	if(pts > 0) {

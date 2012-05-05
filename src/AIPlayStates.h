@@ -18,8 +18,8 @@ class AIPlayController : public PlayerController {
 		std::shared_ptr<PlayerAction> switchState(std::shared_ptr<AIState> newstate, double time);
 		void setNewState(std::shared_ptr<AIState> newstate);
 		const std::string& getDescription() const;
-	private:
 		std::shared_ptr<PlayerAction> actOnRestart(double time);
+	private:
 		std::shared_ptr<AIState> mCurrentState;
 };
 
