@@ -19,6 +19,7 @@ class Referee {
 		bool ballKicked(const Player& p, const AbsVector3& vel);
 		bool isFirstTeamInControl() const;
 		bool kickSiteClear() const;
+		bool ballGrabbed(const Player& p);
 	private:
 		bool allPlayersOnOwnSideAndReady() const;
 		bool onPitch(const MatchEntity& m) const;

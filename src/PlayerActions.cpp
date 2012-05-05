@@ -49,4 +49,9 @@ void KickBallPA::applyPlayerAction(Match& match, Player& p, double time)
 	p.setVelocity(AbsVector3());
 }
 
+void GrabBallPA::applyPlayerAction(Match& match, Player& p, double time)
+{
+	match.grabBall(&p);
+}
+
 

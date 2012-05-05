@@ -4,6 +4,7 @@
 #include <memory>
 #include <string>
 
+#include "Clock.h"
 #include "Player.h"
 #include "PlayerController.h"
 #include "Match.h"
@@ -18,6 +19,7 @@ class AIPlayController : public PlayerController {
 		void setNewState(std::shared_ptr<AIState> newstate);
 		const std::string& getDescription() const;
 	private:
+		std::shared_ptr<PlayerAction> actOnRestart(double time);
 		std::shared_ptr<AIState> mCurrentState;
 };
 
@@ -42,6 +44,10 @@ class AIGoalkeeperState : public AIState {
 		std::shared_ptr<PlayerAction> actOnBall(double time);
 		std::shared_ptr<PlayerAction> actNearBall(double time);
 		std::shared_ptr<PlayerAction> actOffBall(double time);
+	private:
+		AbsVector3 mPivotPoint;
+		float mDistanceFromPivot;
+		Countdown mHoldBallTimer;
 };
 
 class AIDefendState : public AIState {

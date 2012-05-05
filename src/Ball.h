@@ -11,10 +11,15 @@ class Ball : public MatchEntity {
 	public:
 		Ball(Match* match);
 		void update(float time) override;
-		void kicked();
+		void kicked(Player* p);
+		bool grabbed() const;
+		void grab(Player* p);
+		const Player* getGrabber() const;
 	private:
 		void checkCollision(const Player& p);
 		AbsVector3 mCollisionFreePoint;
+		bool mGrabbed;
+		Player* mGrabber;
 };
 
 #endif

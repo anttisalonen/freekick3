@@ -26,6 +26,9 @@ std::shared_ptr<PlayerAction> AIDefendState::actOffBall(double time)
 	if(mPlayer->getTactics().mOffensive) {
 		return mPlayController->switchState(std::shared_ptr<AIState>(new AIOffensiveState(mPlayer, mPlayController)), time);
 	}
+	else if(mPlayer->isGoalkeeper()) {
+		return mPlayController->switchState(std::shared_ptr<AIState>(new AIGoalkeeperState(mPlayer, mPlayController)), time);
+	}
 	else {
 		std::vector<std::shared_ptr<AIAction>> actions;
 		actions.push_back(std::shared_ptr<AIAction>(new AIFetchBallAction(mPlayer)));

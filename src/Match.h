@@ -61,6 +61,7 @@ class Match {
 		double getRollInertiaFactor() const;
 		void addGoal(bool forFirst);
 		int getScore(bool first) const;
+		bool grabBall(Player* p);
 	private:
 		void applyPlayerAction(const std::shared_ptr<PlayerAction> a,
 				const std::shared_ptr<Player> p, double time);

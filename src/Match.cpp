@@ -200,8 +200,8 @@ bool Match::kickBall(Player* p, const AbsVector3& v)
 			mBall->setVelocity(v);
 		else
 			mBall->setVelocity(AbsVector3(v.v.normalized() * 5.0f));
+		mBall->kicked(p);
 		p->ballKicked();
-		mBall->kicked();
 		return true;
 	}
 	else {
@@ -222,6 +222,19 @@ void Match::addGoal(bool forFirst)
 int Match::getScore(bool first) const
 {
 	return mScore[first ? 0 : 1];
+}
+
+bool Match::grabBall(Player* p)
+{
+	if(p->isGoalkeeper() && !mBall->grabbed() && MatchEntity::distanceBetween(*p, *mBall) < 1.5f &&
+			!MatchHelpers::myTeamInControl(*p) && mReferee.ballGrabbed(*p)) {
+		mBall->grab(p);
+		return true;
+	}
+	else {
+		std::cout << "Can't grab the ball.\n";
+		return false;
+	}
 }
 
 

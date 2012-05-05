@@ -144,12 +144,12 @@ const std::vector<std::shared_ptr<Player>>& MatchHelpers::getTeamPlayers(const M
 
 bool MatchHelpers::attacksUp(const Player& p)
 {
-	return p.getTeam()->isFirst() == (p.getMatch()->getMatchHalf() == MatchHalf::FirstHalf);
+	return p.getTeam()->isFirst() == (p.getMatch()->getMatchHalf() <= MatchHalf::FirstHalf);
 }
 
 bool MatchHelpers::attacksUp(const Team& t)
 {
-	return t.isFirst() == (t.getMatch()->getMatchHalf() == MatchHalf::FirstHalf);
+	return t.isFirst() == (t.getMatch()->getMatchHalf() <= MatchHalf::FirstHalf);
 }
 
 const Team* MatchHelpers::getOpposingTeam(const Player& p)

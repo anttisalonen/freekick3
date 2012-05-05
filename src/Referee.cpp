@@ -1,6 +1,9 @@
+#include <stdlib.h>
+
 #include <stdexcept>
 
 #include "Math.h"
+#include "MatchHelpers.h"
 #include "Referee.h"
 #include "RefereeActions.h"
 
@@ -129,12 +132,15 @@ std::shared_ptr<RefereeAction> Referee::setOutOfPlay()
 			// goal
 			mRestartPosition.v.x = 0.0f;
 			mRestartPosition.v.y = 0.0f;
+			bool firstscores;
 			if(bp.v.y > 1.0f) {
-				mMatch->addGoal(mMatch->getMatchHalf() == MatchHalf::FirstHalf);
+				firstscores = mMatch->getMatchHalf() == MatchHalf::FirstHalf;
 			}
 			else {
-				mMatch->addGoal(mMatch->getMatchHalf() != MatchHalf::FirstHalf);
+				firstscores = mMatch->getMatchHalf() != MatchHalf::FirstHalf;
 			}
+			mMatch->addGoal(firstscores);
+			mFirstTeamInControl = !firstscores;
 			return std::shared_ptr<RefereeAction>(new ChangePlayStateRA(PlayState::OutKickoff));
 		}
 		if((((bp.v.y < -1.0f) != mFirstTeamInControl) && (mMatch->getMatchHalf() == MatchHalf::FirstHalf)) ||
@@ -183,4 +189,26 @@ bool Referee::kickSiteClear() const
 	}
 	return true;
 }
+
+bool Referee::ballGrabbed(const Player& p)
+{
+	bool in_x = abs(p.getPosition().v.x) < 20.15f;
+	bool in_y;
+	float yp = p.getPosition().v.y;
+
+	if(MatchHelpers::attacksUp(p)) {
+		in_y = yp < p.getMatch()->getPitchHeight() * -0.5f + 16.5f;
+	}
+	else {
+		in_y = yp > p.getMatch()->getPitchHeight() * 0.5f - 16.5f;
+	}
+	in_y &= onPitch(p);
+
+	if(!in_y || !in_x)
+		return false;
+
+	mFirstTeamInControl = p.getTeam()->isFirst();
+	return true;
+}
+
 

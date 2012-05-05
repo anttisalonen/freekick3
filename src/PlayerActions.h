@@ -36,5 +36,10 @@ class KickBallPA : public PlayerAction {
 		bool mAbsolute;
 };
 
+class GrabBallPA : public PlayerAction {
+	public:
+		void applyPlayerAction(Match& match, Player& p, double time);
+};
+
 #endif
 
