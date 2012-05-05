@@ -93,8 +93,6 @@ void MatchSDLGUI::loadFont()
 void MatchSDLGUI::play()
 {
 	double prevTime = Clock::getTime();
-	if(mObserver)
-		mFreeCamera = true;
 	while(!mMatch->matchOver()) {
 		double newTime = Clock::getTime();
 		double frameTime = newTime - prevTime;
@@ -241,22 +239,6 @@ bool MatchSDLGUI::handleInput(float frameTime)
 					case SDLK_ESCAPE:
 						quitting = true;
 						break;
-					case SDLK_w:
-						if(mFreeCamera)
-							mCameraVelocity.y = -1.0f;
-						break;
-					case SDLK_s:
-						if(mFreeCamera)
-							mCameraVelocity.y = 1.0f;
-						break;
-					case SDLK_a:
-						if(mFreeCamera)
-							mCameraVelocity.x = 1.0f;
-						break;
-					case SDLK_d:
-						if(mFreeCamera)
-							mCameraVelocity.x = -1.0f;
-						break;
 					case SDLK_MINUS:
 					case SDLK_KP_MINUS:
 					case SDLK_PAGEDOWN:
@@ -265,14 +247,44 @@ bool MatchSDLGUI::handleInput(float frameTime)
 					case SDLK_KP_PLUS:
 					case SDLK_PAGEUP:
 						mScaleLevelVelocity = 1.0f; break;
+
+					case SDLK_c:
+						if(mPlayerControlVelocity.null())
+							mFreeCamera = !mFreeCamera;
+						break;
+
+					case SDLK_w:
 					case SDLK_UP:
-						mPlayerControlVelocity.y = 1.0f; break;
+						if(mFreeCamera)
+							mCameraVelocity.y = -1.0f;
+						else
+							mPlayerControlVelocity.y = 1.0f;
+						break;
+
+					case SDLK_s:
 					case SDLK_DOWN:
-						mPlayerControlVelocity.y = -1.0f; break;
+						if(mFreeCamera)
+							mCameraVelocity.y = 1.0f;
+						else
+							mPlayerControlVelocity.y = -1.0f;
+						break;
+
+					case SDLK_d:
 					case SDLK_RIGHT:
-						mPlayerControlVelocity.x = 1.0f; break;
+						if(mFreeCamera)
+							mCameraVelocity.x = -1.0f;
+						else
+							mPlayerControlVelocity.x = 1.0f;
+						break;
+
+					case SDLK_a:
 					case SDLK_LEFT:
-						mPlayerControlVelocity.x = -1.0f; break;
+						if(mFreeCamera)
+							mCameraVelocity.x = 1.0f;
+						else
+							mPlayerControlVelocity.x = -1.0f;
+						break;
+
 					case SDLK_RCTRL:
 						mPlayerKickPowerVelocity = 1.0f; break;
 					default:
@@ -282,16 +294,6 @@ bool MatchSDLGUI::handleInput(float frameTime)
 
 			case SDL_KEYUP:
 				switch(event.key.keysym.sym) {
-					case SDLK_w:
-					case SDLK_s:
-						if(mFreeCamera)
-							mCameraVelocity.y = 0.0f;
-						break;
-					case SDLK_a:
-					case SDLK_d:
-						if(mFreeCamera)
-							mCameraVelocity.x = 0.0f;
-						break;
 					case SDLK_MINUS:
 					case SDLK_KP_MINUS:
 					case SDLK_PLUS:
@@ -299,12 +301,27 @@ bool MatchSDLGUI::handleInput(float frameTime)
 					case SDLK_PAGEUP:
 					case SDLK_PAGEDOWN:
 						mScaleLevelVelocity = 0.0f; break;
+
+					case SDLK_w:
+					case SDLK_s:
 					case SDLK_UP:
 					case SDLK_DOWN:
-						mPlayerControlVelocity.y = 0.0f; break;
+						if(mFreeCamera)
+							mCameraVelocity.y = 0.0f;
+						else
+							mPlayerControlVelocity.y = 0.0f;
+						break;
+
+					case SDLK_a:
+					case SDLK_d:
 					case SDLK_RIGHT:
 					case SDLK_LEFT:
-						mPlayerControlVelocity.x = 0.0f; break;
+						if(mFreeCamera)
+							mCameraVelocity.x = 0.0f;
+						else
+							mPlayerControlVelocity.x = 0.0f;
+						break;
+
 					case SDLK_RCTRL:
 						mPlayerKickPowerVelocity = 0.0f; break;
 					default:
