@@ -30,6 +30,7 @@ class MatchHelpers {
 		static const Team* getOpposingTeam(const Player& p);
 		static bool attacksUp(const Player& p);
 		static bool attacksUp(const Team& t);
+		static bool onPitch(const Match& m, const AbsVector3& v);
 };
 
 #endif

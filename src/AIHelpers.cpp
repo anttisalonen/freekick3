@@ -1,3 +1,4 @@
+#include <stdlib.h>
 #include <algorithm>
 
 #include "AIHelpers.h"
@@ -14,7 +15,31 @@ std::shared_ptr<PlayerAction> AIHelpers::createMoveActionTo(const Player& p,
 		return std::shared_ptr<PlayerAction>(new IdlePA());
 	}
 	else {
+		const AbsVector3& vel = p.getVelocity();
+		if(vel.v.length() > 1.0f) {
+			double dotp = v.v.normalized().dot(vel.v.normalized());
+			if(fabs(dotp) < 0.5f) {
+				// bring to halt first
+				return std::shared_ptr<PlayerAction>(new IdlePA());
+			}
+		}
 		return std::shared_ptr<PlayerAction>(new RunToPA(v));
+	}
+}
+
+std::shared_ptr<PlayerAction> AIHelpers::createMoveActionToBall(const Player& p)
+{
+	const Ball* b = p.getMatch()->getBall();
+	const AbsVector3& vel = b->getVelocity();
+	if(vel.v.length() < 10.0f) {
+		return createMoveActionTo(p, b->getPosition());
+	}
+	else {
+		AbsVector3 tgt(b->getPosition().v + vel.v * 1.0f);
+		if(MatchHelpers::onPitch(*p.getMatch(), tgt))
+			return createMoveActionTo(p, tgt);
+		else
+			return createMoveActionTo(p, b->getPosition());
 	}
 }
 

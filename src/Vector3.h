@@ -22,6 +22,7 @@ class Vector3 {
 		inline float length() const;
 		inline float length2() const;
 		inline bool null() const;
+		inline double dot(const Vector3& v) const;
 };
 
 inline std::ostream& operator<<(std::ostream& out, const Vector3& vec)
@@ -115,5 +116,11 @@ bool Vector3::null() const
 {
 	return x == 0.0f && y == 0.0f && z == 0.0f;
 }
+
+inline double Vector3::dot(const Vector3& v) const
+{
+	return x * v.x + y * v.y + z * v.z;
+}
+
 
 #endif

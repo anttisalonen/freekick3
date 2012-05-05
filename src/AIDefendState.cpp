@@ -17,8 +17,7 @@ std::shared_ptr<PlayerAction> AIDefendState::actOnBall(double time)
 
 std::shared_ptr<PlayerAction> AIDefendState::actNearBall(double time)
 {
-	return AIHelpers::createMoveActionTo(*mPlayer,
-			mPlayer->getMatch()->getBall()->getPosition());
+	return AIHelpers::createMoveActionToBall(*mPlayer);
 }
 
 std::shared_ptr<PlayerAction> AIDefendState::actOffBall(double time)

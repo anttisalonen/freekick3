@@ -82,10 +82,7 @@ bool Referee::allPlayersOnOwnSideAndReady() const
 
 bool Referee::onPitch(const MatchEntity& m) const
 {
-	const AbsVector3& v = m.getPosition();
-	float pw2 = mMatch->getPitchWidth() / 2.0f;
-	float ph2 = mMatch->getPitchHeight() / 2.0f;
-	return v.v.x >= -pw2 && v.v.y >= -ph2 && v.v.x <= pw2 && v.v.y <= ph2;
+	return MatchHelpers::onPitch(*mMatch, m.getPosition());
 }
 
 bool Referee::ballKicked(const Player& p, const AbsVector3& vel)
@@ -128,7 +125,7 @@ std::shared_ptr<RefereeAction> Referee::setOutOfPlay()
 		return std::shared_ptr<RefereeAction>(new ChangePlayStateRA(PlayState::OutThrowin));
 	}
 	if(bp.v.y < -1.0f || bp.v.y > 1.0f) {
-		if(abs(mMatch->getBall()->getPosition().v.x) < 3.66f) {
+		if(fabs(mMatch->getBall()->getPosition().v.x) < 3.66f) {
 			// goal
 			mRestartPosition.v.x = 0.0f;
 			mRestartPosition.v.y = 0.0f;
@@ -192,7 +189,7 @@ bool Referee::kickSiteClear() const
 
 bool Referee::ballGrabbed(const Player& p)
 {
-	bool in_x = abs(p.getPosition().v.x) < 20.15f;
+	bool in_x = fabs(p.getPosition().v.x) < 20.15f;
 	bool in_y;
 	float yp = p.getPosition().v.y;
 

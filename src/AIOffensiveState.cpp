@@ -16,8 +16,7 @@ std::shared_ptr<PlayerAction> AIOffensiveState::actOnBall(double time)
 std::shared_ptr<PlayerAction> AIOffensiveState::actNearBall(double time)
 {
 	mDescription = std::string("Offensive");
-	return AIHelpers::createMoveActionTo(*mPlayer,
-			mPlayer->getMatch()->getBall()->getPosition());
+	return AIHelpers::createMoveActionToBall(*mPlayer);
 }
 
 std::shared_ptr<PlayerAction> AIOffensiveState::actOffBall(double time)

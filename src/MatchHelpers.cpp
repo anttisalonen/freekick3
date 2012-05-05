@@ -158,4 +158,10 @@ const Team* MatchHelpers::getOpposingTeam(const Player& p)
 	return p.getMatch()->getTeam(idx);
 }
 
+bool MatchHelpers::onPitch(const Match& m, const AbsVector3& v)
+{
+	float pw2 = m.getPitchWidth() / 2.0f;
+	float ph2 = m.getPitchHeight() / 2.0f;
+	return v.v.x >= -pw2 && v.v.y >= -ph2 && v.v.x <= pw2 && v.v.y <= ph2;
+}
 

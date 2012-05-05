@@ -11,6 +11,7 @@
 #include "MatchSDLGUI.h"
 #include "MatchHelpers.h"
 #include "PlayerAIController.h"
+#include "AIHelpers.h"
 
 static const int screenWidth = 800;
 static const int screenHeight = 600;
@@ -440,8 +441,7 @@ std::shared_ptr<PlayerAction> MatchSDLGUI::act(double time)
 	else if(playing(mMatch->getPlayState())) {
 		if(mPlayerKickPowerVelocity) {
 			// powering kick up => run to/stay on ball
-			return std::shared_ptr<PlayerAction>(new
-					RunToPA(AbsVector3(toBall.v.normalized())));
+			return AIHelpers::createMoveActionTo(*mPlayer, mMatch->getBall()->getPosition());
 		}
 		if(!mPlayerControlVelocity.null()) {
 			// not about to kick => run around
