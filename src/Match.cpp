@@ -201,6 +201,7 @@ bool Match::kickBall(Player* p, const AbsVector3& v)
 		else
 			mBall->setVelocity(AbsVector3(v.v.normalized() * 5.0f));
 		p->ballKicked();
+		mBall->kicked();
 		return true;
 	}
 	else {
