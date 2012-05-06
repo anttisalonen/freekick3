@@ -16,11 +16,9 @@
 static const int screenWidth = 800;
 static const int screenHeight = 600;
 
-static const int controlledPlayerIndex = 9;
-
 MatchSDLGUI::MatchSDLGUI(std::shared_ptr<Match> match, int argc, char** argv)
 	: MatchGUI(match),
-	PlayerController(mMatch->getPlayer(0, controlledPlayerIndex)),
+	PlayerController(mMatch->getPlayer(0, 9)),
 	mScaleLevel(15.0f),
 	mScaleLevelVelocity(0.0f),
 	mFreeCamera(false),
@@ -29,7 +27,8 @@ MatchSDLGUI::MatchSDLGUI(std::shared_ptr<Match> match, int argc, char** argv)
 	mFont(nullptr),
 	mObserver(false),
 	mMouseAim(false),
-	mHalfTimeTimer(1.0f)
+	mHalfTimeTimer(1.0f),
+	mControlledPlayerIndex(-1)
 {
 	if (SDL_Init(SDL_INIT_EVERYTHING) == -1) {
 		fprintf(stderr, "Unable to init SDL: %s\n", SDL_GetError());
@@ -71,6 +70,21 @@ MatchSDLGUI::MatchSDLGUI(std::shared_ptr<Match> match, int argc, char** argv)
 	for(int i = 1; i < argc; i++) {
 		if(!strcmp(argv[i], "-o")) {
 			mObserver = true;
+		}
+		else if(!strcmp(argv[i], "-p")) {
+			i++;
+			if(i >= argc) {
+				std::cerr << "-p requires a numeric argument between 1 and 11.\n";
+				throw std::runtime_error("parameters");
+			}
+			int num = atoi(argv[i]);
+			if(num < 1 || num > 11) {
+				std::cerr << "-p requires a numeric argument between 1 and 11.\n";
+				throw std::runtime_error("parameters");
+			}
+			mControlledPlayerIndex = num - 1;
+			setPlayer(mMatch->getPlayer(0, mControlledPlayerIndex));
+			setPlayerController();
 		}
 	}
 }
@@ -188,8 +202,7 @@ void MatchSDLGUI::drawPlayers()
 			char buf[128];
 			sprintf(buf, "%d", pl->getShirtNumber());
 			drawText(v.v.x, v.v.y + 2.0f,
-					FontConfig(buf, !mObserver && pl->getTeam()->isFirst() &&
-						pl->getShirtNumber() == controlledPlayerIndex + 1 ?
+					FontConfig(buf, !mObserver && pl == mPlayer ?
 						Color(255, 255, 255) : Color(30, 30, 30), 0.05f),
 						false, true);
 		}
@@ -449,9 +462,16 @@ std::shared_ptr<PlayerAction> MatchSDLGUI::act(double time)
 		mouseaim = mMouseAim;
 		mMouseAim = false;
 	}
+	if(mMatch->getPlayState() == PlayState::OutKickoff && !MatchHelpers::allowedToKick(*mPlayer)) {
+		// opponent kickoff
+		return AIHelpers::createMoveActionTo(*mPlayer,
+				mPlayer->getMatch()->convertRelativeToAbsoluteVector(mPlayer->getHomePosition()));
+	}
 	if(!playing(mMatch->getPlayState()) && MatchHelpers::allowedToKick(*mPlayer)) {
 		// restart
-		if(toBall.v.length() > MAX_KICK_DISTANCE) {
+		bool nearest = MatchHelpers::nearestOwnPlayerTo(*mPlayer,
+				mPlayer->getMatch()->getBall()->getPosition());
+		if(nearest && toBall.v.length() > MAX_KICK_DISTANCE) {
 			return std::shared_ptr<PlayerAction>(new
 					RunToPA(AbsVector3(toBall.v.normalized())));
 		}
@@ -485,6 +505,14 @@ void MatchSDLGUI::setPlayerController()
 			mPlayer->setController(this);
 			mPlayerKickPower = 0.0f;
 			printf("Now controlling\n");
+		}
+		if(playing(mMatch->getPlayState()) && mControlledPlayerIndex == -1) {
+			Player* pl = MatchHelpers::nearestOwnPlayerToBall(*mMatch->getTeam(0));
+			if(!pl->isGoalkeeper() && pl != mPlayer) {
+				mPlayer->setAIControlled();
+				setPlayer(pl);
+				pl->setController(this);
+			}
 		}
 	}
 	else if(!mPlayer->isAIControlled()) {

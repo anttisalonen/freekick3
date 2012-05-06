@@ -118,6 +118,7 @@ class MatchSDLGUI : public MatchGUI, public PlayerController {
 		bool mObserver;
 		bool mMouseAim;
 		Countdown mHalfTimeTimer;
+		int mControlledPlayerIndex;
 };
 
 #endif

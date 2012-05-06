@@ -13,6 +13,7 @@ class PlayerController {
 		virtual ~PlayerController() { }
 		virtual std::shared_ptr<PlayerAction> act(double time) = 0;
 		virtual void matchHalfChanged(MatchHalf m) { }
+		inline void setPlayer(Player* p);
 	protected:
 		Player* mPlayer;
 };
@@ -20,6 +21,11 @@ class PlayerController {
 PlayerController::PlayerController(Player* p)
 	: mPlayer(p)
 {
+}
+
+void PlayerController::setPlayer(Player* p)
+{
+	mPlayer = p;
 }
 
 #endif
