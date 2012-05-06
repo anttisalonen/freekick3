@@ -36,7 +36,7 @@ void Team::addPlayer()
 		int widx = (mPlayers.size() - 2) % 4;
 		if(hgt >= 2) {
 			p->setHomePosition(RelVector3(widx < 1 ? -0.1f : 0.1f,
-						0.15f * (mFirst ? -1 : 1), 0));
+						0.20f * (mFirst ? -1 : 1), 0));
 		}
 		else {
 			float wdt = (widx - 1.5f) * 0.5f;

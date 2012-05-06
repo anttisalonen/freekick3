@@ -8,6 +8,7 @@
 #include <SDL_ttf.h>
 #include <GL/gl.h>
 
+#include "Math.h"
 #include "MatchSDLGUI.h"
 #include "MatchHelpers.h"
 #include "PlayerAIController.h"
@@ -15,6 +16,13 @@
 
 static const int screenWidth = 800;
 static const int screenHeight = 600;
+
+static const float pitchHeight = 0.0f;
+static const float pitchLineHeight = 0.1f;
+static const float goalHeight = 0.2f;
+static const float ballHeight = 0.9f;
+static const float playerHeight = 1.0f;
+static const float textHeight = 5.0f;
 
 MatchSDLGUI::MatchSDLGUI(std::shared_ptr<Match> match, int argc, char** argv)
 	: MatchGUI(match),
@@ -58,6 +66,7 @@ MatchSDLGUI::MatchSDLGUI(std::shared_ptr<Match> match, int argc, char** argv)
 		throw std::runtime_error("SDL_ttf");
 	}
 	SDL_EnableKeyRepeat(0, SDL_DEFAULT_REPEAT_INTERVAL);
+	SDL_WM_SetCaption("Freekick 3", nullptr);
 
 	loadTextures();
 	loadFont();
@@ -66,6 +75,7 @@ MatchSDLGUI::MatchSDLGUI(std::shared_ptr<Match> match, int argc, char** argv)
 		fprintf(stderr, "Unable to setup screen\n");
 		throw std::runtime_error("Setup screen");
 	}
+	setupPitchLines();
 
 	for(int i = 1; i < argc; i++) {
 		if(!strcmp(argv[i], "-o")) {
@@ -146,11 +156,15 @@ bool MatchSDLGUI::progressMatch(double frameTime)
 
 void MatchSDLGUI::drawEnvironment()
 {
-	drawSprite(*mPitchTexture, Rectangle((-mCamera.x - mMatch->getPitchWidth() * 0.5f) * mScaleLevel + screenWidth * 0.5f,
-				(-mCamera.y - mMatch->getPitchHeight() * 0.5f) * mScaleLevel + screenHeight * 0.5f,
-				mScaleLevel * mMatch->getPitchWidth(),
-				mScaleLevel * mMatch->getPitchHeight()),
-			Rectangle(0, 0, 20, 20), 0);
+	float pwidth = mMatch->getPitchWidth();
+	float pheight = mMatch->getPitchHeight();
+	drawSprite(*mPitchTexture, Rectangle((-mCamera.x - pwidth) * mScaleLevel + screenWidth * 0.5f,
+				(-mCamera.y - pheight) * mScaleLevel + screenHeight * 0.5f,
+				mScaleLevel * pwidth * 2.0f,
+				mScaleLevel * pheight * 2.0f),
+			Rectangle(0, 0, 20, 20), pitchHeight);
+	drawPitchLines();
+	drawGoals();
 	std::stringstream result;
 	result << mMatch->getScore(true) << " - " << mMatch->getScore(false);
 	drawText(10, 10, FontConfig(result.str().c_str(), Color(0, 0, 0), 3.0f), true, false);
@@ -165,8 +179,8 @@ void MatchSDLGUI::drawEnvironment()
 	drawText(10, screenHeight - 30, FontConfig(timebuf, Color(0, 0, 0), 1.5f), true, false);
 
 	const Team* t = mMatch->getTeam(1);
-	for(int j = -mMatch->getPitchHeight() * 0.5f + 8; j < mMatch->getPitchHeight() * 0.5 - 8; j += 8) {
-		for(int i = -mMatch->getPitchWidth() * 0.5f + 8; i < mMatch->getPitchWidth() * 0.5 - 8; i += 8) {
+	for(int j = -pheight * 0.5f + 8; j < pheight * 0.5 - 8; j += 8) {
+		for(int i = -pwidth * 0.5f + 8; i < pwidth * 0.5 - 8; i += 8) {
 			float score = t->getSupportingPositionScoreAt(AbsVector3(i, j, 0));
 			int iscore(score * 255.0f);
 			char buf[128];
@@ -195,7 +209,7 @@ void MatchSDLGUI::drawPlayers()
 					Rectangle((-mCamera.x + v.v.x - 0.8f) * mScaleLevel + screenWidth * 0.5f,
 						(-mCamera.y + v.v.y) * mScaleLevel + screenHeight * 0.5f,
 						mScaleLevel * 2.0f, mScaleLevel * 2.0f),
-					Rectangle(1, 1, -1, -1), 0.1f);
+					Rectangle(1, 1, -1, -1), playerHeight);
 			drawText(v.v.x, v.v.y,
 					FontConfig(pl->getAIController()->getDescription().c_str(),
 						Color(0, 0, 0), 0.05f), false, true);
@@ -212,10 +226,10 @@ void MatchSDLGUI::drawPlayers()
 void MatchSDLGUI::drawBall()
 {
 	const AbsVector3& v(mMatch->getBall()->getPosition());
-	drawSprite(*mBallTexture, Rectangle((-mCamera.x + v.v.x) * mScaleLevel + screenWidth * 0.5f,
-				(-mCamera.y + v.v.y) * mScaleLevel + screenHeight * 0.5f,
+	drawSprite(*mBallTexture, Rectangle((-mCamera.x + v.v.x - 0.2f) * mScaleLevel + screenWidth * 0.5f,
+				(-mCamera.y + v.v.y - 0.2f) * mScaleLevel + screenHeight * 0.5f,
 				mScaleLevel * 0.6f, mScaleLevel * 0.6f),
-			Rectangle(1, 1, -1, -1), 0.1f);
+			Rectangle(1, 1, -1, -1), ballHeight);
 }
 
 void MatchSDLGUI::startFrame()
@@ -241,7 +255,7 @@ bool MatchSDLGUI::setupScreen()
 	glDisable(GL_DEPTH_TEST);
 	glEnable(GL_BLEND);
 	glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
-	glClearColor(1, 1, 1, 1);
+	glClearColor(0, 0, 0.1, 1);
 	glViewport(0, 0, screenWidth, screenHeight);
 	glMatrixMode(GL_PROJECTION);
 	glLoadIdentity();
@@ -268,6 +282,8 @@ void MatchSDLGUI::loadTextures()
 	surf.changePixelColor(Color(255, 255, 255), Color(0, 0, 0));
 	mPlayerTextureAway = std::shared_ptr<Texture>(new Texture(surf, 0, 32));
 	mPitchTexture = std::shared_ptr<Texture>(new Texture("share/grass1.png", 0, 0));
+
+	mGoal1Texture = std::shared_ptr<Texture>(new Texture("share/goal1.png", 0, 0));
 }
 
 bool MatchSDLGUI::handleInput(float frameTime)
@@ -437,6 +453,7 @@ void MatchSDLGUI::drawSprite(const Texture& t,
 		const Rectangle& vertcoords,
 		const Rectangle& texcoords, float depth)
 {
+	glEnable(GL_TEXTURE_2D);
 	glBindTexture(GL_TEXTURE_2D, t.getTexture());
 	glBegin(GL_QUADS);
 	glTexCoord2f(texcoords.x, texcoords.y);
@@ -568,7 +585,7 @@ void MatchSDLGUI::drawText(float x, float y,
 
 	drawSprite(*it->second->mTexture, Rectangle(spritex, spritey,
 				spritewidth, spriteheight),
-			Rectangle(0, 1, 1, -1), 5.0);
+			Rectangle(0, 1, 1, -1), textHeight);
 }
 
 AbsVector3 MatchSDLGUI::getMousePositionOnPitch() const
@@ -583,6 +600,106 @@ AbsVector3 MatchSDLGUI::getMousePositionOnPitch() const
 
 	printf("Position at (%3.3f, %3.3f)\n", x, y);
 	return AbsVector3(x, y, 0);
+}
+
+void MatchSDLGUI::drawPitchLines()
+{
+	glDisable(GL_TEXTURE_2D);
+	glColor3f(1.0f, 1.0f, 1.0f);
+	glLineWidth(1.0f);
+	float addx = screenWidth * 0.5f;
+	float addy = screenHeight * 0.5f;
+
+	for(auto& r : mPitchLines) {
+		glBegin(GL_LINE_STRIP);
+		for(auto& l : r) {
+			glVertex3f((l.x - mCamera.x) * mScaleLevel + addx,
+					(l.y - mCamera.y) * mScaleLevel + addy,
+					pitchLineHeight);
+		}
+		glEnd();
+	}
+
+	// penalty spots|
+	glPointSize(3.0f);
+	glBegin(GL_POINTS);
+	glVertex3f(-mCamera.x * mScaleLevel + addx,
+			(11.0f - mMatch->getPitchHeight() * 0.5f - mCamera.y) * mScaleLevel + addy,
+			pitchLineHeight);
+	glVertex3f(-mCamera.x * mScaleLevel + addx,
+			(-11.0f + mMatch->getPitchHeight() * 0.5f - mCamera.y) * mScaleLevel + addy,
+			pitchLineHeight);
+	glEnd();
+
+	// centre circle
+	glBegin(GL_LINE_STRIP);
+	for(int i = 0; i < 32; i++) {
+		float v = PI * i / 16.0f;
+		glVertex3f((9.15f * sin(v) - mCamera.x) * mScaleLevel + addx,
+				(9.15f * cos(v) - mCamera.y) * mScaleLevel + addy,
+				pitchLineHeight);
+	}
+	glVertex3f(-mCamera.x * mScaleLevel + addx,
+			(9.15f - mCamera.y) * mScaleLevel + addy,
+			pitchLineHeight);
+	glEnd();
+}
+
+void MatchSDLGUI::setupPitchLines()
+{
+	float pwidth = mMatch->getPitchWidth();
+	float pheight = mMatch->getPitchHeight();
+
+	std::vector<LineCoord> borders;
+	borders.push_back(LineCoord(-pwidth * 0.5f, -pheight * 0.5f));
+	borders.push_back(LineCoord(pwidth * 0.5f, -pheight * 0.5f));
+	borders.push_back(LineCoord(pwidth * 0.5f, pheight * 0.5f));
+	borders.push_back(LineCoord(-pwidth * 0.5f, pheight * 0.5f));
+	borders.push_back(LineCoord(-pwidth * 0.5f, -pheight * 0.5f));
+	mPitchLines.push_back(borders);
+
+	std::vector<LineCoord> midline;
+	midline.push_back(LineCoord(-pwidth * 0.5f, 0));
+	midline.push_back(LineCoord(pwidth * 0.5f, 0));
+	mPitchLines.push_back(midline);
+
+	std::vector<LineCoord> penaltybox;
+	penaltybox.push_back(LineCoord(-20.15f, -pheight * 0.5f));
+	penaltybox.push_back(LineCoord(-20.15f, 16.5f - pheight * 0.5f));
+	penaltybox.push_back(LineCoord(20.15f, 16.5f - pheight * 0.5f));
+	penaltybox.push_back(LineCoord(20.15f, -pheight * 0.5f));
+	mPitchLines.push_back(penaltybox);
+
+	for(auto& l : penaltybox)
+		l.y = -l.y;
+	mPitchLines.push_back(penaltybox);
+
+	std::vector<LineCoord> gkbox;
+	gkbox.push_back(LineCoord(-8.16f, -pheight * 0.5f));
+	gkbox.push_back(LineCoord(-8.16f, 5.5f - pheight * 0.5f));
+	gkbox.push_back(LineCoord(8.16f, 5.5f - pheight * 0.5f));
+	gkbox.push_back(LineCoord(8.16f, -pheight * 0.5f));
+	mPitchLines.push_back(gkbox);
+
+	for(auto& l : gkbox)
+		l.y = -l.y;
+	mPitchLines.push_back(gkbox);
+}
+
+void MatchSDLGUI::drawGoals()
+{
+	float pheight = mMatch->getPitchHeight();
+	static const float goalWidth2 = 7.32f * 0.5f;
+	drawSprite(*mGoal1Texture, Rectangle((-mCamera.x - goalWidth2) * mScaleLevel + screenWidth * 0.5f,
+				(-mCamera.y + pheight * 0.5f - 0.1f) * mScaleLevel + screenHeight * 0.5f,
+				mScaleLevel * goalWidth2 * 2.0f,
+				mScaleLevel * 3.66f),
+			Rectangle(0, 1, 1, -1), goalHeight);
+	drawSprite(*mGoal1Texture, Rectangle((-mCamera.x - goalWidth2) * mScaleLevel + screenWidth * 0.5f,
+				(-mCamera.y - pheight * 0.5f + 0.1f) * mScaleLevel + screenHeight * 0.5f,
+				mScaleLevel * goalWidth2 * 2.0f,
+				mScaleLevel * -3.66f),
+			Rectangle(0, 1, 1, -1), goalHeight);
 }
 
 

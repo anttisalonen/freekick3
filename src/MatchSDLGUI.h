@@ -15,6 +15,13 @@
 #include "PlayerController.h"
 #include "PlayerActions.h"
 
+struct LineCoord {
+	LineCoord(float x_, float y_)
+		: x(x_), y(y_) { }
+	float x;
+	float y;
+};
+
 struct Rectangle {
 	inline Rectangle(float x_, float y_, float w_, float h_);
 	float x;
@@ -99,12 +106,16 @@ class MatchSDLGUI : public MatchGUI, public PlayerController {
 				bool screencoordinates, bool centered);
 		AbsVector3 getMousePositionOnPitch() const;
 		bool progressMatch(double frameTime);
+		void setupPitchLines();
+		void drawPitchLines();
+		void drawGoals();
 		Clock mClock;
 		SDL_Surface* mScreen;
 		std::shared_ptr<Texture> mPlayerTextureHome;
 		std::shared_ptr<Texture> mPlayerTextureAway;
 		std::shared_ptr<Texture> mPitchTexture;
 		std::shared_ptr<Texture> mBallTexture;
+		std::shared_ptr<Texture> mGoal1Texture;
 		float mScaleLevel;
 		float mScaleLevelVelocity;
 		bool mFreeCamera;
@@ -119,6 +130,7 @@ class MatchSDLGUI : public MatchGUI, public PlayerController {
 		bool mMouseAim;
 		Countdown mHalfTimeTimer;
 		int mControlledPlayerIndex;
+		std::vector<std::vector<LineCoord>> mPitchLines;
 };
 
 #endif

@@ -1,3 +1,4 @@
+#include "Math.h"
 #include "Ball.h"
 #include "Match.h"
 #include "Player.h"
@@ -15,15 +16,39 @@ Ball::Ball(Match* match)
 void Ball::update(float time)
 {
 	if(!mGrabbed) {
+		bool outsideBefore1 = mPosition.v.x < -3.96f;
+		bool outsideBefore2 = mPosition.v.x > 3.96f;
 		MatchEntity::update(time);
+		bool outsideAfter1 = mPosition.v.x < -3.36f;
+		bool outsideAfter2 = mPosition.v.x > 3.36f;
+
 		if(mVelocity.v.length() > 2.0f &&
 				(mPosition.v - mCollisionFreePoint.v).length() > collisionIgnoreDistance) {
 			for(auto p : mMatch->getTeam(0)->getPlayers()) {
 				checkCollision(*p);
 			}
 		}
-		if(mPosition.v.z < 0.1f)
+		if(mPosition.v.z < 0.1f) {
 			mVelocity.v *= 1.0f - time * mMatch->getRollInertiaFactor();
+		}
+
+		// net
+		mPosition.v.y = clamp(-mMatch->getPitchHeight() * 0.5f - 3.0f,
+				mPosition.v.y,
+				mMatch->getPitchHeight() * 0.5f + 3.0f);
+		if(mPosition.v.y > mMatch->getPitchHeight() * 0.5f || mPosition.v.y < -mMatch->getPitchHeight() * 0.5f) {
+			if(outsideBefore1 != outsideAfter1 || outsideBefore2 != outsideAfter2) {
+				mVelocity.v.zero();
+			}
+		}
+		else if(mPosition.v.y > mMatch->getPitchHeight() * 0.5f - 0.5f ||
+				mPosition.v.y < -mMatch->getPitchHeight() * 0.5f + 0.5f) {
+			if(fabs(mPosition.v.x) < 3.69f && fabs(mPosition.v.x) > 3.63f) {
+				// post
+				mVelocity.v.y = -mVelocity.v.y;
+				mVelocity.v *= 0.8f;
+			}
+		}
 	}
 	else {
 		mAcceleration = AbsVector3();
