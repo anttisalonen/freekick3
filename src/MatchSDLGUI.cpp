@@ -242,6 +242,32 @@ void MatchSDLGUI::startFrame()
 			mCamera.y = mMatch->getBall()->getPosition().v.y;
 		}
 	}
+
+	{
+		const float minXPitch = mMatch->getPitchWidth() * -0.5f - 5.0f;
+		const float maxXPitch = mMatch->getPitchWidth() * 0.5f + 5.0f;
+		const float minXCamPix = minXPitch * mScaleLevel + screenWidth * 0.5f;
+		const float maxXCamPix = maxXPitch * mScaleLevel - screenWidth * 0.5f;
+		const float minXCam = minXCamPix / mScaleLevel;
+		const float maxXCam = maxXCamPix / mScaleLevel;
+		if(minXCam > maxXCam)
+			mCamera.x = 0.0f;
+		else
+			mCamera.x = clamp(minXCam, mCamera.x, maxXCam);
+	}
+
+	{
+		const float minYPitch = mMatch->getPitchHeight() * -0.5f - 5.0f;
+		const float maxYPitch = mMatch->getPitchHeight() * 0.5f + 5.0f;
+		const float minYCamPix = minYPitch * mScaleLevel + screenHeight * 0.5f;
+		const float maxYCamPix = maxYPitch * mScaleLevel - screenHeight * 0.5f;
+		const float minYCam = minYCamPix / mScaleLevel;
+		const float maxYCam = maxYCamPix / mScaleLevel;
+		if(minYCam > maxYCam)
+			mCamera.y = 0.0f;
+		else
+			mCamera.y = clamp(minYCam, mCamera.y, maxYCam);
+	}
 }
 
 void MatchSDLGUI::finishFrame()
@@ -428,6 +454,7 @@ void MatchSDLGUI::handleInputState(float frameTime)
 		mCamera -= mCameraVelocity * frameTime * 10.0f;
 	}
 	mScaleLevel += mScaleLevelVelocity * frameTime * 10.0f;
+	mScaleLevel = clamp(10.0f, mScaleLevel, 20.0f);
 	if(!mPlayerKickPower && mPlayerKickPowerVelocity) {
 		mPlayerKickPower = 0.3f;
 	}
