@@ -6,6 +6,8 @@
 #include "Player.h"
 #include "Distance.h"
 
+enum class MatchHalf;
+
 class Team {
 	public:
 		Team(Match* match, bool first);
@@ -20,6 +22,7 @@ class Team {
 		const Match* getMatch() const;
 		Player* getPlayerNearestToBall() const;
 		float getSupportingPositionScoreAt(const AbsVector3& pos) const;
+		void matchHalfChanged(MatchHalf m);
 	private:
 		void updatePlayerNearestToBall();
 		void updateSupportingPositions();

@@ -98,6 +98,7 @@ class MatchSDLGUI : public MatchGUI, public PlayerController {
 				const FontConfig& f,
 				bool screencoordinates, bool centered);
 		AbsVector3 getMousePositionOnPitch() const;
+		bool progressMatch(double frameTime);
 		Clock mClock;
 		SDL_Surface* mScreen;
 		std::shared_ptr<Texture> mPlayerTextureHome;
@@ -116,6 +117,7 @@ class MatchSDLGUI : public MatchGUI, public PlayerController {
 		std::map<FontConfig, std::shared_ptr<TextTexture>> mTextMap;
 		bool mObserver;
 		bool mMouseAim;
+		Countdown mHalfTimeTimer;
 };
 
 #endif

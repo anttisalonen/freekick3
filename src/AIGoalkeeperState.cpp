@@ -8,13 +8,7 @@ AIGoalkeeperState::AIGoalkeeperState(Player* p, AIPlayController* m)
 	: AIState(p, m),
 	mHoldBallTimer(1.0f)
 {
-	if(MatchHelpers::attacksUp(*p)) {
-		mPivotPoint = p->getMatch()->convertRelativeToAbsoluteVector(RelVector3(0, -1.2, 0));
-	}
-	else {
-		mPivotPoint = p->getMatch()->convertRelativeToAbsoluteVector(RelVector3(0, 1.2, 0));
-	}
-	mDistanceFromPivot = p->getMatch()->getPitchHeight() * 0.15f;
+	setPivotPoint();
 }
 
 std::shared_ptr<PlayerAction> AIGoalkeeperState::actOnBall(double time)
@@ -64,4 +58,21 @@ std::shared_ptr<PlayerAction> AIGoalkeeperState::actOffBall(double time)
 
 	return AIHelpers::createMoveActionTo(*mPlayer, point);
 }
+
+void AIGoalkeeperState::matchHalfChanged(MatchHalf m)
+{
+	setPivotPoint();
+}
+
+void AIGoalkeeperState::setPivotPoint()
+{
+	if(MatchHelpers::attacksUp(*mPlayer)) {
+		mPivotPoint = mPlayer->getMatch()->convertRelativeToAbsoluteVector(RelVector3(0, -1.2, 0));
+	}
+	else {
+		mPivotPoint = mPlayer->getMatch()->convertRelativeToAbsoluteVector(RelVector3(0, 1.2, 0));
+	}
+	mDistanceFromPivot = mPlayer->getMatch()->getPitchHeight() * 0.15f;
+}
+
 

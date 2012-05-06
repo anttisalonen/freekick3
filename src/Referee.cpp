@@ -24,10 +24,13 @@ std::shared_ptr<RefereeAction> Referee::act(double time)
 {
 	switch(mMatch->getMatchHalf()) {
 		case MatchHalf::NotStarted:
-		case MatchHalf::HalfTimePause:
+		case MatchHalf::HalfTimePauseEnd:
 			if(allPlayersOnOwnSideAndReady()) {
 				mFirstTeamInControl = mMatch->getMatchHalf() == MatchHalf::NotStarted;
-				return std::shared_ptr<RefereeAction>(new ChangeMatchHalfRA(MatchHalf::FirstHalf));
+				if(mFirstTeamInControl)
+					return std::shared_ptr<RefereeAction>(new ChangeMatchHalfRA(MatchHalf::FirstHalf));
+				else
+					return std::shared_ptr<RefereeAction>(new ChangeMatchHalfRA(MatchHalf::SecondHalf));
 			}
 			break;
 
@@ -56,6 +59,7 @@ std::shared_ptr<RefereeAction> Referee::act(double time)
 			}
 			break;
 
+		case MatchHalf::HalfTimePauseBegin:
 		case MatchHalf::Finished:
 			break;
 	}
@@ -66,15 +70,8 @@ bool Referee::allPlayersOnOwnSideAndReady() const
 {
 	for(int i = 0; i < 2; i++) {
 		for(auto& p : mMatch->getTeam(i)->getPlayers()) {
-			if(mMatch->getTeam(i)->isFirst() != (p->getPosition().v.y <= 0.0f)) {
+			if(!MatchHelpers::onOwnSideAndReady(*p))
 				return false;
-			}
-			if(p->getVelocity().v.length() > 1.0f) {
-				return false;
-			}
-			if(!onPitch(*p)) {
-				return false;
-			}
 		}
 	}
 	return true;
@@ -89,7 +86,8 @@ bool Referee::ballKicked(const Player& p, const AbsVector3& vel)
 {
 	switch(mMatch->getMatchHalf()) {
 		case MatchHalf::NotStarted:
-		case MatchHalf::HalfTimePause:
+		case MatchHalf::HalfTimePauseBegin:
+		case MatchHalf::HalfTimePauseEnd:
 			return false;
 
 		case MatchHalf::FirstHalf:
@@ -170,23 +168,6 @@ bool Referee::isFirstTeamInControl() const
 	return mFirstTeamInControl;
 }
 
-bool Referee::kickSiteClear() const
-{
-	if(!playing(mMatch->getMatchHalf()))
-		return true;
-
-	switch(mMatch->getPlayState()) {
-		case PlayState::InPlay:
-			return true;
-		case PlayState::OutKickoff:
-			return allPlayersOnOwnSideAndReady();
-		default:
-			/* TODO: add restarts here when AI is able to clear site */
-			return true;
-	}
-	return true;
-}
-
 bool Referee::ballGrabbed(const Player& p)
 {
 	bool in_x = fabs(p.getPosition().v.x) < 20.15f;
@@ -206,6 +187,13 @@ bool Referee::ballGrabbed(const Player& p)
 
 	mFirstTeamInControl = p.getTeam()->isFirst();
 	return true;
+}
+
+void Referee::matchHalfChanged(MatchHalf m)
+{
+	if(m == MatchHalf::HalfTimePauseEnd) {
+		mFirstTeamInControl = false;
+	}
 }
 
 

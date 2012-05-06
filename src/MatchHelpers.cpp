@@ -1,6 +1,7 @@
 #include <assert.h>
 
 #include "MatchHelpers.h"
+#include "Team.h"
 
 double MatchHelpers::distanceToPitch(const Match& m,
 		const AbsVector3& v)
@@ -26,7 +27,7 @@ bool MatchHelpers::allowedToKick(const Player& p)
 	const Match* m = p.getMatch();
 	assert(m);
 	return !playing(m->getMatchHalf()) || playing(m->getPlayState()) ||
-		m->getReferee()->isFirstTeamInControl() == p.getTeam()->isFirst();
+		myTeamInControl(p);
 }
 
 Player* MatchHelpers::nearestOwnPlayerToPlayer(const Team& t, const Player& p)
@@ -164,4 +165,50 @@ bool MatchHelpers::onPitch(const Match& m, const AbsVector3& v)
 	float ph2 = m.getPitchHeight() / 2.0f;
 	return v.v.x >= -pw2 && v.v.y >= -ph2 && v.v.x <= pw2 && v.v.y <= ph2;
 }
+
+bool MatchHelpers::playersOnPause(const Match& m)
+{
+	for(int i = 0; i < 2; i++) {
+		for(auto p : getTeamPlayers(m, i)) {
+		if(MatchHelpers::onPitch(m, p->getPosition()))
+			return false;
+		}
+	}
+	return true;
+}
+
+bool MatchHelpers::playersPositionedForKickoff(const Match& m, const Player& nearest)
+{
+	for(int i = 0; i < 2; i++) {
+		for(auto p : getTeamPlayers(m, i)) {
+			if(&*p != &nearest && !onOwnSideAndReady(*p)) {
+				return false;
+			}
+		}
+	}
+	return true;
+}
+
+bool MatchHelpers::onOwnSide(const Player& p)
+{
+	if(fabs(p.getPosition().v.y > 0.5f) && attacksUp(p) != (p.getPosition().v.y < 0.0f)) {
+		return false;
+	}
+	if(!onPitch(*p.getMatch(), p.getPosition())) {
+		return false;
+	}
+	return true;
+}
+
+bool MatchHelpers::onOwnSideAndReady(const Player& p)
+{
+	if(!onOwnSide(p)) {
+		return false;
+	}
+	if(p.getVelocity().v.length() > 1.0f) {
+		return false;
+	}
+	return true;
+}
+
 

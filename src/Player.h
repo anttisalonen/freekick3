@@ -14,6 +14,8 @@ class PlayerAction;
 class PlayerController;
 class PlayerAIController;
 
+enum class MatchHalf;
+
 struct PlayerSkills {
 	PlayerSkills()
 		: KickPower(1.0f),
@@ -46,6 +48,7 @@ class Player : public MatchEntity {
 		const PlayerAIController* getAIController() const;
 		int getShirtNumber() const;
 		const PlayerSkills& getSkills() const;
+		void matchHalfChanged(MatchHalf m);
 	private:
 		Team* mTeam;
 		int mShirtNumber;

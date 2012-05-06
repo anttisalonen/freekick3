@@ -5,12 +5,14 @@
 
 class Player;
 class PlayerAction;
+enum class MatchHalf;
 
 class PlayerController {
 	public:
 		inline PlayerController(Player* p);
 		virtual ~PlayerController() { }
 		virtual std::shared_ptr<PlayerAction> act(double time) = 0;
+		virtual void matchHalfChanged(MatchHalf m) { }
 	protected:
 		Player* mPlayer;
 };

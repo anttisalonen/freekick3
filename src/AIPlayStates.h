@@ -19,6 +19,7 @@ class AIPlayController : public PlayerController {
 		void setNewState(std::shared_ptr<AIState> newstate);
 		const std::string& getDescription() const;
 		std::shared_ptr<PlayerAction> actOnRestart(double time);
+		void matchHalfChanged(MatchHalf m);
 	private:
 		std::shared_ptr<AIState> mCurrentState;
 };
@@ -26,10 +27,12 @@ class AIPlayController : public PlayerController {
 class AIState {
 	public:
 		AIState(Player* p, AIPlayController* m);
+		virtual ~AIState() { }
 		virtual std::shared_ptr<PlayerAction> actOnBall(double time) = 0;
 		virtual std::shared_ptr<PlayerAction> actNearBall(double time) = 0;
 		virtual std::shared_ptr<PlayerAction> actOffBall(double time) = 0;
 		const std::string& getDescription() const;
+		virtual void matchHalfChanged(MatchHalf m) { }
 	protected:
 		std::shared_ptr<PlayerAction> switchState(std::shared_ptr<AIState> newstate, double time);
 		void setNewState(std::shared_ptr<AIState> newstate);
@@ -44,7 +47,9 @@ class AIGoalkeeperState : public AIState {
 		std::shared_ptr<PlayerAction> actOnBall(double time);
 		std::shared_ptr<PlayerAction> actNearBall(double time);
 		std::shared_ptr<PlayerAction> actOffBall(double time);
+		void matchHalfChanged(MatchHalf m) override;
 	private:
+		void setPivotPoint();
 		AbsVector3 mPivotPoint;
 		float mDistanceFromPivot;
 		Countdown mHoldBallTimer;

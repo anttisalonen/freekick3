@@ -73,6 +73,11 @@ std::shared_ptr<PlayerAction> AIPlayController::actOnRestart(double time)
 	}
 }
 
+void AIPlayController::matchHalfChanged(MatchHalf m)
+{
+	mCurrentState->matchHalfChanged(m);
+}
+
 AIState::AIState(Player* p, AIPlayController* m)
 	: mPlayer(p),
 	mPlayController(m)

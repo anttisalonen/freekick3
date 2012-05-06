@@ -28,7 +28,8 @@ MatchSDLGUI::MatchSDLGUI(std::shared_ptr<Match> match, int argc, char** argv)
 	mPlayerKickPowerVelocity(0.0f),
 	mFont(nullptr),
 	mObserver(false),
-	mMouseAim(false)
+	mMouseAim(false),
+	mHalfTimeTimer(1.0f)
 {
 	if (SDL_Init(SDL_INIT_EVERYTHING) == -1) {
 		fprintf(stderr, "Unable to init SDL: %s\n", SDL_GetError());
@@ -94,7 +95,7 @@ void MatchSDLGUI::loadFont()
 void MatchSDLGUI::play()
 {
 	double prevTime = Clock::getTime();
-	while(!mMatch->matchOver()) {
+	while(1) {
 		double newTime = Clock::getTime();
 		double frameTime = newTime - prevTime;
 		prevTime = newTime;
@@ -108,7 +109,25 @@ void MatchSDLGUI::play()
 		drawBall();
 		drawPlayers();
 		finishFrame();
+		if(!progressMatch(frameTime))
+			break;
 	}
+}
+
+bool MatchSDLGUI::progressMatch(double frameTime)
+{
+	if(!playing(mMatch->getMatchHalf()) && MatchHelpers::playersOnPause(*mMatch)) {
+		mHalfTimeTimer.doCountdown(frameTime);
+		if(mHalfTimeTimer.checkAndRewind()) {
+			if(mMatch->matchOver()) {
+				return false;
+			}
+			else {
+				mMatch->setMatchHalf(MatchHalf::HalfTimePauseEnd);
+			}
+		}
+	}
+	return true;
 }
 
 void MatchSDLGUI::drawEnvironment()
@@ -121,6 +140,15 @@ void MatchSDLGUI::drawEnvironment()
 	std::stringstream result;
 	result << mMatch->getScore(true) << " - " << mMatch->getScore(false);
 	drawText(10, 10, FontConfig(result.str().c_str(), Color(0, 0, 0), 3.0f), true, false);
+
+	char timebuf[128];
+	int min = int(mMatch->getTime());
+	if(mMatch->getMatchHalf() >= MatchHalf::HalfTimePauseBegin)
+		min += 45;
+	if(mMatch->getMatchHalf() >= MatchHalf::Finished)
+		min += 45;
+	sprintf(timebuf, "%d min.", min);
+	drawText(10, screenHeight - 30, FontConfig(timebuf, Color(0, 0, 0), 1.5f), true, false);
 
 	const Team* t = mMatch->getTeam(1);
 	for(int j = -mMatch->getPitchHeight() * 0.5f + 8; j < mMatch->getPitchHeight() * 0.5 - 8; j += 8) {
@@ -335,7 +363,6 @@ bool MatchSDLGUI::handleInput(float frameTime)
 					case SDL_BUTTON_LEFT:
 						mPlayerKickPowerVelocity = 1.0f;
 						mMouseAim = true;
-						getMousePositionOnPitch();
 						break;
 				}
 				break;

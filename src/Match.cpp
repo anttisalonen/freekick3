@@ -2,12 +2,14 @@
 #include <stdexcept>
 
 #include "Match.h"
+#include "Team.h"
 #include "MatchHelpers.h"
 #include "PlayerActions.h"
 #include "RefereeActions.h"
 
 Match::Match()
 	: mTime(0),
+	mTimeAccelerationConstant(30),
 	mMatchHalf(MatchHalf::NotStarted),
 	mPlayState(PlayState::OutKickoff),
 	mPitch(Pitch(68.0f, 105.0f))
@@ -75,6 +77,7 @@ void Match::update(double time)
 	}
 
 	updateReferee(time);
+	updateTime(time);
 }
 
 MatchHalf Match::getMatchHalf() const
@@ -87,6 +90,11 @@ void Match::setMatchHalf(MatchHalf h)
 	std::cout << "Match half is now " << h << "\n";
 	mMatchHalf = h;
 	mPlayState = PlayState::OutKickoff;
+	for(int i = 0; i < 2; i++)
+		mTeams[i]->matchHalfChanged(mMatchHalf);
+	mReferee.matchHalfChanged(mMatchHalf);
+	if(mMatchHalf == MatchHalf::HalfTimePauseEnd)
+		mBall->setPosition(AbsVector3(0, 0, 0));
 }
 
 void Match::setPlayState(PlayState h)
@@ -144,8 +152,10 @@ std::ostream& operator<<(std::ostream& out, const MatchHalf& m)
 			str = "Not started"; break;
 		case MatchHalf::FirstHalf:
 			str = "First half"; break;
-		case MatchHalf::HalfTimePause:
-			str = "Half time pause"; break;
+		case MatchHalf::HalfTimePauseBegin:
+			str = "Half time pause (begin)"; break;
+		case MatchHalf::HalfTimePauseEnd:
+			str = "Half time pause (end)"; break;
 		case MatchHalf::SecondHalf:
 			str = "Second half"; break;
 		case MatchHalf::Finished:
@@ -235,6 +245,23 @@ bool Match::grabBall(Player* p)
 		std::cout << "Can't grab the ball.\n";
 		return false;
 	}
+}
+
+void Match::updateTime(double time)
+{
+	if(playing(mMatchHalf) && playing(mPlayState) && !mBall->grabbed()) {
+		mTime += time * mTimeAccelerationConstant / 60.0f;
+		if(mTime >= 45.0f && fabs(mBall->getPosition().v.y) < 20.0f) {
+			setMatchHalf(mMatchHalf == MatchHalf::FirstHalf ?
+					MatchHalf::HalfTimePauseBegin : MatchHalf::Finished);
+			mTime = 0.0f;
+		}
+	}
+}
+
+double Match::getTime() const
+{
+	return mTime;
 }
 
 

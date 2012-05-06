@@ -35,14 +35,8 @@ void Team::addPlayer()
 		int hgt = (mPlayers.size() - 2) / 4;
 		int widx = (mPlayers.size() - 2) % 4;
 		if(hgt >= 2) {
-			if(mFirst) {
-				p->setHomePosition(RelVector3(widx < 1 ? -0.1f : 0.1f,
-							-0.01f, 0));
-			}
-			else {
-				p->setHomePosition(RelVector3(widx < 1 ? -0.1f : 0.1f,
-							0.15f, 0));
-			}
+			p->setHomePosition(RelVector3(widx < 1 ? -0.1f : 0.1f,
+						0.15f * (mFirst ? -1 : 1), 0));
 		}
 		else {
 			float wdt = (widx - 1.5f) * 0.5f;
@@ -180,6 +174,13 @@ float Team::calculateSupportingPositionScoreAt(const AbsVector3& pos) const
 		pts = std::max(0.0f, pts);
 	// std::cout << "Total points: " << pts << "\n";
 	return pts;
+}
+
+void Team::matchHalfChanged(MatchHalf m)
+{
+	for(auto p : mPlayers) {
+		p->matchHalfChanged(m);
+	}
 }
 
 

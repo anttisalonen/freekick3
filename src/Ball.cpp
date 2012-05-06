@@ -1,6 +1,7 @@
 #include "Ball.h"
 #include "Match.h"
 #include "Player.h"
+#include "Team.h"
 
 static const float collisionIgnoreDistance = 1.5f;
 

@@ -15,7 +15,8 @@
 enum class MatchHalf {
 	NotStarted,
 	FirstHalf,
-	HalfTimePause,
+	HalfTimePauseBegin,
+	HalfTimePauseEnd,
 	SecondHalf,
 	Finished
 };
@@ -62,15 +63,18 @@ class Match {
 		void addGoal(bool forFirst);
 		int getScore(bool first) const;
 		bool grabBall(Player* p);
+		double getTime() const;
 	private:
 		void applyPlayerAction(const std::shared_ptr<PlayerAction> a,
 				const std::shared_ptr<Player> p, double time);
 		void updateReferee(double time);
+		void updateTime(double time);
 		std::shared_ptr<Team> mTeams[2];
 		std::shared_ptr<Ball> mBall;
 		std::map<std::shared_ptr<Player>, std::shared_ptr<PlayerAction>> mCachedActions;
 		Referee mReferee;
 		double mTime;
+		double mTimeAccelerationConstant;
 		MatchHalf mMatchHalf;
 		PlayState mPlayState;
 		Pitch mPitch;

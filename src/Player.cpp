@@ -3,6 +3,7 @@
 #include "Player.h"
 #include "PlayerAIController.h"
 #include "Match.h"
+#include "Team.h"
 
 Player::Player(Match* match, Team* team, int shirtnumber, bool goalkeeper)
 	: MatchEntity(match, match->convertRelativeToAbsoluteVector(team->getPausePosition())),
@@ -11,6 +12,11 @@ Player::Player(Match* match, Team* team, int shirtnumber, bool goalkeeper)
 	mGoalkeeper(goalkeeper),
 	mBallKickedTimer(1.0f)
 {
+	if(!team->isFirst()) {
+		mSkills.KickPower = 0.5f;
+		mSkills.RunSpeed = 0.5f;
+		mSkills.BallControl = 0.5f;
+	}
 	mAIController = new PlayerAIController(this);
 	setAIControlled();
 }
@@ -48,12 +54,12 @@ const Team* Player::getTeam() const
 
 double Player::getRunSpeed() const
 {
-	return 8.0f * mSkills.RunSpeed;
+	return 8.0f * ((1.0f + mSkills.RunSpeed) * 0.5f);
 }
 
 double Player::getMaximumKickPower() const
 {
-	return 40.0f * mSkills.KickPower;
+	return 40.0f * ((1.0f + mSkills.KickPower) * 0.5f);
 }
 
 void Player::setController(PlayerController* c)
@@ -115,5 +121,17 @@ int Player::getShirtNumber() const
 const PlayerSkills& Player::getSkills() const
 {
 	return mSkills;
+}
+
+void Player::matchHalfChanged(MatchHalf m)
+{
+	if(m == MatchHalf::HalfTimePauseEnd) {
+		mHomePosition.v.y = -mHomePosition.v.y;
+	}
+
+	if(mController)
+		mController->matchHalfChanged(m);
+	if(mController != mAIController)
+		mAIController->matchHalfChanged(m);
 }
 

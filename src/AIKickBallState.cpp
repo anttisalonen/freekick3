@@ -14,7 +14,10 @@ std::shared_ptr<PlayerAction> AIKickBallState::actOnBall(double time)
 	std::vector<std::shared_ptr<AIAction>> actions;
 	actions.push_back(std::shared_ptr<AIAction>(new AIPassAction(mPlayer)));
 	actions.push_back(std::shared_ptr<AIAction>(new AIShootAction(mPlayer)));
-	actions.push_back(std::shared_ptr<AIAction>(new AIDribbleAction(mPlayer)));
+
+	if(mPlayer->getMatch()->getPlayState() == PlayState::InPlay)
+		actions.push_back(std::shared_ptr<AIAction>(new AIDribbleAction(mPlayer)));
+
 	AIActionChooser actionchooser(actions);
 
 	if(mPlayer->isGoalkeeper())

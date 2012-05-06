@@ -11,6 +11,8 @@ class Match;
 class RefereeAction;
 class Player;
 
+enum class MatchHalf;
+
 class Referee {
 	public:
 		Referee();
@@ -18,8 +20,8 @@ class Referee {
 		std::shared_ptr<RefereeAction> act(double time);
 		bool ballKicked(const Player& p, const AbsVector3& vel);
 		bool isFirstTeamInControl() const;
-		bool kickSiteClear() const;
 		bool ballGrabbed(const Player& p);
+		void matchHalfChanged(MatchHalf m);
 	private:
 		bool allPlayersOnOwnSideAndReady() const;
 		bool onPitch(const MatchEntity& m) const;
