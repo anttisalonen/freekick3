@@ -9,44 +9,46 @@ LDFLAGS  += $(shell sdl-config --libs) -lSDL_image -lSDL_ttf
 LDFLAGS  += -lGL
 
 
-BINDIR  = bin
-BINNAME = freekick3
-BIN     = $(BINDIR)/$(BINNAME)
+CXXFLAGS += -Isrc
+BINDIR       = bin
 
-SRCDIR = src
+MATCHBINNAME = freekick3-match
+MATCHBIN     = $(BINDIR)/$(MATCHBINNAME)
 
-SRCFILES = Math.cpp Clock.cpp SDLSurface.cpp Texture.cpp Pitch.cpp Ball.cpp \
+MATCHSRCDIR = src/match
+
+MATCHSRCFILES = Math.cpp Clock.cpp SDLSurface.cpp Texture.cpp Pitch.cpp Ball.cpp \
 	   Match.cpp MatchHelpers.cpp MatchEntity.cpp Team.cpp Player.cpp PlayerActions.cpp \
 	   Referee.cpp RefereeActions.cpp \
-	   PlayerAIController.cpp AIActions.cpp AIPlayStates.cpp AIHelpers.cpp \
-	   AIGoalkeeperState.cpp AIDefendState.cpp \
-	   AIKickBallState.cpp AIOffensiveState.cpp \
+	   ai/PlayerAIController.cpp ai/AIActions.cpp ai/AIPlayStates.cpp ai/AIHelpers.cpp \
+	   ai/AIGoalkeeperState.cpp ai/AIDefendState.cpp \
+	   ai/AIKickBallState.cpp ai/AIOffensiveState.cpp \
 	   MatchSDLGUI.cpp \
 	   main.cpp
 
-SRCS = $(addprefix $(SRCDIR)/, $(SRCFILES))
-OBJS = $(SRCS:.cpp=.o)
-DEPS = $(SRCS:.cpp=.dep)
+MATCHSRCS = $(addprefix $(MATCHSRCDIR)/, $(MATCHSRCFILES))
+MATCHOBJS = $(MATCHSRCS:.cpp=.o)
+MATCHDEPS = $(MATCHSRCS:.cpp=.dep)
 
 .PHONY: clean all
 
-all: $(BIN)
+all: $(MATCHBIN)
 
 $(BINDIR):
 	mkdir -p $(BINDIR)
 
-$(BIN): $(BINDIR) $(OBJS)
-	$(CXX) $(LDFLAGS) $(OBJS) -o $(BIN)
+$(MATCHBIN): $(BINDIR) $(MATCHOBJS)
+	$(CXX) $(LDFLAGS) $(MATCHOBJS) -o $(MATCHBIN)
 
 %.dep: %.cpp
 	@rm -f $@
-	@$(CC) -MM $(CPPFLAGS) $< > $@.P
+	@$(CC) -MM $(CXXFLAGS) $< > $@.P
 	@sed 's,\($(notdir $*)\)\.o[ :]*,$(dir $*)\1.o $@ : ,g' < $@.P > $@
 	@rm -f $@.P
 
 clean:
-	rm -f $(SRCDIR)/*.o $(SRCDIR)/*.dep $(BIN)
+	rm -f $(MATCHSRCDIR)/*.o $(MATCHSRCDIR)/*.dep $(MATCHBIN)
 	rm -rf $(BINDIR)
 
--include $(DEPS)
+-include $(MATCHDEPS)
 
