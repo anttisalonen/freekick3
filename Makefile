@@ -12,6 +12,15 @@ LDFLAGS  += -lGL
 CXXFLAGS += -Isrc
 BINDIR       = bin
 
+COMMONSRCFILES = SDL_utils.cpp
+
+COMMONSRCDIR = src/common
+COMMONSRCS = $(addprefix $(COMMONSRCDIR)/, $(COMMONSRCFILES))
+COMMONOBJS = $(COMMONSRCS:.cpp=.o)
+COMMONDEPS = $(COMMONSRCS:.cpp=.dep)
+
+COMMONLIB = $(COMMONSRCDIR)/libcommon.a
+
 MATCHBINNAME = freekick3-match
 MATCHBIN     = $(BINDIR)/$(MATCHBINNAME)
 
@@ -30,15 +39,32 @@ MATCHSRCS = $(addprefix $(MATCHSRCDIR)/, $(MATCHSRCFILES))
 MATCHOBJS = $(MATCHSRCS:.cpp=.o)
 MATCHDEPS = $(MATCHSRCS:.cpp=.dep)
 
+SOCCERBINNAME = freekick3
+SOCCERBIN     = $(BINDIR)/$(SOCCERBINNAME)
+
+SOCCERSRCDIR = src/soccer
+
+SOCCERSRCFILES = Menu.cpp main.cpp
+
+SOCCERSRCS = $(addprefix $(SOCCERSRCDIR)/, $(SOCCERSRCFILES))
+SOCCEROBJS = $(SOCCERSRCS:.cpp=.o)
+SOCCERDEPS = $(SOCCERSRCS:.cpp=.dep)
+
 .PHONY: clean all
 
-all: $(MATCHBIN)
+all: $(MATCHBIN) $(SOCCERBIN)
 
 $(BINDIR):
 	mkdir -p $(BINDIR)
 
-$(MATCHBIN): $(BINDIR) $(MATCHOBJS)
-	$(CXX) $(LDFLAGS) $(MATCHOBJS) -o $(MATCHBIN)
+$(COMMONLIB): $(COMMONOBJS)
+	$(AR) rcs $(COMMONLIB) $(COMMONOBJS)
+
+$(MATCHBIN): $(BINDIR) $(COMMONLIB) $(MATCHOBJS)
+	$(CXX) $(LDFLAGS) $(MATCHOBJS) $(COMMONLIB) -o $(MATCHBIN)
+
+$(SOCCERBIN): $(BINDIR) $(COMMONLIB) $(SOCCEROBJS)
+	$(CXX) $(LDFLAGS) $(SOCCEROBJS) $(COMMONLIB) -o $(SOCCERBIN)
 
 %.dep: %.cpp
 	@rm -f $@
@@ -47,8 +73,10 @@ $(MATCHBIN): $(BINDIR) $(MATCHOBJS)
 	@rm -f $@.P
 
 clean:
-	rm -f $(MATCHSRCDIR)/*.o $(MATCHSRCDIR)/*.dep $(MATCHBIN)
+	find src/ -name '*.o' -exec rm -rf {} +
+	find src/ -name '*.dep' -exec rm -rf {} +
+	find src/ -name '*.a' -exec rm -rf {} +
 	rm -rf $(BINDIR)
 
--include $(MATCHDEPS)
+-include $(MATCHDEPS) $(SOCCERDEPS)
 
