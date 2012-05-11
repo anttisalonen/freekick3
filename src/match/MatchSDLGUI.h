@@ -9,6 +9,7 @@
 
 #include "common/Texture.h"
 #include "common/Color.h"
+#include "common/Rectangle.h"
 
 #include "match/MatchGUI.h"
 #include "match/Clock.h"
@@ -22,19 +23,6 @@ struct LineCoord {
 	float x;
 	float y;
 };
-
-struct Rectangle {
-	inline Rectangle(float x_, float y_, float w_, float h_);
-	float x;
-	float y;
-	float w;
-	float h;
-};
-
-Rectangle::Rectangle(float x_, float y_, float w_, float h_)
-	: x(x_), y(y_), w(w_), h(h_)
-{
-}
 
 struct FontConfig {
 	inline FontConfig(const char* str, const Color& c, float scale);
