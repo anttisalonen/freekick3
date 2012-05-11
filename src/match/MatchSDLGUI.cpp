@@ -42,15 +42,12 @@ MatchSDLGUI::MatchSDLGUI(std::shared_ptr<Match> match, int argc, char** argv)
 	mHalfTimeTimer(1.0f),
 	mControlledPlayerIndex(-1)
 {
-	mScreen = Common::initSDL();
+	mScreen = SDL_utils::initSDL(screenWidth, screenHeight);
 
 	loadTextures();
 	loadFont();
 
-	if(!setupScreen()) {
-		fprintf(stderr, "Unable to setup screen\n");
-		throw std::runtime_error("Setup screen");
-	}
+	SDL_utils::setupOrthoScreen(screenWidth, screenHeight);
 	setupPitchLines();
 
 	for(int i = 1; i < argc; i++) {
@@ -251,30 +248,6 @@ void MatchSDLGUI::finishFrame()
 	SDL_GL_SwapBuffers();
 }
 
-bool MatchSDLGUI::setupScreen()
-{
-	GLenum err;
-	glDisable(GL_DEPTH_TEST);
-	glEnable(GL_BLEND);
-	glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
-	glClearColor(0, 0, 0.1, 1);
-	glViewport(0, 0, screenWidth, screenHeight);
-	glMatrixMode(GL_PROJECTION);
-	glLoadIdentity();
-	glOrtho(0, screenWidth, 0, screenHeight, -10, 10);
-	glMatrixMode(GL_MODELVIEW);
-	glEnable(GL_TEXTURE_2D);
-
-	err = glGetError();
-	if(err != GL_NO_ERROR) {
-		fprintf(stderr, "GL error: %s (%d)\n",
-				GLErrorToString(err),
-				err);
-		return false;
-	}
-	return true;
-}
-
 void MatchSDLGUI::loadTextures()
 {
 	mBallTexture = std::shared_ptr<Texture>(new Texture("share/ball1.png", 0, 8));
@@ -435,21 +408,6 @@ void MatchSDLGUI::handleInputState(float frameTime)
 		mPlayerKickPower = 0.3f;
 	}
 	mPlayerKickPower += mPlayerKickPowerVelocity * frameTime;
-}
-
-const char* MatchSDLGUI::GLErrorToString(GLenum err)
-{
-	switch(err) {
-		case GL_NO_ERROR: return "GL_NO_ERROR";
-		case GL_INVALID_ENUM: return "GL_INVALID_ENUM";
-		case GL_INVALID_VALUE: return "GL_INVALID_VALUE";
-		case GL_INVALID_OPERATION: return "GL_INVALID_OPERATION";
-		case GL_STACK_OVERFLOW: return "GL_STACK_OVERFLOW";
-		case GL_STACK_UNDERFLOW: return "GL_STACK_UNDERFLOW";
-		case GL_OUT_OF_MEMORY: return "GL_OUT_OF_MEMORY";
-		case GL_TABLE_TOO_LARGE: return "GL_TABLE_TOO_LARGE";
-	}
-	return "unknown error";
 }
 
 void MatchSDLGUI::drawSprite(const Texture& t,

@@ -5,7 +5,12 @@
 
 namespace Common {
 
-SDL_Surface* initSDL();
+	class SDL_utils {
+		public:
+			static SDL_Surface* initSDL(int w, int h);
+			static void setupOrthoScreen(int w, int h);
+			static const char* GLErrorToString(GLenum err);
+	};
 
 }
 

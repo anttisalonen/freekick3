@@ -92,13 +92,11 @@ class MatchSDLGUI : public MatchGUI, public PlayerController {
 		void drawBall();
 		void startFrame();
 		void finishFrame();
-		bool setupScreen();
 		void loadTextures();
 		void loadFont();
 		bool handleInput(float frameTime);
 		void handleInputState(float frameTime);
 		void setPlayerController();
-		static const char* GLErrorToString(GLenum err);
 		static void drawSprite(const Common::Texture& t,
 				const Rectangle& vertcoords,
 				const Rectangle& texcoords, float depth);

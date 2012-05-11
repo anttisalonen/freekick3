@@ -11,9 +11,13 @@ namespace soccer {
 
 using namespace Common;
 
+static const int screenWidth = 800;
+static const int screenHeight = 600;
+
 Menu::Menu()
 {
-	mScreen = Common::initSDL();
+	mScreen = SDL_utils::initSDL(screenWidth, screenHeight);
+	SDL_utils::setupOrthoScreen(screenWidth, screenHeight);
 
 	mFont = TTF_OpenFont("share/DejaVuSans.ttf", 12);
 	if(!mFont) {
