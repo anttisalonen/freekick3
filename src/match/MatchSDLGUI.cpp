@@ -16,6 +16,8 @@
 #include "match/ai/PlayerAIController.h"
 #include "match/ai/AIHelpers.h"
 
+using namespace Common;
+
 static const int screenWidth = 800;
 static const int screenHeight = 600;
 

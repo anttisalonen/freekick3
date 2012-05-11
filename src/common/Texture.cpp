@@ -5,7 +5,9 @@
 #include <SDL_image.h>
 #include <GL/gl.h>
 
-#include "match/Texture.h"
+#include "common/Texture.h"
+
+namespace Common {
 
 Texture::Texture(const SDLSurface& surf, unsigned int startrow, unsigned int height)
 {
@@ -45,4 +47,4 @@ GLuint Texture::getTexture() const
 	return mTexture;
 }
 
-
+}

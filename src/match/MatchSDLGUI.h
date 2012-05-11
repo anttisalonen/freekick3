@@ -7,9 +7,10 @@
 #include <SDL.h>
 #include <SDL_ttf.h>
 
-#include "match/Color.h"
+#include "common/Texture.h"
+#include "common/Color.h"
+
 #include "match/MatchGUI.h"
-#include "match/Texture.h"
 #include "match/Clock.h"
 #include "Vector3.h"
 #include "match/PlayerController.h"
@@ -66,13 +67,13 @@ bool FontConfig::operator<(const FontConfig& f) const
 }
 
 struct TextTexture {
-	inline TextTexture(std::shared_ptr<Texture> t, unsigned int w, unsigned int h);
-	std::shared_ptr<Texture> mTexture;
+	inline TextTexture(std::shared_ptr<Common::Texture> t, unsigned int w, unsigned int h);
+	std::shared_ptr<Common::Texture> mTexture;
 	unsigned int mWidth;
 	unsigned int mHeight;
 };
 
-TextTexture::TextTexture(std::shared_ptr< Texture> t, unsigned int w, unsigned int h)
+TextTexture::TextTexture(std::shared_ptr<Common::Texture> t, unsigned int w, unsigned int h)
 	: mTexture(t),
 	mWidth(w),
 	mHeight(h)
@@ -98,7 +99,7 @@ class MatchSDLGUI : public MatchGUI, public PlayerController {
 		void handleInputState(float frameTime);
 		void setPlayerController();
 		static const char* GLErrorToString(GLenum err);
-		static void drawSprite(const Texture& t,
+		static void drawSprite(const Common::Texture& t,
 				const Rectangle& vertcoords,
 				const Rectangle& texcoords, float depth);
 		void drawText(float x, float y,
@@ -111,11 +112,11 @@ class MatchSDLGUI : public MatchGUI, public PlayerController {
 		void drawGoals();
 		Clock mClock;
 		SDL_Surface* mScreen;
-		std::shared_ptr<Texture> mPlayerTextureHome;
-		std::shared_ptr<Texture> mPlayerTextureAway;
-		std::shared_ptr<Texture> mPitchTexture;
-		std::shared_ptr<Texture> mBallTexture;
-		std::shared_ptr<Texture> mGoal1Texture;
+		std::shared_ptr<Common::Texture> mPlayerTextureHome;
+		std::shared_ptr<Common::Texture> mPlayerTextureAway;
+		std::shared_ptr<Common::Texture> mPitchTexture;
+		std::shared_ptr<Common::Texture> mBallTexture;
+		std::shared_ptr<Common::Texture> mGoal1Texture;
 		float mScaleLevel;
 		float mScaleLevelVelocity;
 		bool mFreeCamera;

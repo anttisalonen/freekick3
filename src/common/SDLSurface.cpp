@@ -1,7 +1,9 @@
 #include <stdexcept>
 #include <sstream>
 
-#include "match/SDLSurface.h"
+#include "common/SDLSurface.h"
+
+namespace Common {
 
 SDLSurface::SDLSurface(const char* filename)
 {
@@ -44,6 +46,8 @@ void SDLSurface::changePixelColor(const Color& from,
 				*bufp = dst_color;
 		}
 	}
+}
+
 }
 
 

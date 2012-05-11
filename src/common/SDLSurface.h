@@ -3,7 +3,9 @@
 
 #include <SDL_image.h>
 
-#include "match/Color.h"
+#include "common/Color.h"
+
+namespace Common {
 
 class SDLSurface {
 	public:
@@ -16,5 +18,7 @@ class SDLSurface {
 	private:
 		SDL_Surface* mSurface;
 };
+
+}
 
 #endif

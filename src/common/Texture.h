@@ -3,7 +3,9 @@
 
 #include <GL/gl.h>
 
-#include "match/SDLSurface.h"
+#include "common/SDLSurface.h"
+
+namespace Common {
 
 class Texture {
 	public:
@@ -20,6 +22,8 @@ class Texture {
 				unsigned int startrow, unsigned int height);
 		GLuint mTexture;
 };
+
+}
 
 #endif
 

@@ -12,7 +12,7 @@ LDFLAGS  += -lGL
 CXXFLAGS += -Isrc
 BINDIR       = bin
 
-COMMONSRCFILES = SDL_utils.cpp
+COMMONSRCFILES = SDLSurface.cpp Texture.cpp SDL_utils.cpp
 
 COMMONSRCDIR = src/common
 COMMONSRCS = $(addprefix $(COMMONSRCDIR)/, $(COMMONSRCFILES))
@@ -26,7 +26,7 @@ MATCHBIN     = $(BINDIR)/$(MATCHBINNAME)
 
 MATCHSRCDIR = src/match
 
-MATCHSRCFILES = Math.cpp Clock.cpp SDLSurface.cpp Texture.cpp Pitch.cpp Ball.cpp \
+MATCHSRCFILES = Math.cpp Clock.cpp Pitch.cpp Ball.cpp \
 	   Match.cpp MatchHelpers.cpp MatchEntity.cpp Team.cpp Player.cpp PlayerActions.cpp \
 	   Referee.cpp RefereeActions.cpp \
 	   ai/PlayerAIController.cpp ai/AIActions.cpp ai/AIPlayStates.cpp ai/AIHelpers.cpp \
