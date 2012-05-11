@@ -1,5 +1,6 @@
 *.dep
 *.o
+*.a
 bin/
 tmp/
 tags
