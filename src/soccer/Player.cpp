@@ -2,27 +2,38 @@
 
 namespace Soccer {
 
-Player::Player(ShirtNumber sn, bool gk,
+Player::Player(int id, const char* name, PlayerPosition pos,
 		const PlayerSkills& skills)
-	: mGoalkeeper(gk),
-	mShirtNumber(sn),
+	: mId(id),
+	mName(name),
+	mPosition(pos),
 	mSkills(skills)
 {
 }
 
 bool Player::isGoalkeeper() const
 {
-	return mGoalkeeper;
-}
-
-int Player::getShirtNumber() const
-{
-	return mShirtNumber;
+	return mPosition == PlayerPosition::Goalkeeper;
 }
 
 const PlayerSkills& Player::getSkills() const
 {
 	return mSkills;
+}
+
+PlayerPosition Player::getPlayerPosition() const
+{
+	return mPosition;
+}
+
+const std::string& Player::getName() const
+{
+	return mName;
+}
+
+int Player::getId() const
+{
+	return mId;
 }
 
 }

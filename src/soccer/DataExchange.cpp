@@ -18,22 +18,39 @@ static float getPlayerSkill(const TiXmlElement* skillselem, const char* skillnam
 
 std::shared_ptr<Player> DataExchange::parsePlayer(const TiXmlElement* pelem)
 {
-	int sn;
-	int gk;
 	PlayerSkills sk;
+	PlayerPosition position;
+	int id;
 
-	if(pelem->QueryIntAttribute("shirtnumber", &sn) != TIXML_SUCCESS)
-		throw std::runtime_error("Error parsing player shirtnumber");
-	if(pelem->QueryIntAttribute("goalkeeper", &gk) != TIXML_SUCCESS)
-		throw std::runtime_error("Error parsing player goalkeeper flag");
+	if(pelem->QueryIntAttribute("id", &id) != TIXML_SUCCESS)
+		throw std::runtime_error("Error parsing player");
 
 	const TiXmlElement* skillselem = pelem->FirstChildElement("Skills");
-	if(!skillselem)
-		throw std::runtime_error("Error parsing player skills");
+	const TiXmlElement* nameelem = pelem->FirstChildElement("Name");
+	const TiXmlElement* poselem = pelem->FirstChildElement("Position");
+	if(!skillselem || !nameelem || !poselem)
+		throw std::runtime_error("Error parsing player");
+
+	const char* pos = poselem->GetText();
+	const char* name = nameelem->GetText();
+	if(!pos || !name)
+		throw std::runtime_error("Error parsing player");
+
+	if(!strcmp(pos, "goalkeeper"))
+		position = PlayerPosition::Goalkeeper;
+	else if(!strcmp(pos, "defender"))
+		position = PlayerPosition::Defender;
+	else if(!strcmp(pos, "midfielder"))
+		position = PlayerPosition::Midfielder;
+	else if(!strcmp(pos, "forward"))
+		position = PlayerPosition::Forward;
+	else
+		throw std::runtime_error("Error parsing player");
+
 	sk.KickPower = getPlayerSkill(skillselem, "KickPower");
 	sk.RunSpeed = getPlayerSkill(skillselem, "RunSpeed");
 	sk.BallControl = getPlayerSkill(skillselem, "BallControl");
-	return std::shared_ptr<Player>(new Player(sn, gk != 0, sk));
+	return std::shared_ptr<Player>(new Player(id, name, position, sk));
 }
 
 std::shared_ptr<Match> DataExchange::parseMatchDataFile(const char* fn)
@@ -92,8 +109,32 @@ void DataExchange::createMatchDataFile(const Match& m, const char* fn)
 				break;
 			j++;
 			TiXmlElement* playerelem = new TiXmlElement("Player");
-			playerelem->SetAttribute("shirtnumber", p->getShirtNumber());
-			playerelem->SetAttribute("goalkeeper", p->isGoalkeeper() ? 1 : 0);
+			playerelem->SetAttribute("id", p->getId());
+
+			TiXmlElement* nameelem = new TiXmlElement("Name");
+			nameelem->LinkEndChild(new TiXmlText(p->getName()));
+			playerelem->LinkEndChild(nameelem);
+
+			TiXmlElement* poselem = new TiXmlElement("Position");
+			switch(p->getPlayerPosition()) {
+				case PlayerPosition::Goalkeeper:
+					poselem->LinkEndChild(new TiXmlText("goalkeeper"));
+					break;
+
+				case PlayerPosition::Defender:
+					poselem->LinkEndChild(new TiXmlText("defender"));
+					break;
+
+				case PlayerPosition::Midfielder:
+					poselem->LinkEndChild(new TiXmlText("midfielder"));
+					break;
+
+				case PlayerPosition::Forward:
+					poselem->LinkEndChild(new TiXmlText("forward"));
+					break;
+			}
+			playerelem->LinkEndChild(poselem);
+
 			TiXmlElement* skillselem = new TiXmlElement("Skills");
 			TiXmlElement* skill1elem = new TiXmlElement("KickPower");
 			TiXmlElement* skill2elem = new TiXmlElement("RunSpeed");
@@ -128,6 +169,16 @@ void DataExchange::createMatchDataFile(const Match& m, const char* fn)
 
 }
 
+
+void DataExchange::updateTeamDatabase(const char* fn, TeamDatabase& db)
+{
+	/* TODO */
+}
+
+void DataExchange::updatePlayerDatabase(const char* fn, PlayerDatabase& db)
+{
+	/* TODO */
+}
 
 
 }

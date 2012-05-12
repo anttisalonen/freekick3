@@ -21,7 +21,8 @@ class TeamTactics {
 	public:
 		TeamTactics();
 	private:
-		std::map<ShirtNumber, PlayerTactics> mTactics;
+		/* TODO: decide and specify whether the key is player index or player ID */
+		std::map<int, PlayerTactics> mTactics;
 };
 
 class Match {

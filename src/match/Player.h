@@ -18,11 +18,15 @@ class PlayerAIController;
 
 enum class MatchHalf;
 
+typedef int ShirtNumber;
+
 class Player : public MatchEntity, public Soccer::Player {
 	public:
-		Player(Match* match, Team* team, const Soccer::Player& p);
+		Player(Match* match, Team* team, const Soccer::Player& p,
+				ShirtNumber sn);
 		~Player();
 		std::shared_ptr<PlayerAction> act(double time);
+		int getShirtNumber() const;
 		const Team* getTeam() const;
 		const RelVector3& getHomePosition() const;
 		void setHomePosition(const RelVector3& p);
@@ -45,6 +49,7 @@ class Player : public MatchEntity, public Soccer::Player {
 		RelVector3 mHomePosition;
 		Countdown mBallKickedTimer;
 		PlayerTactics mTactics;
+		ShirtNumber mShirtNumber;
 };
 
 #endif

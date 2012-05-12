@@ -1,6 +1,8 @@
 #ifndef SOCCER_PLAYER_H
 #define SOCCER_PLAYER_H
 
+#include <string>
+
 namespace Soccer {
 
 struct PlayerSkills {
@@ -13,19 +15,27 @@ struct PlayerSkills {
 	float BallControl;
 };
 
-typedef int ShirtNumber;
+enum class PlayerPosition {
+	Goalkeeper,
+	Defender,
+	Midfielder,
+	Forward
+};
 
 class Player {
 	public:
-		Player(ShirtNumber sn, bool gk,
+		Player(int id, const char* name, PlayerPosition pos,
 				const PlayerSkills& skills);
 		virtual ~Player() { }
 		bool isGoalkeeper() const;
-		int getShirtNumber() const;
 		const PlayerSkills& getSkills() const;
+		PlayerPosition getPlayerPosition() const;
+		const std::string& getName() const;
+		int getId() const;
 	protected:
-		bool mGoalkeeper;
-		ShirtNumber mShirtNumber;
+		int mId;
+		std::string mName;
+		PlayerPosition mPosition;
 		PlayerSkills mSkills;
 };
 

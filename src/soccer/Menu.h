@@ -11,6 +11,8 @@
 #include "common/Texture.h"
 #include "common/Rectangle.h"
 
+#include "soccer/DataExchange.h"
+
 namespace Soccer {
 	class Button {
 		public:
@@ -40,6 +42,8 @@ namespace Soccer {
 			std::vector<std::shared_ptr<Button>> mButtons;
 			bool mRunning;
 			std::string mPressedButton;
+			TeamDatabase mTeams;
+			PlayerDatabase mPlayers;
 	};
 }
 

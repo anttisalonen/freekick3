@@ -164,10 +164,14 @@ bool Menu::recordMouseButton(bool up, int x, int y)
 						std::shared_ptr<Team> t1(new Team());
 						std::shared_ptr<Team> t2(new Team());
 						for(int i = 0; i < 11; i++) {
-							t1->addPlayer(std::shared_ptr<Player>(new Player(i + 1,
-										i == 0, PlayerSkills())));
-							t2->addPlayer(std::shared_ptr<Player>(new Player(i + 1,
-										i == 0, PlayerSkills())));
+							PlayerPosition pos = i == 0 ? PlayerPosition::Goalkeeper :
+								PlayerPosition::Midfielder;
+							t1->addPlayer(std::shared_ptr<Player>(new Player(i + 1001,
+											"Gwendolin Peisl", pos,
+											PlayerSkills())));
+							t2->addPlayer(std::shared_ptr<Player>(new Player(i + 1101,
+											"Gwendolin Peisl", pos,
+											PlayerSkills())));
 						}
 						Match m(t1, t2, TeamTactics(), TeamTactics());
 						DataExchange::createMatchDataFile(m, "tmp/match.xml");

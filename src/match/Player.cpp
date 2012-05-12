@@ -5,11 +5,13 @@
 #include "match/Match.h"
 #include "match/Team.h"
 
-Player::Player(Match* match, Team* team, const Soccer::Player& p)
+Player::Player(Match* match, Team* team, const Soccer::Player& p,
+		ShirtNumber sn)
 	: MatchEntity(match, match->convertRelativeToAbsoluteVector(team->getPausePosition())),
 	Soccer::Player(p),
 	mTeam(team),
-	mBallKickedTimer(1.0f)
+	mBallKickedTimer(1.0f),
+	mShirtNumber(sn)
 {
 	mAIController = new PlayerAIController(this);
 	setAIControlled();
@@ -18,6 +20,11 @@ Player::Player(Match* match, Team* team, const Soccer::Player& p)
 Player::~Player()
 {
 	delete mAIController;
+}
+
+int Player::getShirtNumber() const
+{
+	return mShirtNumber;
 }
 
 const PlayerAIController* Player::getAIController() const
