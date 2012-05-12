@@ -89,18 +89,21 @@ void Menu::drawScreen()
 		glVertex3f(r.x, screenHeight - r.y - r.h, 0.0f);
 		glEnd();
 
+		float tw2 = b->getTexture()->getWidth() * 0.8f;
+		float th2 = b->getTexture()->getHeight() * 0.8f;
+
 		glColor3f(1.0f, 1.0f, 1.0f);
 		glEnable(GL_TEXTURE_2D);
 		glBindTexture(GL_TEXTURE_2D, b->getTexture()->getTexture());
 		glBegin(GL_QUADS);
 		glTexCoord2f(0.0f, 0.0f);
-		glVertex3f(r.x + r.w * 0.35f, screenHeight - r.y - r.h * 0.3f, 1.1f);
+		glVertex3f(r.x + r.w * 0.5f - tw2, screenHeight - r.y - r.h * 0.5f + th2, 1.1f);
 		glTexCoord2f(1.0f, 0.0f);
-		glVertex3f(r.x + r.w * 0.65f, screenHeight - r.y - r.h * 0.3f, 1.1f);
+		glVertex3f(r.x + r.w * 0.5f + tw2, screenHeight - r.y - r.h * 0.5f + th2, 1.1f);
 		glTexCoord2f(1.0f, 1.0f);
-		glVertex3f(r.x + r.w * 0.65f, screenHeight - r.y - r.h * 0.7f, 1.1f);
+		glVertex3f(r.x + r.w * 0.5f + tw2, screenHeight - r.y - r.h * 0.5f - th2, 1.1f);
 		glTexCoord2f(0.0f, 1.0f);
-		glVertex3f(r.x + r.w * 0.35f, screenHeight - r.y - r.h * 0.7f, 1.1f);
+		glVertex3f(r.x + r.w * 0.5f - tw2, screenHeight - r.y - r.h * 0.5f - th2, 1.1f);
 		glEnd();
 
 	}

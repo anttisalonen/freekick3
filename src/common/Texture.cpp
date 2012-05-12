@@ -35,6 +35,8 @@ void Texture::setupSDLSurface(const SDL_Surface* surf, unsigned int startrow, un
 	glTexImage2D(GL_TEXTURE_2D, 0, surf->format->BytesPerPixel, surf->w, height ? height : surf->h,
 			0, hasAlpha ? GL_RGBA : GL_RGB, GL_UNSIGNED_BYTE,
 			(char*)surf->pixels + startrow * surf->w * surf->format->BytesPerPixel);
+	mWidth = surf->w;
+	mHeight = surf->h;
 }
 
 Texture::~Texture()
@@ -45,6 +47,16 @@ Texture::~Texture()
 GLuint Texture::getTexture() const
 {
 	return mTexture;
+}
+
+int Texture::getWidth() const
+{
+	return mWidth;
+}
+
+int Texture::getHeight() const
+{
+	return mHeight;
 }
 
 }

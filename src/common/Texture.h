@@ -17,10 +17,14 @@ class Texture {
 				unsigned int height = 0);
 		~Texture();
 		GLuint getTexture() const;
+		int getWidth() const;
+		int getHeight() const;
 	private:
 		void setupSDLSurface(const SDL_Surface* s,
 				unsigned int startrow, unsigned int height);
 		GLuint mTexture;
+		int mWidth;
+		int mHeight;
 };
 
 }
