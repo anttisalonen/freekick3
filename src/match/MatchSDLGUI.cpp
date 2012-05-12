@@ -460,7 +460,26 @@ std::shared_ptr<PlayerAction> MatchSDLGUI::act(double time)
 			return std::shared_ptr<PlayerAction>(new KickBallPA(AbsVector3(mPlayerControlVelocity * kickpower)));
 		}
 		else {
-			return std::shared_ptr<PlayerAction>(new KickBallPA(getMousePositionOnPitch(), true));
+			// pass, shot, dribble?
+			AbsVector3 tgt(getMousePositionOnPitch());
+			AbsVector3 goalpos = MatchHelpers::oppositeGoalPosition(*mPlayer);
+			float goaldiff = (tgt.v - goalpos.v).length();
+			Player* passtgt = MatchHelpers::nearestOwnPlayerTo(*mPlayer->getTeam(), tgt);
+			float passdiff = (tgt.v - passtgt->getPosition().v).length();
+			if(goaldiff < 10.0f && goaldiff < passdiff) {
+				// full power
+				return std::shared_ptr<PlayerAction>(new KickBallPA(getMousePositionOnPitch(), true));
+			}
+			else if(passdiff < 5.0f) {
+				// pass
+				return std::shared_ptr<PlayerAction>(new KickBallPA(AIHelpers::getPassKickVector(*mPlayer,
+								*passtgt)));
+			}
+			else {
+				// dribble
+				return std::shared_ptr<PlayerAction>(new KickBallPA(AIHelpers::getPassKickVector(*mPlayer,
+								tgt)));
+			}
 		}
 	}
 	else if(playing(mMatch->getPlayState())) {

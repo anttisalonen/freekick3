@@ -180,10 +180,7 @@ AIPassAction::AIPassAction(const Player* p)
 			}
 			if(thisscore > mScore) {
 				mScore = thisscore;
-				tgt = AbsVector3(sp->getPosition().v + sp->getVelocity().v * 1.0f - mPlayer->getPosition().v);
-				float powercoeff = std::max(0.3, 1.6 * tgt.v.length() / mPlayer->getMaximumKickPower());
-				tgt.v.normalize();
-				tgt.v *= powercoeff;
+				tgt = AIHelpers::getPassKickVector(*mPlayer, *sp);
 			}
 		}
 	}
