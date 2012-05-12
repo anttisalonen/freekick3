@@ -1,3 +1,4 @@
+#include <string>
 #include <stdexcept>
 
 #include "soccer/DataExchange.h"
@@ -71,6 +72,60 @@ std::shared_ptr<Match> DataExchange::parseMatchDataFile(const char* fn)
 
 	std::shared_ptr<Match> m(new Match(t1, t2, TeamTactics(), TeamTactics()));
 	return m;
+}
+
+void DataExchange::createMatchDataFile(const Match& m, const char* fn)
+{
+	TiXmlDocument doc;
+	TiXmlDeclaration* decl = new TiXmlDeclaration("1.0", "", "");
+	TiXmlElement* matchelem = new TiXmlElement("Match");
+	TiXmlElement* teamselem = new TiXmlElement("Teams");
+	for(int i = 0; i < 2; i++) {
+		TiXmlElement* teamelem = new TiXmlElement("Team");
+		teamelem->SetAttribute("home", i == 0);
+		std::shared_ptr<Team> t = m.getTeam(i);
+		int j = 0;
+		TiXmlElement* playerselem = new TiXmlElement("Players");
+		while(1) {
+			std::shared_ptr<Player> p = t->getPlayer(j);
+			if(!p)
+				break;
+			j++;
+			TiXmlElement* playerelem = new TiXmlElement("Player");
+			playerelem->SetAttribute("shirtnumber", p->getShirtNumber());
+			playerelem->SetAttribute("goalkeeper", p->isGoalkeeper() ? 1 : 0);
+			TiXmlElement* skillselem = new TiXmlElement("Skills");
+			TiXmlElement* skill1elem = new TiXmlElement("KickPower");
+			TiXmlElement* skill2elem = new TiXmlElement("RunSpeed");
+			TiXmlElement* skill3elem = new TiXmlElement("BallControl");
+			skill1elem->LinkEndChild(new TiXmlText(std::to_string(p->getSkills().KickPower)));
+			skill2elem->LinkEndChild(new TiXmlText(std::to_string(p->getSkills().RunSpeed)));
+			skill3elem->LinkEndChild(new TiXmlText(std::to_string(p->getSkills().BallControl)));
+			skillselem->LinkEndChild(skill1elem);
+			skillselem->LinkEndChild(skill2elem);
+			skillselem->LinkEndChild(skill3elem);
+			playerelem->LinkEndChild(skillselem);
+			playerselem->LinkEndChild(playerelem);
+		}
+		teamelem->LinkEndChild(playerselem);
+		teamselem->LinkEndChild(teamelem);
+	}
+	matchelem->LinkEndChild(teamselem);
+
+	TiXmlElement* matchresultelem = new TiXmlElement("MatchResult");
+	matchresultelem->SetAttribute("played", 0);
+	TiXmlElement* homereselem = new TiXmlElement("Home");
+	TiXmlElement* awayreselem = new TiXmlElement("Away");
+	homereselem->LinkEndChild(new TiXmlText("0"));
+	awayreselem->LinkEndChild(new TiXmlText("0"));
+	matchresultelem->LinkEndChild(homereselem);
+	matchresultelem->LinkEndChild(awayreselem);
+	matchelem->LinkEndChild(matchresultelem);
+
+	doc.LinkEndChild(decl);
+	doc.LinkEndChild(matchelem);
+	doc.SaveFile(fn);
+
 }
 
 

@@ -8,6 +8,10 @@
 #include "Menu.h"
 #include "common/SDL_utils.h"
 
+#include "soccer/DataExchange.h"
+#include "soccer/Player.h"
+#include "soccer/Match.h"
+
 namespace Soccer {
 
 using namespace Common;
@@ -28,6 +32,9 @@ Menu::Menu()
 		throw std::runtime_error("Loading font");
 	}
 	mBackground = std::shared_ptr<Texture>(new Texture("share/bg.png", 0, 0));
+	mButtons.push_back(std::shared_ptr<Button>(new Button("Friendly", mFont,
+					Rectangle(0.35f * screenWidth, 0.35f * screenHeight,
+						0.30f * screenWidth, 0.15f * screenHeight))));
 	mButtons.push_back(std::shared_ptr<Button>(new Button("Quit", mFont,
 					Rectangle(0.35f * screenWidth, 0.65f * screenHeight,
 						0.30f * screenWidth, 0.15f * screenHeight))));
@@ -147,6 +154,20 @@ bool Menu::recordMouseButton(bool up, int x, int y)
 					if(mPressedButton == "Quit") {
 						mRunning = false;
 						mPressedButton = std::string("");
+						return true;
+					}
+					else if(mPressedButton == "Friendly") {
+						mPressedButton = std::string("");
+						std::shared_ptr<Team> t1(new Team());
+						std::shared_ptr<Team> t2(new Team());
+						for(int i = 0; i < 11; i++) {
+							t1->addPlayer(std::shared_ptr<Player>(new Player(i + 1,
+										i == 0, PlayerSkills())));
+							t2->addPlayer(std::shared_ptr<Player>(new Player(i + 1,
+										i == 0, PlayerSkills())));
+						}
+						Match m(t1, t2, TeamTactics(), TeamTactics());
+						DataExchange::createMatchDataFile(m, "tmp/match.xml");
 						return true;
 					}
 				}

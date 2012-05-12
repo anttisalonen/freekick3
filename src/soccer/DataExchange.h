@@ -12,6 +12,7 @@ class DataExchange {
 	public:
 		static std::shared_ptr<Player> parsePlayer(const TiXmlElement* pelem);
 		static std::shared_ptr<Match> parseMatchDataFile(const char* fn);
+		static void createMatchDataFile(const Match& m, const char* fn);
 };
 
 
