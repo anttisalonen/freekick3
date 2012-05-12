@@ -11,11 +11,6 @@ Player::Player(Match* match, Team* team, const Soccer::Player& p)
 	mTeam(team),
 	mBallKickedTimer(1.0f)
 {
-	if(!team->isFirst()) {
-		mSkills.KickPower = 0.5f;
-		mSkills.RunSpeed = 0.5f;
-		mSkills.BallControl = 0.5f;
-	}
 	mAIController = new PlayerAIController(this);
 	setAIControlled();
 }
