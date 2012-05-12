@@ -5,11 +5,10 @@
 #include "match/Match.h"
 #include "match/Team.h"
 
-Player::Player(Match* match, Team* team, int shirtnumber, bool goalkeeper)
+Player::Player(Match* match, Team* team, const Soccer::Player& p)
 	: MatchEntity(match, match->convertRelativeToAbsoluteVector(team->getPausePosition())),
+	Soccer::Player(p),
 	mTeam(team),
-	mShirtNumber(shirtnumber),
-	mGoalkeeper(goalkeeper),
 	mBallKickedTimer(1.0f)
 {
 	if(!team->isFirst()) {
@@ -77,11 +76,6 @@ bool Player::isAIControlled() const
 	return mController == mAIController;
 }
 
-bool Player::isGoalkeeper() const
-{
-	return mGoalkeeper;
-}
-
 void Player::ballKicked()
 {
 	mBallKickedTimer.rewind();
@@ -111,16 +105,6 @@ void Player::setPlayerTactics(const PlayerTactics& t)
 const PlayerTactics& Player::getTactics() const
 {
 	return mTactics;
-}
-
-int Player::getShirtNumber() const
-{
-	return mShirtNumber;
-}
-
-const PlayerSkills& Player::getSkills() const
-{
-	return mSkills;
 }
 
 void Player::matchHalfChanged(MatchHalf m)

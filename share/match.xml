@@ -1,0 +1,170 @@
+<Match>
+	<Teams>
+		<Team home="1">
+			<Players>
+				<Player shirtnumber="1" goalkeeper="1">
+					<Skills>
+						<KickPower>1.0</KickPower>
+						<RunSpeed>1.0</RunSpeed>
+						<BallControl>1.0</BallControl>
+					</Skills>
+				</Player>
+				<Player shirtnumber="2" goalkeeper="0">
+					<Skills>
+						<KickPower>1.0</KickPower>
+						<RunSpeed>1.0</RunSpeed>
+						<BallControl>1.0</BallControl>
+					</Skills>
+				</Player>
+				<Player shirtnumber="3" goalkeeper="0">
+					<Skills>
+						<KickPower>1.0</KickPower>
+						<RunSpeed>1.0</RunSpeed>
+						<BallControl>1.0</BallControl>
+					</Skills>
+				</Player>
+				<Player shirtnumber="4" goalkeeper="0">
+					<Skills>
+						<KickPower>1.0</KickPower>
+						<RunSpeed>1.0</RunSpeed>
+						<BallControl>1.0</BallControl>
+					</Skills>
+				</Player>
+				<Player shirtnumber="5" goalkeeper="0">
+					<Skills>
+						<KickPower>1.0</KickPower>
+						<RunSpeed>1.0</RunSpeed>
+						<BallControl>1.0</BallControl>
+					</Skills>
+				</Player>
+				<Player shirtnumber="6" goalkeeper="0">
+					<Skills>
+						<KickPower>1.0</KickPower>
+						<RunSpeed>1.0</RunSpeed>
+						<BallControl>1.0</BallControl>
+					</Skills>
+				</Player>
+				<Player shirtnumber="7" goalkeeper="0">
+					<Skills>
+						<KickPower>1.0</KickPower>
+						<RunSpeed>1.0</RunSpeed>
+						<BallControl>1.0</BallControl>
+					</Skills>
+				</Player>
+				<Player shirtnumber="8" goalkeeper="0">
+					<Skills>
+						<KickPower>1.0</KickPower>
+						<RunSpeed>1.0</RunSpeed>
+						<BallControl>1.0</BallControl>
+					</Skills>
+				</Player>
+				<Player shirtnumber="9" goalkeeper="0">
+					<Skills>
+						<KickPower>1.0</KickPower>
+						<RunSpeed>1.0</RunSpeed>
+						<BallControl>1.0</BallControl>
+					</Skills>
+				</Player>
+				<Player shirtnumber="10" goalkeeper="0">
+					<Skills>
+						<KickPower>1.0</KickPower>
+						<RunSpeed>1.0</RunSpeed>
+						<BallControl>1.0</BallControl>
+					</Skills>
+				</Player>
+				<Player shirtnumber="11" goalkeeper="0">
+					<Skills>
+						<KickPower>1.0</KickPower>
+						<RunSpeed>1.0</RunSpeed>
+						<BallControl>1.0</BallControl>
+					</Skills>
+				</Player>
+			</Players>
+		</Team>
+		<Team home="0">
+			<Players>
+				<Player shirtnumber="1" goalkeeper="1">
+					<Skills>
+						<KickPower>0.5</KickPower>
+						<RunSpeed>0.5</RunSpeed>
+						<BallControl>0.5</BallControl>
+					</Skills>
+				</Player>
+				<Player shirtnumber="2" goalkeeper="0">
+					<Skills>
+						<KickPower>0.5</KickPower>
+						<RunSpeed>0.5</RunSpeed>
+						<BallControl>0.5</BallControl>
+					</Skills>
+				</Player>
+				<Player shirtnumber="3" goalkeeper="0">
+					<Skills>
+						<KickPower>0.5</KickPower>
+						<RunSpeed>0.5</RunSpeed>
+						<BallControl>0.5</BallControl>
+					</Skills>
+				</Player>
+				<Player shirtnumber="4" goalkeeper="0">
+					<Skills>
+						<KickPower>0.5</KickPower>
+						<RunSpeed>0.5</RunSpeed>
+						<BallControl>0.5</BallControl>
+					</Skills>
+				</Player>
+				<Player shirtnumber="5" goalkeeper="0">
+					<Skills>
+						<KickPower>0.5</KickPower>
+						<RunSpeed>0.5</RunSpeed>
+						<BallControl>0.5</BallControl>
+					</Skills>
+				</Player>
+				<Player shirtnumber="6" goalkeeper="0">
+					<Skills>
+						<KickPower>0.5</KickPower>
+						<RunSpeed>0.5</RunSpeed>
+						<BallControl>0.5</BallControl>
+					</Skills>
+				</Player>
+				<Player shirtnumber="7" goalkeeper="0">
+					<Skills>
+						<KickPower>0.5</KickPower>
+						<RunSpeed>0.5</RunSpeed>
+						<BallControl>0.5</BallControl>
+					</Skills>
+				</Player>
+				<Player shirtnumber="8" goalkeeper="0">
+					<Skills>
+						<KickPower>0.5</KickPower>
+						<RunSpeed>0.5</RunSpeed>
+						<BallControl>0.5</BallControl>
+					</Skills>
+				</Player>
+				<Player shirtnumber="9" goalkeeper="0">
+					<Skills>
+						<KickPower>0.5</KickPower>
+						<RunSpeed>0.5</RunSpeed>
+						<BallControl>0.5</BallControl>
+					</Skills>
+				</Player>
+				<Player shirtnumber="10" goalkeeper="0">
+					<Skills>
+						<KickPower>0.5</KickPower>
+						<RunSpeed>0.5</RunSpeed>
+						<BallControl>0.5</BallControl>
+					</Skills>
+				</Player>
+				<Player shirtnumber="11" goalkeeper="0">
+					<Skills>
+						<KickPower>0.5</KickPower>
+						<RunSpeed>0.5</RunSpeed>
+						<BallControl>0.5</BallControl>
+					</Skills>
+				</Player>
+			</Players>
+		</Team>
+	</Teams>
+	<MatchResult played="0">
+		<Home>0</Home>
+		<Away>0</Away>
+	</MatchResult>
+</Match>

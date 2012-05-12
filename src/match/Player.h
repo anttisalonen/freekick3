@@ -3,10 +3,12 @@
 
 #include <memory>
 
+#include "soccer/Player.h"
+#include "soccer/PlayerTactics.h"
+
 #include "match/MatchEntity.h"
 #include "match/Distance.h"
 #include "match/Clock.h"
-#include "match/PlayerTactics.h"
 
 class Match;
 class Team;
@@ -16,19 +18,9 @@ class PlayerAIController;
 
 enum class MatchHalf;
 
-struct PlayerSkills {
-	PlayerSkills()
-		: KickPower(1.0f),
-		RunSpeed(1.0f),
-		BallControl(1.0f) { }
-	float KickPower;
-	float RunSpeed;
-	float BallControl;
-};
-
-class Player : public MatchEntity {
+class Player : public MatchEntity, public Soccer::Player {
 	public:
-		Player(Match* match, Team* team, int shirtnumber, bool goalkeeper);
+		Player(Match* match, Team* team, const Soccer::Player& p);
 		~Player();
 		std::shared_ptr<PlayerAction> act(double time);
 		const Team* getTeam() const;
@@ -39,26 +31,20 @@ class Player : public MatchEntity {
 		void setController(PlayerController* c);
 		void setAIControlled();
 		bool isAIControlled() const;
-		bool isGoalkeeper() const;
 		void ballKicked();
 		bool canKickBall() const;
 		void update(float time) override;
 		void setPlayerTactics(const PlayerTactics& t);
 		const PlayerTactics& getTactics() const;
 		const PlayerAIController* getAIController() const;
-		int getShirtNumber() const;
-		const PlayerSkills& getSkills() const;
 		void matchHalfChanged(MatchHalf m);
 	private:
 		Team* mTeam;
-		int mShirtNumber;
 		PlayerController* mController;
 		PlayerAIController* mAIController;
 		RelVector3 mHomePosition;
-		bool mGoalkeeper;
 		Countdown mBallKickedTimer;
 		PlayerTactics mTactics;
-		PlayerSkills mSkills;
 };
 
 #endif

@@ -5,6 +5,8 @@
 #include <vector>
 #include <map>
 
+#include "soccer/Match.h"
+
 #include "match/Clock.h"
 #include "match/Pitch.h"
 #include "match/Team.h"
@@ -41,7 +43,7 @@ bool playing(PlayState h);
 
 class Match {
 	public:
-		Match();
+		Match(const Soccer::Match& m);
 		const Team* getTeam(unsigned int team) const;
 		const Player* getPlayer(unsigned int team, unsigned int idx) const;
 		Player* getPlayer(unsigned int team, unsigned int idx);

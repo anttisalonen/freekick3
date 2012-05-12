@@ -13,6 +13,10 @@ PlayerAIController::PlayerAIController(Player* p)
 	mPlayState = std::shared_ptr<AIPlayController>(new AIPlayController(p));
 }
 
+/* TODO: this module uses getShirtNumber() as the player index number.
+ * Rework it so that either the player index is used instead or
+ * the player index is not needed. */
+
 std::shared_ptr<PlayerAction> PlayerAIController::act(double time)
 {
 	switch(mPlayer->getMatch()->getMatchHalf()) {

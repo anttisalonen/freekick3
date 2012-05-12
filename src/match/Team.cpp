@@ -23,10 +23,9 @@ Team::Team(Match* match, bool first)
 	}
 }
 
-void Team::addPlayer()
+void Team::addPlayer(const Soccer::Player& pl)
 {
-	std::shared_ptr<Player> p(new Player(mMatch, this, mPlayers.size() + 1,
-				mPlayers.size() == 0));
+	std::shared_ptr<Player> p(new Player(mMatch, this, pl));
 	mPlayers.push_back(p);
 	if(mPlayers.size() == 1) {
 		p->setHomePosition(RelVector3(0, -0.95f * (mFirst ? 1 : -1), 0));

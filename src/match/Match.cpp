@@ -7,7 +7,7 @@
 #include "match/PlayerActions.h"
 #include "match/RefereeActions.h"
 
-Match::Match()
+Match::Match(const Soccer::Match& m)
 	: mTime(0),
 	mTimeAccelerationConstant(30),
 	mMatchHalf(MatchHalf::NotStarted),
@@ -21,7 +21,7 @@ Match::Match()
 	for(int j = 0; j < 2; j++) {
 		mTeams[j] = std::shared_ptr<Team>(new Team(this, j == 0));
 		for(int i = 0; i < numPlayers; i++) {
-			mTeams[j]->addPlayer();
+			mTeams[j]->addPlayer(*m.getTeam(j)->getPlayer(i));
 		}
 	}
 	mReferee.setMatch(this);

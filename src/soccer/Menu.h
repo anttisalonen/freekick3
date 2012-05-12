@@ -11,7 +11,7 @@
 #include "common/Texture.h"
 #include "common/Rectangle.h"
 
-namespace soccer {
+namespace Soccer {
 	class Button {
 		public:
 			Button(const char* text, TTF_Font* font, const Rectangle& dim);

@@ -6,7 +6,7 @@
 int main(int argc, char** argv)
 {
 	try {
-		std::shared_ptr<soccer::Menu> menu(new soccer::Menu());
+		std::shared_ptr<Soccer::Menu> menu(new Soccer::Menu());
 		menu->run();
 	}
 	catch (std::exception& e) {

@@ -8,7 +8,7 @@
 #include "Menu.h"
 #include "common/SDL_utils.h"
 
-namespace soccer {
+namespace Soccer {
 
 using namespace Common;
 
