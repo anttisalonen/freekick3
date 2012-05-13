@@ -41,7 +41,7 @@ enum class PlayState {
 std::ostream& operator<<(std::ostream& out, const PlayState& m);
 bool playing(PlayState h);
 
-class Match {
+class Match : public Soccer::Match {
 	public:
 		Match(const Soccer::Match& m);
 		const Team* getTeam(unsigned int team) const;

@@ -7,7 +7,7 @@ class MatchGUI {
 	public:
 		inline MatchGUI(std::shared_ptr<Match> match);
 		virtual ~MatchGUI() { }
-		virtual void play() = 0;
+		virtual bool play() = 0;
 	protected:
 		std::shared_ptr<Match> mMatch;
 };

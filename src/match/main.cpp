@@ -55,7 +55,12 @@ int main(int argc, char** argv)
 		std::shared_ptr<Soccer::Match> matchdata = Soccer::DataExchange::parseMatchDataFile(argv[1]);
 		std::shared_ptr<Match> match(new Match(*matchdata));
 		std::unique_ptr<MatchSDLGUI> matchGUI(new MatchSDLGUI(match, observer, teamnum, playernum));
-		matchGUI->play();
+		if(matchGUI->play()) {
+			// finished match
+			printf("Final score: %d - %d\n", match->getResult().HomeGoals,
+					match->getResult().AwayGoals);
+			Soccer::DataExchange::createMatchDataFile(*match, argv[1]);
+		}
 	}
 	catch (std::exception& e) {
 		printf("std::exception: %s\n", e.what());

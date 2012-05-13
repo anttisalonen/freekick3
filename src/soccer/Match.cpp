@@ -22,7 +22,7 @@ void Match::play()
 {
 }
 
-const MatchResult& Match::getResult()
+const MatchResult& Match::getResult() const
 {
 	return mResult;
 }

@@ -73,7 +73,7 @@ void MatchSDLGUI::loadFont()
 	}
 }
 
-void MatchSDLGUI::play()
+bool MatchSDLGUI::play()
 {
 	double prevTime = Clock::getTime();
 	while(1) {
@@ -93,6 +93,12 @@ void MatchSDLGUI::play()
 		if(!progressMatch(frameTime))
 			break;
 	}
+	if(mMatch->matchOver()) {
+		Soccer::MatchResult mres(mMatch->getScore(0), mMatch->getScore(1));
+		mMatch->setResult(mres);
+		return true;
+	}
+	return false;
 }
 
 bool MatchSDLGUI::progressMatch(double frameTime)

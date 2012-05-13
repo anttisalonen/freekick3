@@ -125,9 +125,27 @@ std::shared_ptr<Match> DataExchange::parseMatchDataFile(const char* fn)
 		throw std::runtime_error(ss.str());
 	}
 
-	/* TODO: parse match result */
+	const TiXmlElement* matchreselem = handle.FirstChild("Match").FirstChild("MatchResult").ToElement();
+	if(!matchreselem)
+		throw std::runtime_error(ss.str());
+
+	MatchResult mres;
+	int played;
+	if(matchreselem->QueryIntAttribute("played", &played) != TIXML_SUCCESS)
+		throw std::runtime_error(ss.str());
+
+	mres.Played = played;
+	if(played) {
+		const TiXmlElement* homeelem = matchreselem->FirstChildElement("Home");
+		const TiXmlElement* awayelem = matchreselem->FirstChildElement("Away");
+		if(!homeelem || !awayelem)
+			throw std::runtime_error(ss.str());
+		mres.HomeGoals = atoi(homeelem->GetText());
+		mres.AwayGoals = atoi(awayelem->GetText());
+	}
 
 	std::shared_ptr<Match> m(new Match(teams[0], teams[1], TeamTactics(), TeamTactics()));
+	m->setResult(mres);
 	return m;
 }
 
@@ -211,11 +229,11 @@ void DataExchange::createMatchDataFile(const Match& m, const char* fn)
 	matchelem->LinkEndChild(teamselem);
 
 	TiXmlElement* matchresultelem = new TiXmlElement("MatchResult");
-	matchresultelem->SetAttribute("played", 0);
+	matchresultelem->SetAttribute("played", m.getResult().Played ? "1" : "0");
 	TiXmlElement* homereselem = new TiXmlElement("Home");
 	TiXmlElement* awayreselem = new TiXmlElement("Away");
-	homereselem->LinkEndChild(new TiXmlText("0"));
-	awayreselem->LinkEndChild(new TiXmlText("0"));
+	homereselem->LinkEndChild(new TiXmlText(std::to_string(m.getResult().HomeGoals)));
+	awayreselem->LinkEndChild(new TiXmlText(std::to_string(m.getResult().AwayGoals)));
 	matchresultelem->LinkEndChild(homereselem);
 	matchresultelem->LinkEndChild(awayreselem);
 	matchelem->LinkEndChild(matchresultelem);

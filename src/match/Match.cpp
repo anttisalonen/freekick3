@@ -8,7 +8,8 @@
 #include "match/RefereeActions.h"
 
 Match::Match(const Soccer::Match& m)
-	: mTime(0),
+	: Soccer::Match(m),
+	mTime(0),
 	mTimeAccelerationConstant(30),
 	mMatchHalf(MatchHalf::NotStarted),
 	mPlayState(PlayState::OutKickoff),
