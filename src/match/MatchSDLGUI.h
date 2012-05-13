@@ -86,8 +86,8 @@ class MatchSDLGUI : public MatchGUI, public PlayerController {
 		void handleInputState(float frameTime);
 		void setPlayerController();
 		static void drawSprite(const Common::Texture& t,
-				const Rectangle& vertcoords,
-				const Rectangle& texcoords, float depth);
+				const Common::Rectangle& vertcoords,
+				const Common::Rectangle& texcoords, float depth);
 		void drawText(float x, float y,
 				const FontConfig& f,
 				bool screencoordinates, bool centered);

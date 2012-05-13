@@ -1,7 +1,7 @@
 #include <iostream>
 #include <memory>
 
-#include "soccer/Menu.h"
+#include "soccer/gui/Menu.h"
 
 int main(int argc, char** argv)
 {

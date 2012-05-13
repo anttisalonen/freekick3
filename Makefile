@@ -31,7 +31,9 @@ LIBSOCCERLIB = $(LIBSOCCERSRCDIR)/libsoccer.a
 SOCCERBINNAME = freekick3
 SOCCERBIN     = $(BINDIR)/$(SOCCERBINNAME)
 SOCCERSRCDIR  = src/soccer
-SOCCERSRCFILES = Menu.cpp main.cpp
+SOCCERSRCFILES = gui/Button.cpp gui/Screen.cpp gui/ScreenManager.cpp \
+		 gui/MainMenuScreen.cpp gui/FriendlyScreen.cpp \
+		 gui/Menu.cpp main.cpp
 SOCCERSRCS = $(addprefix $(SOCCERSRCDIR)/, $(SOCCERSRCFILES))
 SOCCEROBJS = $(SOCCERSRCS:.cpp=.o)
 SOCCERDEPS = $(SOCCERSRCS:.cpp=.dep)
@@ -81,7 +83,8 @@ clean:
 	find src/ -name '*.o' -exec rm -rf {} +
 	find src/ -name '*.dep' -exec rm -rf {} +
 	find src/ -name '*.a' -exec rm -rf {} +
-	rm -rf $(BINDIR)
+	rm -rf $(MATCHBIN) $(SOCCERBIN)
+	rmdir $(BINDIR)
 
 -include $(MATCHDEPS) $(SOCCERDEPS)
 
