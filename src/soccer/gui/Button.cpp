@@ -15,6 +15,9 @@ Button::Button(const char* text, TTF_Font* font, const Rectangle& dim)
 	: mText(std::string(text)),
 	mRectangle(dim),
 	mHidden(false),
+	mActive(true),
+	mTransparent(false),
+	mCenteredText(true),
 	mColor1(DefaultColor1),
 	mColor2(DefaultColor2)
 {
@@ -35,7 +38,7 @@ Button::Button(const char* text, TTF_Font* font, const Rectangle& dim)
 
 bool Button::clicked(int x, int y) const
 {
-	return !mHidden && mRectangle.pointWithin(x, y);
+	return mActive && !mHidden && mRectangle.pointWithin(x, y);
 }
 
 const std::string& Button::getText() const
@@ -66,6 +69,41 @@ void Button::hide()
 void Button::show()
 {
 	mHidden = false;
+}
+
+bool Button::active() const
+{
+	return mActive;
+}
+
+void Button::activate()
+{
+	mActive = true;
+}
+
+void Button::deactivate()
+{
+	mActive = false;
+}
+
+bool Button::isTransparent() const
+{
+	return mTransparent;
+}
+
+void Button::setTransparent(bool t)
+{
+	mTransparent = t;
+}
+
+bool Button::centeredText() const
+{
+	return mCenteredText;
+}
+
+void Button::setCenteredText(bool c)
+{
+	mCenteredText = c;
 }
 
 const Color& Button::getColor1() const

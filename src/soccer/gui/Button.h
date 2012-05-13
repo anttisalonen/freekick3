@@ -25,6 +25,13 @@ class Button {
 		bool hidden() const;
 		void hide();
 		void show();
+		bool active() const;
+		void activate();
+		void deactivate();
+		bool isTransparent() const;
+		void setTransparent(bool t);
+		bool centeredText() const;
+		void setCenteredText(bool c);
 		const Common::Color& getColor1() const;
 		const Common::Color& getColor2() const;
 		void setColor1(const Common::Color& c);
@@ -38,6 +45,9 @@ class Button {
 		Common::Rectangle mRectangle;
 		std::shared_ptr<Common::Texture> mTextTexture;
 		bool mHidden;
+		bool mActive;
+		bool mTransparent;
+		bool mCenteredText;
 		Common::Color mColor1;
 		Common::Color mColor2;
 };

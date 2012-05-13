@@ -19,9 +19,10 @@ class Screen {
 		const std::vector<std::shared_ptr<Button>>& getButtons() const;
 		virtual void buttonPressed(std::shared_ptr<Button> button) = 0;
 		virtual const std::string& getName() const = 0;
-		
+
 	protected:
 		std::shared_ptr<Button> addButton(const char* text, const Common::Rectangle& dim);
+		std::shared_ptr<Button> addLabel(const char* text, float x, float y, bool centered);
 		std::shared_ptr<ScreenManager> mScreenManager;
 
 	private:

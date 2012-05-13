@@ -89,17 +89,19 @@ void ScreenManager::drawScreen()
 				continue;
 
 			const Rectangle& r = b->getRectangle();
-			glDisable(GL_TEXTURE_2D);
-			glBegin(GL_QUADS);
-			const Color& c1 = b->getColor1();
-			const Color& c2 = b->getColor2();
-			glColor3f(c1.r / 255.0f, c1.g / 255.0f, c1.b / 255.0f);
-			glVertex3f(r.x, screenHeight - r.y, 1.0f);
-			glVertex3f(r.x + r.w, screenHeight - r.y, 0.0f);
-			glColor3f(c2.r / 255.0f, c2.g / 255.0f, c2.b / 255.0f);
-			glVertex3f(r.x + r.w, screenHeight - r.y - r.h, 0.0f);
-			glVertex3f(r.x, screenHeight - r.y - r.h, 0.0f);
-			glEnd();
+			if(!b->isTransparent()) {
+				glDisable(GL_TEXTURE_2D);
+				glBegin(GL_QUADS);
+				const Color& c1 = b->getColor1();
+				const Color& c2 = b->getColor2();
+				glColor3f(c1.r / 255.0f, c1.g / 255.0f, c1.b / 255.0f);
+				glVertex3f(r.x, screenHeight - r.y, 1.0f);
+				glVertex3f(r.x + r.w, screenHeight - r.y, 0.0f);
+				glColor3f(c2.r / 255.0f, c2.g / 255.0f, c2.b / 255.0f);
+				glVertex3f(r.x + r.w, screenHeight - r.y - r.h, 0.0f);
+				glVertex3f(r.x, screenHeight - r.y - r.h, 0.0f);
+				glEnd();
+			}
 
 			float tw2 = b->getTexture()->getWidth() * 0.8f;
 			float th2 = b->getTexture()->getHeight() * 0.8f;
@@ -108,16 +110,32 @@ void ScreenManager::drawScreen()
 			glEnable(GL_TEXTURE_2D);
 			glBindTexture(GL_TEXTURE_2D, b->getTexture()->getTexture());
 			glBegin(GL_QUADS);
-			glTexCoord2f(0.0f, 0.0f);
-			glVertex3f(r.x + r.w * 0.5f - tw2, screenHeight - r.y - r.h * 0.5f + th2, 1.1f);
-			glTexCoord2f(1.0f, 0.0f);
-			glVertex3f(r.x + r.w * 0.5f + tw2, screenHeight - r.y - r.h * 0.5f + th2, 1.1f);
-			glTexCoord2f(1.0f, 1.0f);
-			glVertex3f(r.x + r.w * 0.5f + tw2, screenHeight - r.y - r.h * 0.5f - th2, 1.1f);
-			glTexCoord2f(0.0f, 1.0f);
-			glVertex3f(r.x + r.w * 0.5f - tw2, screenHeight - r.y - r.h * 0.5f - th2, 1.1f);
-			glEnd();
 
+			glTexCoord2f(0.0f, 0.0f);
+			if(b->centeredText())
+				glVertex3f(r.x + r.w * 0.5f - tw2, screenHeight - r.y - r.h * 0.5f + th2, 1.1f);
+			else
+				glVertex3f(r.x, screenHeight - r.y + 2.0f * th2, 1.1f);
+
+			glTexCoord2f(1.0f, 0.0f);
+			if(b->centeredText())
+				glVertex3f(r.x + r.w * 0.5f + tw2, screenHeight - r.y - r.h * 0.5f + th2, 1.1f);
+			else
+				glVertex3f(r.x + 2.0f * tw2, screenHeight - r.y + 2.0f * th2, 1.1f);
+
+			glTexCoord2f(1.0f, 1.0f);
+			if(b->centeredText())
+				glVertex3f(r.x + r.w * 0.5f + tw2, screenHeight - r.y - r.h * 0.5f - th2, 1.1f);
+			else
+				glVertex3f(r.x + 2.0f * tw2, screenHeight - r.y, 1.1f);
+
+			glTexCoord2f(0.0f, 1.0f);
+			if(b->centeredText())
+				glVertex3f(r.x + r.w * 0.5f - tw2, screenHeight - r.y - r.h * 0.5f - th2, 1.1f);
+			else
+				glVertex3f(r.x, screenHeight - r.y, 1.1f);
+
+			glEnd();
 		}
 	}
 
