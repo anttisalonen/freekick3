@@ -191,7 +191,7 @@ bool MatchHelpers::playersPositionedForKickoff(const Match& m, const Player& nea
 
 bool MatchHelpers::onOwnSide(const Player& p)
 {
-	if(fabs(p.getPosition().v.y > 0.5f) && attacksUp(p) != (p.getPosition().v.y < 0.0f)) {
+	if(fabs(p.getPosition().v.y > 1.0f) && attacksUp(p) != (p.getPosition().v.y < 0.0f)) {
 		return false;
 	}
 	if(!onPitch(*p.getMatch(), p.getPosition())) {
