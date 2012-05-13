@@ -38,6 +38,12 @@ Menu::Menu()
 	mButtons.push_back(std::shared_ptr<Button>(new Button("Quit", mFont,
 					Rectangle(0.35f * screenWidth, 0.65f * screenHeight,
 						0.30f * screenWidth, 0.15f * screenHeight))));
+
+	DataExchange::updatePlayerDatabase("share/teams/Players_1000.xml", mPlayers);
+	DataExchange::updateTeamDatabase("share/teams/Teams.xml", mTeams);
+	for(auto t : mTeams) {
+		t.second->fetchPlayersFromDB(mPlayers);
+	}
 }
 
 Menu::~Menu()
@@ -161,18 +167,18 @@ bool Menu::recordMouseButton(bool up, int x, int y)
 					}
 					else if(mPressedButton == "Friendly") {
 						mPressedButton = std::string("");
-						std::shared_ptr<Team> t1(new Team());
-						std::shared_ptr<Team> t2(new Team());
-						for(int i = 0; i < 11; i++) {
-							PlayerPosition pos = i == 0 ? PlayerPosition::Goalkeeper :
-								PlayerPosition::Midfielder;
-							t1->addPlayer(std::shared_ptr<Player>(new Player(i + 1001,
-											"Gwendolin Peisl", pos,
-											PlayerSkills())));
-							t2->addPlayer(std::shared_ptr<Player>(new Player(i + 1101,
-											"Gwendolin Peisl", pos,
-											PlayerSkills())));
+						auto it = mTeams.find(1);
+						if(it == mTeams.end()) {
+							std::cerr << "Could not find team with ID 1\n";
+							return true;
 						}
+						std::shared_ptr<Team> t1 = it->second;
+						it = mTeams.find(2);
+						if(it == mTeams.end()) {
+							std::cerr << "Could not find team with ID 2\n";
+							return true;
+						}
+						std::shared_ptr<Team> t2 = it->second;
 						Match m(t1, t2, TeamTactics(), TeamTactics());
 						DataExchange::createMatchDataFile(m, "tmp/match.xml");
 						return true;

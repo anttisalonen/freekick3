@@ -1,0 +1,200 @@
+<Players>
+	<Player id="1000">
+		<Name>Vladislav Mikes</Name>
+		<Position>goalkeeper</Position>
+		<Skills>
+			<KickPower>1.0</KickPower>
+			<RunSpeed>1.0</RunSpeed>
+			<BallControl>1.0</BallControl>
+		</Skills>
+	</Player>
+	<Player id="1001">
+		<Name>Gwendolin Peisl</Name>
+		<Position>defender</Position>
+		<Skills>
+			<KickPower>1.0</KickPower>
+			<RunSpeed>1.0</RunSpeed>
+			<BallControl>1.0</BallControl>
+		</Skills>
+	</Player>
+	<Player id="1002">
+		<Name>Gwendolin Peisl</Name>
+		<Position>defender</Position>
+		<Skills>
+			<KickPower>1.0</KickPower>
+			<RunSpeed>1.0</RunSpeed>
+			<BallControl>1.0</BallControl>
+		</Skills>
+	</Player>
+	<Player id="1003">
+		<Name>Gwendolin Peisl</Name>
+		<Position>defender</Position>
+		<Skills>
+			<KickPower>1.0</KickPower>
+			<RunSpeed>1.0</RunSpeed>
+			<BallControl>1.0</BallControl>
+		</Skills>
+	</Player>
+	<Player id="1004">
+		<Name>Gwendolin Peisl</Name>
+		<Position>defender</Position>
+		<Skills>
+			<KickPower>1.0</KickPower>
+			<RunSpeed>1.0</RunSpeed>
+			<BallControl>1.0</BallControl>
+		</Skills>
+	</Player>
+	<Player id="1005">
+		<Name>Gwendolin Peisl</Name>
+		<Position>midfielder</Position>
+		<Skills>
+			<KickPower>1.0</KickPower>
+			<RunSpeed>1.0</RunSpeed>
+			<BallControl>1.0</BallControl>
+		</Skills>
+	</Player>
+	<Player id="1006">
+		<Name>Gwendolin Peisl</Name>
+		<Position>midfielder</Position>
+		<Skills>
+			<KickPower>1.0</KickPower>
+			<RunSpeed>1.0</RunSpeed>
+			<BallControl>1.0</BallControl>
+		</Skills>
+	</Player>
+	<Player id="1007">
+		<Name>Gwendolin Peisl</Name>
+		<Position>midfielder</Position>
+		<Skills>
+			<KickPower>1.0</KickPower>
+			<RunSpeed>1.0</RunSpeed>
+			<BallControl>1.0</BallControl>
+		</Skills>
+	</Player>
+	<Player id="1008">
+		<Name>Gwendolin Peisl</Name>
+		<Position>midfielder</Position>
+		<Skills>
+			<KickPower>1.0</KickPower>
+			<RunSpeed>1.0</RunSpeed>
+			<BallControl>1.0</BallControl>
+		</Skills>
+	</Player>
+	<Player id="1009">
+		<Name>Gwendolin Peisl</Name>
+		<Position>forward</Position>
+		<Skills>
+			<KickPower>1.0</KickPower>
+			<RunSpeed>1.0</RunSpeed>
+			<BallControl>1.0</BallControl>
+		</Skills>
+	</Player>
+	<Player id="1010">
+		<Name>Gwendolin Peisl</Name>
+		<Position>forward</Position>
+		<Skills>
+			<KickPower>1.0</KickPower>
+			<RunSpeed>1.0</RunSpeed>
+			<BallControl>1.0</BallControl>
+		</Skills>
+	</Player>
+	<Player id="1100">
+		<Name>Vladislav Mikes</Name>
+		<Position>goalkeeper</Position>
+		<Skills>
+			<KickPower>1.0</KickPower>
+			<RunSpeed>1.0</RunSpeed>
+			<BallControl>1.0</BallControl>
+		</Skills>
+	</Player>
+	<Player id="1101">
+		<Name>Gwendolin Peisl</Name>
+		<Position>defender</Position>
+		<Skills>
+			<KickPower>1.0</KickPower>
+			<RunSpeed>1.0</RunSpeed>
+			<BallControl>1.0</BallControl>
+		</Skills>
+	</Player>
+	<Player id="1102">
+		<Name>Gwendolin Peisl</Name>
+		<Position>defender</Position>
+		<Skills>
+			<KickPower>1.0</KickPower>
+			<RunSpeed>1.0</RunSpeed>
+			<BallControl>1.0</BallControl>
+		</Skills>
+	</Player>
+	<Player id="1103">
+		<Name>Gwendolin Peisl</Name>
+		<Position>defender</Position>
+		<Skills>
+			<KickPower>1.0</KickPower>
+			<RunSpeed>1.0</RunSpeed>
+			<BallControl>1.0</BallControl>
+		</Skills>
+	</Player>
+	<Player id="1104">
+		<Name>Gwendolin Peisl</Name>
+		<Position>defender</Position>
+		<Skills>
+			<KickPower>1.0</KickPower>
+			<RunSpeed>1.0</RunSpeed>
+			<BallControl>1.0</BallControl>
+		</Skills>
+	</Player>
+	<Player id="1105">
+		<Name>Gwendolin Peisl</Name>
+		<Position>midfielder</Position>
+		<Skills>
+			<KickPower>1.0</KickPower>
+			<RunSpeed>1.0</RunSpeed>
+			<BallControl>1.0</BallControl>
+		</Skills>
+	</Player>
+	<Player id="1106">
+		<Name>Gwendolin Peisl</Name>
+		<Position>midfielder</Position>
+		<Skills>
+			<KickPower>1.0</KickPower>
+			<RunSpeed>1.0</RunSpeed>
+			<BallControl>1.0</BallControl>
+		</Skills>
+	</Player>
+	<Player id="1107">
+		<Name>Gwendolin Peisl</Name>
+		<Position>midfielder</Position>
+		<Skills>
+			<KickPower>1.0</KickPower>
+			<RunSpeed>1.0</RunSpeed>
+			<BallControl>1.0</BallControl>
+		</Skills>
+	</Player>
+	<Player id="1108">
+		<Name>Gwendolin Peisl</Name>
+		<Position>midfielder</Position>
+		<Skills>
+			<KickPower>1.0</KickPower>
+			<RunSpeed>1.0</RunSpeed>
+			<BallControl>1.0</BallControl>
+		</Skills>
+	</Player>
+	<Player id="1109">
+		<Name>Gwendolin Peisl</Name>
+		<Position>forward</Position>
+		<Skills>
+			<KickPower>1.0</KickPower>
+			<RunSpeed>1.0</RunSpeed>
+			<BallControl>1.0</BallControl>
+		</Skills>
+	</Player>
+	<Player id="1110">
+		<Name>Gwendolin Peisl</Name>
+		<Position>forward</Position>
+		<Skills>
+			<KickPower>1.0</KickPower>
+			<RunSpeed>1.0</RunSpeed>
+			<BallControl>1.0</BallControl>
+		</Skills>
+	</Player>
+</Players>

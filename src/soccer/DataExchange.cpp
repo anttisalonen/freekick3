@@ -2,6 +2,8 @@
 #include <stdexcept>
 
 #include "soccer/DataExchange.h"
+#include "soccer/Match.h"
+#include "soccer/Player.h"
 
 namespace Soccer {
 
@@ -53,6 +55,49 @@ std::shared_ptr<Player> DataExchange::parsePlayer(const TiXmlElement* pelem)
 	return std::shared_ptr<Player>(new Player(id, name, position, sk));
 }
 
+std::shared_ptr<Team> DataExchange::parseTeam(const TiXmlElement* teamelem)
+{
+	int id;
+
+	if(teamelem->QueryIntAttribute("id", &id) != TIXML_SUCCESS)
+		throw std::runtime_error("Error parsing team");
+
+	const TiXmlElement* nameelem = teamelem->FirstChildElement("Name");
+	const TiXmlElement* playerselem = teamelem->FirstChildElement("Players");
+	if(!playerselem || !nameelem)
+		throw std::runtime_error("Error parsing team");
+
+	const char* name = nameelem->GetText();
+	if(!name)
+		throw std::runtime_error("Error parsing team");
+
+	std::vector<int> playerids;
+	std::vector<std::shared_ptr<Player>> players;
+	for(const TiXmlElement* pelem = playerselem->FirstChildElement(); pelem; pelem = pelem->NextSiblingElement()) {
+		int playerid;
+		if(pelem->QueryIntAttribute("id", &playerid) != TIXML_SUCCESS)
+			throw std::runtime_error("Error parsing player in team");
+		const TiXmlElement* nameelem = pelem->FirstChildElement("Name");
+		if(nameelem) {
+			players.push_back(parsePlayer(pelem));
+		}
+		else {
+			playerids.push_back(playerid);
+		}
+	}
+
+	std::shared_ptr<Team> team;
+	if(playerids.empty()) {
+		team.reset(new Team(id, name, players));
+	}
+	else {
+		team.reset(new Team(id, name, playerids));
+		for(auto p : players)
+			team->addPlayer(p);
+	}
+	return team;
+}
+
 std::shared_ptr<Match> DataExchange::parseMatchDataFile(const char* fn)
 {
 	TiXmlDocument doc(fn);
@@ -68,49 +113,47 @@ std::shared_ptr<Match> DataExchange::parseMatchDataFile(const char* fn)
 	if(!teamelem)
 		throw std::runtime_error(ss.str());
 
-	std::shared_ptr<Team> t1(new Team());
-	std::shared_ptr<Team> t2(new Team());
-	std::shared_ptr<Team> thisteam;
+	std::vector<std::shared_ptr<Team>> teams;
 
 	for(; teamelem; teamelem = teamelem->NextSiblingElement()) {
-		int home;
-		if(teamelem->QueryIntAttribute("home", &home) != TIXML_SUCCESS)
+		if(teams.size() > 2) {
 			throw std::runtime_error(ss.str());
-		thisteam = home ? t1 : t2;
-		TiXmlElement* playerselem = teamelem->FirstChildElement("Players");
-		if(!playerselem)
-			throw std::runtime_error(ss.str());
-		for(TiXmlElement* pelem = playerselem->FirstChildElement(); pelem; pelem = pelem->NextSiblingElement()) {
-			thisteam->addPlayer(parsePlayer(pelem));
 		}
+		teams.push_back(parseTeam(teamelem));
+	}
+	if(teams.size() != 2) {
+		throw std::runtime_error(ss.str());
 	}
 
 	/* TODO: parse match result */
 
-	std::shared_ptr<Match> m(new Match(t1, t2, TeamTactics(), TeamTactics()));
+	std::shared_ptr<Match> m(new Match(teams[0], teams[1], TeamTactics(), TeamTactics()));
 	return m;
 }
 
-void DataExchange::createMatchDataFile(const Match& m, const char* fn)
+TiXmlElement* DataExchange::createTeamElement(const Team& t, bool reference_players)
 {
-	TiXmlDocument doc;
-	TiXmlDeclaration* decl = new TiXmlDeclaration("1.0", "", "");
-	TiXmlElement* matchelem = new TiXmlElement("Match");
-	TiXmlElement* teamselem = new TiXmlElement("Teams");
-	for(int i = 0; i < 2; i++) {
-		TiXmlElement* teamelem = new TiXmlElement("Team");
-		teamelem->SetAttribute("home", i == 0);
-		std::shared_ptr<Team> t = m.getTeam(i);
-		int j = 0;
-		TiXmlElement* playerselem = new TiXmlElement("Players");
-		while(1) {
-			std::shared_ptr<Player> p = t->getPlayer(j);
-			if(!p)
-				break;
-			j++;
-			TiXmlElement* playerelem = new TiXmlElement("Player");
-			playerelem->SetAttribute("id", p->getId());
+	TiXmlElement* teamelem = new TiXmlElement("Team");
 
+	teamelem->SetAttribute("id", t.getId());
+
+	{
+		TiXmlElement* nameelem = new TiXmlElement("Name");
+		nameelem->LinkEndChild(new TiXmlText(t.getName()));
+		teamelem->LinkEndChild(nameelem);
+	}
+
+	TiXmlElement* playerselem = new TiXmlElement("Players");
+
+	int j = 0;
+	while(1) {
+		std::shared_ptr<Player> p = t.getPlayer(j);
+		if(!p)
+			break;
+		j++;
+		TiXmlElement* playerelem = new TiXmlElement("Player");
+		playerelem->SetAttribute("id", p->getId());
+		if(!reference_players) {
 			TiXmlElement* nameelem = new TiXmlElement("Name");
 			nameelem->LinkEndChild(new TiXmlText(p->getName()));
 			playerelem->LinkEndChild(nameelem);
@@ -146,9 +189,23 @@ void DataExchange::createMatchDataFile(const Match& m, const char* fn)
 			skillselem->LinkEndChild(skill2elem);
 			skillselem->LinkEndChild(skill3elem);
 			playerelem->LinkEndChild(skillselem);
-			playerselem->LinkEndChild(playerelem);
 		}
-		teamelem->LinkEndChild(playerselem);
+		playerselem->LinkEndChild(playerelem);
+	}
+	teamelem->LinkEndChild(playerselem);
+
+	return teamelem;
+}
+
+void DataExchange::createMatchDataFile(const Match& m, const char* fn)
+{
+	TiXmlDocument doc;
+	TiXmlDeclaration* decl = new TiXmlDeclaration("1.0", "", "");
+	TiXmlElement* matchelem = new TiXmlElement("Match");
+	TiXmlElement* teamselem = new TiXmlElement("Teams");
+	for(int i = 0; i < 2; i++) {
+		std::shared_ptr<Team> t = m.getTeam(i);
+		TiXmlElement* teamelem = createTeamElement(*t, false);
 		teamselem->LinkEndChild(teamelem);
 	}
 	matchelem->LinkEndChild(teamselem);
@@ -163,21 +220,54 @@ void DataExchange::createMatchDataFile(const Match& m, const char* fn)
 	matchresultelem->LinkEndChild(awayreselem);
 	matchelem->LinkEndChild(matchresultelem);
 
+	/* TODO: add team tactics */
+
 	doc.LinkEndChild(decl);
 	doc.LinkEndChild(matchelem);
 	doc.SaveFile(fn);
-
 }
 
 
 void DataExchange::updateTeamDatabase(const char* fn, TeamDatabase& db)
 {
-	/* TODO */
+	TiXmlDocument doc(fn);
+	std::stringstream ss;
+	ss << "Error parsing team database file " << fn;
+
+	if(!doc.LoadFile())
+		throw std::runtime_error(ss.str());
+
+	TiXmlHandle handle(&doc);
+
+	TiXmlElement* teamelem = handle.FirstChild("Teams").FirstChild("Team").ToElement();
+	if(!teamelem)
+		throw std::runtime_error(ss.str());
+
+	for(; teamelem; teamelem = teamelem->NextSiblingElement()) {
+		std::shared_ptr<Team> t = parseTeam(teamelem);
+		db.insert(std::make_pair(t->getId(), t));
+	}
 }
 
 void DataExchange::updatePlayerDatabase(const char* fn, PlayerDatabase& db)
 {
-	/* TODO */
+	TiXmlDocument doc(fn);
+	std::stringstream ss;
+	ss << "Error parsing team database file " << fn;
+
+	if(!doc.LoadFile())
+		throw std::runtime_error(ss.str());
+
+	TiXmlHandle handle(&doc);
+
+	TiXmlElement* playerselem = handle.FirstChild("Players").ToElement();
+	if(!playerselem)
+		throw std::runtime_error(ss.str());
+
+	for(TiXmlElement* pelem = playerselem->FirstChildElement(); pelem; pelem = pelem->NextSiblingElement()) {
+		std::shared_ptr<Player> p = parsePlayer(pelem);
+		db.insert(make_pair(p->getId(), p));
+	}
 }
 
 

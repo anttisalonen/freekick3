@@ -1,0 +1,34 @@
+<Teams>
+	<Team id="1">
+		<Name>Nateva</Name>
+		<Players>
+			<Player id="1000"/>
+			<Player id="1001"/>
+			<Player id="1002"/>
+			<Player id="1003"/>
+			<Player id="1004"/>
+			<Player id="1005"/>
+			<Player id="1006"/>
+			<Player id="1007"/>
+			<Player id="1008"/>
+			<Player id="1009"/>
+			<Player id="1010"/>
+		</Players>
+	</Team>
+	<Team id="2">
+		<Name>Toinen</Name>
+		<Players>
+			<Player id="1100"/>
+			<Player id="1101"/>
+			<Player id="1102"/>
+			<Player id="1103"/>
+			<Player id="1104"/>
+			<Player id="1105"/>
+			<Player id="1106"/>
+			<Player id="1107"/>
+			<Player id="1108"/>
+			<Player id="1109"/>
+			<Player id="1110"/>
+		</Players>
+	</Team>
+</Teams>
