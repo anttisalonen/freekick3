@@ -32,18 +32,24 @@ void FriendlyScreen::buttonPressed(std::shared_ptr<Button> button)
 		mScreenManager->dropScreen();
 	}
 	else if(buttonText == "Play") {
+		int teamnum = 0;
 		if(mSelectedTeams.size() != 2)
 			return;
 		std::vector<std::shared_ptr<Team>> teams;
-		for(auto it : mSelectedTeams)
+		int thisteamnum = 1;
+		for(auto it : mSelectedTeams) {
 			teams.push_back(it.first);
+			if(it.second == TeamSelection::Human)
+				teamnum = thisteamnum;
+			thisteamnum++;
+		}
 		Match m(teams[0], teams[1], TeamTactics(), TeamTactics());
 
 		char matchfilenamebuf[L_tmpnam];
 		tmpnam(matchfilenamebuf);
 		DataExchange::createMatchDataFile(m, matchfilenamebuf);
 		std::cout << "Created temporary file " << matchfilenamebuf << "\n";
-		playMatch(matchfilenamebuf);
+		playMatch(matchfilenamebuf, teamnum, 0);
 		unlink(matchfilenamebuf);
 		return;
 	}
@@ -85,12 +91,37 @@ void FriendlyScreen::buttonPressed(std::shared_ptr<Button> button)
 	}
 }
 
-void FriendlyScreen::playMatch(const char* datafile)
+void FriendlyScreen::playMatch(const char* datafile, int teamnum, int playernum)
 {
 	pid_t fret = fork();
 	if(fret == 0) {
 		/* child */
-		if(execlp("freekick3-match", "freekick3-match", datafile, (char*)0) == -1) {
+		std::vector<const char*> args;
+		args.push_back("freekick3-match");
+		args.push_back(datafile);
+		if(teamnum == 0) {
+			args.push_back("-o");
+		}
+		else {
+			args.push_back("-t");
+			args.push_back(std::to_string(teamnum).c_str());
+			if(playernum != 0) {
+				args.push_back("-p");
+				args.push_back(std::to_string(playernum).c_str());
+			}
+		}
+
+		std::cout << "Running command: ";
+		for(auto arg : args) {
+			std::cout << arg << " ";
+		}
+		std::cout << "\n";
+
+		args.push_back((char*)0);
+
+		char* const* argsarray = const_cast<char* const*>(&args[0]);
+
+		if(execvp("freekick3-match", argsarray) == -1) {
 			/* try bin/freekick3-match */
 			char cwdbuf[256];
 			if(getcwd(cwdbuf, 256) == NULL) {
@@ -100,7 +131,7 @@ void FriendlyScreen::playMatch(const char* datafile)
 			else {
 				std::string fullpath(cwdbuf);
 				fullpath += "/bin/freekick3-match";
-				if(execl(fullpath.c_str(), "freekick3-match", datafile, (char*)0) == -1) {
+				if(execv(fullpath.c_str(), argsarray) == -1) {
 					perror("execl");
 					fprintf(stderr, "tried running %s\n", fullpath.c_str());
 					exit(1);

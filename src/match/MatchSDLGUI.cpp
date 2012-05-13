@@ -28,7 +28,7 @@ static const float ballHeight = 0.9f;
 static const float playerHeight = 1.0f;
 static const float textHeight = 5.0f;
 
-MatchSDLGUI::MatchSDLGUI(std::shared_ptr<Match> match, int argc, char** argv)
+MatchSDLGUI::MatchSDLGUI(std::shared_ptr<Match> match, bool observer, int teamnum, int playernum)
 	: MatchGUI(match),
 	PlayerController(mMatch->getPlayer(0, 9)),
 	mScaleLevel(15.0f),
@@ -37,10 +37,11 @@ MatchSDLGUI::MatchSDLGUI(std::shared_ptr<Match> match, int argc, char** argv)
 	mPlayerKickPower(0.0f),
 	mPlayerKickPowerVelocity(0.0f),
 	mFont(nullptr),
-	mObserver(false),
+	mObserver(observer),
 	mMouseAim(false),
 	mHalfTimeTimer(1.0f),
-	mControlledPlayerIndex(-1)
+	mControlledPlayerIndex(playernum - 1),
+	mControlledTeamIndex(teamnum - 1)
 {
 	mScreen = SDL_utils::initSDL(screenWidth, screenHeight);
 
@@ -50,26 +51,9 @@ MatchSDLGUI::MatchSDLGUI(std::shared_ptr<Match> match, int argc, char** argv)
 	SDL_utils::setupOrthoScreen(screenWidth, screenHeight);
 	setupPitchLines();
 
-	for(int i = 1; i < argc; i++) {
-		if(!strcmp(argv[i], "-o")) {
-			mObserver = true;
-		}
-		else if(!strcmp(argv[i], "-p")) {
-			i++;
-			if(i >= argc) {
-				std::cerr << "-p requires a numeric argument between 1 and 11.\n";
-				throw std::runtime_error("parameters");
-			}
-			int num = atoi(argv[i]);
-			if(num < 1 || num > 11) {
-				std::cerr << "-p requires a numeric argument between 1 and 11.\n";
-				throw std::runtime_error("parameters");
-			}
-			mControlledPlayerIndex = num - 1;
-			setPlayer(mMatch->getPlayer(0, mControlledPlayerIndex));
-			setPlayerController();
-		}
-	}
+	setPlayer(mMatch->getPlayer(mControlledTeamIndex, mControlledPlayerIndex == -1 ?
+				9 : mControlledPlayerIndex));
+	setPlayerController();
 }
 
 MatchSDLGUI::~MatchSDLGUI()
@@ -509,7 +493,7 @@ void MatchSDLGUI::setPlayerController()
 			printf("Now controlling\n");
 		}
 		if(playing(mMatch->getPlayState()) && mControlledPlayerIndex == -1) {
-			Player* pl = MatchHelpers::nearestOwnPlayerToBall(*mMatch->getTeam(0));
+			Player* pl = MatchHelpers::nearestOwnPlayerToBall(*mMatch->getTeam(mControlledTeamIndex));
 			if(!pl->isGoalkeeper() && pl != mPlayer) {
 				mPlayer->setAIControlled();
 				setPlayer(pl);

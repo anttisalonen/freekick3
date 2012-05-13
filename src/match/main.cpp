@@ -10,15 +10,51 @@
 
 int main(int argc, char** argv)
 {
-	if(argc != 2) {
-		printf("Usage: %s <path to match data file>\n", argv[0]);
+	if(argc < 2) {
+		printf("Usage: %s <path to match data file> [-o] [-t team] [-p player]\n",
+				argv[0]);
 		exit(1);
 	}
 
+	bool observer = false;
+	int teamnum = 1;
+	int playernum = 0;
+
+	for(int i = 2; i < argc; i++) {
+		if(!strcmp(argv[i], "-o")) {
+			observer = true;
+		}
+		else if(!strcmp(argv[i], "-p")) {
+			i++;
+			if(i >= argc) {
+				printf("-p requires a numeric argument between 1 and 11.\n");
+				exit(1);
+			}
+			int num = atoi(argv[i]);
+			if(num < 1 || num > 11) {
+				printf("-p requires a numeric argument between 1 and 11.\n");
+				exit(1);
+			}
+			playernum = num;
+		}
+		else if(!strcmp(argv[i], "-t")) {
+			i++;
+			if(i >= argc) {
+				printf("-t requires a numeric argument between 1 and 2.\n");
+				exit(1);
+			}
+			int num = atoi(argv[i]);
+			if(num < 1 || num > 2) {
+				printf("-t requires a numeric argument between 1 and 2.\n");
+				exit(1);
+			}
+			teamnum = num;
+		}
+	}
 	try {
 		std::shared_ptr<Soccer::Match> matchdata = Soccer::DataExchange::parseMatchDataFile(argv[1]);
 		std::shared_ptr<Match> match(new Match(*matchdata));
-		std::unique_ptr<MatchSDLGUI> matchGUI(new MatchSDLGUI(match, argc, argv));
+		std::unique_ptr<MatchSDLGUI> matchGUI(new MatchSDLGUI(match, observer, teamnum, playernum));
 		matchGUI->play();
 	}
 	catch (std::exception& e) {
