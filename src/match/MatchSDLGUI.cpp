@@ -433,12 +433,14 @@ std::shared_ptr<PlayerAction> MatchSDLGUI::act(double time)
 	float kickpower = 0.0f;
 	bool mouseaim = false;
 	AbsVector3 toBall = AbsVector3(mMatch->getBall()->getPosition().v - mPlayer->getPosition().v);
-	if(mPlayerKickPower && !mPlayerKickPowerVelocity) {
+	if((mMouseAim && MatchHelpers::canKickBall(*mPlayer))|| (mPlayerKickPower && !mPlayerKickPowerVelocity)) {
 		// about to kick
 		kickpower = mPlayerKickPower;
 		mPlayerKickPower = 0.0f;
 		mouseaim = mMouseAim;
-		mMouseAim = false;
+		if(mPlayerKickPower && !mPlayerKickPowerVelocity) {
+			mMouseAim = false;
+		}
 	}
 	if(mMatch->getPlayState() == PlayState::OutKickoff && !MatchHelpers::allowedToKick(*mPlayer)) {
 		// opponent kickoff
