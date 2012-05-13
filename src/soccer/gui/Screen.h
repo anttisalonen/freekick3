@@ -17,10 +17,10 @@ class Screen {
 		Screen(std::shared_ptr<ScreenManager> sm);
 		virtual ~Screen() { }
 		const std::vector<std::shared_ptr<Button>>& getButtons() const;
-		virtual void buttonPressed(const std::string& buttonText) = 0;
+		virtual void buttonPressed(std::shared_ptr<Button> button) = 0;
 		
 	protected:
-		void addButton(const char* text, const Common::Rectangle& dim);
+		std::shared_ptr<Button> addButton(const char* text, const Common::Rectangle& dim);
 		std::shared_ptr<ScreenManager> mScreenManager;
 
 	private:

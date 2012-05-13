@@ -56,7 +56,7 @@ MATCHDEPS = $(MATCHSRCS:.cpp=.dep)
 
 .PHONY: clean all
 
-all: $(MATCHBIN) $(SOCCERBIN)
+all: $(SOCCERBIN) $(MATCHBIN)
 
 $(BINDIR):
 	mkdir -p $(BINDIR)

@@ -1,6 +1,8 @@
 #ifndef COLOR_H
 #define COLOR_H
 
+namespace Common {
+
 struct Color {
 	Color(unsigned char r_ = 0,
 			unsigned char g_ = 0,
@@ -25,6 +27,8 @@ bool Color::operator<(const Color& f) const
 	if(g != f.g)
 		return g < f.g;
 	return b < f.b;
+}
+
 }
 
 #endif

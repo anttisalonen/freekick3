@@ -12,8 +12,9 @@ MainMenuScreen::MainMenuScreen(std::shared_ptr<ScreenManager> sm)
 	addButton("Quit",     Rectangle(0.35f, 0.65f, 0.30f, 0.15f));
 }
 
-void MainMenuScreen::buttonPressed(const std::string& buttonText)
+void MainMenuScreen::buttonPressed(std::shared_ptr<Button> button)
 {
+	const std::string& buttonText = button->getText();
 	if(buttonText == "Quit" || buttonText == "Back") {
 		mScreenManager->clearScreens();
 	}

@@ -9,6 +9,7 @@
 #include <SDL_ttf.h>
 #include <GL/gl.h>
 
+#include "common/Color.h"
 #include "common/Texture.h"
 #include "common/Rectangle.h"
 
@@ -21,10 +22,24 @@ class Button {
 		const std::string& getText() const;
 		const Common::Rectangle& getRectangle() const;
 		const Common::Texture* getTexture() const;
+		bool hidden() const;
+		void hide();
+		void show();
+		const Common::Color& getColor1() const;
+		const Common::Color& getColor2() const;
+		void setColor1(const Common::Color& c);
+		void setColor2(const Common::Color& c);
+
+		static Common::Color DefaultColor1;
+		static Common::Color DefaultColor2;
+
 	private:
 		std::string mText;
 		Common::Rectangle mRectangle;
 		std::shared_ptr<Common::Texture> mTextTexture;
+		bool mHidden;
+		Common::Color mColor1;
+		Common::Color mColor2;
 };
 
 }

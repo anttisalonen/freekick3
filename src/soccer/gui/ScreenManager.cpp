@@ -76,13 +76,18 @@ void ScreenManager::drawScreen()
 	std::shared_ptr<Screen> currentScreen = getCurrentScreen();
 	if(currentScreen) {
 		for(auto b : currentScreen->getButtons()) {
+			if(b->hidden())
+				continue;
+
 			const Rectangle& r = b->getRectangle();
 			glDisable(GL_TEXTURE_2D);
 			glBegin(GL_QUADS);
-			glColor3f(0.85f, 0.75f, 0.50f);
+			const Color& c1 = b->getColor1();
+			const Color& c2 = b->getColor2();
+			glColor3f(c1.r / 255.0f, c1.g / 255.0f, c1.b / 255.0f);
 			glVertex3f(r.x, screenHeight - r.y, 1.0f);
 			glVertex3f(r.x + r.w, screenHeight - r.y, 0.0f);
-			glColor3f(0.75, 0.50f, 0.45f);
+			glColor3f(c2.r / 255.0f, c2.g / 255.0f, c2.b / 255.0f);
 			glVertex3f(r.x + r.w, screenHeight - r.y - r.h, 0.0f);
 			glVertex3f(r.x, screenHeight - r.y - r.h, 0.0f);
 			glEnd();
@@ -128,9 +133,7 @@ bool ScreenManager::handleEvents()
 		case SDL_KEYDOWN:
 			if(ev.key.keysym.sym == SDLK_ESCAPE)
 			{
-				std::shared_ptr<Screen> currentScreen = getCurrentScreen();
-				if(currentScreen)
-					currentScreen->buttonPressed(std::string("Back"));
+				dropScreen();
 			}
 			return true;
 
@@ -157,12 +160,12 @@ bool ScreenManager::recordMouseButton(bool up, int x, int y)
 	}
 
 	for(auto b : currentScreen->getButtons()) {
-		if(b->clicked(x, y)) {
+		if(!b->hidden() && b->clicked(x, y)) {
 			if(!up) {
 				mPressedButton = std::string(b->getText());
 			} else {
 				if(mPressedButton == b->getText()) {
-					currentScreen->buttonPressed(mPressedButton);
+					currentScreen->buttonPressed(b);
 					mPressedButton = std::string("");
 					return true;
 				}

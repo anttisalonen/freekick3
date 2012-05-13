@@ -25,15 +25,15 @@ struct LineCoord {
 };
 
 struct FontConfig {
-	inline FontConfig(const char* str, const Color& c, float scale);
+	inline FontConfig(const char* str, const Common::Color& c, float scale);
 	inline bool operator==(const FontConfig& f) const;
 	inline bool operator<(const FontConfig& f) const;
 	std::string mText;
-	Color mColor;
+	Common::Color mColor;
 	float mScale;
 };
 
-FontConfig::FontConfig(const char* str, const Color& c, float scale)
+FontConfig::FontConfig(const char* str, const Common::Color& c, float scale)
 	: mText(str),
 	mColor(c),
 	mScale(scale)
