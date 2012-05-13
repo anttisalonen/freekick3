@@ -138,9 +138,12 @@ void MatchSDLGUI::drawEnvironment()
 			Rectangle(0, 0, 20, 20), pitchHeight);
 	drawPitchLines();
 	drawGoals();
-	std::stringstream result;
-	result << mMatch->getScore(true) << " - " << mMatch->getScore(false);
-	drawText(10, 10, FontConfig(result.str().c_str(), Color(0, 0, 0), 3.0f), true, false);
+	char resultbuf[256];
+	snprintf(resultbuf, 255, "%s %d - %d %s", mMatch->getTeam(0)->getName().c_str(),
+			mMatch->getScore(true), mMatch->getScore(false),
+			mMatch->getTeam(1)->getName().c_str());
+	resultbuf[255] = 0;
+	drawText(90, screenHeight - 30, FontConfig(resultbuf, Color(255, 255, 255), 1.5f), true, false);
 
 	char timebuf[128];
 	int min = int(mMatch->getTime());
@@ -149,7 +152,7 @@ void MatchSDLGUI::drawEnvironment()
 	if(mMatch->getMatchHalf() >= MatchHalf::Finished)
 		min += 45;
 	sprintf(timebuf, "%d min.", min);
-	drawText(10, screenHeight - 30, FontConfig(timebuf, Color(0, 0, 0), 1.5f), true, false);
+	drawText(10, screenHeight - 30, FontConfig(timebuf, Color(255, 255, 255), 1.5f), true, false);
 
 	const Team* t = mMatch->getTeam(1);
 	for(int j = -pheight * 0.5f + 8; j < pheight * 0.5 - 8; j += 8) {

@@ -4,15 +4,16 @@
 #include <vector>
 
 #include "soccer/Player.h"
+#include "soccer/Team.h"
 
 #include "match/Player.h"
 #include "match/Distance.h"
 
 enum class MatchHalf;
 
-class Team {
+class Team : public Soccer::Team {
 	public:
-		Team(Match* match, bool first);
+		Team(Match* match, const Soccer::Team& t, bool first);
 		void addPlayer(const Soccer::Player& pl);
 		Player* getPlayer(unsigned int idx);
 		const Player* getPlayer(unsigned int idx) const;

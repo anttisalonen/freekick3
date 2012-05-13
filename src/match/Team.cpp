@@ -5,8 +5,9 @@
 
 #define SUPPORTING_POS_RESOLUTION 4
 
-Team::Team(Match* match, bool first)
-	: mMatch(match),
+Team::Team(Match* match, const Soccer::Team& t, bool first)
+	: Soccer::Team(t),
+	mMatch(match),
 	mFirst(first),
 	mPlayerNearestToBall(nullptr),
 	mSupportingPositionsTimer(0.5f)

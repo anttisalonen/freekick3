@@ -19,7 +19,7 @@ Match::Match(const Soccer::Match& m)
 	mScore[0] = mScore[1] = 0;
 
 	for(int j = 0; j < 2; j++) {
-		mTeams[j] = std::shared_ptr<Team>(new Team(this, j == 0));
+		mTeams[j] = std::shared_ptr<Team>(new Team(this, *m.getTeam(j), j == 0));
 		for(int i = 0; i < numPlayers; i++) {
 			mTeams[j]->addPlayer(*m.getTeam(j)->getPlayer(i));
 		}
