@@ -1,3 +1,7 @@
+#include <sys/wait.h>
+#include <unistd.h>
+#include <stdio.h>
+
 #include "soccer/Match.h"
 
 #include "soccer/gui/FriendlyScreen.h"
@@ -34,7 +38,13 @@ void FriendlyScreen::buttonPressed(std::shared_ptr<Button> button)
 		for(auto it : mSelectedTeams)
 			teams.push_back(it.first);
 		Match m(teams[0], teams[1], TeamTactics(), TeamTactics());
-		DataExchange::createMatchDataFile(m, "tmp/match.xml");
+
+		char matchfilenamebuf[L_tmpnam];
+		tmpnam(matchfilenamebuf);
+		DataExchange::createMatchDataFile(m, matchfilenamebuf);
+		std::cout << "Created temporary file " << matchfilenamebuf << "\n";
+		playMatch(matchfilenamebuf);
+		unlink(matchfilenamebuf);
 		return;
 	}
 	else {
@@ -72,6 +82,42 @@ void FriendlyScreen::buttonPressed(std::shared_ptr<Button> button)
 					mPlayButton->show();
 			}
 		}
+	}
+}
+
+void FriendlyScreen::playMatch(const char* datafile)
+{
+	pid_t fret = fork();
+	if(fret == 0) {
+		/* child */
+		if(execlp("freekick3-match", "freekick3-match", datafile, (char*)0) == -1) {
+			/* try bin/freekick3-match */
+			char cwdbuf[256];
+			if(getcwd(cwdbuf, 256) == NULL) {
+				perror("getcwd");
+				exit(1);
+			}
+			else {
+				std::string fullpath(cwdbuf);
+				fullpath += "/bin/freekick3-match";
+				if(execl(fullpath.c_str(), "freekick3-match", datafile, (char*)0) == -1) {
+					perror("execl");
+					fprintf(stderr, "tried running %s\n", fullpath.c_str());
+					exit(1);
+				}
+			}
+		}
+	}
+	else if(fret != -1) {
+		/* parent */
+		while(1) {
+			pid_t waited = wait(NULL);
+			if(waited == fret)
+				break;
+		}
+	}
+	else {
+		perror("fork");
 	}
 }
 

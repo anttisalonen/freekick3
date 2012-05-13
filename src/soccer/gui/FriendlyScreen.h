@@ -22,6 +22,7 @@ class FriendlyScreen : public Screen {
 		void buttonPressed(std::shared_ptr<Button> button);
 
 	private:
+		void playMatch(const char* datafile);
 		std::shared_ptr<Button> mPlayButton;
 		std::map<std::string, std::shared_ptr<Team>> mButtonTeams;
 		std::map<std::shared_ptr<Team>, TeamSelection> mSelectedTeams;
