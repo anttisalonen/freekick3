@@ -5,6 +5,7 @@
 #include "soccer/Match.h"
 
 #include "soccer/gui/FriendlyScreen.h"
+#include "soccer/gui/MatchResultScreen.h"
 
 namespace Soccer {
 
@@ -50,6 +51,7 @@ void FriendlyScreen::buttonPressed(std::shared_ptr<Button> button)
 		DataExchange::createMatchDataFile(m, matchfilenamebuf);
 		std::cout << "Created temporary file " << matchfilenamebuf << "\n";
 		playMatch(matchfilenamebuf, teamnum, 0);
+		mScreenManager->addScreen(std::shared_ptr<Screen>(new MatchResultScreen(mScreenManager, matchfilenamebuf)));
 		unlink(matchfilenamebuf);
 		return;
 	}
@@ -150,6 +152,13 @@ void FriendlyScreen::playMatch(const char* datafile, int teamnum, int playernum)
 	else {
 		perror("fork");
 	}
+}
+
+const std::string FriendlyScreen::ScreenName = std::string("Friendly Screen");
+
+const std::string& FriendlyScreen::getName() const
+{
+	return ScreenName;
 }
 
 

@@ -25,6 +25,7 @@ class ScreenManager {
 		~ScreenManager();
 		void addScreen(std::shared_ptr<Screen> s);
 		void dropScreen();
+		void dropScreensUntil(const std::string& screenname);
 		void drawScreen();
 		bool handleEvents();
 		bool isRunning() const;

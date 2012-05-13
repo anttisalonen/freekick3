@@ -23,4 +23,11 @@ void MainMenuScreen::buttonPressed(std::shared_ptr<Button> button)
 	}
 }
 
+const std::string MainMenuScreen::ScreenName = std::string("Main Menu");
+
+const std::string& MainMenuScreen::getName() const
+{
+	return ScreenName;
+}
+
 }

@@ -53,6 +53,15 @@ void ScreenManager::dropScreen()
 		mScreens.pop_back();
 }
 
+void ScreenManager::dropScreensUntil(const std::string& screenname)
+{
+	while(mScreens.size()) {
+		if(getCurrentScreen()->getName() == screenname)
+			break;
+		dropScreen();
+	}
+}
+
 void ScreenManager::drawScreen()
 {
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
