@@ -75,16 +75,21 @@ AbsVector3 AIHelpers::getSupportingPosition(const Player& p)
 
 AbsVector3 AIHelpers::getPassKickVector(const Player& from, const Player& to)
 {
-	return getPassKickVector(from, to.getPosition());
+	return getPassKickVector(from, to.getPosition(), to.getVelocity());
 }
 
-AbsVector3 AIHelpers::getPassKickVector(const Player& from, const AbsVector3& v)
+AbsVector3 AIHelpers::getPassKickVector(const Player& from, const AbsVector3& pos, const AbsVector3& vel)
 {
-	AbsVector3 tgt = AbsVector3(v.v - from.getPosition().v);
+	AbsVector3 tgt = AbsVector3(pos.v + vel.v * 1.0f - from.getPosition().v);
 	float powercoeff = std::max(0.3, 1.6 * tgt.v.length() / from.getMaximumKickPower());
 	tgt.v.normalize();
 	tgt.v *= powercoeff;
 	return tgt;
+}
+
+AbsVector3 AIHelpers::getPassKickVector(const Player& from, const AbsVector3& to)
+{
+	return getPassKickVector(from, to, AbsVector3());
 }
 
 
