@@ -24,8 +24,10 @@ void Ball::update(float time)
 
 		if(mVelocity.v.length() > 2.0f &&
 				(mPosition.v - mCollisionFreePoint.v).length() > collisionIgnoreDistance) {
-			for(auto p : mMatch->getTeam(0)->getPlayers()) {
-				checkCollision(*p);
+			for(int i = 0; i < 2; i++) {
+				for(auto p : mMatch->getTeam(i)->getPlayers()) {
+					checkCollision(*p);
+				}
 			}
 		}
 		if(mPosition.v.z < 0.1f) {
