@@ -8,6 +8,7 @@
 #include <memory>
 
 #include "soccer/DataExchange.h"
+#include "soccer/Continent.h"
 #include "soccer/Player.h"
 #include "soccer/Team.h"
 
@@ -198,13 +199,203 @@ class FreekickWriter {
 		std::string mOutputDir;
 		const std::vector<s_team>& mTeams;
 		int mCurrentTeamId;
+		std::map<std::pair<int, int>, int> mLeagues;
+		int mCurrentLeagueId;
 };
 
 FreekickWriter::FreekickWriter(const std::string& outputDir, const std::vector<s_team>& teams)
 	 : mOutputDir(outputDir),
 	 mTeams(teams),
-	 mCurrentTeamId(1)
+	 mCurrentTeamId(1),
+	 mCurrentLeagueId(1)
 {
+}
+
+const char* nationToContinent(int i)
+{
+	if(i <= 50)
+		return "Europe";
+	else if(i <= 67)
+		return "North & Central America";
+	else if(i <= 79)
+		return "South America";
+	else if(i <= 117)
+		return "Africa";
+	else if(i <= 147)
+		return "Asia";
+	else
+		return "Oceania";
+}
+
+const char* nationalityToString(int n)
+{
+	switch(n)
+	{
+		case 0: return "Albania";
+		case 1: return "Austria";
+		case 2: return "Belgium";
+		case 3: return "Bulgaria";
+		case 4: return "Croatia";
+		case 5: return "Cyprus";
+		case 6: return "Czech Republic";
+		case 7: return "Denmark";
+		case 8: return "England";
+		case 9: return "Estonia";
+		case 10: return "Faroe Islands";
+		case 11: return "Finland";
+		case 12: return "France";
+		case 13: return "Germany";
+		case 14: return "Greece";
+		case 15: return "Hungary";
+		case 16: return "Iceland";
+		case 17: return "Israel";
+		case 18: return "Italy";
+		case 19: return "Latvia";
+		case 20: return "Lithuania";
+		case 21: return "Luxembourg";
+		case 22: return "Malta";
+		case 23: return "The Netherlands";
+		case 24: return "Northern Ireland";
+		case 25: return "Norway";
+		case 26: return "Poland";
+		case 27: return "Portugal";
+		case 28: return "Romania";
+		case 29: return "Russia";
+		case 30: return "San Marino";
+		case 31: return "Scotland";
+		case 32: return "Slovenia";
+		case 33: return "Sweden";
+		case 34: return "Turkey";
+		case 35: return "Ukraine";
+		case 36: return "Wales";
+		case 37: return "Serbia";  // check for montenegrin players
+		case 38: return "Belarus";
+		case 39: return "Slovakia";
+		case 40: return "Spain";
+		case 41: return "Armenia";
+		case 42: return "Bosnia-Herzegovina";
+		case 43: return "Azerbaijan";
+		case 44: return "Georgia";
+		case 45: return "Switzerland";
+		case 46: return "Ireland";
+		case 47: return "FYR Macedonia";
+		case 48: return "Turkmenistan";
+		case 49: return "Liechtenstein";
+		case 50: return "Moldova";
+		case 51: return "Costa Rica";
+		case 52: return "El Salvador";
+		case 53: return "Guatemala";
+		case 54: return "Honduras";
+		case 55: return "Bahamas";
+		case 56: return "Mexico";
+		case 57: return "Panama";
+		case 58: return "U.S.A.";
+		case 59: return "Bahrain";
+		case 60: return "Nicaragua";
+		case 61: return "Bermuda";
+		case 62: return "Jamaica";
+		case 63: return "Trinidad and Tobago";
+		case 64: return "Canada";
+		case 65: return "Barbados";
+		case 66: return "El Salvador";
+		case 67: return "Saint Vincent and the Grenadines";
+		case 68: return "Argentina";
+		case 69: return "Bolivia";
+		case 70: return "Brazil";
+		case 71: return "Chile";
+		case 72: return "Colombia";
+		case 73: return "Ecuador";
+		case 74: return "Paraguay";
+		case 75: return "Surinam";
+		case 76: return "Uruguay";
+		case 77: return "Venezuela";
+		case 78: return "Guyana";
+		case 79: return "Peru";
+		case 80: return "Algeria";
+		case 81: return "South Africa";
+		case 82: return "Botswana";
+		case 83: return "Burkina Faso";
+		case 84: return "Burundi";
+		case 85: return "Lesotho";
+		case 86: return "Congo";
+		case 87: return "Zambia";
+		case 88: return "Ghana";
+		case 89: return "Senegal";
+		case 90: return "Ivory Coast";
+		case 91: return "Tunisia";
+		case 92: return "Mali";
+		case 93: return "Madagascar";
+		case 94: return "Cameroon";
+		case 95: return "Chad";
+		case 96: return "Uganda";
+		case 97: return "Liberia";
+		case 98: return "Mozambique";
+		case 99: return "Kenia";
+		case 100: return "Sudan";
+		case 101: return "Swaziland";
+		case 102: return "Angola";
+		case 103: return "Togo";
+		case 104: return "Zimbabwe";
+		case 105: return "Egypt";
+		case 106: return "Tanzania";
+		case 107: return "Nigeria";
+		case 108: return "Ethiopia";
+		case 109: return "Gabon";
+		case 110: return "Sierra Leone";
+		case 111: return "Benin";
+		case 112: return "Congo";
+		case 113: return "Guinea";
+		case 114: return "Sri Lanka";
+		case 115: return "Morocco";
+		case 116: return "Gambia";
+		case 117: return "Malawi";
+		case 118: return "Japan";
+		case 119: return "Taiwan";
+		case 120: return "India";
+		case 121: return "Bangladesh";
+		case 122: return "Brunei";
+		case 123: return "Iraq";
+		case 124: return "Jordan";
+		case 125: return "Sri Lanka";
+		case 126: return "Syria";
+		case 127: return "South Korea";
+		case 128: return "Iran";
+		case 129: return "Vietnam";
+		case 130: return "Malaysia";
+		case 131: return "Saudi Arabia";
+		case 132: return "Yemen";
+		case 133: return "Kuwait";
+		case 134: return "Laos";
+		case 135: return "North Korea";
+		case 136: return "Oman";
+		case 137: return "Pakistan";
+		case 138: return "Philippines";
+		case 139: return "China";
+		case 140: return "Singapore";
+		case 141: return "Mauritius";
+		case 142: return "Burma";
+		case 143: return "Papua New Guinea";
+		case 144: return "Thailand";
+		case 145: return "Uzbekistan";
+		case 146: return "Qatar";
+		case 147: return "United Arab Emirates";
+		case 148: return "Australia";
+		case 149: return "New Zealand";
+		case 150: return "Fiji";
+		case 151: return "Solomon Islands";
+		case 152: default: std::cerr << "Unknown nationality " << n << " found.\n"; return "Unknown";
+	}
+}
+
+const char* leagueLevelToString(int i)
+{
+	switch(i)
+	{
+		case 0:  return "Premier League"; break;
+		case 1:  return "First League"; break;
+		case 2:  return "Second League"; break;
+	}
+	return "Third League";
 }
 
 int FreekickWriter::write()
@@ -213,6 +404,9 @@ int FreekickWriter::write()
 	Soccer::PlayerDatabase playerdb;
 
 	for(auto& st : mTeams) {
+		std::shared_ptr<Soccer::League> league = teamdb.getOrCreateLeague(nationToContinent(st.nation),
+				nationalityToString(st.nation), leagueLevelToString(st.division));
+
 		std::vector<std::shared_ptr<Soccer::Player>> players;
 
 		for(auto& sp : st.players) {
@@ -247,9 +441,9 @@ int FreekickWriter::write()
 			playerdb.insert(std::make_pair(pl->getId(), pl));
 		}
 
-		teamdb.insert(std::make_pair(mCurrentTeamId, std::shared_ptr<Soccer::Team>(new
-					Soccer::Team(mCurrentTeamId,
-						st.team_name, players))));
+		std::shared_ptr<Soccer::Team> t(new Soccer::Team(mCurrentTeamId,
+					st.team_name, players));
+		league->addT(t);
 		mCurrentTeamId++;
 	}
 	

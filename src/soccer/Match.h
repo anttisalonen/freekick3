@@ -31,6 +31,7 @@ class Match {
 		Match(const std::shared_ptr<Team> t1, const std::shared_ptr<Team> t2,
 				const TeamTactics& tt1,
 				const TeamTactics& tt2);
+		void play();
 		const MatchResult& getResult() const;
 		void setResult(const MatchResult& m);
 		const std::shared_ptr<Team> getTeam(int i) const;

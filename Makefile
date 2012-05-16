@@ -25,7 +25,8 @@ COMMONLIB = $(COMMONSRCDIR)/libcommon.a
 
 # Libsoccer
 
-LIBSOCCERSRCFILES = Player.cpp Team.cpp Match.cpp DataExchange.cpp
+LIBSOCCERSRCFILES = Player.cpp Team.cpp Match.cpp \
+		    Continent.cpp DataExchange.cpp
 LIBSOCCERSRCDIR = src/soccer
 LIBSOCCERSRCS = $(addprefix $(LIBSOCCERSRCDIR)/, $(LIBSOCCERSRCFILES))
 LIBSOCCEROBJS = $(LIBSOCCERSRCS:.cpp=.o)
@@ -110,7 +111,7 @@ clean:
 	find src/ -name '*.o' -exec rm -rf {} +
 	find src/ -name '*.dep' -exec rm -rf {} +
 	find src/ -name '*.a' -exec rm -rf {} +
-	rm -rf $(MATCHBIN) $(SOCCERBIN)
+	rm -rf $(MATCHBIN) $(SOCCERBIN) $(SWOS2FKBIN)
 	rmdir $(BINDIR)
 
 -include $(MATCHDEPS) $(SOCCERDEPS)

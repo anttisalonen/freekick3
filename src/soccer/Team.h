@@ -6,6 +6,7 @@
 
 #include "soccer/DataExchange.h"
 #include "soccer/Player.h"
+#include "soccer/Continent.h"
 
 namespace Soccer {
 

@@ -6,14 +6,13 @@
 
 #include <tinyxml.h>
 
+#include "soccer/Continent.h"
+
 namespace Soccer {
 
 class Match;
 class Player;
 class Team;
-
-typedef std::map<int, std::shared_ptr<Team>> TeamDatabase;
-typedef std::map<int, std::shared_ptr<Player>> PlayerDatabase;
 
 class DataExchange {
 	public:

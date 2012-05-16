@@ -24,9 +24,11 @@ Menu::Menu()
 	mScreenManager.reset(new ScreenManager(*this));
 	DataExchange::updatePlayerDatabase("share/teams/Players_1000.xml", mPlayers);
 	DataExchange::updateTeamDatabase("share/teams/Teams.xml", mTeams);
-	for(auto t : mTeams) {
-		t.second->fetchPlayersFromDB(mPlayers);
-	}
+	for(auto c : mTeams.getContainer())
+		for(auto lsys : c.second->getContainer())
+			for(auto league : lsys.second->getContainer())
+				for(auto t : league.second->getContainer())
+					t.second->fetchPlayersFromDB(mPlayers);
 
 	mScreenManager->addScreen(std::shared_ptr<Screen>(new MainMenuScreen(mScreenManager)));
 }

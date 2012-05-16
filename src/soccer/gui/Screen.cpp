@@ -20,6 +20,17 @@ std::shared_ptr<Button> Screen::addButton(const char* text, const Rectangle& dim
 	return b;
 }
 
+bool Screen::removeButton(std::shared_ptr<Button> b)
+{
+	for(auto it = mButtons.begin(); it != mButtons.end(); ++it) {
+		if(*it == b) {
+			mButtons.erase(it);
+			return true;
+		}
+	}
+	return false;
+}
+
 std::shared_ptr<Button> Screen::addLabel(const char* text, float x, float y, bool centered)
 {
 	std::shared_ptr<Button> b(new Button(text, mScreenManager->getFont(),

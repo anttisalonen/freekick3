@@ -60,16 +60,16 @@ std::shared_ptr<Team> DataExchange::parseTeam(const TiXmlElement* teamelem)
 	int id;
 
 	if(teamelem->QueryIntAttribute("id", &id) != TIXML_SUCCESS)
-		throw std::runtime_error("Error parsing team");
+		throw std::runtime_error("Error parsing team ID");
 
 	const TiXmlElement* nameelem = teamelem->FirstChildElement("Name");
 	const TiXmlElement* playerselem = teamelem->FirstChildElement("Players");
 	if(!playerselem || !nameelem)
-		throw std::runtime_error("Error parsing team");
+		throw std::runtime_error("Error parsing team Name/Players");
 
 	const char* name = nameelem->GetText();
 	if(!name)
-		throw std::runtime_error("Error parsing team");
+		throw std::runtime_error("Error parsing team name");
 
 	std::vector<int> playerids;
 	std::vector<std::shared_ptr<Player>> players;
@@ -269,20 +269,45 @@ void DataExchange::updateTeamDatabase(const char* fn, TeamDatabase& db)
 {
 	TiXmlDocument doc(fn);
 	std::stringstream ss;
-	ss << "Error parsing team database file " << fn;
+	ss << "Error parsing team database file " << fn << ": ";
 
 	if(!doc.LoadFile())
 		throw std::runtime_error(ss.str());
 
 	TiXmlHandle handle(&doc);
 
-	TiXmlElement* teamelem = handle.FirstChild("Teams").FirstChild("Team").ToElement();
-	if(!teamelem)
+	TiXmlElement* continentelem = handle.FirstChild("Teams").FirstChild("Continent").ToElement();
+	if(!continentelem) {
+		ss << "no Teams/Continent";
 		throw std::runtime_error(ss.str());
+	}
 
-	for(; teamelem; teamelem = teamelem->NextSiblingElement()) {
-		std::shared_ptr<Team> t = parseTeam(teamelem);
-		db.insert(std::make_pair(t->getId(), t));
+	for(; continentelem; continentelem = continentelem->NextSiblingElement()) {
+		std::string continentname;
+		if(continentelem->QueryStringAttribute("name", &continentname) != TIXML_SUCCESS)
+			throw std::runtime_error("Error parsing continent name");
+
+		for(const TiXmlElement* countryelem = continentelem->FirstChildElement(); countryelem;
+				countryelem = countryelem->NextSiblingElement()) {
+			std::string countryname;
+			if(countryelem->QueryStringAttribute("name", &countryname) != TIXML_SUCCESS)
+				throw std::runtime_error("Error parsing country name");
+
+			for(const TiXmlElement* leagueelem = countryelem->FirstChildElement(); leagueelem;
+					leagueelem = leagueelem->NextSiblingElement()) {
+				std::string leaguename;
+				if(leagueelem->QueryStringAttribute("name", &leaguename) != TIXML_SUCCESS)
+					throw std::runtime_error("Error parsing league name");
+
+				for(const TiXmlElement* teamelem = leagueelem->FirstChildElement(); teamelem;
+						teamelem = teamelem->NextSiblingElement()) {
+					std::shared_ptr<Team> t = parseTeam(teamelem);
+					std::shared_ptr<Soccer::League> league = db.getOrCreateLeague(continentname.c_str(),
+							countryname.c_str(), leaguename.c_str());
+					league->addT(t);
+				}
+			}
+		}
 	}
 }
 
@@ -290,16 +315,20 @@ void DataExchange::updatePlayerDatabase(const char* fn, PlayerDatabase& db)
 {
 	TiXmlDocument doc(fn);
 	std::stringstream ss;
-	ss << "Error parsing team database file " << fn;
+	ss << "Error parsing team database file " << fn << ": ";
 
-	if(!doc.LoadFile())
+	if(!doc.LoadFile()) {
+		ss << "could not open file";
 		throw std::runtime_error(ss.str());
+	}
 
 	TiXmlHandle handle(&doc);
 
 	TiXmlElement* playerselem = handle.FirstChild("Players").ToElement();
-	if(!playerselem)
+	if(!playerselem) {
+		ss << "no Players element";
 		throw std::runtime_error(ss.str());
+	}
 
 	for(TiXmlElement* pelem = playerselem->FirstChildElement(); pelem; pelem = pelem->NextSiblingElement()) {
 		std::shared_ptr<Player> p = parsePlayer(pelem);
@@ -312,9 +341,27 @@ void DataExchange::createTeamDatabase(const char* fn, const TeamDatabase& db)
 	TiXmlDocument doc;
 	TiXmlDeclaration* decl = new TiXmlDeclaration("1.0", "", "");
 	TiXmlElement* teamselem = new TiXmlElement("Teams");
-	for(auto& tm : db) {
-		TiXmlElement* teamelem = createTeamElement(*tm.second, true);
-		teamselem->LinkEndChild(teamelem);
+	for(auto& cont : db.getContainer()) {
+		TiXmlElement* contelem = new TiXmlElement("Continent");
+		contelem->SetAttribute("name", cont.second->getName());
+
+		for(auto& lsys : cont.second->getContainer()) {
+			TiXmlElement* lsyselem = new TiXmlElement("LeagueSystem");
+			lsyselem->SetAttribute("name", lsys.second->getName());
+
+			for(auto& leag : lsys.second->getContainer()) {
+				TiXmlElement* leagelem = new TiXmlElement("League");
+				leagelem->SetAttribute("name", leag.second->getName());
+
+				for(auto& tm : leag.second->getContainer()) {
+					TiXmlElement* teamelem = createTeamElement(*tm.second, true);
+					leagelem->LinkEndChild(teamelem);
+				}
+				lsyselem->LinkEndChild(leagelem);
+			}
+			contelem->LinkEndChild(lsyselem);
+		}
+		teamselem->LinkEndChild(contelem);
 	}
 	doc.LinkEndChild(decl);
 	doc.LinkEndChild(teamselem);

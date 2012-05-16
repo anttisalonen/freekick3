@@ -23,6 +23,7 @@ class Screen {
 	protected:
 		std::shared_ptr<Button> addButton(const char* text, const Common::Rectangle& dim);
 		std::shared_ptr<Button> addLabel(const char* text, float x, float y, bool centered);
+		bool removeButton(std::shared_ptr<Button> b);
 		std::shared_ptr<ScreenManager> mScreenManager;
 
 	private:
