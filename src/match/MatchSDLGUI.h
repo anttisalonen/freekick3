@@ -84,7 +84,7 @@ class MatchSDLGUI : public MatchGUI, public PlayerController {
 		void loadFont();
 		bool handleInput(float frameTime);
 		void handleInputState(float frameTime);
-		void setPlayerController();
+		void setPlayerController(double frameTime);
 		static void drawSprite(const Common::Texture& t,
 				const Common::Rectangle& vertcoords,
 				const Common::Rectangle& texcoords, float depth);
@@ -119,6 +119,7 @@ class MatchSDLGUI : public MatchGUI, public PlayerController {
 		int mControlledPlayerIndex;
 		int mControlledTeamIndex;
 		std::vector<std::vector<LineCoord>> mPitchLines;
+		Countdown mPlayerSwitchTimer;
 };
 
 #endif

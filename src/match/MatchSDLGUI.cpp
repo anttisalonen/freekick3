@@ -41,7 +41,8 @@ MatchSDLGUI::MatchSDLGUI(std::shared_ptr<Match> match, bool observer, int teamnu
 	mMouseAim(false),
 	mHalfTimeTimer(1.0f),
 	mControlledPlayerIndex(playernum - 1),
-	mControlledTeamIndex(teamnum - 1)
+	mControlledTeamIndex(teamnum - 1),
+	mPlayerSwitchTimer(0.2f)
 {
 	mScreen = SDL_utils::initSDL(screenWidth, screenHeight);
 
@@ -53,7 +54,7 @@ MatchSDLGUI::MatchSDLGUI(std::shared_ptr<Match> match, bool observer, int teamnu
 
 	setPlayer(mMatch->getPlayer(mControlledTeamIndex, mControlledPlayerIndex == -1 ?
 				9 : mControlledPlayerIndex));
-	setPlayerController();
+	setPlayerController(0.0f);
 }
 
 MatchSDLGUI::~MatchSDLGUI()
@@ -82,7 +83,7 @@ bool MatchSDLGUI::play()
 		prevTime = newTime;
 		mMatch->update(frameTime);
 		if(!mObserver)
-			setPlayerController();
+			setPlayerController(frameTime);
 		if(handleInput(frameTime))
 			break;
 		startFrame();
@@ -490,20 +491,24 @@ std::shared_ptr<PlayerAction> MatchSDLGUI::act(double time)
 	return std::shared_ptr<PlayerAction>(new IdlePA());
 }
 
-void MatchSDLGUI::setPlayerController()
+void MatchSDLGUI::setPlayerController(double frameTime)
 {
+	mPlayerSwitchTimer.doCountdown(frameTime);
+	mPlayerSwitchTimer.check();
 	if(playing(mMatch->getMatchHalf())) {
 		if(mPlayer->isAIControlled()) {
 			mPlayer->setController(this);
 			mPlayerKickPower = 0.0f;
 			printf("Now controlling\n");
 		}
-		if(playing(mMatch->getPlayState()) && mControlledPlayerIndex == -1) {
+		if(mControlledPlayerIndex == -1) {
 			Player* pl = MatchHelpers::nearestOwnPlayerToBall(*mMatch->getTeam(mControlledTeamIndex));
-			if(!pl->isGoalkeeper() && pl != mPlayer) {
+			if(pl != mPlayer && !mPlayerSwitchTimer.running() &&
+					(!pl->isGoalkeeper() || !playing(mMatch->getPlayState()))) {
 				mPlayer->setAIControlled();
 				setPlayer(pl);
 				pl->setController(this);
+				mPlayerSwitchTimer.rewind();
 			}
 		}
 	}
