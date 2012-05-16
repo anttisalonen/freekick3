@@ -42,7 +42,8 @@ MatchSDLGUI::MatchSDLGUI(std::shared_ptr<Match> match, bool observer, int teamnu
 	mHalfTimeTimer(1.0f),
 	mControlledPlayerIndex(playernum - 1),
 	mControlledTeamIndex(teamnum - 1),
-	mPlayerSwitchTimer(0.2f)
+	mPlayerSwitchTimer(0.2f),
+	mPaused(false)
 {
 	mScreen = SDL_utils::initSDL(screenWidth, screenHeight);
 
@@ -81,9 +82,13 @@ bool MatchSDLGUI::play()
 		double newTime = Clock::getTime();
 		double frameTime = newTime - prevTime;
 		prevTime = newTime;
-		mMatch->update(frameTime);
-		if(!mObserver)
-			setPlayerController(frameTime);
+
+		if(!mPaused) {
+			mMatch->update(frameTime);
+			if(!mObserver)
+				setPlayerController(frameTime);
+		}
+
 		if(handleInput(frameTime))
 			break;
 		startFrame();
@@ -91,8 +96,11 @@ bool MatchSDLGUI::play()
 		drawBall();
 		drawPlayers();
 		finishFrame();
-		if(!progressMatch(frameTime))
-			break;
+
+		if(!mPaused) {
+			if(!progressMatch(frameTime))
+				break;
+		}
 	}
 	if(mMatch->matchOver()) {
 		Soccer::MatchResult mres(mMatch->getScore(0), mMatch->getScore(1));
@@ -158,6 +166,11 @@ void MatchSDLGUI::drawEnvironment()
 				iscore = 255;
 			drawText(i, j, FontConfig(buf, Color(iscore, iscore, iscore), 0.1f), false, false);
 		}
+	}
+
+	if(mPaused) {
+		drawText(screenWidth / 2, screenHeight / 2, FontConfig("Paused", Color(255, 255, 255), 2.0f),
+				true, true);
 	}
 }
 
@@ -314,6 +327,12 @@ bool MatchSDLGUI::handleInput(float frameTime)
 
 					case SDLK_RCTRL:
 						mPlayerKickPowerVelocity = 1.0f; break;
+
+					case SDLK_p:
+					case SDLK_PAUSE:
+						mPaused = !mPaused;
+						break;
+
 					default:
 						break;
 				}
@@ -351,6 +370,7 @@ bool MatchSDLGUI::handleInput(float frameTime)
 
 					case SDLK_RCTRL:
 						mPlayerKickPowerVelocity = 0.0f; break;
+
 					default:
 						break;
 				}

@@ -120,6 +120,7 @@ class MatchSDLGUI : public MatchGUI, public PlayerController {
 		int mControlledTeamIndex;
 		std::vector<std::vector<LineCoord>> mPitchLines;
 		Countdown mPlayerSwitchTimer;
+		bool mPaused;
 };
 
 #endif
