@@ -4,15 +4,16 @@ CXXFLAGS ?= -std=c++0x -O2 -g3 -Werror
 CXXFLAGS += -Wall
 
 CXXFLAGS += $(shell sdl-config --cflags)
-LDFLAGS  += $(shell sdl-config --libs) -lSDL_image -lSDL_ttf
 
-LDFLAGS  += -lGL
-
-LDFLAGS += -ltinyxml
+FREEKICKLIBS = $(shell sdl-config --libs) -lSDL_image -lSDL_ttf -lGL -ltinyxml
+SWOS2FKLIBS = -ltinyxml
 
 
 CXXFLAGS += -Isrc
 BINDIR       = bin
+
+
+# Common lib
 
 COMMONSRCFILES = SDLSurface.cpp Texture.cpp SDL_utils.cpp
 COMMONSRCDIR = src/common
@@ -21,12 +22,18 @@ COMMONOBJS = $(COMMONSRCS:.cpp=.o)
 COMMONDEPS = $(COMMONSRCS:.cpp=.dep)
 COMMONLIB = $(COMMONSRCDIR)/libcommon.a
 
+
+# Libsoccer
+
 LIBSOCCERSRCFILES = Player.cpp Team.cpp Match.cpp DataExchange.cpp
 LIBSOCCERSRCDIR = src/soccer
 LIBSOCCERSRCS = $(addprefix $(LIBSOCCERSRCDIR)/, $(LIBSOCCERSRCFILES))
 LIBSOCCEROBJS = $(LIBSOCCERSRCS:.cpp=.o)
 LIBSOCCERDEPS = $(LIBSOCCERSRCS:.cpp=.dep)
 LIBSOCCERLIB = $(LIBSOCCERSRCDIR)/libsoccer.a
+
+
+# Soccer
 
 SOCCERBINNAME = freekick3
 SOCCERBIN     = $(BINDIR)/$(SOCCERBINNAME)
@@ -37,6 +44,9 @@ SOCCERSRCFILES = gui/Button.cpp gui/Screen.cpp gui/ScreenManager.cpp \
 SOCCERSRCS = $(addprefix $(SOCCERSRCDIR)/, $(SOCCERSRCFILES))
 SOCCEROBJS = $(SOCCERSRCS:.cpp=.o)
 SOCCERDEPS = $(SOCCERSRCS:.cpp=.dep)
+
+
+# Match
 
 MATCHBINNAME = freekick3-match
 MATCHBIN     = $(BINDIR)/$(MATCHBINNAME)
@@ -54,9 +64,23 @@ MATCHSRCS = $(addprefix $(MATCHSRCDIR)/, $(MATCHSRCFILES))
 MATCHOBJS = $(MATCHSRCS:.cpp=.o)
 MATCHDEPS = $(MATCHSRCS:.cpp=.dep)
 
+
+# swos2fk
+
+SWOS2FKBINNAME = swos2fk
+SWOS2FKBIN     = $(BINDIR)/$(SWOS2FKBINNAME)
+SWOS2FKSRCDIR  = src/tools/swos2fk
+SWOS2FKSRCFILES = main.cpp
+
+SWOS2FKSRCS = $(addprefix $(SWOS2FKSRCDIR)/, $(SWOS2FKSRCFILES))
+SWOS2FKOBJS = $(SWOS2FKSRCS:.cpp=.o)
+SWOS2FKDEPS = $(SWOS2FKSRCS:.dep=.o)
+
+
+
 .PHONY: clean all
 
-all: $(SOCCERBIN) $(MATCHBIN)
+all: $(SWOS2FKBIN) $(SOCCERBIN) $(MATCHBIN)
 
 $(BINDIR):
 	mkdir -p $(BINDIR)
@@ -67,11 +91,14 @@ $(COMMONLIB): $(COMMONOBJS)
 $(LIBSOCCERLIB): $(LIBSOCCEROBJS)
 	$(AR) rcs $(LIBSOCCERLIB) $(LIBSOCCEROBJS)
 
+$(SWOS2FKBIN): $(BINDIR) $(SWOS2FKOBJS) $(COMMONLIB) $(LIBSOCCERLIB)
+	$(CXX) $(SWOS2FKLIBS) $(LDFLAGS) $(SWOS2FKOBJS) $(LIBSOCCERLIB) $(COMMONLIB) -o $(SWOS2FKBIN)
+
 $(SOCCERBIN): $(BINDIR) $(COMMONLIB) $(LIBSOCCERLIB) $(SOCCEROBJS)
-	$(CXX) $(LDFLAGS) $(SOCCEROBJS) $(LIBSOCCERLIB) $(COMMONLIB) -o $(SOCCERBIN)
+	$(CXX) $(FREEKICKLIBS) $(LDFLAGS) $(SOCCEROBJS) $(LIBSOCCERLIB) $(COMMONLIB) -o $(SOCCERBIN)
 
 $(MATCHBIN): $(BINDIR) $(COMMONLIB) $(LIBSOCCERLIB) $(MATCHOBJS)
-	$(CXX) $(LDFLAGS) $(MATCHOBJS) $(LIBSOCCERLIB) $(COMMONLIB) -o $(MATCHBIN)
+	$(CXX) $(FREEKICKLIBS) $(LDFLAGS) $(MATCHOBJS) $(LIBSOCCERLIB) $(COMMONLIB) -o $(MATCHBIN)
 
 %.dep: %.cpp
 	@rm -f $@
