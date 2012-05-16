@@ -25,6 +25,10 @@ class DataExchange {
 		static void updatePlayerDatabase(const char* fn, PlayerDatabase& db);
 		static std::shared_ptr<Team> parseTeam(const TiXmlElement* teamelem);
 		static TiXmlElement* createTeamElement(const Team& t, bool reference_players);
+		static TiXmlElement* createPlayerElement(const Player& p);
+
+		static void createTeamDatabase(const char* fn, const TeamDatabase& db);
+		static void createPlayerDatabase(const char* fn, const PlayerDatabase& db);
 };
 
 

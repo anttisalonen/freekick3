@@ -25,18 +25,18 @@ std::shared_ptr<Player> DataExchange::parsePlayer(const TiXmlElement* pelem)
 	int id;
 
 	if(pelem->QueryIntAttribute("id", &id) != TIXML_SUCCESS)
-		throw std::runtime_error("Error parsing player");
+		throw std::runtime_error("Error parsing player ID");
 
 	const TiXmlElement* skillselem = pelem->FirstChildElement("Skills");
 	const TiXmlElement* nameelem = pelem->FirstChildElement("Name");
 	const TiXmlElement* poselem = pelem->FirstChildElement("Position");
 	if(!skillselem || !nameelem || !poselem)
-		throw std::runtime_error("Error parsing player");
+		throw std::runtime_error("Error parsing player skill/name/position");
 
 	const char* pos = poselem->GetText();
 	const char* name = nameelem->GetText();
 	if(!pos || !name)
-		throw std::runtime_error("Error parsing player");
+		throw std::runtime_error("Error parsing player position/name");
 
 	if(!strcmp(pos, "goalkeeper"))
 		position = PlayerPosition::Goalkeeper;
@@ -47,7 +47,7 @@ std::shared_ptr<Player> DataExchange::parsePlayer(const TiXmlElement* pelem)
 	else if(!strcmp(pos, "forward"))
 		position = PlayerPosition::Forward;
 	else
-		throw std::runtime_error("Error parsing player");
+		throw std::runtime_error("Error parsing player position");
 
 	sk.KickPower = getPlayerSkill(skillselem, "KickPower");
 	sk.RunSpeed = getPlayerSkill(skillselem, "RunSpeed");
@@ -169,50 +169,67 @@ TiXmlElement* DataExchange::createTeamElement(const Team& t, bool reference_play
 		if(!p)
 			break;
 		j++;
-		TiXmlElement* playerelem = new TiXmlElement("Player");
-		playerelem->SetAttribute("id", p->getId());
-		if(!reference_players) {
-			TiXmlElement* nameelem = new TiXmlElement("Name");
-			nameelem->LinkEndChild(new TiXmlText(p->getName()));
-			playerelem->LinkEndChild(nameelem);
 
-			TiXmlElement* poselem = new TiXmlElement("Position");
-			switch(p->getPlayerPosition()) {
-				case PlayerPosition::Goalkeeper:
-					poselem->LinkEndChild(new TiXmlText("goalkeeper"));
-					break;
-
-				case PlayerPosition::Defender:
-					poselem->LinkEndChild(new TiXmlText("defender"));
-					break;
-
-				case PlayerPosition::Midfielder:
-					poselem->LinkEndChild(new TiXmlText("midfielder"));
-					break;
-
-				case PlayerPosition::Forward:
-					poselem->LinkEndChild(new TiXmlText("forward"));
-					break;
+		{
+			TiXmlElement* playerelem;
+			if(reference_players) {
+				playerelem = new TiXmlElement("Player");
+				playerelem->SetAttribute("id", p->getId());
 			}
-			playerelem->LinkEndChild(poselem);
-
-			TiXmlElement* skillselem = new TiXmlElement("Skills");
-			TiXmlElement* skill1elem = new TiXmlElement("KickPower");
-			TiXmlElement* skill2elem = new TiXmlElement("RunSpeed");
-			TiXmlElement* skill3elem = new TiXmlElement("BallControl");
-			skill1elem->LinkEndChild(new TiXmlText(std::to_string(p->getSkills().KickPower)));
-			skill2elem->LinkEndChild(new TiXmlText(std::to_string(p->getSkills().RunSpeed)));
-			skill3elem->LinkEndChild(new TiXmlText(std::to_string(p->getSkills().BallControl)));
-			skillselem->LinkEndChild(skill1elem);
-			skillselem->LinkEndChild(skill2elem);
-			skillselem->LinkEndChild(skill3elem);
-			playerelem->LinkEndChild(skillselem);
+			else {
+				playerelem = createPlayerElement(*p);
+			}
+			playerselem->LinkEndChild(playerelem);
 		}
-		playerselem->LinkEndChild(playerelem);
 	}
 	teamelem->LinkEndChild(playerselem);
 
 	return teamelem;
+}
+
+TiXmlElement* DataExchange::createPlayerElement(const Player& p)
+{
+	TiXmlElement* playerelem = new TiXmlElement("Player");
+
+	playerelem->SetAttribute("id", p.getId());
+
+	TiXmlElement* nameelem = new TiXmlElement("Name");
+	nameelem->LinkEndChild(new TiXmlText(p.getName()));
+	playerelem->LinkEndChild(nameelem);
+
+	TiXmlElement* poselem = new TiXmlElement("Position");
+	switch(p.getPlayerPosition()) {
+		case PlayerPosition::Goalkeeper:
+			poselem->LinkEndChild(new TiXmlText("goalkeeper"));
+			break;
+
+		case PlayerPosition::Defender:
+			poselem->LinkEndChild(new TiXmlText("defender"));
+			break;
+
+		case PlayerPosition::Midfielder:
+			poselem->LinkEndChild(new TiXmlText("midfielder"));
+			break;
+
+		case PlayerPosition::Forward:
+			poselem->LinkEndChild(new TiXmlText("forward"));
+			break;
+	}
+	playerelem->LinkEndChild(poselem);
+
+	TiXmlElement* skillselem = new TiXmlElement("Skills");
+	TiXmlElement* skill1elem = new TiXmlElement("KickPower");
+	TiXmlElement* skill2elem = new TiXmlElement("RunSpeed");
+	TiXmlElement* skill3elem = new TiXmlElement("BallControl");
+	skill1elem->LinkEndChild(new TiXmlText(std::to_string(p.getSkills().KickPower)));
+	skill2elem->LinkEndChild(new TiXmlText(std::to_string(p.getSkills().RunSpeed)));
+	skill3elem->LinkEndChild(new TiXmlText(std::to_string(p.getSkills().BallControl)));
+	skillselem->LinkEndChild(skill1elem);
+	skillselem->LinkEndChild(skill2elem);
+	skillselem->LinkEndChild(skill3elem);
+	playerelem->LinkEndChild(skillselem);
+
+	return playerelem;
 }
 
 void DataExchange::createMatchDataFile(const Match& m, const char* fn)
@@ -242,7 +259,9 @@ void DataExchange::createMatchDataFile(const Match& m, const char* fn)
 
 	doc.LinkEndChild(decl);
 	doc.LinkEndChild(matchelem);
-	doc.SaveFile(fn);
+	if(!doc.SaveFile(fn)) {
+		throw std::runtime_error(std::string("Unable to save XML file ") + fn);
+	}
 }
 
 
@@ -285,6 +304,38 @@ void DataExchange::updatePlayerDatabase(const char* fn, PlayerDatabase& db)
 	for(TiXmlElement* pelem = playerselem->FirstChildElement(); pelem; pelem = pelem->NextSiblingElement()) {
 		std::shared_ptr<Player> p = parsePlayer(pelem);
 		db.insert(make_pair(p->getId(), p));
+	}
+}
+
+void DataExchange::createTeamDatabase(const char* fn, const TeamDatabase& db)
+{
+	TiXmlDocument doc;
+	TiXmlDeclaration* decl = new TiXmlDeclaration("1.0", "", "");
+	TiXmlElement* teamselem = new TiXmlElement("Teams");
+	for(auto& tm : db) {
+		TiXmlElement* teamelem = createTeamElement(*tm.second, true);
+		teamselem->LinkEndChild(teamelem);
+	}
+	doc.LinkEndChild(decl);
+	doc.LinkEndChild(teamselem);
+	if(!doc.SaveFile(fn)) {
+		throw std::runtime_error(std::string("Unable to save XML file ") + fn);
+	}
+}
+
+void DataExchange::createPlayerDatabase(const char* fn, const PlayerDatabase& db)
+{
+	TiXmlDocument doc;
+	TiXmlDeclaration* decl = new TiXmlDeclaration("1.0", "", "");
+	TiXmlElement* players = new TiXmlElement("Players");
+	for(auto& pl : db) {
+		TiXmlElement* playerelem = createPlayerElement(*pl.second);
+		players->LinkEndChild(playerelem);
+	}
+	doc.LinkEndChild(decl);
+	doc.LinkEndChild(players);
+	if(!doc.SaveFile(fn)) {
+		throw std::runtime_error(std::string("Unable to save XML file ") + fn);
 	}
 }
 
