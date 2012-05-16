@@ -103,7 +103,7 @@ bool MatchSDLGUI::play()
 		}
 	}
 	if(mMatch->matchOver()) {
-		Soccer::MatchResult mres(mMatch->getScore(0), mMatch->getScore(1));
+		Soccer::MatchResult mres(mMatch->getScore(1), mMatch->getScore(0));
 		mMatch->setResult(mres);
 		return true;
 	}
