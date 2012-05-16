@@ -112,7 +112,10 @@ bool MatchSDLGUI::play()
 
 bool MatchSDLGUI::progressMatch(double frameTime)
 {
-	if(!playing(mMatch->getMatchHalf()) && MatchHelpers::playersOnPause(*mMatch)) {
+	if(!playing(mMatch->getMatchHalf()) &&
+			mMatch->getMatchHalf() != MatchHalf::NotStarted &&
+			mMatch->getMatchHalf() != MatchHalf::HalfTimePauseEnd &&
+			MatchHelpers::playersOnPause(*mMatch)) {
 		mHalfTimeTimer.doCountdown(frameTime);
 		if(mHalfTimeTimer.checkAndRewind()) {
 			if(mMatch->matchOver()) {
