@@ -88,6 +88,9 @@ MatchHalf Match::getMatchHalf() const
 
 void Match::setMatchHalf(MatchHalf h)
 {
+	if(h == mMatchHalf)
+		return;
+
 	std::cout << "Match half is now " << h << "\n";
 	mMatchHalf = h;
 	mPlayState = PlayState::OutKickoff;
