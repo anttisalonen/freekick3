@@ -255,7 +255,7 @@ void Match::updateTime(double time)
 {
 	if(playing(mMatchHalf) && playing(mPlayState) && !mBall->grabbed()) {
 		mTime += time * mTimeAccelerationConstant / 60.0f;
-		if(mTime >= 45.0f && fabs(mBall->getPosition().v.y) < 20.0f) {
+		if(mTime >= 45.0f && (fabs(mBall->getPosition().v.y) < 20.0f || mTime > 50.5f)) {
 			setMatchHalf(mMatchHalf == MatchHalf::FirstHalf ?
 					MatchHalf::HalfTimePauseBegin : MatchHalf::Finished);
 			mTime = 0.0f;
