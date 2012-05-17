@@ -2,10 +2,12 @@
 #include <string.h>
 #include <stdlib.h>
 
+#include <stdexcept>
 #include <iostream>
 #include <fstream>
 #include <vector>
 #include <memory>
+#include <map>
 
 #include "soccer/DataExchange.h"
 #include "soccer/Continent.h"
@@ -192,42 +194,189 @@ void SwosParser::correct_name(char* n)
 
 class FreekickWriter {
 	public:
-		FreekickWriter(const std::string& outputDir, const std::vector<s_team>& teams);
+		FreekickWriter(const std::string& outputDir, const std::string& teamFile, const std::vector<s_team>& teams);
 		int write();
 
 	private:
+		void setupDefaultNationalities();
+		const char* teamNationalityToString(int i);
 		std::string mOutputDir;
+		std::string mTeamFile;
 		const std::vector<s_team>& mTeams;
 		int mCurrentTeamId;
 		std::map<std::pair<int, int>, int> mLeagues;
 		int mCurrentLeagueId;
+		std::map<int, std::string> mNationalities;
 };
 
-FreekickWriter::FreekickWriter(const std::string& outputDir, const std::vector<s_team>& teams)
+FreekickWriter::FreekickWriter(const std::string& outputDir, const std::string& teamFile, const std::vector<s_team>& teams)
 	 : mOutputDir(outputDir),
+	 mTeamFile(teamFile),
 	 mTeams(teams),
 	 mCurrentTeamId(1),
 	 mCurrentLeagueId(1)
 {
+	if(mTeamFile.empty()) {
+		setupDefaultNationalities();
+	}
+	else {
+		std::ifstream teamstream(mTeamFile);
+		if(!teamstream.is_open())
+		{
+			throw std::runtime_error(std::string("Could not open file ") + mTeamFile);
+		}
+		while(1) {
+			std::string str;
+			std::getline(teamstream, str);
+			if(teamstream.fail())
+				break;
+			std::string fname, country;
+			std::stringstream strstr(str);
+			std::getline(strstr, fname, ':');
+			std::getline(strstr, country, ':');
+			mNationalities[atoi(fname.c_str())] = country;
+		}
+	}
 }
 
 const char* nationToContinent(int i)
 {
-	if(i <= 50)
+	if(i <= 41)
 		return "Europe";
-	else if(i <= 67)
-		return "North & Central America";
-	else if(i <= 79)
-		return "South America";
-	else if(i <= 117)
-		return "Africa";
-	else if(i <= 147)
-		return "Asia";
-	else
-		return "Oceania";
+
+	switch(i) {
+		case 42: return "Africa";
+		case 43: return "South America";
+		case 44: return "Oceania";
+		case 45: return "South America";
+		case 46: return "South America";
+		case 48: return "South America";
+		case 49: return "South America";
+		case 50: return "South America";
+		case 51: return "North & Central America";
+		case 55: return "Asia";
+		case 60: return "North & Central America";
+		case 62: return "Oceania";
+		case 64: return "South America";
+		case 65: return "South America";
+		case 66: return "South America";
+		case 67: return "Asia";
+		case 69: return "Africa";
+		case 71: return "South America";
+		case 73: return "North & Central America";
+		case 75: return "Asia";
+		case 76: return "Europe";
+		case 77: return "South America";
+		case 78: return "Europe";
+		case 79: return "Africa";
+	}
+	return "Unknown";
 }
 
-const char* nationalityToString(int n)
+void FreekickWriter::setupDefaultNationalities()
+{
+	mNationalities.clear();
+	for(int i = 0; i < 80; i++) {
+		const char* value = nullptr;
+		switch(i) {
+			case 0: value = "Albania"; break;
+			case 1: value = "Austria"; break;
+			case 2: value = "Belgium"; break;
+			case 3: value = "Bulgaria"; break;
+			case 4: value = "Croatia"; break;
+			case 5: value = "Cyprus"; break;
+			case 6: value = "Czech Republic"; break;
+			case 7: value = "Denmark"; break;
+			case 8: value = "England"; break;
+			case 9: break;
+			case 10: value = "Estonia"; break;
+			case 11: value = "Faroe Islands"; break;
+			case 12: value = "Finland"; break;
+			case 13: value = "France"; break;
+			case 14: value = "Germany"; break;
+			case 15: value = "Greece"; break;
+			case 16: value = "Hungary"; break;
+			case 17: value = "Iceland"; break;
+			case 18: value = "Ireland"; break;
+			case 19: value = "Israel"; break;
+			case 20: value = "Italy"; break;
+			case 21: value = "Latvia"; break;
+			case 22: value = "Lithuania"; break;
+			case 23: value = "Luxembourg"; break;
+			case 24: value = "Malta"; break;
+			case 25: value = "Netherlands"; break;
+			case 26: value = "Northern Ireland"; break;
+			case 27: value = "Norway"; break;
+			case 28: value = "Poland"; break;
+			case 29: value = "Portugal"; break;
+			case 30: value = "Romania"; break;
+			case 31: value = "Russia"; break;
+			case 32: value = "San Marino"; break;
+			case 33: value = "Scotland"; break;
+			case 34: value = "Slovenia"; break;
+			case 35: value = "Spain"; break;
+			case 36: value = "Sweden"; break;
+			case 37: value = "Switzerland"; break;
+			case 38: value = "Turkey"; break;
+			case 39: value = "Ukraine"; break;
+			case 40: value = "Wales"; break;
+			case 41: value = "Serbia"; break;
+			case 42: value = "Algeria"; break;
+			case 43: value = "Argentina"; break;
+			case 44: value = "Australia"; break;
+			case 45: value = "Bolivia"; break;
+			case 46: value = "Brazil"; break;
+			case 47: break;
+			case 48: value = "Chile"; break;
+			case 49: value = "Colombia"; break;
+			case 50: value = "Ecuador"; break;
+			case 51: value = "El Salvador"; break;
+			case 52: break;
+			case 53: break;
+			case 54: break;
+			case 55: value = "Japan"; break;
+			case 56: break;
+			case 57: break;
+			case 58: break;
+			case 59: break;
+			case 60: value = "Mexico"; break;
+			case 61: break;
+			case 62: value = "New Zealand"; break;
+			case 63: break;
+			case 64: value = "Paraguay"; break;
+			case 65: value = "Peru"; break;
+			case 66: value = "Surinam"; break;
+			case 67: value = "China"; break;
+			case 68: break;
+			case 69: value = "South Africa"; break;
+			case 70: break;
+			case 71: value = "Uruguay"; break;
+			case 72: break;
+			case 73: value = "U.S.A."; break;
+			case 74: break;
+			case 75: value = "India"; break;
+			case 76: value = "Belarus"; break;
+			case 77: value = "Venezuela"; break;
+			case 78: value = "Slovenia"; break;
+			case 79: value = "Ghana"; break;
+		}
+		if(!value)
+			continue;
+
+		mNationalities[i] = std::string(value);
+	}
+}
+
+const char* FreekickWriter::teamNationalityToString(int i)
+{
+	const auto& it = mNationalities.find(i);
+	if(it == mNationalities.end())
+		return "Unknown";
+	else
+		return it->second.c_str();
+}
+
+const char* playerNationalityToString(int n)
 {
 	switch(n)
 	{
@@ -383,7 +532,7 @@ const char* nationalityToString(int n)
 		case 149: return "New Zealand";
 		case 150: return "Fiji";
 		case 151: return "Solomon Islands";
-		case 152: default: std::cerr << "Unknown nationality " << n << " found.\n"; return "Unknown";
+		case 152: default: return "Unknown";
 	}
 }
 
@@ -391,11 +540,12 @@ const char* leagueLevelToString(int i)
 {
 	switch(i)
 	{
-		case 0:  return "Premier League"; break;
-		case 1:  return "First League"; break;
-		case 2:  return "Second League"; break;
+		case 0: return "1. League"; break;
+		case 1: return "2. League"; break;
+		case 2: return "3. League"; break;
+		case 3: return "4. League"; break;
 	}
-	return "Third League";
+	return "Non-League";
 }
 
 int FreekickWriter::write()
@@ -405,7 +555,10 @@ int FreekickWriter::write()
 
 	for(auto& st : mTeams) {
 		std::shared_ptr<Soccer::League> league = teamdb.getOrCreateLeague(nationToContinent(st.nation),
-				nationalityToString(st.nation), leagueLevelToString(st.division));
+				teamNationalityToString(st.nation), leagueLevelToString(st.division));
+
+		printf("%s in %s - %s - %s\n", st.team_name, leagueLevelToString(st.division),
+				teamNationalityToString(st.nation), nationToContinent(st.nation));
 
 		std::vector<std::shared_ptr<Soccer::Player>> players;
 
@@ -455,19 +608,23 @@ int FreekickWriter::write()
 
 class App {
 	public:
-		App(const std::string& outputDir, const std::vector<std::string>& inputFiles);
+		App(const std::string& outputDir, const std::string& teamFile,
+				const std::vector<std::string>& inputFiles);
 		int convert();
 	private:
-		void parse_input_file(std::istream& in);
+		bool parse_input_file(const std::string& filename);
 
 		std::string mOutputDir;
+		std::string mTeamFile;
 		std::vector<std::string> mInputFiles;
 		int mCurrentPlayerId;
 		std::vector<s_team> mTeams;
 };
 
-App::App(const std::string& outputDir, const std::vector<std::string>& inputFiles)
+App::App(const std::string& outputDir, const std::string& teamFile,
+		const std::vector<std::string>& inputFiles)
 	: mOutputDir(outputDir),
+	mTeamFile(teamFile),
 	mInputFiles(inputFiles),
 	mCurrentPlayerId(1)
 {
@@ -477,19 +634,12 @@ int App::convert()
 {
 	bool parsedAtLeastOne = false;
 	for(auto& t : mInputFiles) {
-		std::ifstream input_file(t);
-		if(!input_file.is_open())
-		{
-			std::cerr << "Warning: could not open input file " << t << " - skipping.\n";
-			continue;
-		}
-		std::cerr << "Parsing file " << t << " . . . ";
-		parse_input_file(input_file);
-		parsedAtLeastOne = true;
+		if(parse_input_file(t))
+			parsedAtLeastOne = true;
 	}
 
 	if(parsedAtLeastOne) {
-		FreekickWriter w(mOutputDir, mTeams);
+		FreekickWriter w(mOutputDir, mTeamFile, mTeams);
 		return w.write();
 	}
 	else {
@@ -497,16 +647,23 @@ int App::convert()
 	}
 }
 
-void App::parse_input_file(std::istream& in)
+bool App::parse_input_file(const std::string& filename)
 {
 	unsigned char c;
 	int num_teams;
 
+	std::ifstream in(filename);
+	if(!in.is_open())
+	{
+		std::cerr << "Warning: could not open input file " << filename << " - skipping.\n";
+		return false;
+	}
+	std::cerr << "Parsing file " << filename << " . . . ";
 	c = in.get();
 	if(c != 0)
 	{
 		std::cerr << "Error (general): position 0 failed.\n";
-		return;
+		return false;
 	}
 
 	c = in.get();
@@ -535,21 +692,23 @@ void App::parse_input_file(std::istream& in)
 		mTeams.push_back(team);
 	}
 	std::cerr << "Success. Player ID at " << mCurrentPlayerId << ".\n";
+	return true;
 }
 
 void usage(const char* pn)
 {
-	fprintf(stderr, "Usage: %s <output directory> <input file 1> [input file 2 ...]\n",
+	fprintf(stderr, "Usage: %s [-t teams mapping file] <output directory> <input file 1> [input file 2 ...]\n",
 			pn);
 	fprintf(stderr, "\tOutput directory must exist. Existing files will be overwritten.\n");
-	fprintf(stderr, "\tInput files are SWOS data files. The country will be inferred based\n");
-	fprintf(stderr, "\ton file name.\n");
+	fprintf(stderr, "\tInput files are SWOS data files. The country name will be looked up from the\n");
+	fprintf(stderr, "\tteam mapping file (defaults to original SWOS teams).\n");
 }
 
 int main(int argc, char** argv)
 {
 	std::string outputDir;
 	std::vector<std::string> inputFiles;
+	std::string teamFile;
 
 	if(argc < 3) {
 		usage(argv[0]);
@@ -557,16 +716,28 @@ int main(int argc, char** argv)
 	}
 	if(!strcmp(argv[1], "-h") || !strcmp(argv[1], "--help")) {
 		usage(argv[0]);
-		exit(1);
+		exit(0);
 	}
 
-	outputDir = std::string(argv[1]);
-	for(int i = 2; i < argc; i++)
+	int outputDirIndex = 1;
+
+	if(!strcmp(argv[1], "-t")) {
+		teamFile = std::string(argv[2]);
+		outputDirIndex += 2;
+		if(argc < 5) {
+			usage(argv[0]);
+			exit(1);
+		}
+	}
+
+
+	outputDir = std::string(argv[outputDirIndex]);
+	for(int i = outputDirIndex + 1; i < argc; i++)
 		inputFiles.push_back(std::string(argv[i]));
 
 	int ret = 1;
 	try {
-		App app(outputDir, inputFiles);
+		App app(outputDir, teamFile, inputFiles);
 		ret = app.convert();
 	}
 	catch (std::exception& e) {
