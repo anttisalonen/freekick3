@@ -213,15 +213,15 @@ void FriendlyScreen::clickedOnTeam(std::shared_ptr<Button> button)
 		auto it2 = mSelectedTeams.find(it->second);
 		if(it2 == mSelectedTeams.end()) {
 			mSelectedTeams.insert(std::make_pair(it->second,
-						TeamSelection::Human));
-			button->setColor1(Common::Color(128, 128, 255));
-			button->setColor2(Common::Color(204, 204, 255));
+						TeamSelection::Computer));
+			button->setColor1(Common::Color(255, 128, 128));
+			button->setColor2(Common::Color(255, 204, 204));
 		}
 		else {
-			if(it2->second == TeamSelection::Human) {
-				it2->second = TeamSelection::Computer;
-				button->setColor1(Common::Color(255, 128, 128));
-				button->setColor2(Common::Color(255, 204, 204));
+			if(it2->second == TeamSelection::Computer) {
+				it2->second = TeamSelection::Human;
+				button->setColor1(Common::Color(128, 128, 255));
+				button->setColor2(Common::Color(204, 204, 255));
 			}
 			else {
 				mSelectedTeams.erase(it2);
