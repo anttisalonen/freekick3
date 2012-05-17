@@ -194,12 +194,14 @@ void SwosParser::correct_name(char* n)
 
 class FreekickWriter {
 	public:
-		FreekickWriter(const std::string& outputDir, const std::string& teamFile, const std::vector<s_team>& teams);
+		FreekickWriter(const std::string& outputDir, const std::string& teamFile,
+				bool scramble, const std::vector<s_team>& teams);
 		int write();
 
 	private:
 		void setupDefaultNationalities();
 		const char* teamNationalityToString(int i);
+		std::string scramble(const char* n);
 		std::string mOutputDir;
 		std::string mTeamFile;
 		const std::vector<s_team>& mTeams;
@@ -207,14 +209,17 @@ class FreekickWriter {
 		std::map<std::pair<int, int>, int> mLeagues;
 		int mCurrentLeagueId;
 		std::map<int, std::string> mNationalities;
+		bool mScramble;
 };
 
-FreekickWriter::FreekickWriter(const std::string& outputDir, const std::string& teamFile, const std::vector<s_team>& teams)
+FreekickWriter::FreekickWriter(const std::string& outputDir, const std::string& teamFile,
+		bool scramble, const std::vector<s_team>& teams)
 	 : mOutputDir(outputDir),
 	 mTeamFile(teamFile),
 	 mTeams(teams),
 	 mCurrentTeamId(1),
-	 mCurrentLeagueId(1)
+	 mCurrentLeagueId(1),
+	 mScramble(scramble)
 {
 	if(mTeamFile.empty()) {
 		setupDefaultNationalities();
@@ -374,6 +379,39 @@ const char* FreekickWriter::teamNationalityToString(int i)
 		return "Unknown";
 	else
 		return it->second.c_str();
+}
+
+std::string FreekickWriter::scramble(const char* n)
+{
+	std::string ret(n);
+	for(unsigned int i = 0; i < ret.size(); i++) {
+		if(isdigit(ret[i])) {
+			if(ret[i] == '9')
+				ret[i] = '0';
+			else
+				ret[i]++;
+		}
+		if(isalpha(ret[i])) {
+			switch(ret[i]) {
+				case 'a': ret[i] = 'e'; break;
+				case 'A': ret[i] = 'E'; break;
+				case 'e': ret[i] = 'i'; break;
+				case 'E': ret[i] = 'I'; break;
+				case 'i': ret[i] = 'o'; break;
+				case 'I': ret[i] = 'O'; break;
+				case 'o': ret[i] = 'u'; break;
+				case 'O': ret[i] = 'U'; break;
+				case 'u': ret[i] = 'y'; break;
+				case 'U': ret[i] = 'Y'; break;
+				case 'y': ret[i] = 'a'; break;
+				case 'Y': ret[i] = 'A'; break;
+				case 'z': case 'Z': case ' ': break;
+				case 'p': case 'P': case 'w': case 'W': break;
+				default: ret[i]++; break;
+			}
+		}
+	}
+	return ret;
 }
 
 const char* playerNationalityToString(int n)
@@ -589,13 +627,14 @@ int FreekickWriter::write()
 			plskills.RunSpeed    = (rand() % 800 + 200) * 0.001f * std::min(49, sp.value + 1) / 49.0f;
 
 			std::shared_ptr<Soccer::Player> pl(new Soccer::Player(sp.id,
-						sp.player_name, plpos, plskills));
+						mScramble ? scramble(sp.player_name).c_str() : sp.player_name,
+						plpos, plskills));
 			players.push_back(pl);
 			playerdb.insert(std::make_pair(pl->getId(), pl));
 		}
 
 		std::shared_ptr<Soccer::Team> t(new Soccer::Team(mCurrentTeamId,
-					st.team_name, players));
+					mScramble ? scramble(st.team_name).c_str() : st.team_name, players));
 		league->addT(t);
 		mCurrentTeamId++;
 	}
@@ -609,7 +648,7 @@ int FreekickWriter::write()
 class App {
 	public:
 		App(const std::string& outputDir, const std::string& teamFile,
-				const std::vector<std::string>& inputFiles);
+				bool scramble, const std::vector<std::string>& inputFiles);
 		int convert();
 	private:
 		bool parse_input_file(const std::string& filename);
@@ -619,14 +658,16 @@ class App {
 		std::vector<std::string> mInputFiles;
 		int mCurrentPlayerId;
 		std::vector<s_team> mTeams;
+		bool mScramble;
 };
 
 App::App(const std::string& outputDir, const std::string& teamFile,
-		const std::vector<std::string>& inputFiles)
+		bool scramble, const std::vector<std::string>& inputFiles)
 	: mOutputDir(outputDir),
 	mTeamFile(teamFile),
 	mInputFiles(inputFiles),
-	mCurrentPlayerId(1)
+	mCurrentPlayerId(1),
+	mScramble(scramble)
 {
 }
 
@@ -639,7 +680,7 @@ int App::convert()
 	}
 
 	if(parsedAtLeastOne) {
-		FreekickWriter w(mOutputDir, mTeamFile, mTeams);
+		FreekickWriter w(mOutputDir, mTeamFile, mScramble, mTeams);
 		return w.write();
 	}
 	else {
@@ -697,7 +738,7 @@ bool App::parse_input_file(const std::string& filename)
 
 void usage(const char* pn)
 {
-	fprintf(stderr, "Usage: %s [-t teams mapping file] <output directory> <input file 1> [input file 2 ...]\n",
+	fprintf(stderr, "Usage: %s [-s] [-t teams mapping file] <output directory> <input file 1> [input file 2 ...]\n",
 			pn);
 	fprintf(stderr, "\tOutput directory must exist. Existing files will be overwritten.\n");
 	fprintf(stderr, "\tInput files are SWOS data files. The country name will be looked up from the\n");
@@ -710,34 +751,38 @@ int main(int argc, char** argv)
 	std::vector<std::string> inputFiles;
 	std::string teamFile;
 
-	if(argc < 3) {
-		usage(argv[0]);
-		exit(1);
-	}
-	if(!strcmp(argv[1], "-h") || !strcmp(argv[1], "--help")) {
-		usage(argv[0]);
-		exit(0);
-	}
+	bool scramble = false;
 
-	int outputDirIndex = 1;
-
-	if(!strcmp(argv[1], "-t")) {
-		teamFile = std::string(argv[2]);
-		outputDirIndex += 2;
-		if(argc < 5) {
+	for(int i = 1; i < argc; i++) {
+		if(!strcmp(argv[i], "-h") || !strcmp(argv[i], "--help")) {
 			usage(argv[0]);
-			exit(1);
+			exit(0);
+		}
+		else if(!strcmp(argv[i], "-t")) {
+			if(++i >= argc) { fprintf(stderr, "-t requires an argument.\n"); exit(1); }
+			teamFile = std::string(argv[i]);
+		}
+		else if(!strcmp(argv[i], "-s")) {
+			scramble = true;
+		}
+		else {
+			if(outputDir.empty()) {
+				outputDir = std::string(argv[i]);
+			}
+			else {
+				inputFiles.push_back(std::string(argv[i]));
+			}
 		}
 	}
 
-
-	outputDir = std::string(argv[outputDirIndex]);
-	for(int i = outputDirIndex + 1; i < argc; i++)
-		inputFiles.push_back(std::string(argv[i]));
+	if(inputFiles.empty()) {
+		usage(argv[0]);
+		exit(1);
+	}
 
 	int ret = 1;
 	try {
-		App app(outputDir, teamFile, inputFiles);
+		App app(outputDir, teamFile, scramble, inputFiles);
 		ret = app.convert();
 	}
 	catch (std::exception& e) {
