@@ -22,8 +22,25 @@ using namespace Common;
 Menu::Menu()
 {
 	mScreenManager.reset(new ScreenManager(*this));
-	DataExchange::updatePlayerDatabase("share/teams/Players_1000.xml", mPlayers);
-	DataExchange::updateTeamDatabase("share/teams/Teams.xml", mTeams);
+
+	std::string datadir;
+	const char* homedir = getenv("HOME");
+	if(homedir) {
+		datadir += homedir;
+		datadir += "/.freekick3/share/teams";
+		try {
+			DataExchange::updatePlayerDatabase((datadir + "/Players.xml").c_str(), mPlayers);
+			DataExchange::updateTeamDatabase((datadir + "/Teams.xml").c_str(), mTeams);
+		} catch(std::exception& e) {
+			std::cerr << "Note: could not open database files: " << e.what() << "\n";
+		}
+	}
+
+	if(mPlayers.empty())
+		DataExchange::updatePlayerDatabase("share/teams/Players.xml", mPlayers);
+	if(mTeams.getContainer().empty())
+		DataExchange::updateTeamDatabase("share/teams/Teams.xml", mTeams);
+
 	for(auto c : mTeams.getContainer())
 		for(auto lsys : c.second->getContainer())
 			for(auto league : lsys.second->getContainer())
