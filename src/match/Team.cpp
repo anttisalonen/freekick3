@@ -10,7 +10,8 @@ Team::Team(Match* match, const Soccer::Team& t, bool first)
 	mMatch(match),
 	mFirst(first),
 	mPlayerNearestToBall(nullptr),
-	mSupportingPositionsTimer(0.5f)
+	mSupportingPositionsTimer(0.5f),
+	mPlayerReceivingPass(nullptr)
 {
 	for(unsigned int j = SUPPORTING_POS_RESOLUTION * 2;
 			j <= match->getPitchHeight() - SUPPORTING_POS_RESOLUTION;
@@ -183,4 +184,17 @@ void Team::matchHalfChanged(MatchHalf m)
 	}
 }
 
+void Team::setPlayerReceivingPass(Player* p)
+{
+	mPlayerReceivingPass = p;
+}
+
+Player* Team::getPlayerReceivingPass()
+{
+	return mPlayerReceivingPass;
+}
+
+void Team::ballKicked(Player* p)
+{
+}
 

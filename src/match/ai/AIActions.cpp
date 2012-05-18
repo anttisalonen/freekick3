@@ -75,7 +75,7 @@ AIShootAction::AIShootAction(const Player* p)
 	: AIAction(mActionName, p)
 {
 	AbsVector3 shoottarget = MatchHelpers::oppositeGoalPosition(*p);
-	mAction = std::shared_ptr<PlayerAction>(new KickBallPA(shoottarget, true));
+	mAction = std::shared_ptr<PlayerAction>(new KickBallPA(shoottarget, nullptr, true));
 
 	PlayState ps = p->getMatch()->getPlayState();
 	if(ps == PlayState::OutThrowin ||
@@ -141,7 +141,9 @@ AIPassAction::AIPassAction(const Player* p)
 {
 	mScore = -1.0;
 	AbsVector3 tgt;
-	mAction = std::shared_ptr<PlayerAction>(new KickBallPA(MatchHelpers::oppositeGoalPosition(*p), true));
+	Player* tgtPlayer = nullptr;
+	mAction = std::shared_ptr<PlayerAction>(new KickBallPA(MatchHelpers::oppositeGoalPosition(*p),
+				nullptr, true));
 	for(auto sp : MatchHelpers::getOwnPlayers(*p)) {
 		if(&*sp == p) {
 			continue;
@@ -181,11 +183,12 @@ AIPassAction::AIPassAction(const Player* p)
 			if(thisscore > mScore) {
 				mScore = thisscore;
 				tgt = AIHelpers::getPassKickVector(*mPlayer, *sp);
+				tgtPlayer = sp.get();
 			}
 		}
 	}
 	if(mScore >= -1.0f) {
-		mAction = std::shared_ptr<PlayerAction>(new KickBallPA(tgt));
+		mAction = std::shared_ptr<PlayerAction>(new KickBallPA(tgt, tgtPlayer));
 	}
 }
 

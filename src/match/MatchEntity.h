@@ -12,6 +12,7 @@ class MatchEntity {
 		const Match* getMatch() const;
 		void move(const AbsVector3& v);
 		void setVelocity(const AbsVector3& v);
+		void addVelocity(const AbsVector3& v);
 		void setPosition(const AbsVector3& v);
 		void setAcceleration(const AbsVector3& v);
 		const AbsVector3& getPosition() const;

@@ -10,7 +10,7 @@ Player::Player(Match* match, Team* team, const Soccer::Player& p,
 	: MatchEntity(match, match->convertRelativeToAbsoluteVector(team->getPausePosition())),
 	Soccer::Player(p),
 	mTeam(team),
-	mBallKickedTimer(1.0f),
+	mBallKickedTimer(1.0f - p.getSkills().BallControl * 0.5f),
 	mShirtNumber(sn)
 {
 	mAIController = new PlayerAIController(this);
@@ -46,6 +46,11 @@ void Player::setHomePosition(const RelVector3& p)
 {
 	printf("Set home position to %3.2f, %3.2f\n", p.v.x, p.v.y);
 	mHomePosition = p;
+}
+
+Team* Player::getTeam()
+{
+	return mTeam;
 }
 
 const Team* Player::getTeam() const

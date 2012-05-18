@@ -27,6 +27,11 @@ void MatchEntity::setVelocity(const AbsVector3& v)
 	mVelocity.v = v.v;
 }
 
+void MatchEntity::addVelocity(const AbsVector3& v)
+{
+	mVelocity.v += v.v;
+}
+
 void MatchEntity::setAcceleration(const AbsVector3& v)
 {
 	mAcceleration.v = v.v;

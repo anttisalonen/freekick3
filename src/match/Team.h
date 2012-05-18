@@ -26,6 +26,9 @@ class Team : public Soccer::Team {
 		Player* getPlayerNearestToBall() const;
 		float getSupportingPositionScoreAt(const AbsVector3& pos) const;
 		void matchHalfChanged(MatchHalf m);
+		void setPlayerReceivingPass(Player* p);
+		Player* getPlayerReceivingPass();
+		void ballKicked(Player* p);
 	private:
 		void updatePlayerNearestToBall();
 		void updateSupportingPositions();
@@ -36,6 +39,7 @@ class Team : public Soccer::Team {
 		Player* mPlayerNearestToBall;
 		Countdown mSupportingPositionsTimer;
 		std::vector<std::vector<float>> mSupportingPositions;
+		Player* mPlayerReceivingPass;
 };
 
 #endif

@@ -487,12 +487,12 @@ std::shared_ptr<PlayerAction> MatchSDLGUI::act(double time)
 			float passdiff = (tgt.v - passtgt->getPosition().v).length();
 			if(goaldiff < 10.0f && goaldiff < passdiff) {
 				// full power
-				return std::shared_ptr<PlayerAction>(new KickBallPA(getMousePositionOnPitch(), true));
+				return std::shared_ptr<PlayerAction>(new KickBallPA(getMousePositionOnPitch(), nullptr, true));
 			}
 			else if(passdiff < 5.0f) {
 				// pass
 				return std::shared_ptr<PlayerAction>(new KickBallPA(AIHelpers::getPassKickVector(*mPlayer,
-								*passtgt)));
+								*passtgt), passtgt));
 			}
 			else {
 				// dribble
@@ -525,7 +525,9 @@ void MatchSDLGUI::setPlayerController(double frameTime)
 			printf("Now controlling\n");
 		}
 		if(mControlledPlayerIndex == -1) {
-			Player* pl = MatchHelpers::nearestOwnPlayerToBall(*mMatch->getTeam(mControlledTeamIndex));
+			Player* pl = mMatch->getTeam(mControlledTeamIndex)->getPlayerReceivingPass();
+			if(pl == nullptr)
+				pl = MatchHelpers::nearestOwnPlayerToBall(*mMatch->getTeam(mControlledTeamIndex));
 			if(pl != mPlayer && !mPlayerSwitchTimer.running() &&
 					(!pl->isGoalkeeper() || !playing(mMatch->getPlayState()))) {
 				mPlayer->setAIControlled();

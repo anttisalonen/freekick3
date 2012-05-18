@@ -25,8 +25,9 @@ void RunToPA::applyPlayerAction(Match& match, Player& p, double time)
 	p.setAcceleration(v.v * 50.0f); /* TODO: use a player skill as the coefficient */
 }
 
-KickBallPA::KickBallPA(const AbsVector3& v, bool absolute)
+KickBallPA::KickBallPA(const AbsVector3& v, Player* passtgt, bool absolute)
 	: mDiff(v),
+	mPassTarget(passtgt),
 	mAbsolute(absolute)
 {
 }
@@ -44,8 +45,16 @@ void KickBallPA::applyPlayerAction(Match& match, Player& p, double time)
 		mDiff.v.normalize();
 	AbsVector3 v(mDiff);
 	v.v *= p.getMaximumKickPower();
-	match.kickBall(&p, v);
+	int failpoints = match.kickBall(&p, v);
 	p.setVelocity(AbsVector3());
+
+	if(failpoints == 0) {
+		match.getTeam(0)->setPlayerReceivingPass(nullptr);
+		match.getTeam(1)->setPlayerReceivingPass(nullptr);
+		if(mPassTarget && mPassTarget->getTeam() == p.getTeam()) {
+			p.getTeam()->setPlayerReceivingPass(mPassTarget);
+		}
+	}
 }
 
 void GrabBallPA::applyPlayerAction(Match& match, Player& p, double time)

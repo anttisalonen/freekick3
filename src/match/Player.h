@@ -28,6 +28,7 @@ class Player : public MatchEntity, public Soccer::Player {
 		std::shared_ptr<PlayerAction> act(double time);
 		int getShirtNumber() const;
 		const Team* getTeam() const;
+		Team* getTeam();
 		const RelVector3& getHomePosition() const;
 		void setHomePosition(const RelVector3& p);
 		double getRunSpeed() const; // m/s

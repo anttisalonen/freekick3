@@ -29,6 +29,13 @@ Match::Match(const Soccer::Match& m)
 	mBall = std::shared_ptr<Ball>(new Ball(this));
 }
 
+Team* Match::getTeam(unsigned int team)
+{
+	if(team > 2)
+		throw std::runtime_error("Invalid index when getting team");
+	return mTeams[team].get();
+}
+
 const Team* Match::getTeam(unsigned int team) const
 {
 	if(team > 2)
@@ -206,20 +213,33 @@ bool playing(PlayState h)
 	return h == PlayState::InPlay;
 }
 
-bool Match::kickBall(Player* p, const AbsVector3& v)
+int Match::kickBall(Player* p, const AbsVector3& v)
 {
 	if(MatchHelpers::canKickBall(*p) && mReferee.ballKicked(*p, v)) {
-		bool kickSuccessful = mBall->getVelocity().v.length() / 80.0f < p->getSkills().BallControl;
-		if(kickSuccessful)
+		int failpoints = 0;
+		if(!(mBall->getVelocity().v.length() / 80.0f < p->getSkills().BallControl))
+			failpoints++;
+		{
+			Vector3 pb = mBall->getPosition().v - p->getPosition().v;
+			Vector3 pt = (mBall->getPosition().v + v.v) - p->getPosition().v;
+			if(pt.dot(pb) < 0.0f) {
+				failpoints += 2;
+				std::cout << "Ball difficultly positioned.\n";
+			}
+		}
+
+		if(failpoints == 0)
 			mBall->setVelocity(v);
 		else
-			mBall->setVelocity(AbsVector3(v.v.normalized() * 5.0f));
+			mBall->addVelocity(AbsVector3(v.v.normalized() * (5.0f / failpoints)));
 		mBall->kicked(p);
 		p->ballKicked();
-		return true;
+		for(auto t : mTeams)
+			t->ballKicked(p);
+		return failpoints;
 	}
 	else {
-		return false;
+		return -1;
 	}
 }
 

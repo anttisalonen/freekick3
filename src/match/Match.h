@@ -44,6 +44,7 @@ bool playing(PlayState h);
 class Match : public Soccer::Match {
 	public:
 		Match(const Soccer::Match& m);
+		Team* getTeam(unsigned int team);
 		const Team* getTeam(unsigned int team) const;
 		const Player* getPlayer(unsigned int team, unsigned int idx) const;
 		Player* getPlayer(unsigned int team, unsigned int idx);
@@ -60,7 +61,7 @@ class Match : public Soccer::Match {
 		RelVector3 convertAbsoluteToRelativeVector(const AbsVector3& v) const;
 		float getPitchWidth() const;
 		float getPitchHeight() const;
-		bool kickBall(Player* p, const AbsVector3& v);
+		int kickBall(Player* p, const AbsVector3& v);
 		double getRollInertiaFactor() const;
 		void addGoal(bool forFirst);
 		int getScore(bool first) const;
