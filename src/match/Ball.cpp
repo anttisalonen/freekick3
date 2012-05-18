@@ -11,6 +11,7 @@ Ball::Ball(Match* match)
 	mGrabbed(false),
 	mGrabber(nullptr)
 {
+	mPosition.v.z = 0.10f;
 }
 
 void Ball::update(float time)
@@ -30,25 +31,43 @@ void Ball::update(float time)
 				}
 			}
 		}
-		if(mPosition.v.z < 0.1f) {
-			mVelocity.v *= 1.0f - time * mMatch->getRollInertiaFactor();
+		if(mPosition.v.z < 0.15f) {
+			if(fabs(mVelocity.v.z) < 0.1f)
+				mVelocity.v.z = 0.0f;
+
+			if(mVelocity.v.z < -0.1f) {
+				// bounciness
+				mVelocity.v.z *= -0.65f;
+			}
+			else {
+				mVelocity.v *= 1.0f - time * mMatch->getRollInertiaFactor();
+			}
+		}
+		else {
+			mVelocity.v *= 1.0f - time * mMatch->getAirViscosityFactor();
+			mVelocity.v.z -= 9.81f * time;
 		}
 
 		// net
 		mPosition.v.y = clamp(-mMatch->getPitchHeight() * 0.5f - 3.0f,
 				mPosition.v.y,
 				mMatch->getPitchHeight() * 0.5f + 3.0f);
-		if(mPosition.v.y > mMatch->getPitchHeight() * 0.5f || mPosition.v.y < -mMatch->getPitchHeight() * 0.5f) {
-			if(outsideBefore1 != outsideAfter1 || outsideBefore2 != outsideAfter2) {
-				mVelocity.v.zero();
+		if(mPosition.v.z < 2.44f) {
+			/* TODO: currently the ball goes through the goal "ceiling".
+			 * Add a check that removes ball Z velocity if the ceiling is hit. */
+			if(mPosition.v.y > mMatch->getPitchHeight() * 0.5f || mPosition.v.y < -mMatch->getPitchHeight() * 0.5f) {
+				if(outsideBefore1 != outsideAfter1 || outsideBefore2 != outsideAfter2) {
+					mVelocity.v.zero();
+				}
 			}
-		}
-		else if(mPosition.v.y > mMatch->getPitchHeight() * 0.5f - 0.5f ||
-				mPosition.v.y < -mMatch->getPitchHeight() * 0.5f + 0.5f) {
-			if(fabs(mPosition.v.x) < 3.69f && fabs(mPosition.v.x) > 3.63f) {
-				// post
-				mVelocity.v.y = -mVelocity.v.y;
-				mVelocity.v *= 0.8f;
+			else if(mPosition.v.y > mMatch->getPitchHeight() * 0.5f - 0.5f ||
+					mPosition.v.y < -mMatch->getPitchHeight() * 0.5f + 0.5f) {
+				if((fabs(mPosition.v.x) < 3.69f && fabs(mPosition.v.x) > 3.63f) ||
+					       (mPosition.v.z < 2.47f && mPosition.v.z > 2.41f)) {
+					// post/bar
+					mVelocity.v.y = -mVelocity.v.y;
+					mVelocity.v *= 0.9f;
+				}
 			}
 		}
 	}
@@ -91,6 +110,8 @@ void Ball::grab(Player* p)
 	mAcceleration = AbsVector3();
 	mVelocity = AbsVector3();
 	mGrabber = p;
+	mPosition = mGrabber->getPosition();
+	mPosition.v.z = 0.10f;
 }
 
 const Player* Ball::getGrabber() const

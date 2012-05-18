@@ -44,7 +44,7 @@ const RelVector3& Player::getHomePosition() const
 
 void Player::setHomePosition(const RelVector3& p)
 {
-	printf("Set home position to %3.2f, %3.2f\n", p.v.x, p.v.y);
+	// printf("Set home position to %3.2f, %3.2f\n", p.v.x, p.v.y);
 	mHomePosition = p;
 }
 
@@ -65,7 +65,7 @@ double Player::getRunSpeed() const
 
 double Player::getMaximumKickPower() const
 {
-	return 40.0f * ((1.0f + mSkills.KickPower) * 0.5f);
+	return 30.0f + 10.0f * mSkills.KickPower;
 }
 
 void Player::setController(PlayerController* c)
@@ -99,6 +99,12 @@ void Player::update(float time)
 	if(mVelocity.v.length() > getRunSpeed()) {
 		mVelocity.v.normalize();
 		mVelocity.v *= getRunSpeed();
+	}
+	if(mPosition.v.z < 0.05f) {
+		mPosition.v.z = 0.0f;
+	}
+	else {
+		mVelocity.v.z -= 9.81f * time;
 	}
 	mBallKickedTimer.doCountdown(time);
 	mBallKickedTimer.check();

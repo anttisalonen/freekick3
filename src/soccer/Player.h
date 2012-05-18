@@ -35,7 +35,7 @@ class Player {
 	protected:
 		int mId;
 		std::string mName;
-		PlayerPosition mPosition;
+		PlayerPosition mPlayerPosition;
 		PlayerSkills mSkills;
 };
 

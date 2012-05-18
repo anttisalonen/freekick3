@@ -6,14 +6,14 @@ Player::Player(int id, const char* name, PlayerPosition pos,
 		const PlayerSkills& skills)
 	: mId(id),
 	mName(name),
-	mPosition(pos),
+	mPlayerPosition(pos),
 	mSkills(skills)
 {
 }
 
 bool Player::isGoalkeeper() const
 {
-	return mPosition == PlayerPosition::Goalkeeper;
+	return mPlayerPosition == PlayerPosition::Goalkeeper;
 }
 
 const PlayerSkills& Player::getSkills() const
@@ -23,7 +23,7 @@ const PlayerSkills& Player::getSkills() const
 
 PlayerPosition Player::getPlayerPosition() const
 {
-	return mPosition;
+	return mPlayerPosition;
 }
 
 const std::string& Player::getName() const

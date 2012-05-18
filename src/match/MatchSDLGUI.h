@@ -100,8 +100,10 @@ class MatchSDLGUI : public MatchGUI, public PlayerController {
 		SDL_Surface* mScreen;
 		std::shared_ptr<Common::Texture> mPlayerTextureHome;
 		std::shared_ptr<Common::Texture> mPlayerTextureAway;
+		std::shared_ptr<Common::Texture> mPlayerShadowTexture;
 		std::shared_ptr<Common::Texture> mPitchTexture;
 		std::shared_ptr<Common::Texture> mBallTexture;
+		std::shared_ptr<Common::Texture> mBallShadowTexture;
 		std::shared_ptr<Common::Texture> mGoal1Texture;
 		float mScaleLevel;
 		float mScaleLevelVelocity;

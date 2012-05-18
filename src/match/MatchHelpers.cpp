@@ -113,6 +113,7 @@ AbsVector3 MatchHelpers::oppositeGoalPosition(const Team& t)
 bool MatchHelpers::canKickBall(const Player& p)
 {
 	return p.canKickBall() && allowedToKick(p) &&
+		p.getMatch()->getBall()->getPosition().v.z < 1.0f &&
 		MatchEntity::distanceBetween(p, *p.getMatch()->getBall()) <= MAX_KICK_DISTANCE;
 }
 

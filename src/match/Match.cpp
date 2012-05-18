@@ -224,7 +224,6 @@ int Match::kickBall(Player* p, const AbsVector3& v)
 			Vector3 pt = (mBall->getPosition().v + v.v) - p->getPosition().v;
 			if(pt.dot(pb) < 0.0f) {
 				failpoints += 2;
-				std::cout << "Ball difficultly positioned.\n";
 			}
 		}
 
@@ -245,7 +244,14 @@ int Match::kickBall(Player* p, const AbsVector3& v)
 
 double Match::getRollInertiaFactor() const
 {
+	// higher makes ball slower
 	return 0.97;
+}
+
+double Match::getAirViscosityFactor() const
+{
+	// higher makes ball slower
+	return 0.7;
 }
 
 void Match::addGoal(bool forFirst)

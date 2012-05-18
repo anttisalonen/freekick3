@@ -63,6 +63,7 @@ class Match : public Soccer::Match {
 		float getPitchHeight() const;
 		int kickBall(Player* p, const AbsVector3& v);
 		double getRollInertiaFactor() const;
+		double getAirViscosityFactor() const;
 		void addGoal(bool forFirst);
 		int getScore(bool first) const;
 		bool grabBall(Player* p);
