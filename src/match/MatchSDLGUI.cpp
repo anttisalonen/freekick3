@@ -743,10 +743,10 @@ void MatchSDLGUI::setupPitchLines()
 	mPitchLines.push_back(penaltybox);
 
 	std::vector<LineCoord> gkbox;
-	gkbox.push_back(LineCoord(-8.16f, -pheight * 0.5f));
-	gkbox.push_back(LineCoord(-8.16f, 5.5f - pheight * 0.5f));
-	gkbox.push_back(LineCoord(8.16f, 5.5f - pheight * 0.5f));
-	gkbox.push_back(LineCoord(8.16f, -pheight * 0.5f));
+	gkbox.push_back(LineCoord(-9.16f, -pheight * 0.5f));
+	gkbox.push_back(LineCoord(-9.16f, 5.5f - pheight * 0.5f));
+	gkbox.push_back(LineCoord(9.16f, 5.5f - pheight * 0.5f));
+	gkbox.push_back(LineCoord(9.16f, -pheight * 0.5f));
 	mPitchLines.push_back(gkbox);
 
 	for(auto& l : gkbox)
