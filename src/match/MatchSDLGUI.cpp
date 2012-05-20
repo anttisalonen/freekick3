@@ -31,7 +31,7 @@ static const float playerHeight = 1.0f;
 static const float textHeight = 5.0f;
 
 MatchSDLGUI::MatchSDLGUI(std::shared_ptr<Match> match, bool observer, int teamnum, int playernum,
-		int ticksPerSec)
+		int ticksPerSec, bool debug)
 	: MatchGUI(match),
 	PlayerController(mMatch->getPlayer(0, 9)),
 	mScaleLevel(15.0f),
@@ -62,8 +62,10 @@ MatchSDLGUI::MatchSDLGUI(std::shared_ptr<Match> match, bool observer, int teamnu
 				9 : mControlledPlayerIndex));
 	setPlayerController(0.0f);
 
-	if(mObserver) {
-		mFreeCamera = true;
+	if(debug) {
+		if(mObserver) {
+			mFreeCamera = true;
+		}
 		mDebugDisplay = 2;
 	}
 
