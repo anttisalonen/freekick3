@@ -17,13 +17,12 @@ Ball::Ball(Match* match)
 void Ball::update(float time)
 {
 	if(!mGrabbed) {
-		static const float netRadius = 0.2f;
-		bool outsideBefore1 = mPosition.v.x < -GOAL_WIDTH_2 - netRadius;
-		bool outsideBefore2 = mPosition.v.x > GOAL_WIDTH_2 + netRadius;
+		bool outsideBefore1 = mPosition.v.x < -GOAL_WIDTH_2 - GOAL_NET_RADIUS;
+		bool outsideBefore2 = mPosition.v.x > GOAL_WIDTH_2 + GOAL_NET_RADIUS;
 		bool outsideBefore3 = mPosition.v.z > GOAL_HEIGHT;
 		MatchEntity::update(time);
-		bool outsideAfter1 = mPosition.v.x < -GOAL_WIDTH_2 - netRadius;
-		bool outsideAfter2 = mPosition.v.x > GOAL_WIDTH_2 + netRadius;
+		bool outsideAfter1 = mPosition.v.x < -GOAL_WIDTH_2 - GOAL_NET_RADIUS;
+		bool outsideAfter2 = mPosition.v.x > GOAL_WIDTH_2 + GOAL_NET_RADIUS;
 		bool outsideAfter3 = mPosition.v.z > GOAL_HEIGHT;
 
 		if(mVelocity.v.length() > 2.0f &&
@@ -53,13 +52,12 @@ void Ball::update(float time)
 		}
 
 		{
-			static const float postRadius = 0.4f;
-			static_assert(postRadius > netRadius, "Post radius must be more than net radius.");
-			bool xOnPost = fabs(mPosition.v.x - GOAL_WIDTH_2) < postRadius;
-			bool yOnPost = fabs(mPosition.v.y - mMatch->getPitchHeight() * 0.5f) < postRadius;
-			bool zOnPost = fabs(mPosition.v.z - GOAL_HEIGHT) < postRadius;
-			if((xOnPost && yOnPost && mPosition.v.z < GOAL_HEIGHT + postRadius) ||
-					(yOnPost && zOnPost && mPosition.v.x < GOAL_WIDTH_2 + postRadius)) {
+			static_assert(GOAL_POST_RADIUS > GOAL_NET_RADIUS, "Post radius must be more than net radius.");
+			bool xOnPost = fabs(mPosition.v.x - GOAL_WIDTH_2) < GOAL_POST_RADIUS;
+			bool yOnPost = fabs(mPosition.v.y - mMatch->getPitchHeight() * 0.5f) < GOAL_POST_RADIUS;
+			bool zOnPost = fabs(mPosition.v.z - GOAL_HEIGHT) < GOAL_POST_RADIUS;
+			if((xOnPost && yOnPost && mPosition.v.z < GOAL_HEIGHT + GOAL_POST_RADIUS) ||
+					(yOnPost && zOnPost && mPosition.v.x < GOAL_WIDTH_2 + GOAL_POST_RADIUS)) {
 				// post/bar
 				mVelocity.v.y = -mVelocity.v.y;
 				mVelocity.v *= 0.9f;

@@ -40,8 +40,11 @@ std::shared_ptr<RefereeAction> Referee::act(double time)
 				if(mMatch->getPlayState() == PlayState::InPlay) {
 					if(!mWaitForResumeClock.running()) {
 						if(!onPitch(*mMatch->getBall())) {
-							mOutOfPlayClock.rewind();
-							return setOutOfPlay();
+							std::shared_ptr<RefereeAction> act = setOutOfPlay();
+							if(act) {
+								mOutOfPlayClock.rewind();
+								return act;
+							}
 						}
 					}
 					else {
@@ -118,11 +121,15 @@ std::shared_ptr<RefereeAction> Referee::setOutOfPlay()
 {
 	mFirstTeamInControl = !mFirstTeamInControl;
 	RelVector3 bp(mMatch->convertAbsoluteToRelativeVector(mMatch->getBall()->getPosition()));
-	if(bp.v.x < -1.0f || bp.v.x > 1.0f) {
+	RelVector3 br(mMatch->convertAbsoluteToRelativeVector(AbsVector3(BALL_RADIUS, BALL_RADIUS, BALL_RADIUS)));
+	if(fabs(bp.v.x + br.v.x) > 1.0f) {
 		mRestartPosition = mMatch->getBall()->getPosition();
+		mRestartPosition.v.x = mMatch->getPitchWidth() * 0.5f;
+		if(bp.v.x < 0.0f)
+			mRestartPosition.v.x = -mRestartPosition.v.x;
 		return std::shared_ptr<RefereeAction>(new ChangePlayStateRA(PlayState::OutThrowin));
 	}
-	if(bp.v.y < -1.0f || bp.v.y > 1.0f) {
+	if(fabs(bp.v.y + br.v.y) > 1.0f) {
 		if(fabs(mMatch->getBall()->getPosition().v.x) < GOAL_WIDTH_2 &&
 				mMatch->getBall()->getPosition().v.z < GOAL_HEIGHT) {
 			// goal
@@ -161,7 +168,7 @@ std::shared_ptr<RefereeAction> Referee::setOutOfPlay()
 			return std::shared_ptr<RefereeAction>(new ChangePlayStateRA(PlayState::OutGoalkick));
 		}
 	}
-	throw std::runtime_error("Setting out of play even when the ball is in play");
+	return nullptr;
 }
 
 bool Referee::isFirstTeamInControl() const
