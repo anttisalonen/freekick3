@@ -17,11 +17,14 @@ Ball::Ball(Match* match)
 void Ball::update(float time)
 {
 	if(!mGrabbed) {
-		bool outsideBefore1 = mPosition.v.x < -3.96f;
-		bool outsideBefore2 = mPosition.v.x > 3.96f;
+		static const float netRadius = 0.2f;
+		bool outsideBefore1 = mPosition.v.x < -GOAL_WIDTH_2 - netRadius;
+		bool outsideBefore2 = mPosition.v.x > GOAL_WIDTH_2 + netRadius;
+		bool outsideBefore3 = mPosition.v.z > GOAL_HEIGHT;
 		MatchEntity::update(time);
-		bool outsideAfter1 = mPosition.v.x < -3.36f;
-		bool outsideAfter2 = mPosition.v.x > 3.36f;
+		bool outsideAfter1 = mPosition.v.x < -GOAL_WIDTH_2 - netRadius;
+		bool outsideAfter2 = mPosition.v.x > GOAL_WIDTH_2 + netRadius;
+		bool outsideAfter3 = mPosition.v.z > GOAL_HEIGHT;
 
 		if(mVelocity.v.length() > 2.0f &&
 				(mPosition.v - mCollisionFreePoint.v).length() > collisionIgnoreDistance) {
@@ -37,6 +40,7 @@ void Ball::update(float time)
 
 			if(mVelocity.v.z < -0.1f) {
 				// bounciness
+				/* TODO: this constant should be a pitch/match property. */
 				mVelocity.v.z *= -0.65f;
 			}
 			else {
@@ -48,26 +52,36 @@ void Ball::update(float time)
 			mVelocity.v.z -= 9.81f * time;
 		}
 
-		// net
-		mPosition.v.y = clamp(-mMatch->getPitchHeight() * 0.5f - 3.0f,
-				mPosition.v.y,
-				mMatch->getPitchHeight() * 0.5f + 3.0f);
-		if(mPosition.v.z < 2.44f) {
-			/* TODO: currently the ball goes through the goal "ceiling".
-			 * Add a check that removes ball Z velocity if the ceiling is hit. */
-			if(mPosition.v.y > mMatch->getPitchHeight() * 0.5f || mPosition.v.y < -mMatch->getPitchHeight() * 0.5f) {
-				if(outsideBefore1 != outsideAfter1 || outsideBefore2 != outsideAfter2) {
-					mVelocity.v.x = 0.0f;
-				}
+		{
+			static const float postRadius = 0.4f;
+			static_assert(postRadius > netRadius, "Post radius must be more than net radius.");
+			bool xOnPost = fabs(mPosition.v.x - GOAL_WIDTH_2) < postRadius;
+			bool yOnPost = fabs(mPosition.v.y - mMatch->getPitchHeight() * 0.5f) < postRadius;
+			bool zOnPost = fabs(mPosition.v.z - GOAL_HEIGHT) < postRadius;
+			if((xOnPost && yOnPost && mPosition.v.z < GOAL_HEIGHT + postRadius) ||
+					(yOnPost && zOnPost && mPosition.v.x < GOAL_WIDTH_2 + postRadius)) {
+				// post/bar
+				mVelocity.v.y = -mVelocity.v.y;
+				mVelocity.v *= 0.9f;
 			}
-			else if(mPosition.v.y > mMatch->getPitchHeight() * 0.5f - 0.5f ||
-					mPosition.v.y < -mMatch->getPitchHeight() * 0.5f + 0.5f) {
-				if((fabs(mPosition.v.x) < GOAL_WIDTH_2 + 0.03f &&
-							fabs(mPosition.v.x) > GOAL_WIDTH_2 - 0.03f) ||
-					       (mPosition.v.z < GOAL_HEIGHT + 0.03f && mPosition.v.z > GOAL_HEIGHT - 0.03f)) {
-					// post/bar
-					mVelocity.v.y = -mVelocity.v.y;
-					mVelocity.v *= 0.9f;
+			else {
+				// net
+				mPosition.v.y = clamp(-mMatch->getPitchHeight() * 0.5f - 3.0f,
+						mPosition.v.y,
+						mMatch->getPitchHeight() * 0.5f + 3.0f);
+				if(mPosition.v.y > mMatch->getPitchHeight() * 0.5f ||
+						mPosition.v.y < -mMatch->getPitchHeight() * 0.5f) {
+					/* check for ball hitting the net */
+					if(outsideBefore1 != outsideAfter1 || outsideBefore2 != outsideAfter2) {
+						mVelocity.v.x = 0.0f;
+					}
+					if(outsideBefore3 != outsideAfter3) {
+						mVelocity.v.z = 0.0f;
+						if(outsideBefore3) {
+							/* keep ball on top of goal */
+							mPosition.v.z = GOAL_HEIGHT + 0.01f;
+						}
+					}
 				}
 			}
 		}
