@@ -123,6 +123,7 @@ AIShootAction::AIShootAction(const Player* p)
 			}
 		}
 		if(thisscore > maxscore) {
+			thistgt.v.z = (thistgt.v - p->getPosition().v).length() * 0.05f;
 			maxscore = thisscore;
 			tgt = thistgt;
 		}
