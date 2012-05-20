@@ -89,16 +89,16 @@ AIShootAction::AIShootAction(const Player* p)
 		return;
 	}
 
+	AbsVector3 vec(MatchHelpers::oppositePenaltySpotPosition(*p));
+	vec.v -= p->getPosition().v;
+
 	if((p->getPosition().v - shoottarget.v).length() < 6.0f) {
 		mScore = 1.0f;
 		mAction = std::shared_ptr<PlayerAction>(new KickBallPA(shoottarget, nullptr, true));
 		return;
 	}
 
-	AbsVector3 vec(MatchHelpers::oppositePenaltySpotPosition(*p));
-	vec.v -= p->getPosition().v;
-
-	float defscore = std::max(0.0f, 1.0f - vec.v.length() * 0.03f);
+	float defscore = std::max(0.0f, 1.0f - vec.v.length() * 0.02f);
 	float maxscore = -1.0f;
 	const float maxOppDist = 2.0f;
 
@@ -115,7 +115,7 @@ AIShootAction::AIShootAction(const Player* p)
 					thistgt.v,
 					op->getPosition().v);
 			if(dist < maxOppDist) {
-				thisscore -= 0.2f * ((maxOppDist - dist) / maxOppDist);
+				thisscore -= 0.05f * ((maxOppDist - dist) / maxOppDist);
 				if(thisscore <= 0.0) {
 					thisscore = 0.0f;
 					break;
@@ -187,13 +187,13 @@ AIPassAction::AIPassAction(const Player* p)
 	mAction = std::shared_ptr<PlayerAction>(new KickBallPA(MatchHelpers::oppositeGoalPosition(*p),
 				nullptr, true));
 	for(auto sp : MatchHelpers::getOwnPlayers(*p)) {
-		if(&*sp == p) {
+		if(sp.get() == p) {
 			continue;
 		}
 		double dist = MatchEntity::distanceBetween(*p, *sp);
 		if(dist < 5.0)
 			continue;
-		if(dist > 50.0)
+		if(dist > 35.0)
 			continue;
 
 		double thisscore = 1.0f;
@@ -235,6 +235,44 @@ AIPassAction::AIPassAction(const Player* p)
 }
 
 const char* AIPassAction::mActionName = "Pass";
+
+AILongPassAction::AILongPassAction(const Player* p)
+	: AIAction(mActionName, p)
+{
+	mScore = -1.0;
+	AbsVector3 tgt;
+	Player* tgtPlayer = nullptr;
+	mAction = std::shared_ptr<PlayerAction>(new KickBallPA(MatchHelpers::oppositeGoalPosition(*p),
+				nullptr, true));
+
+	float myshotscore = mPlayer->getTeam()->getShotScoreAt(p->getPosition());
+	float mypassscore = mPlayer->getTeam()->getPassScoreAt(p->getPosition());
+
+	for(auto sp : MatchHelpers::getOwnPlayers(*p)) {
+		if(sp.get() == p) {
+			continue;
+		}
+		double dist = MatchEntity::distanceBetween(*p, *sp);
+		if(dist < 15.0)
+			continue;
+
+		double thisscore = std::max(mPlayer->getTeam()->getShotScoreAt(sp->getPosition()) - myshotscore,
+				mPlayer->getTeam()->getPassScoreAt(sp->getPosition()) - mypassscore);
+
+		if(thisscore > mScore) {
+			mScore = thisscore;
+			tgt = AIHelpers::getPassKickVector(*mPlayer, *sp);
+			tgtPlayer = sp.get();
+		}
+	}
+	if(mScore >= -1.0f) {
+		tgt.v.z += tgt.v.length() * 0.3f;
+		tgt.v *= 0.7f;
+		mAction = std::shared_ptr<PlayerAction>(new KickBallPA(tgt, tgtPlayer));
+	}
+}
+
+const char* AILongPassAction::mActionName = "Long Pass";
 
 AIFetchBallAction::AIFetchBallAction(const Player* p)
 	: AIAction(mActionName, p)

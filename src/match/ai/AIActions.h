@@ -56,6 +56,12 @@ class AIPassAction : public AIAction {
 		static const char* mActionName;
 };
 
+class AILongPassAction : public AIAction {
+	public:
+		AILongPassAction(const Player* p);
+		static const char* mActionName;
+};
+
 class AIFetchBallAction : public AIAction {
 	public:
 		AIFetchBallAction(const Player* p);
