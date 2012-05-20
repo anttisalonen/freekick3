@@ -70,7 +70,8 @@ TextTexture::TextTexture(std::shared_ptr<Common::Texture> t, unsigned int w, uns
 
 class MatchSDLGUI : public MatchGUI, public PlayerController {
 	public:
-		MatchSDLGUI(std::shared_ptr<Match> match, bool observer, int teamnum, int playernum);
+		MatchSDLGUI(std::shared_ptr<Match> match, bool observer, int teamnum, int playernum,
+				int ticksPerSec);
 		~MatchSDLGUI();
 		bool play();
 		std::shared_ptr<PlayerAction> act(double time);
@@ -124,6 +125,7 @@ class MatchSDLGUI : public MatchGUI, public PlayerController {
 		Countdown mPlayerSwitchTimer;
 		bool mPaused;
 		int mDebugDisplay;
+		float mFixedFrameTime;
 };
 
 #endif

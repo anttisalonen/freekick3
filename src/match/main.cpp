@@ -11,7 +11,7 @@
 int main(int argc, char** argv)
 {
 	if(argc < 2) {
-		printf("Usage: %s <path to match data file> [-o] [-t team] [-p player]\n",
+		printf("Usage: %s <path to match data file> [-o] [-t team] [-p player] [-f FPS]\n",
 				argv[0]);
 		exit(1);
 	}
@@ -19,6 +19,7 @@ int main(int argc, char** argv)
 	bool observer = false;
 	int teamnum = 1;
 	int playernum = 0;
+	int ticksPerSec = 0;
 
 	for(int i = 2; i < argc; i++) {
 		if(!strcmp(argv[i], "-o")) {
@@ -50,11 +51,20 @@ int main(int argc, char** argv)
 			}
 			teamnum = num;
 		}
+		else if(!strcmp(argv[i], "-f")) {
+			i++;
+			if(i >= argc) {
+				printf("-f requires a numeric argument.\n");
+				exit(1);
+			}
+			ticksPerSec = atoi(argv[i]);
+		}
 	}
 	try {
 		std::shared_ptr<Soccer::Match> matchdata = Soccer::DataExchange::parseMatchDataFile(argv[1]);
 		std::shared_ptr<Match> match(new Match(*matchdata));
-		std::unique_ptr<MatchSDLGUI> matchGUI(new MatchSDLGUI(match, observer, teamnum, playernum));
+		std::unique_ptr<MatchSDLGUI> matchGUI(new MatchSDLGUI(match, observer, teamnum, playernum,
+					ticksPerSec));
 		if(matchGUI->play()) {
 			// finished match
 			printf("Final score: %d - %d\n", match->getResult().HomeGoals,

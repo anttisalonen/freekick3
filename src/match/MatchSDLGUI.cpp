@@ -30,7 +30,8 @@ static const float playerShadowHeight = 0.95f;
 static const float playerHeight = 1.0f;
 static const float textHeight = 5.0f;
 
-MatchSDLGUI::MatchSDLGUI(std::shared_ptr<Match> match, bool observer, int teamnum, int playernum)
+MatchSDLGUI::MatchSDLGUI(std::shared_ptr<Match> match, bool observer, int teamnum, int playernum,
+		int ticksPerSec)
 	: MatchGUI(match),
 	PlayerController(mMatch->getPlayer(0, 9)),
 	mScaleLevel(15.0f),
@@ -46,7 +47,8 @@ MatchSDLGUI::MatchSDLGUI(std::shared_ptr<Match> match, bool observer, int teamnu
 	mControlledTeamIndex(teamnum - 1),
 	mPlayerSwitchTimer(0.2f),
 	mPaused(false),
-	mDebugDisplay(0)
+	mDebugDisplay(0),
+	mFixedFrameTime(0.0f)
 {
 	mScreen = SDL_utils::initSDL(screenWidth, screenHeight);
 
@@ -63,6 +65,10 @@ MatchSDLGUI::MatchSDLGUI(std::shared_ptr<Match> match, bool observer, int teamnu
 	if(mObserver) {
 		mFreeCamera = true;
 		mDebugDisplay = 2;
+	}
+
+	if(ticksPerSec) {
+		mFixedFrameTime = 1.0f / ticksPerSec;
 	}
 }
 
@@ -88,7 +94,7 @@ bool MatchSDLGUI::play()
 	double prevTime = Clock::getTime();
 	while(1) {
 		double newTime = Clock::getTime();
-		double frameTime = newTime - prevTime;
+		double frameTime = mFixedFrameTime ? mFixedFrameTime : newTime - prevTime;
 		prevTime = newTime;
 
 		if(!mPaused) {
