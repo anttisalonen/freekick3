@@ -88,6 +88,11 @@ AIShootAction::AIShootAction(const Player* p)
 		return;
 	}
 
+	if((p->getPosition().v - shoottarget.v).length() < 6.0f) {
+		mScore = 1.0f;
+		return;
+	}
+
 	AbsVector3 vec(MatchHelpers::oppositePenaltySpotPosition(*p));
 	vec.v -= p->getPosition().v;
 
@@ -116,14 +121,15 @@ AIDribbleAction::AIDribbleAction(const Player* p)
 	float bestscore = -1.0f;
 	AbsVector3 bestvec;
 	std::vector<AbsVector3> tgtvectors;
+	const float dribblelen = 4.0f;
 	for(int i = 0; i < 12; i++) {
 		AbsVector3 vec;
-		vec.v.x = 0.30f * sin(i * 2 * PI / 12.0f);
-		vec.v.y = 0.30f * cos(i * 2 * PI / 12.0f);
+		vec.v.x = dribblelen * sin(i * 2 * PI / 12.0f);
+		vec.v.y = dribblelen * cos(i * 2 * PI / 12.0f);
 		tgtvectors.push_back(vec);
 	}
 	for(auto vec : tgtvectors) {
-		if(!MatchHelpers::onPitch(*p->getMatch(), AbsVector3(p->getPosition().v + vec.v * 30.0f)))
+		if(!MatchHelpers::onPitch(*p->getMatch(), AbsVector3(p->getPosition().v + vec.v.normalized() * 9.0f)))
 			continue;
 		float thisscore = 1.0f;
 		for(auto op : MatchHelpers::getOpposingPlayers(*p)) {
@@ -138,12 +144,12 @@ AIDribbleAction::AIDribbleAction(const Player* p)
 			}
 		}
 		if(MatchHelpers::attacksUp(*p))
-			thisscore = thisscore * ((vec.v.y + 0.3f) / 0.6f);
+			thisscore = thisscore * ((vec.v.y + dribblelen) / (2.0f * dribblelen));
 		else
-			thisscore = thisscore * ((vec.v.y - 0.3f) / -0.6f);
+			thisscore = thisscore * ((vec.v.y - dribblelen) / (2.0f * dribblelen));
 		if(thisscore > bestscore) {
 			bestscore = thisscore;
-			bestvec = vec;
+			bestvec = AbsVector3(vec.v.normalized() * 0.3f);
 		}
 	}
 	mScore = bestscore;

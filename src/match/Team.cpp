@@ -167,8 +167,11 @@ void Team::updateSupportingPositions()
 	std::vector<std::shared_ptr<Player>> offensivePlayers;
 	Vector3 oppgoal = MatchHelpers::oppositeGoalPosition(*this).v;
 	for(auto pl : mPlayers) {
-		if((pl->getPosition().v - oppgoal).length() < 50.0f)
+		float len = (pl->getPosition().v - oppgoal).length();
+		if((len < 50.0f && pl->getPlayerPosition() == Soccer::PlayerPosition::Forward) ||
+			len < 30.0f) {
 			offensivePlayers.push_back(pl);
+		}
 	}
 
 	for(unsigned int j = 0; j < mSupportingPositions.size(); j++) {
@@ -239,7 +242,7 @@ float Team::calculatePassScoreAt(const std::vector<std::shared_ptr<Player>>& off
 
 	for(auto op : offensivePlayers) {
 		float distToPl = (pos.v - op->getPosition().v).length();
-		const float optimumDist = 30.0f;
+		const float optimumDist = 20.0f;
 		pts += AIHelpers::linearScale(distToPl, optimumDist);
 	}
 	pts = clamp(0.0f, pts, 1.0f);
