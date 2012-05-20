@@ -123,8 +123,8 @@ std::shared_ptr<RefereeAction> Referee::setOutOfPlay()
 		return std::shared_ptr<RefereeAction>(new ChangePlayStateRA(PlayState::OutThrowin));
 	}
 	if(bp.v.y < -1.0f || bp.v.y > 1.0f) {
-		if(fabs(mMatch->getBall()->getPosition().v.x) < 3.66f &&
-				mMatch->getBall()->getPosition().v.z < 2.44f) {
+		if(fabs(mMatch->getBall()->getPosition().v.x) < GOAL_WIDTH_2 &&
+				mMatch->getBall()->getPosition().v.z < GOAL_HEIGHT) {
 			// goal
 			mRestartPosition.v.x = 0.0f;
 			mRestartPosition.v.y = 0.0f;

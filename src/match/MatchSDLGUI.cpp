@@ -761,12 +761,12 @@ void MatchSDLGUI::drawGoals()
 	drawSprite(*mGoal1Texture, Rectangle((-mCamera.x - goalWidth2) * mScaleLevel + screenWidth * 0.5f,
 				(-mCamera.y + pheight * 0.5f - 0.1f) * mScaleLevel + screenHeight * 0.5f,
 				mScaleLevel * goalWidth2 * 2.0f,
-				mScaleLevel * 3.66f),
+				mScaleLevel * GOAL_WIDTH_2),
 			Rectangle(0, 1, 1, -1), goalHeight);
 	drawSprite(*mGoal1Texture, Rectangle((-mCamera.x - goalWidth2) * mScaleLevel + screenWidth * 0.5f,
 				(-mCamera.y - pheight * 0.5f + 0.1f) * mScaleLevel + screenHeight * 0.5f,
 				mScaleLevel * goalWidth2 * 2.0f,
-				mScaleLevel * -3.66f),
+				mScaleLevel * -GOAL_WIDTH_2),
 			Rectangle(0, 1, 1, -1), goalHeight);
 }
 

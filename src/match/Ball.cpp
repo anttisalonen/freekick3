@@ -62,8 +62,9 @@ void Ball::update(float time)
 			}
 			else if(mPosition.v.y > mMatch->getPitchHeight() * 0.5f - 0.5f ||
 					mPosition.v.y < -mMatch->getPitchHeight() * 0.5f + 0.5f) {
-				if((fabs(mPosition.v.x) < 3.69f && fabs(mPosition.v.x) > 3.63f) ||
-					       (mPosition.v.z < 2.47f && mPosition.v.z > 2.41f)) {
+				if((fabs(mPosition.v.x) < GOAL_WIDTH_2 + 0.03f &&
+							fabs(mPosition.v.x) > GOAL_WIDTH_2 - 0.03f) ||
+					       (mPosition.v.z < GOAL_HEIGHT + 0.03f && mPosition.v.z > GOAL_HEIGHT - 0.03f)) {
 					// post/bar
 					mVelocity.v.y = -mVelocity.v.y;
 					mVelocity.v *= 0.9f;
