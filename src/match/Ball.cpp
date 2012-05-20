@@ -57,7 +57,7 @@ void Ball::update(float time)
 			 * Add a check that removes ball Z velocity if the ceiling is hit. */
 			if(mPosition.v.y > mMatch->getPitchHeight() * 0.5f || mPosition.v.y < -mMatch->getPitchHeight() * 0.5f) {
 				if(outsideBefore1 != outsideAfter1 || outsideBefore2 != outsideAfter2) {
-					mVelocity.v.zero();
+					mVelocity.v.x = 0.0f;
 				}
 			}
 			else if(mPosition.v.y > mMatch->getPitchHeight() * 0.5f - 0.5f ||
