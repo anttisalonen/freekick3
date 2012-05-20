@@ -119,7 +119,6 @@ bool Referee::ballKicked(const Player& p, const AbsVector3& vel)
 
 std::shared_ptr<RefereeAction> Referee::setOutOfPlay()
 {
-	mFirstTeamInControl = !mFirstTeamInControl;
 	RelVector3 bp(mMatch->convertAbsoluteToRelativeVector(mMatch->getBall()->getPosition()));
 	RelVector3 br(mMatch->convertAbsoluteToRelativeVector(AbsVector3(BALL_RADIUS, BALL_RADIUS, BALL_RADIUS)));
 	if(fabs(bp.v.x + br.v.x) > 1.0f) {
@@ -127,6 +126,7 @@ std::shared_ptr<RefereeAction> Referee::setOutOfPlay()
 		mRestartPosition.v.x = mMatch->getPitchWidth() * 0.5f;
 		if(bp.v.x < 0.0f)
 			mRestartPosition.v.x = -mRestartPosition.v.x;
+		mFirstTeamInControl = !mFirstTeamInControl;
 		return std::shared_ptr<RefereeAction>(new ChangePlayStateRA(PlayState::OutThrowin));
 	}
 	if(fabs(bp.v.y + br.v.y) > 1.0f) {
@@ -146,14 +146,15 @@ std::shared_ptr<RefereeAction> Referee::setOutOfPlay()
 			mFirstTeamInControl = !firstscores;
 			return std::shared_ptr<RefereeAction>(new ChangePlayStateRA(PlayState::OutKickoff));
 		}
-		if((((bp.v.y < -1.0f) != mFirstTeamInControl) && (mMatch->getMatchHalf() == MatchHalf::FirstHalf)) ||
-		   (((bp.v.y < -1.0f) == mFirstTeamInControl) && (mMatch->getMatchHalf() == MatchHalf::SecondHalf))) {
+		if((((bp.v.y < 0.0f) == mFirstTeamInControl) && (mMatch->getMatchHalf() == MatchHalf::FirstHalf)) ||
+		   (((bp.v.y < 0.0f) != mFirstTeamInControl) && (mMatch->getMatchHalf() == MatchHalf::SecondHalf))) {
 			if(bp.v.x == 0.0f)
 				bp.v.x = 1.0f;
 			if(bp.v.y == 0.0f)
 				bp.v.y = 1.0f;
 			mRestartPosition.v.x = signum(bp.v.x) * mMatch->getPitchWidth() * 0.5f;
 			mRestartPosition.v.y = signum(bp.v.y) * mMatch->getPitchHeight() * 0.5f;
+			mFirstTeamInControl = !mFirstTeamInControl;
 			return std::shared_ptr<RefereeAction>(new ChangePlayStateRA(PlayState::OutCornerkick));
 		}
 		else {
@@ -165,6 +166,7 @@ std::shared_ptr<RefereeAction> Referee::setOutOfPlay()
 			if(bp.v.y < 0) {
 				mRestartPosition.v.y = -mRestartPosition.v.y;
 			}
+			mFirstTeamInControl = !mFirstTeamInControl;
 			return std::shared_ptr<RefereeAction>(new ChangePlayStateRA(PlayState::OutGoalkick));
 		}
 	}

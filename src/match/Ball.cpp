@@ -70,7 +70,8 @@ void Ball::update(float time)
 				if(mPosition.v.y > mMatch->getPitchHeight() * 0.5f ||
 						mPosition.v.y < -mMatch->getPitchHeight() * 0.5f) {
 					/* check for ball hitting the net */
-					if(outsideBefore1 != outsideAfter1 || outsideBefore2 != outsideAfter2) {
+					if(mPosition.v.z < (GOAL_HEIGHT + GOAL_NET_RADIUS) &&
+							(outsideBefore1 != outsideAfter1 || outsideBefore2 != outsideAfter2)) {
 						mVelocity.v.x = 0.0f;
 					}
 					if(outsideBefore3 != outsideAfter3) {
