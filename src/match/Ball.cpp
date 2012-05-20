@@ -17,12 +17,12 @@ Ball::Ball(Match* match)
 void Ball::update(float time)
 {
 	if(!mGrabbed) {
-		bool outsideBefore1 = mPosition.v.x < -GOAL_WIDTH_2 - GOAL_NET_RADIUS;
-		bool outsideBefore2 = mPosition.v.x > GOAL_WIDTH_2 + GOAL_NET_RADIUS;
+		bool outsideBefore1 = mPosition.v.x < -GOAL_WIDTH_2 + GOAL_NET_RADIUS;
+		bool outsideBefore2 = mPosition.v.x > GOAL_WIDTH_2 - GOAL_NET_RADIUS;
 		bool outsideBefore3 = mPosition.v.z > GOAL_HEIGHT;
 		MatchEntity::update(time);
-		bool outsideAfter1 = mPosition.v.x < -GOAL_WIDTH_2 - GOAL_NET_RADIUS;
-		bool outsideAfter2 = mPosition.v.x > GOAL_WIDTH_2 + GOAL_NET_RADIUS;
+		bool outsideAfter1 = mPosition.v.x < -GOAL_WIDTH_2 + GOAL_NET_RADIUS;
+		bool outsideAfter2 = mPosition.v.x > GOAL_WIDTH_2 - GOAL_NET_RADIUS;
 		bool outsideAfter3 = mPosition.v.z > GOAL_HEIGHT;
 
 		if(mVelocity.v.length() > 2.0f &&
@@ -61,6 +61,10 @@ void Ball::update(float time)
 				// post/bar
 				mVelocity.v.y = -mVelocity.v.y;
 				mVelocity.v *= 0.9f;
+
+				// keep ball on the pitch
+				mPosition.v.y = mPosition.v.y > 0.0f ?
+					mMatch->getPitchHeight() * 0.5f : -mMatch->getPitchHeight() * 0.5f;
 			}
 			else {
 				// net
@@ -73,6 +77,14 @@ void Ball::update(float time)
 					if(mPosition.v.z < (GOAL_HEIGHT + GOAL_NET_RADIUS) &&
 							(outsideBefore1 != outsideAfter1 || outsideBefore2 != outsideAfter2)) {
 						mVelocity.v.x = 0.0f;
+
+						// keep ball on the correct side of the net
+						if(outsideBefore1 != outsideAfter1) {
+							mPosition.v.x = -GOAL_WIDTH_2 - 0.1f;
+						}
+						else {
+							mPosition.v.x = GOAL_WIDTH_2 + 0.1f;
+						}
 					}
 					if(outsideBefore3 != outsideAfter3) {
 						mVelocity.v.z = 0.0f;
