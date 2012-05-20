@@ -21,13 +21,14 @@ std::shared_ptr<PlayerAction> AIOffensiveState::actNearBall(double time)
 
 std::shared_ptr<PlayerAction> AIOffensiveState::actOffBall(double time)
 {
-	if(!mPlayer->getTactics().mOffensive && !MatchHelpers::myTeamInControl(*mPlayer)) {
+	if(mPlayer->getPlayerPosition() != Soccer::PlayerPosition::Forward &&
+			!MatchHelpers::myTeamInControl(*mPlayer)) {
 		return mPlayController->switchState(std::shared_ptr<AIState>(new AIDefendState(mPlayer, mPlayController)), time);
 	}
 	else {
 		mDescription = std::string("Supporting");
 		return AIHelpers::createMoveActionTo(*mPlayer,
-				AIHelpers::getSupportingPosition(*mPlayer));
+				AIHelpers::getShotPosition(*mPlayer));
 	}
 }
 

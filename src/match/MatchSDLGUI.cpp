@@ -45,7 +45,8 @@ MatchSDLGUI::MatchSDLGUI(std::shared_ptr<Match> match, bool observer, int teamnu
 	mControlledPlayerIndex(playernum - 1),
 	mControlledTeamIndex(teamnum - 1),
 	mPlayerSwitchTimer(0.2f),
-	mPaused(false)
+	mPaused(false),
+	mDebugDisplay(0)
 {
 	mScreen = SDL_utils::initSDL(screenWidth, screenHeight);
 
@@ -58,6 +59,11 @@ MatchSDLGUI::MatchSDLGUI(std::shared_ptr<Match> match, bool observer, int teamnu
 	setPlayer(mMatch->getPlayer(mControlledTeamIndex, mControlledPlayerIndex == -1 ?
 				9 : mControlledPlayerIndex));
 	setPlayerController(0.0f);
+
+	if(mObserver) {
+		mFreeCamera = true;
+		mDebugDisplay = 2;
+	}
 }
 
 MatchSDLGUI::~MatchSDLGUI()
@@ -158,18 +164,27 @@ void MatchSDLGUI::drawEnvironment()
 	sprintf(timebuf, "%d min.", min);
 	drawText(10, screenHeight - 30, FontConfig(timebuf, Color(255, 255, 255), 1.5f), true, false);
 
-	const Team* t = mMatch->getTeam(1);
-	for(int j = -pheight * 0.5f + 8; j < pheight * 0.5 - 8; j += 8) {
-		for(int i = -pwidth * 0.5f + 8; i < pwidth * 0.5 - 8; i += 8) {
-			float score = t->getSupportingPositionScoreAt(AbsVector3(i, j, 0));
-			int iscore(score * 255.0f);
-			char buf[128];
-			sprintf(buf, "%d", iscore);
-			if(iscore < 0)
-				iscore = 0;
-			if(iscore > 255)
-				iscore = 255;
-			drawText(i, j, FontConfig(buf, Color(iscore, iscore, iscore), 0.1f), false, false);
+	if(mDebugDisplay > 1) {
+		const Team* t = mMatch->getTeam(mDebugDisplay == 2 ? 0 : 1);
+		for(int j = -pheight * 0.5f + 8; j < pheight * 0.5 - 8; j += 8) {
+			for(int i = -pwidth * 0.5f + 8; i < pwidth * 0.5 - 8; i += 8) {
+				float score1 = t->getShotScoreAt(AbsVector3(i, j, 0));
+				float score2 = t->getPassScoreAt(AbsVector3(i, j, 0));
+				glDisable(GL_TEXTURE_2D);
+				glPointSize(5.0f);
+				glBegin(GL_POINTS);
+				glColor3f(score1, 0.0f, 0.0f);
+				glVertex3f((-mCamera.x + i) * mScaleLevel + screenWidth * 0.5f - 3.0f,
+						(-mCamera.y + j) * mScaleLevel + screenHeight * 0.5f,
+						textHeight);
+				glColor3f(0.0f, 0.0f, score2);
+				glVertex3f((-mCamera.x + i) * mScaleLevel + screenWidth * 0.5f + 3.0f,
+						(-mCamera.y + j) * mScaleLevel + screenHeight * 0.5f,
+						textHeight);
+				glEnd();
+				glColor3f(1.0f, 1.0f, 1.0f);
+				glEnable(GL_TEXTURE_2D);
+			}
 		}
 	}
 
@@ -203,15 +218,20 @@ void MatchSDLGUI::drawPlayers()
 						mScaleLevel * 2.0f, mScaleLevel * 2.0f),
 					Rectangle(1, 1, -1, -1), playerHeight);
 
-			drawText(v.v.x, v.v.y,
-					FontConfig(pl->getAIController()->getDescription().c_str(),
-						Color(0, 0, 0), 0.05f), false, true);
-			char buf[128];
-			sprintf(buf, "%d", pl->getShirtNumber());
-			drawText(v.v.x, v.v.y + 2.0f,
-					FontConfig(buf, !mObserver && pl == mPlayer ?
-						Color(255, 255, 255) : Color(30, 30, 30), 0.05f),
+			if(mDebugDisplay > 0) {
+				drawText(v.v.x, v.v.y,
+						FontConfig(pl->getAIController()->getDescription().c_str(),
+							Color(0, 0, 0), 0.05f), false, true);
+			}
+
+			{
+				char buf[128];
+				sprintf(buf, "%d", pl->getShirtNumber());
+				drawText(v.v.x, v.v.y + 2.0f,
+						FontConfig(buf, !mObserver && pl == mPlayer ?
+							Color(255, 255, 255) : Color(30, 30, 30), 0.05f),
 						false, true);
+			}
 		}
 	}
 }
@@ -350,6 +370,12 @@ bool MatchSDLGUI::handleInput(float frameTime)
 					case SDLK_p:
 					case SDLK_PAUSE:
 						mPaused = !mPaused;
+						break;
+
+					case SDLK_v:
+						mDebugDisplay++;
+						if(mDebugDisplay > 3)
+							mDebugDisplay = 0;
 						break;
 
 					default:
@@ -656,7 +682,7 @@ void MatchSDLGUI::drawPitchLines()
 		glEnd();
 	}
 
-	// penalty spots|
+	// penalty spots
 	glPointSize(3.0f);
 	glBegin(GL_POINTS);
 	glVertex3f(-mCamera.x * mScaleLevel + addx,

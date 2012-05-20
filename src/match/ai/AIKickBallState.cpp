@@ -18,7 +18,7 @@ std::shared_ptr<PlayerAction> AIKickBallState::actOnBall(double time)
 	if(mPlayer->getMatch()->getPlayState() == PlayState::InPlay)
 		actions.push_back(std::shared_ptr<AIAction>(new AIDribbleAction(mPlayer)));
 
-	AIActionChooser actionchooser(actions);
+	AIActionChooser actionchooser(actions, false);
 
 	if(mPlayer->isGoalkeeper())
 		mPlayController->setNewState(std::shared_ptr<AIState>(new AIGoalkeeperState(mPlayer, mPlayController)));

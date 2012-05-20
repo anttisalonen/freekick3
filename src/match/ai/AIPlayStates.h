@@ -79,6 +79,14 @@ class AIOffensiveState : public AIState {
 		std::shared_ptr<PlayerAction> actOffBall(double time);
 };
 
+class AIMidfielderState : public AIState {
+	public:
+		AIMidfielderState(Player* p, AIPlayController* m);
+		std::shared_ptr<PlayerAction> actOnBall(double time);
+		std::shared_ptr<PlayerAction> actNearBall(double time);
+		std::shared_ptr<PlayerAction> actOffBall(double time);
+};
+
 
 #endif
 

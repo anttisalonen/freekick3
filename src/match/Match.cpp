@@ -15,14 +15,56 @@ Match::Match(const Soccer::Match& m)
 	mPlayState(PlayState::OutKickoff),
 	mPitch(Pitch(68.0f, 105.0f))
 {
-	static const int numPlayers = 11;
+	static const unsigned int numPlayers = 11;
 
 	mScore[0] = mScore[1] = 0;
 
+	/* TODO: add AI to decide which players should play -
+	 * it should probably be included in the match data. */
 	for(int j = 0; j < 2; j++) {
 		mTeams[j] = std::shared_ptr<Team>(new Team(this, *m.getTeam(j), j == 0));
-		for(int i = 0; i < numPlayers; i++) {
-			mTeams[j]->addPlayer(*m.getTeam(j)->getPlayer(i));
+		int gk = 0, df = 0, mf = 0, fw = 0;
+		int i = 0;
+		while(mTeams[j]->getNumPlayers() < numPlayers) {
+			std::shared_ptr<Soccer::Player> pl(m.getTeam(j)->getPlayer(i));
+			i++;
+			if(!pl)
+				break;
+
+			switch(pl->getPlayerPosition()) {
+				case Soccer::PlayerPosition::Goalkeeper:
+					if(gk < 1) {
+						mTeams[j]->addPlayer(*pl);
+						gk++;
+					}
+					break;
+
+				case Soccer::PlayerPosition::Defender:
+					if(df < 4) {
+						mTeams[j]->addPlayer(*pl);
+						df++;
+					}
+					break;
+
+				case Soccer::PlayerPosition::Midfielder:
+					if(mf < 4) {
+						mTeams[j]->addPlayer(*pl);
+						mf++;
+					}
+					break;
+
+				case Soccer::PlayerPosition::Forward:
+					if(fw < 2) {
+						mTeams[j]->addPlayer(*pl);
+						fw++;
+					}
+					break;
+
+			}
+		}
+
+		if(mTeams[j]->getNumPlayers() < numPlayers) {
+			std::cerr << "Warning: Team " << mTeams[j]->getName() << " doesn't have enough players.\n";
 		}
 	}
 	mReferee.setMatch(this);

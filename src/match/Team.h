@@ -12,6 +12,14 @@
 enum class MatchHalf;
 
 class Team : public Soccer::Team {
+	struct OffensivePosition {
+		float ShotScore;
+		float PassScore;
+		OffensivePosition()
+			: ShotScore(0.0f),
+			PassScore(0.0f) { }
+	};
+
 	public:
 		Team(Match* match, const Soccer::Team& t, bool first);
 		void addPlayer(const Soccer::Player& pl);
@@ -24,21 +32,27 @@ class Team : public Soccer::Team {
 		void act(double time);
 		const Match* getMatch() const;
 		Player* getPlayerNearestToBall() const;
-		float getSupportingPositionScoreAt(const AbsVector3& pos) const;
+		float getShotScoreAt(const AbsVector3& pos) const;
+		float getPassScoreAt(const AbsVector3& pos) const;
 		void matchHalfChanged(MatchHalf m);
 		void setPlayerReceivingPass(Player* p);
 		Player* getPlayerReceivingPass();
 		void ballKicked(Player* p);
+		bool isOffsidePosition(const AbsVector3& pos) const;
 	private:
 		void updatePlayerNearestToBall();
 		void updateSupportingPositions();
-		float calculateSupportingPositionScoreAt(const AbsVector3& pos) const;
+		float calculateShotScoreAt(const AbsVector3& pos) const;
+		float calculatePassScoreAt(const std::vector<std::shared_ptr<Player>>& offensivePlayers,
+				const AbsVector3& pos) const;
+		void getSupportPositionCoordinates(const AbsVector3& pos, unsigned int& i, unsigned int& j) const;
+		static float linearScale(float dist, float opt);
 		Match* mMatch;
 		bool mFirst;
 		std::vector<std::shared_ptr<Player>> mPlayers;
 		Player* mPlayerNearestToBall;
 		Countdown mSupportingPositionsTimer;
-		std::vector<std::vector<float>> mSupportingPositions;
+		std::vector<std::vector<OffensivePosition>> mSupportingPositions;
 		Player* mPlayerReceivingPass;
 };
 

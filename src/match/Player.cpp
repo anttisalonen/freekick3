@@ -6,15 +6,32 @@
 #include "match/Team.h"
 
 Player::Player(Match* match, Team* team, const Soccer::Player& p,
-		ShirtNumber sn)
+		ShirtNumber sn, const PlayerTactics& t)
 	: MatchEntity(match, match->convertRelativeToAbsoluteVector(team->getPausePosition())),
 	Soccer::Player(p),
 	mTeam(team),
 	mBallKickedTimer(1.0f - p.getSkills().BallControl * 0.5f),
+	mTactics(t),
 	mShirtNumber(sn)
 {
 	mAIController = new PlayerAIController(this);
 	setAIControlled();
+
+	if(mPlayerPosition == Soccer::PlayerPosition::Goalkeeper) {
+		setHomePosition(RelVector3(0, -0.95f * (mTeam->isFirst() ? 1 : -1), 0));
+	}
+	else {
+		if(mPlayerPosition == Soccer::PlayerPosition::Forward) {
+			setHomePosition(RelVector3(mTactics.WidthPosition < 0 ? -0.1f : 0.1f,
+						0.20f * (mTeam->isFirst() ? -1 : 1), 0));
+		}
+		else {
+			int hgt = mPlayerPosition == Soccer::PlayerPosition::Midfielder ? 1 : 0;
+			setHomePosition(RelVector3(mTactics.WidthPosition,
+						(mTeam->isFirst() ? 1 : -1) * -0.7f + hgt * 0.3f * (mTeam->isFirst() ? 1 : -1),
+						0));
+		}
+	}
 }
 
 Player::~Player()

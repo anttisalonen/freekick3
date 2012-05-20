@@ -23,7 +23,7 @@ typedef int ShirtNumber;
 class Player : public MatchEntity, public Soccer::Player {
 	public:
 		Player(Match* match, Team* team, const Soccer::Player& p,
-				ShirtNumber sn);
+				ShirtNumber sn, const PlayerTactics& t);
 		~Player();
 		std::shared_ptr<PlayerAction> act(double time);
 		int getShirtNumber() const;

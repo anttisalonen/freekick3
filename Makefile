@@ -57,7 +57,7 @@ MATCHSRCFILES = Math.cpp Clock.cpp Pitch.cpp Ball.cpp \
 	   Referee.cpp RefereeActions.cpp \
 	   ai/PlayerAIController.cpp ai/AIActions.cpp ai/AIPlayStates.cpp ai/AIHelpers.cpp \
 	   ai/AIGoalkeeperState.cpp ai/AIDefendState.cpp \
-	   ai/AIKickBallState.cpp ai/AIOffensiveState.cpp \
+	   ai/AIMidfielderState.cpp ai/AIKickBallState.cpp ai/AIOffensiveState.cpp \
 	   MatchSDLGUI.cpp \
 	   main.cpp
 

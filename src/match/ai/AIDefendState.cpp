@@ -1,3 +1,5 @@
+#include <stdexcept>
+
 #include "match/ai/AIPlayStates.h"
 #include "match/ai/AIActions.h"
 #include "match/PlayerActions.h"
@@ -22,23 +24,32 @@ std::shared_ptr<PlayerAction> AIDefendState::actNearBall(double time)
 
 std::shared_ptr<PlayerAction> AIDefendState::actOffBall(double time)
 {
-	if(mPlayer->getTactics().mOffensive) {
-		return mPlayController->switchState(std::shared_ptr<AIState>(new AIOffensiveState(mPlayer, mPlayController)), time);
-	}
-	else if(mPlayer->isGoalkeeper()) {
-		return mPlayController->switchState(std::shared_ptr<AIState>(new AIGoalkeeperState(mPlayer, mPlayController)), time);
-	}
-	else {
-		std::vector<std::shared_ptr<AIAction>> actions;
-		actions.push_back(std::shared_ptr<AIAction>(new AIFetchBallAction(mPlayer)));
-		actions.push_back(std::shared_ptr<AIAction>(new AIBlockAction(mPlayer)));
-		actions.push_back(std::shared_ptr<AIAction>(new AIGuardAction(mPlayer)));
-		actions.push_back(std::shared_ptr<AIAction>(new AIBlockPassAction(mPlayer)));
-		AIActionChooser actionchooser(actions);
+	switch(mPlayer->getPlayerPosition()) {
+		case Soccer::PlayerPosition::Goalkeeper:
+			return mPlayController->switchState(std::shared_ptr<AIState>(new AIGoalkeeperState(mPlayer, mPlayController)), time);
 
-		std::shared_ptr<AIAction> best = actionchooser.getBestAction();
-		mDescription = std::string("Defending - ") + best->getName();
-		return best->getAction();
+		case Soccer::PlayerPosition::Defender:
+			{
+				std::vector<std::shared_ptr<AIAction>> actions;
+				actions.push_back(std::shared_ptr<AIAction>(new AIFetchBallAction(mPlayer)));
+				actions.push_back(std::shared_ptr<AIAction>(new AIBlockAction(mPlayer)));
+				actions.push_back(std::shared_ptr<AIAction>(new AIGuardAction(mPlayer)));
+				actions.push_back(std::shared_ptr<AIAction>(new AIBlockPassAction(mPlayer)));
+				actions.push_back(std::shared_ptr<AIAction>(new AIGuardAreaAction(mPlayer)));
+				AIActionChooser actionchooser(actions, false);
+
+				std::shared_ptr<AIAction> best = actionchooser.getBestAction();
+				mDescription = std::string("Defending - ") + best->getName();
+				return best->getAction();
+			}
+
+		case Soccer::PlayerPosition::Midfielder:
+			return mPlayController->switchState(std::shared_ptr<AIState>(new AIMidfielderState(mPlayer, mPlayController)), time);
+
+		case Soccer::PlayerPosition::Forward:
+			return mPlayController->switchState(std::shared_ptr<AIState>(new AIOffensiveState(mPlayer, mPlayController)), time);
 	}
+	assert(0);
+	throw std::runtime_error("AI: Unknown player position");
 }
 

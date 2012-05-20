@@ -1,13 +1,17 @@
 #ifndef PLAYERTACTICS_H
 #define PLAYERTACTICS_H
 
+#include "match/Distance.h"
+
 struct PlayerTactics {
-	inline PlayerTactics(bool offensive = false);
-	bool mOffensive;
+	inline PlayerTactics(float pos, float radius);
+	float WidthPosition;
+	float Radius;
 };
 
-PlayerTactics::PlayerTactics(bool offensive)
-	: mOffensive(offensive)
+PlayerTactics::PlayerTactics(float pos, float radius)
+	: WidthPosition(pos),
+	Radius(radius)
 {
 }
 

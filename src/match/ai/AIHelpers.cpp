@@ -43,11 +43,22 @@ std::shared_ptr<PlayerAction> AIHelpers::createMoveActionToBall(const Player& p)
 	}
 }
 
-AbsVector3 AIHelpers::getSupportingPosition(const Player& p)
+AbsVector3 AIHelpers::getShotPosition(const Player& p)
+{
+	return getPositionByFunc(p, [&](const AbsVector3& v) { return p.getTeam()->getShotScoreAt(v); });
+}
+
+AbsVector3 AIHelpers::getPassPosition(const Player& p)
+{
+	return getPositionByFunc(p, [&](const AbsVector3& v) { return p.getTeam()->getPassScoreAt(v); });
+}
+
+AbsVector3 AIHelpers::getPositionByFunc(const Player& p, std::function<float (const AbsVector3& v)> func)
 {
 	float best = 0.001f;
 	AbsVector3 sp(p.getPosition());
 	sp.v.y = 0.0f; // move stuck player towards middle
+	sp.v.x = p.getMatch()->getPitchWidth() * 0.5f * p.getTactics().WidthPosition;
 	const int range = 40;
 	const int step = 5;
 	int minx = int(p.getMatch()->getPitchWidth() * -0.5f + 1);
@@ -61,12 +72,15 @@ AbsVector3 AIHelpers::getSupportingPosition(const Player& p)
 				i <= std::min(maxx, (int)(p.getPosition().v.x + range));
 				i += step) {
 			AbsVector3 thispos(AbsVector3(i, j, 0));
-			float thisvalue = p.getTeam()->getSupportingPositionScoreAt(thispos);
+			float thisvalue = func(thispos);
 			if(thisvalue > best && MatchHelpers::nearestOwnPlayerTo(p, thispos)) {
-				best = thisvalue;
-				sp.v.x = i;
-				sp.v.y = j;
-				// printf("Best: (%3.3f, %3.3f) => %3.3f\n", sp.v.x, sp.v.y, best);
+				thisvalue = AIHelpers::checkTacticArea(p, thisvalue, thispos);
+				if((thisvalue > best) || (thisvalue == best && j == 0 && i == 0)) {
+					best = thisvalue;
+					sp.v.x = i;
+					sp.v.y = j;
+					//printf("Best: (%3.3f, %3.3f) => %3.3f\n", sp.v.x, sp.v.y, best);
+				}
 			}
 		}
 	}
@@ -90,6 +104,25 @@ AbsVector3 AIHelpers::getPassKickVector(const Player& from, const AbsVector3& po
 AbsVector3 AIHelpers::getPassKickVector(const Player& from, const AbsVector3& to)
 {
 	return getPassKickVector(from, to, AbsVector3());
+}
+
+float AIHelpers::checkTacticArea(const Player& p, float score, const AbsVector3& pos)
+{
+	float bestx = p.getMatch()->getPitchWidth() * 0.5f * p.getTactics().WidthPosition;
+	float maxDist = p.getMatch()->getPitchWidth() * 0.5f * p.getTactics().Radius;
+	assert(maxDist != 0.0f);
+	float myx = p.getPosition().v.x;
+	float dist = fabs(myx - bestx);
+	float val;
+	val = std::max(0.0f, 1.0f - (dist / maxDist));
+	// printf("dist: %3.1f - maxdist: %3.1f - should: %3.1f - is: %3.1f - val: %3.3f\n", dist, maxDist, bestx, myx, val);
+	return score * val;
+}
+
+float AIHelpers::linearScale(float dist, float opt)
+{
+	float distFromOptimum = fabs(opt - dist);
+	return std::max(0.0f, (opt - distFromOptimum) / opt);
 }
 
 

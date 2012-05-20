@@ -12,7 +12,8 @@ class AIAction;
 
 class AIActionChooser {
 	public:
-		AIActionChooser(const std::vector<std::shared_ptr<AIAction>>& actions);
+		AIActionChooser(const std::vector<std::shared_ptr<AIAction>>& actions,
+				bool debug);
 		std::shared_ptr<AIAction> getBestAction();
 	private:
 		std::shared_ptr<AIAction> mBestAction;
@@ -76,6 +77,12 @@ class AIBlockAction : public AIAction {
 class AIBlockPassAction : public AIAction {
 	public:
 		AIBlockPassAction(const Player* p);
+		static const char* mActionName;
+};
+
+class AIGuardAreaAction : public AIAction {
+	public:
+		AIGuardAreaAction(const Player* p);
 		static const char* mActionName;
 };
 
