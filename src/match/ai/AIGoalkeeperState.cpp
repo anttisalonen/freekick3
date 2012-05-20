@@ -72,7 +72,7 @@ void AIGoalkeeperState::setPivotPoint()
 	else {
 		mPivotPoint = mPlayer->getMatch()->convertRelativeToAbsoluteVector(RelVector3(0, 1.2, 0));
 	}
-	mDistanceFromPivot = mPlayer->getMatch()->getPitchHeight() * 0.15f;
+	mDistanceFromPivot = mPlayer->getMatch()->getPitchHeight() * 0.13f;
 }
 
 
