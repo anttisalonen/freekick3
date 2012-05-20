@@ -76,7 +76,7 @@ AIShootAction::AIShootAction(const Player* p)
 	: AIAction(mActionName, p)
 {
 	AbsVector3 shoottarget = MatchHelpers::oppositeGoalPosition(*p);
-	mAction = std::shared_ptr<PlayerAction>(new KickBallPA(shoottarget, nullptr, true));
+	AbsVector3 tgt = shoottarget;
 
 	PlayState ps = p->getMatch()->getPlayState();
 	if(ps == PlayState::OutThrowin ||
@@ -85,32 +85,51 @@ AIShootAction::AIShootAction(const Player* p)
 			ps == PlayState::OutIndirectFreekick ||
 			ps == PlayState::OutDroppedball) {
 		mScore = -1.0f;
+		mAction = std::shared_ptr<PlayerAction>(new KickBallPA(shoottarget, nullptr, true));
 		return;
 	}
 
 	if((p->getPosition().v - shoottarget.v).length() < 6.0f) {
 		mScore = 1.0f;
+		mAction = std::shared_ptr<PlayerAction>(new KickBallPA(shoottarget, nullptr, true));
 		return;
 	}
 
 	AbsVector3 vec(MatchHelpers::oppositePenaltySpotPosition(*p));
 	vec.v -= p->getPosition().v;
 
-	mScore = std::max(0.0f, 1.0f - vec.v.length() * 0.03f);
+	float defscore = std::max(0.0f, 1.0f - vec.v.length() * 0.03f);
+	float maxscore = -1.0f;
 	const float maxOppDist = 2.0f;
 
-	for(auto op : MatchHelpers::getOpposingPlayers(*p)) {
-		float dist = Math::pointToLineDistance(p->getPosition().v,
-				shoottarget.v,
-				op->getPosition().v);
-		if(dist < maxOppDist) {
-			mScore -= 0.2f * ((maxOppDist - dist) / maxOppDist);
-			if(mScore <= 0.0) {
-				mScore = 0.0f;
-				return;
+	std::vector<AbsVector3> shoottargets;
+
+	shoottargets.push_back(shoottarget);
+	shoottargets.push_back(AbsVector3(shoottarget.v + Vector3(GOAL_WIDTH_2 - 0.2f, 0, 0)));
+	shoottargets.push_back(AbsVector3(shoottarget.v + Vector3(-GOAL_WIDTH_2 + 0.2f, 0, 0)));
+
+	for(auto thistgt : shoottargets) {
+		float thisscore = defscore;
+		for(auto op : MatchHelpers::getOpposingPlayers(*p)) {
+			float dist = Math::pointToLineDistance(p->getPosition().v,
+					thistgt.v,
+					op->getPosition().v);
+			if(dist < maxOppDist) {
+				thisscore -= 0.2f * ((maxOppDist - dist) / maxOppDist);
+				if(thisscore <= 0.0) {
+					thisscore = 0.0f;
+					break;
+				}
 			}
 		}
+		if(thisscore > maxscore) {
+			maxscore = thisscore;
+			tgt = thistgt;
+		}
 	}
+
+	mScore = maxscore;
+	mAction = std::shared_ptr<PlayerAction>(new KickBallPA(tgt, nullptr, true));
 }
 
 const char* AIShootAction::mActionName = "Shoot";
