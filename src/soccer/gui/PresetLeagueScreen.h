@@ -1,5 +1,5 @@
-#ifndef SOCCER_FRIENDLYSCREEN_H
-#define SOCCER_FRIENDLYSCREEN_H
+#ifndef SOCCER_PRESETLEAGUESCREEN_H
+#define SOCCER_PRESETLEAGUESCREEN_H
 
 #include <map>
 #include <string>
@@ -11,15 +11,15 @@
 
 namespace Soccer {
 
-class FriendlyScreen : public TeamBrowser {
+class PresetLeagueScreen : public TeamBrowser {
 	public:
-		FriendlyScreen(std::shared_ptr<ScreenManager> sm);
+		PresetLeagueScreen(std::shared_ptr<ScreenManager> sm);
+		bool clickedOnLeague(std::shared_ptr<Button> button);
 		bool canClickDone();
 		void clickedDone();
 		const std::string& getName() const;
 
 	private:
-		void playMatch(const char* datafile, int teamnum, int playernum);
 		static const std::string ScreenName;
 };
 

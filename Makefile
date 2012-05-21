@@ -40,7 +40,8 @@ SOCCERBINNAME = freekick3
 SOCCERBIN     = $(BINDIR)/$(SOCCERBINNAME)
 SOCCERSRCDIR  = src/soccer
 SOCCERSRCFILES = gui/Button.cpp gui/Screen.cpp gui/ScreenManager.cpp \
-		 gui/MatchResultScreen.cpp gui/MainMenuScreen.cpp gui/FriendlyScreen.cpp \
+		 gui/MatchResultScreen.cpp gui/MainMenuScreen.cpp gui/TeamBrowser.cpp \
+		 gui/FriendlyScreen.cpp gui/PresetLeagueScreen.cpp \
 		 gui/Menu.cpp main.cpp
 SOCCERSRCS = $(addprefix $(SOCCERSRCDIR)/, $(SOCCERSRCFILES))
 SOCCEROBJS = $(SOCCERSRCS:.cpp=.o)
