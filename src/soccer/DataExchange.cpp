@@ -144,7 +144,33 @@ std::shared_ptr<Match> DataExchange::parseMatchDataFile(const char* fn)
 		mres.AwayGoals = atoi(awayelem->GetText());
 	}
 
-	std::shared_ptr<Match> m(new Match(teams[0], teams[1], TeamTactics(), TeamTactics()));
+	TiXmlElement* controllerelem = handle.FirstChild("Match").FirstChild("Controllers").FirstChild("Controller").ToElement();
+	if(!controllerelem)
+		throw std::runtime_error(ss.str());
+
+	std::vector<TeamController> tcs;
+
+	for(; controllerelem; controllerelem = controllerelem->NextSiblingElement()) {
+		if(tcs.size() > 2) {
+			throw std::runtime_error(ss.str());
+		}
+		int plnum;
+		std::string controller;
+		if(controllerelem->QueryIntAttribute("number", &plnum) != TIXML_SUCCESS)
+			throw std::runtime_error(ss.str());
+		if(controllerelem->QueryStringAttribute("controller", &controller) != TIXML_SUCCESS)
+			throw std::runtime_error(ss.str());
+		if(controller == "human")
+			tcs.push_back(TeamController(true, plnum));
+		else
+			tcs.push_back(TeamController(false, 0));
+	}
+	if(tcs.size() != 2) {
+		throw std::runtime_error(ss.str());
+	}
+
+	std::shared_ptr<Match> m(new Match(std::shared_ptr<StatefulTeam>(new StatefulTeam(*teams[0], tcs[0], TeamTactics())),
+				std::shared_ptr<StatefulTeam>(new StatefulTeam(*teams[1], tcs[1], TeamTactics()))));
 	m->setResult(mres);
 	return m;
 }
@@ -256,6 +282,21 @@ void DataExchange::createMatchDataFile(const Match& m, const char* fn)
 	matchelem->LinkEndChild(matchresultelem);
 
 	/* TODO: add team tactics */
+
+	{
+		TiXmlElement* controllerselem = new TiXmlElement("Controllers");
+		TiXmlElement* cont1elem = new TiXmlElement("Controller");
+		TiXmlElement* cont2elem = new TiXmlElement("Controller");
+		cont1elem->SetAttribute("controller", m.getTeam(0)->getController().HumanControlled ?
+				"human" : "computer");
+		cont1elem->SetAttribute("number", m.getTeam(0)->getController().PlayerShirtNumber);
+		cont2elem->SetAttribute("controller", m.getTeam(1)->getController().HumanControlled ?
+				"human" : "computer");
+		cont2elem->SetAttribute("number", m.getTeam(1)->getController().PlayerShirtNumber);
+		controllerselem->LinkEndChild(cont1elem);
+		controllerselem->LinkEndChild(cont2elem);
+		matchelem->LinkEndChild(controllerselem);
+	}
 
 	doc.LinkEndChild(decl);
 	doc.LinkEndChild(matchelem);

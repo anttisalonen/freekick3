@@ -7,8 +7,8 @@
 
 #define SUPPORTING_POS_RESOLUTION 4
 
-Team::Team(Match* match, const Soccer::Team& t, bool first)
-	: Soccer::Team(t),
+Team::Team(Match* match, const Soccer::StatefulTeam& t, bool first)
+	: Soccer::StatefulTeam(t),
 	mMatch(match),
 	mFirst(first),
 	mPlayerNearestToBall(nullptr),
@@ -29,50 +29,9 @@ Team::Team(Match* match, const Soccer::Team& t, bool first)
 
 void Team::addPlayer(const Soccer::Player& pl)
 {
-	PlayerTactics t(0.5, 0.40f);
-	switch(mPlayers.size()) {
-		// 4-4-2.
-		case 0:
-		default:
-			break;
-		case 1:
-			t.WidthPosition = -0.50;
-			t.Radius = 0.20f;
-			break;
-		case 2:
-			t.WidthPosition = -0.20;
-			t.Radius = 0.40f;
-			break;
-		case 3:
-			t.WidthPosition = 0.20;
-			t.Radius = 0.40f;
-			break;
-		case 4:
-			t.WidthPosition = 0.50;
-			t.Radius = 0.20f;
-			break;
-		case 5:
-			t.WidthPosition = -0.70;
-			t.Radius = 0.30f;
-			break;
-		case 6:
-			t.WidthPosition = -0.20;
-			break;
-		case 7:
-			t.WidthPosition = 0.20;
-			break;
-		case 8:
-			t.WidthPosition = 0.70;
-			t.Radius = 0.30f;
-			break;
-		case 9:
-			t.WidthPosition = -0.30;
-			break;
-		case 10:
-			t.WidthPosition = 0.30;
-			break;
-	}
-	std::shared_ptr<Player> p(new Player(mMatch, this, pl, mPlayers.size() + 1, t));
+	const auto it = mTactics.mTactics.find(mPlayers.size() + 1);
+	assert(it != mTactics.mTactics.end());
+	std::shared_ptr<Player> p(new Player(mMatch, this, pl, mPlayers.size() + 1, it->second));
 	mPlayers.push_back(p);
 }
 

@@ -41,7 +41,8 @@ void FriendlyScreen::clickedDone()
 			teamnum = thisteamnum;
 		thisteamnum++;
 	}
-	Match m(teams[0], teams[1], TeamTactics(), TeamTactics());
+	Match m(std::shared_ptr<StatefulTeam>(new StatefulTeam(*teams[0], TeamController(teamnum == 1, 0), TeamTactics())),
+				std::shared_ptr<StatefulTeam>(new StatefulTeam(*teams[1], TeamController(teamnum == 2, 0), TeamTactics())));
 
 	char matchfilenamebuf[L_tmpnam];
 	tmpnam(matchfilenamebuf);

@@ -11,7 +11,7 @@
 
 enum class MatchHalf;
 
-class Team : public Soccer::Team {
+class Team : public Soccer::StatefulTeam {
 	struct OffensivePosition {
 		float ShotScore;
 		float PassScore;
@@ -21,7 +21,7 @@ class Team : public Soccer::Team {
 	};
 
 	public:
-		Team(Match* match, const Soccer::Team& t, bool first);
+		Team(Match* match, const Soccer::StatefulTeam& t, bool first);
 		void addPlayer(const Soccer::Player& pl);
 		Player* getPlayer(unsigned int idx);
 		const Player* getPlayer(unsigned int idx) const;

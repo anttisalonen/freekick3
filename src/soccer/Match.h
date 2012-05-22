@@ -18,29 +18,17 @@ struct MatchResult {
 	bool Played;
 };
 
-class TeamTactics {
-	public:
-		TeamTactics();
-	private:
-		/* TODO: decide and specify whether the key is player index or player ID */
-		std::map<int, PlayerTactics> mTactics;
-};
-
 class Match {
 	public:
-		Match(const std::shared_ptr<Team> t1, const std::shared_ptr<Team> t2,
-				const TeamTactics& tt1,
-				const TeamTactics& tt2);
+		Match(const std::shared_ptr<StatefulTeam> t1, const std::shared_ptr<StatefulTeam> t2);
 		void play();
 		const MatchResult& getResult() const;
 		void setResult(const MatchResult& m);
-		const std::shared_ptr<Team> getTeam(int i) const;
+		const std::shared_ptr<StatefulTeam> getTeam(int i) const;
 
 	private:
-		const std::shared_ptr<Team> mTeam1;
-		const std::shared_ptr<Team> mTeam2;
-		const TeamTactics& mTeamTactics1;
-		const TeamTactics& mTeamTactics2;
+		const std::shared_ptr<StatefulTeam> mTeam1;
+		const std::shared_ptr<StatefulTeam> mTeam2;
 		MatchResult mResult;
 };
 
