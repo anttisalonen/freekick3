@@ -14,7 +14,7 @@ namespace Soccer {
 class PresetLeagueScreen : public TeamBrowser {
 	public:
 		PresetLeagueScreen(std::shared_ptr<ScreenManager> sm);
-		bool clickedOnLeague(std::shared_ptr<Button> button);
+		bool enteringLeague(std::shared_ptr<League> p);
 		bool canClickDone();
 		void clickedDone();
 		const std::string& getName() const;

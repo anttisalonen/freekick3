@@ -23,13 +23,13 @@ class TeamBrowser : public Screen {
 		void buttonPressed(std::shared_ptr<Button> button);
 
 	protected:
-		virtual bool clickedOnTeam(std::shared_ptr<Button> button);
-		virtual bool clickedOnLeague(std::shared_ptr<Button> button);
-		virtual bool clickedOnCountry(std::shared_ptr<Button> button);
-		virtual bool clickedOnContinent(std::shared_ptr<Button> button);
+		virtual bool enteringContinent(std::shared_ptr<Continent> p);
+		virtual bool enteringCountry(std::shared_ptr<LeagueSystem> p);
+		virtual bool enteringLeague(std::shared_ptr<League> p);
 		virtual bool canClickDone() = 0;
 		virtual void clickedDone() = 0;
 		std::map<std::shared_ptr<Team>, TeamSelection> mSelectedTeams;
+		int getCurrentLevel() const;
 
 	private:
 		void clearCurrentButtons();
@@ -39,6 +39,8 @@ class TeamBrowser : public Screen {
 		void addTeamButtons(std::shared_ptr<League> l);
 		void addSelectionButton(const char* text, int i, int maxnum);
 		void teamClicked(std::shared_ptr<Button> button);
+		void setTeamButtonColor(std::shared_ptr<Button> button) const;
+
 		std::shared_ptr<Button> mPlayButton;
 		std::map<std::string, std::shared_ptr<Continent>> mContinentButtons;
 		std::map<std::string, std::shared_ptr<LeagueSystem>> mCountryButtons;

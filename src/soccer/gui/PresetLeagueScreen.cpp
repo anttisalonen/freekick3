@@ -14,14 +14,18 @@ PresetLeagueScreen::PresetLeagueScreen(std::shared_ptr<ScreenManager> sm)
 {
 }
 
-bool PresetLeagueScreen::clickedOnLeague(std::shared_ptr<Button> button)
+bool PresetLeagueScreen::enteringLeague(std::shared_ptr<League> p)
 {
+	mSelectedTeams.clear();
+	for(auto t : p->getContainer()) {
+		mSelectedTeams.insert(std::make_pair(t.second, TeamSelection::Computer));
+	}
 	return true;
 }
 
 bool PresetLeagueScreen::canClickDone()
 {
-	return false;
+	return getCurrentLevel() == 3;
 }
 
 void PresetLeagueScreen::clickedDone()

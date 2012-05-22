@@ -100,6 +100,10 @@ void TeamBrowser::addTeamButtons(std::shared_ptr<League> l)
 		addSelectionButton(tname.c_str(), i, maxnum);
 		i++;
 	}
+	for(auto b : mCurrentButtons) {
+		setTeamButtonColor(b);
+	}
+
 	mCurrentLevel = 3;
 	mCurrentLeague = l;
 }
@@ -132,10 +136,6 @@ void TeamBrowser::buttonPressed(std::shared_ptr<Button> button)
 			case 3:
 				addLeagueButtons(mCurrentCountry);
 				return;
-
-			case 4:
-				addTeamButtons(mCurrentLeague);
-				return;
 		}
 	}
 	else if(buttonText == "Play") {
@@ -145,43 +145,37 @@ void TeamBrowser::buttonPressed(std::shared_ptr<Button> button)
 	else {
 		switch(mCurrentLevel) {
 			case 0:
-				if(clickedOnContinent(button)) {
-					mScreenManager->dropScreen();
-					break;
-				}
-				else {
+				{
 					// continent
 					auto it = mContinentButtons.find(buttonText);
 					if(it != mContinentButtons.end()) {
-						addCountryButtons(it->second);
+						if(enteringContinent(it->second)) {
+							addCountryButtons(it->second);
+						}
 					}
 				}
 				break;
 
 			case 1:
-				if(clickedOnCountry(button)) {
-					mScreenManager->dropScreen();
-					break;
-				}
-				else {
+				{
 					// country
 					auto it = mCountryButtons.find(buttonText);
 					if(it != mCountryButtons.end()) {
-						addLeagueButtons(it->second);
+						if(enteringCountry(it->second)) {
+							addLeagueButtons(it->second);
+						}
 					}
 				}
 				break;
 
 			case 2:
-				if(clickedOnLeague(button)) {
-					mScreenManager->dropScreen();
-					break;
-				}
-				else {
+				{
 					// league
 					auto it = mLeagueButtons.find(buttonText);
 					if(it != mLeagueButtons.end()) {
-						addTeamButtons(it->second);
+						if(enteringLeague(it->second)) {
+							addTeamButtons(it->second);
+						}
 					}
 				}
 				break;
@@ -195,6 +189,29 @@ void TeamBrowser::buttonPressed(std::shared_ptr<Button> button)
 	}
 }
 
+void TeamBrowser::setTeamButtonColor(std::shared_ptr<Button> button) const
+{
+	const std::string& buttonText = button->getText();
+	auto it = mTeamButtons.find(buttonText);
+	if(it != mTeamButtons.end()) {
+		auto it2 = mSelectedTeams.find(it->second);
+		if(it2 == mSelectedTeams.end()) {
+			button->setColor1(Button::DefaultColor1);
+			button->setColor2(Button::DefaultColor2);
+		}
+		else {
+			if(it2->second == TeamSelection::Computer) {
+				button->setColor1(Common::Color(255, 128, 128));
+				button->setColor2(Common::Color(255, 204, 204));
+			}
+			else {
+				button->setColor1(Common::Color(128, 128, 255));
+				button->setColor2(Common::Color(204, 204, 255));
+			}
+		}
+	}
+}
+
 void TeamBrowser::teamClicked(std::shared_ptr<Button> button)
 {
 	const std::string& buttonText = button->getText();
@@ -204,21 +221,16 @@ void TeamBrowser::teamClicked(std::shared_ptr<Button> button)
 		if(it2 == mSelectedTeams.end()) {
 			mSelectedTeams.insert(std::make_pair(it->second,
 						TeamSelection::Computer));
-			button->setColor1(Common::Color(255, 128, 128));
-			button->setColor2(Common::Color(255, 204, 204));
 		}
 		else {
 			if(it2->second == TeamSelection::Computer) {
 				it2->second = TeamSelection::Human;
-				button->setColor1(Common::Color(128, 128, 255));
-				button->setColor2(Common::Color(204, 204, 255));
 			}
 			else {
 				mSelectedTeams.erase(it2);
-				button->setColor1(Button::DefaultColor1);
-				button->setColor2(Button::DefaultColor2);
 			}
 		}
+		setTeamButtonColor(button);
 	}
 
 	mPlayButton->hide();
@@ -227,24 +239,24 @@ void TeamBrowser::teamClicked(std::shared_ptr<Button> button)
 	}
 }
 
-bool TeamBrowser::clickedOnTeam(std::shared_ptr<Button> button)
+int TeamBrowser::getCurrentLevel() const
 {
-	return false;
+	return mCurrentLevel;
 }
 
-bool TeamBrowser::clickedOnLeague(std::shared_ptr<Button> button)
+bool TeamBrowser::enteringLeague(std::shared_ptr<League> p)
 {
-	return false;
+	return true;
 }
 
-bool TeamBrowser::clickedOnCountry(std::shared_ptr<Button> button)
+bool TeamBrowser::enteringContinent(std::shared_ptr<Continent> p)
 {
-	return false;
+	return true;
 }
 
-bool TeamBrowser::clickedOnContinent(std::shared_ptr<Button> button)
+bool TeamBrowser::enteringCountry(std::shared_ptr<LeagueSystem> p)
 {
-	return false;
+	return true;
 }
 
 
