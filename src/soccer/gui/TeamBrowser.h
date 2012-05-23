@@ -26,6 +26,7 @@ class TeamBrowser : public Screen {
 		virtual bool enteringContinent(std::shared_ptr<Continent> p);
 		virtual bool enteringCountry(std::shared_ptr<LeagueSystem> p);
 		virtual bool enteringLeague(std::shared_ptr<League> p);
+		virtual bool clickingOnTeam(std::shared_ptr<Team> p);
 		virtual bool canClickDone() = 0;
 		virtual void clickedDone() = 0;
 		std::map<std::shared_ptr<Team>, TeamSelection> mSelectedTeams;

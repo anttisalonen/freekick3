@@ -19,7 +19,9 @@ Button::Button(const char* text, TTF_Font* font, const Rectangle& dim)
 	mTransparent(false),
 	mCenteredText(true),
 	mColor1(DefaultColor1),
-	mColor2(DefaultColor2)
+	mColor2(DefaultColor2),
+	mTextWidth(0.5f),
+	mTextHeight(0.5f)
 {
 	SDL_Surface* textsurface;
 	SDL_Color color = {255, 255, 255};
@@ -51,7 +53,7 @@ const Rectangle& Button::getRectangle() const
 	return mRectangle;
 }
 
-const Common::Texture* Button::getTexture() const
+const Common::Texture* Button::getTextTexture() const
 {
 	return mTextTexture.get();
 }
@@ -124,6 +126,26 @@ void Button::setColor1(const Common::Color& c)
 void Button::setColor2(const Common::Color& c)
 {
 	mColor2 = c;
+}
+
+void Button::setTextWidth(float f)
+{
+	mTextWidth = f;
+}
+
+void Button::setTextHeight(float f)
+{
+	mTextHeight = f;
+}
+
+float Button::getTextWidth() const
+{
+	return mTextWidth;
+}
+
+float Button::getTextHeight() const
+{
+	return mTextHeight;
 }
 
 }

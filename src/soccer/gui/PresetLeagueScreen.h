@@ -18,6 +18,7 @@ class PresetLeagueScreen : public TeamBrowser {
 		bool canClickDone();
 		void clickedDone();
 		const std::string& getName() const;
+		bool clickingOnTeam(std::shared_ptr<Team> p);
 
 	private:
 		static const std::string ScreenName;

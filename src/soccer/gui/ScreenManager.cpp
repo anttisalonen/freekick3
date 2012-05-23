@@ -25,7 +25,7 @@ ScreenManager::ScreenManager(const Menu& m)
 	mScreen = SDL_utils::initSDL(screenWidth, screenHeight);
 	SDL_utils::setupOrthoScreen(screenWidth, screenHeight);
 
-	mFont = TTF_OpenFont("share/DejaVuSans.ttf", 12);
+	mFont = TTF_OpenFont("share/DejaVuSans.ttf", 24);
 	if(!mFont) {
 		fprintf(stderr, "Could not open font: %s\n", TTF_GetError());
 		throw std::runtime_error("Loading font");
@@ -103,12 +103,12 @@ void ScreenManager::drawScreen()
 				glEnd();
 			}
 
-			float tw2 = b->getTexture()->getWidth() * 0.8f;
-			float th2 = b->getTexture()->getHeight() * 0.8f;
+			float tw2 = b->getTextTexture()->getWidth() * b->getTextWidth();
+			float th2 = b->getTextTexture()->getHeight() * b->getTextHeight();
 
 			glColor3f(1.0f, 1.0f, 1.0f);
 			glEnable(GL_TEXTURE_2D);
-			glBindTexture(GL_TEXTURE_2D, b->getTexture()->getTexture());
+			glBindTexture(GL_TEXTURE_2D, b->getTextTexture()->getTexture());
 			glBegin(GL_QUADS);
 
 			glTexCoord2f(0.0f, 0.0f);

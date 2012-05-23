@@ -21,7 +21,7 @@ class Button {
 		bool clicked(int x, int y) const;
 		const std::string& getText() const;
 		const Common::Rectangle& getRectangle() const;
-		const Common::Texture* getTexture() const;
+		const Common::Texture* getTextTexture() const;
 		bool hidden() const;
 		void hide();
 		void show();
@@ -36,6 +36,10 @@ class Button {
 		const Common::Color& getColor2() const;
 		void setColor1(const Common::Color& c);
 		void setColor2(const Common::Color& c);
+		void setTextWidth(float f);
+		void setTextHeight(float f);
+		float getTextWidth() const;
+		float getTextHeight() const;
 
 		static Common::Color DefaultColor1;
 		static Common::Color DefaultColor2;
@@ -50,6 +54,8 @@ class Button {
 		bool mCenteredText;
 		Common::Color mColor1;
 		Common::Color mColor2;
+		float mTextWidth;
+		float mTextHeight;
 };
 
 }

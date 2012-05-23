@@ -187,6 +187,10 @@ void TeamBrowser::buttonPressed(std::shared_ptr<Button> button)
 
 		}
 	}
+
+	if(canClickDone()) {
+		mPlayButton->show();
+	}
 }
 
 void TeamBrowser::setTeamButtonColor(std::shared_ptr<Button> button) const
@@ -217,20 +221,8 @@ void TeamBrowser::teamClicked(std::shared_ptr<Button> button)
 	const std::string& buttonText = button->getText();
 	auto it = mTeamButtons.find(buttonText);
 	if(it != mTeamButtons.end()) {
-		auto it2 = mSelectedTeams.find(it->second);
-		if(it2 == mSelectedTeams.end()) {
-			mSelectedTeams.insert(std::make_pair(it->second,
-						TeamSelection::Computer));
-		}
-		else {
-			if(it2->second == TeamSelection::Computer) {
-				it2->second = TeamSelection::Human;
-			}
-			else {
-				mSelectedTeams.erase(it2);
-			}
-		}
-		setTeamButtonColor(button);
+		if(clickingOnTeam(it->second))
+			setTeamButtonColor(button);
 	}
 
 	mPlayButton->hide();
@@ -256,6 +248,24 @@ bool TeamBrowser::enteringContinent(std::shared_ptr<Continent> p)
 
 bool TeamBrowser::enteringCountry(std::shared_ptr<LeagueSystem> p)
 {
+	return true;
+}
+
+bool TeamBrowser::clickingOnTeam(std::shared_ptr<Team> p)
+{
+	auto it2 = mSelectedTeams.find(p);
+	if(it2 == mSelectedTeams.end()) {
+		mSelectedTeams.insert(std::make_pair(p,
+					TeamSelection::Computer));
+	}
+	else {
+		if(it2->second == TeamSelection::Computer) {
+			it2->second = TeamSelection::Human;
+		}
+		else {
+			mSelectedTeams.erase(it2);
+		}
+	}
 	return true;
 }
 
