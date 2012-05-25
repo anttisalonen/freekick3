@@ -9,8 +9,7 @@ namespace Soccer {
 LeagueScreen::LeagueScreen(std::shared_ptr<ScreenManager> sm, std::shared_ptr<StatefulLeague> l)
 	: Screen(sm),
 	mLeague(l),
-	mTextSize(0.048f),
-	mPreviousMatch(nullptr)
+	mTextSize(0.048f)
 {
 	addButton("Back",  Common::Rectangle(0.02f, 0.90f, 0.20f, 0.06f));
 	mResultButton = addButton("Result", Common::Rectangle(0.24f, 0.90f, 0.20f, 0.06f));
@@ -91,23 +90,18 @@ void LeagueScreen::drawInfo()
 	}
 	mResultLabels.clear();
 
-	if(mPreviousMatch) {
-		addText(LabelType::Result, mPreviousMatch->getTeam(0)->getName().c_str(), 0.73f, 0.85f, TextAlignment::MiddleRight);
-		addText(LabelType::Result, std::to_string(mPreviousMatch->getResult().HomeGoals).c_str(), 0.74f, 0.85f,
-				TextAlignment::Centered);
-		addText(LabelType::Result, " - ", 0.75f, 0.85f,
-				TextAlignment::Centered);
-		addText(LabelType::Result, std::to_string(mPreviousMatch->getResult().AwayGoals).c_str(), 0.76f, 0.85f,
-				TextAlignment::Centered);
-		addText(LabelType::Result, mPreviousMatch->getTeam(1)->getName().c_str(), 0.77f, 0.85f);
-	}
-
-	std::shared_ptr<Match> nextmatch = mLeague->getNextMatch();
-	if(nextmatch) {
-		addText(LabelType::Result, nextmatch->getTeam(0)->getName().c_str(), 0.73f, 0.88f, TextAlignment::MiddleRight);
-		addText(LabelType::Result, " - ", 0.75f, 0.88f,
-				TextAlignment::Centered);
-		addText(LabelType::Result, nextmatch->getTeam(1)->getName().c_str(), 0.77f, 0.88f);
+	float y = 0.1f;
+	for(auto m : mRoundMatches) {
+		addText(LabelType::Result, m->getTeam(0)->getName().c_str(), 0.73f, y, TextAlignment::MiddleRight);
+		addText(LabelType::Result, " - ", 0.75f, y, TextAlignment::Centered);
+		addText(LabelType::Result, m->getTeam(1)->getName().c_str(), 0.77f, y);
+		if(m->getResult().Played) {
+			addText(LabelType::Result, std::to_string(m->getResult().HomeGoals).c_str(), 0.74f, y,
+					TextAlignment::Centered);
+			addText(LabelType::Result, std::to_string(m->getResult().AwayGoals).c_str(), 0.76f, y,
+					TextAlignment::Centered);
+		}
+		y += 0.03f;
 	}
 }
 
@@ -118,7 +112,13 @@ void LeagueScreen::buttonPressed(std::shared_ptr<Button> button)
 		mScreenManager->dropScreensUntil("Main Menu");
 	}
 	else if(buttonText == "Result") {
-		mPreviousMatch = mLeague->getNextMatch();
+		if(allRoundMatchesPlayed()) {
+			mRoundMatches.clear();
+			const Round* r = mLeague->getCurrentRound();
+			if(r) {
+				mRoundMatches = r->getMatches();
+			}
+		}
 		bool done = mLeague->nextMatch([&](const Match& m) { return playMatch(m); });
 		if(done) {
 			mResultButton->hide();
@@ -142,6 +142,15 @@ const std::string& LeagueScreen::getName() const
 	return ScreenName;
 }
 
+bool LeagueScreen::allRoundMatchesPlayed() const
+{
+	for(auto m : mRoundMatches) {
+		if(!m->getResult().Played) {
+			return false;
+		}
+	}
+	return true;
+}
 
 }
 

@@ -124,4 +124,10 @@ std::shared_ptr<Match> StatefulLeague::getNextMatch() const
 	return mNextMatch;
 }
 
+const Round* StatefulLeague::getCurrentRound() const
+{
+	return mSchedule.getRound(mThisRound);
+}
+
+
 }

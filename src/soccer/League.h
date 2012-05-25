@@ -34,7 +34,7 @@ class Round {
 		{
 			mMatches.push_back(m);
 		}
-		const std::vector<std::shared_ptr<Match>> getMatches() const
+		const std::vector<std::shared_ptr<Match>>& getMatches() const
 		{
 			return mMatches;
 		}
@@ -94,6 +94,7 @@ class StatefulLeague {
 		const Schedule& getSchedule() const;
 		const std::map<std::shared_ptr<StatefulTeam>, LeagueEntry>& getEntries() const;
 		std::shared_ptr<Match> getNextMatch() const;
+		const Round* getCurrentRound() const;
 
 	private:
 		void setRoundRobin(std::vector<std::shared_ptr<StatefulTeam>>& teams);

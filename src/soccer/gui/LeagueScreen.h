@@ -28,13 +28,14 @@ class LeagueScreen : public Screen {
 		void drawInfo();
 		void addText(LabelType t, const char* text, float x, float y,
 				TextAlignment align = TextAlignment::MiddleLeft);
+		bool allRoundMatchesPlayed() const;
 		static const std::string ScreenName;
 		std::shared_ptr<StatefulLeague> mLeague;
 		const float mTextSize;
 		std::shared_ptr<Button> mResultButton;
 		std::vector<std::shared_ptr<Button>> mTableLabels;
 		std::vector<std::shared_ptr<Button>> mResultLabels;
-		std::shared_ptr<Match> mPreviousMatch;
+		std::vector<std::shared_ptr<Match>> mRoundMatches;
 };
 
 }
