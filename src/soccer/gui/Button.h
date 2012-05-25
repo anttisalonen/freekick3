@@ -15,6 +15,18 @@
 
 namespace Soccer {
 
+enum class TextAlignment {
+	TopLeft,
+	TopMiddle,
+	TopRight,
+	MiddleLeft,
+	Centered,
+	MiddleRight,
+	BottomLeft,
+	BottomMiddle,
+	BottomRight
+};
+
 class Button {
 	public:
 		Button(const char* text, TTF_Font* font, const Common::Rectangle& dim);
@@ -30,8 +42,8 @@ class Button {
 		void deactivate();
 		bool isTransparent() const;
 		void setTransparent(bool t);
-		bool centeredText() const;
-		void setCenteredText(bool c);
+		TextAlignment centeredText() const;
+		void setCenteredText(TextAlignment c);
 		const Common::Color& getColor1() const;
 		const Common::Color& getColor2() const;
 		void setColor1(const Common::Color& c);
@@ -51,7 +63,7 @@ class Button {
 		bool mHidden;
 		bool mActive;
 		bool mTransparent;
-		bool mCenteredText;
+		TextAlignment mCenteredText;
 		Common::Color mColor1;
 		Common::Color mColor2;
 		float mTextWidth;

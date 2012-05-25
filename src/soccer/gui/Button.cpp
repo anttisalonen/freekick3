@@ -17,7 +17,7 @@ Button::Button(const char* text, TTF_Font* font, const Rectangle& dim)
 	mHidden(false),
 	mActive(true),
 	mTransparent(false),
-	mCenteredText(true),
+	mCenteredText(TextAlignment::Centered),
 	mColor1(DefaultColor1),
 	mColor2(DefaultColor2),
 	mTextWidth(0.5f),
@@ -98,12 +98,12 @@ void Button::setTransparent(bool t)
 	mTransparent = t;
 }
 
-bool Button::centeredText() const
+TextAlignment Button::centeredText() const
 {
 	return mCenteredText;
 }
 
-void Button::setCenteredText(bool c)
+void Button::setCenteredText(TextAlignment c)
 {
 	mCenteredText = c;
 }

@@ -32,18 +32,59 @@ bool Screen::removeButton(std::shared_ptr<Button> b)
 	return false;
 }
 
-std::shared_ptr<Button> Screen::addLabel(const char* text, float x, float y, bool centered, float fsize)
+std::shared_ptr<Button> Screen::addLabel(const char* text, float x, float y, TextAlignment centered, float fsize)
 {
-	std::shared_ptr<Button> b(new Button(text, mScreenManager->getFont(),
-				Rectangle(x * mScreenManager->getScreenWidth() - (centered ? 100 : 0),
-					y * mScreenManager->getScreenHeight(),
-					centered ? 200 : (mScreenManager->getScreenWidth()),
-					fsize * mScreenManager->getScreenHeight())));
+	float xp = x;
+	float yp = y;
+	const float w2 = 0.25f, h2 = 0.05f;
+
+	switch(centered) {
+		case TextAlignment::TopLeft:
+			break;
+
+		case TextAlignment::TopMiddle:
+			xp -= w2;
+			break;
+
+		case TextAlignment::TopRight:
+			xp -= 2.0f * w2;
+			break;
+
+		case TextAlignment::MiddleLeft:
+			yp -= h2;
+			break;
+
+		case TextAlignment::Centered:
+			xp -= w2;
+			yp -= h2;
+			break;
+
+		case TextAlignment::MiddleRight:
+			xp -= 2.0f * w2;
+			yp -= h2;
+			break;
+
+		case TextAlignment::BottomLeft:
+			yp -= 2.0f * h2;
+			break;
+
+		case TextAlignment::BottomMiddle:
+			xp -= w2;
+			yp -= 2.0f * h2;
+			break;
+
+		case TextAlignment::BottomRight:
+			xp -= 2.0f * w2;
+			yp -= 2.0f * h2;
+			break;
+	}
+	std::shared_ptr<Button> b = addButton(text, Rectangle(xp,
+				yp, 2.0f * w2, 2.0f * h2));
 	b->setTransparent(true);
 	b->deactivate();
 	b->setCenteredText(centered);
-	setButtonTextSize(b);
-	mButtons.push_back(b);
+	b->setTextWidth(fsize);
+	b->setTextHeight(fsize);
 	return b;
 }
 
@@ -58,7 +99,7 @@ void Screen::setButtonTextSize(std::shared_ptr<Button> b)
 	float texwidth_pix = b->getTextTexture()->getWidth();
 	float texheight_pix = b->getTextTexture()->getHeight();
 	float tw = 1.0f;
-	while(tw > 0.3f && (texwidth_pix * tw > 0.5 * dim.w || texheight_pix * tw > 0.5 * dim.h)) {
+	while(tw > 0.3f && (texwidth_pix * tw > dim.w || texheight_pix * tw > dim.h)) {
 		tw -= 0.2f;
 	}
 	b->setTextWidth(tw);

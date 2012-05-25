@@ -18,6 +18,8 @@ using namespace Common;
 static const int screenWidth = 800;
 static const int screenHeight = 600;
 
+static const int fontHeight = 24;
+
 ScreenManager::ScreenManager(const Menu& m)
 	: mMenu(m),
 	mPressedButton(std::string(""))
@@ -25,7 +27,7 @@ ScreenManager::ScreenManager(const Menu& m)
 	mScreen = SDL_utils::initSDL(screenWidth, screenHeight);
 	SDL_utils::setupOrthoScreen(screenWidth, screenHeight);
 
-	mFont = TTF_OpenFont("share/DejaVuSans.ttf", 24);
+	mFont = TTF_OpenFont("share/DejaVuSans.ttf", fontHeight);
 	if(!mFont) {
 		fprintf(stderr, "Could not open font: %s\n", TTF_GetError());
 		throw std::runtime_error("Loading font");
@@ -94,17 +96,17 @@ void ScreenManager::drawScreen()
 				glBegin(GL_QUADS);
 				const Color& c1 = b->getColor1();
 				const Color& c2 = b->getColor2();
-				glColor3f(c1.r / 255.0f, c1.g / 255.0f, c1.b / 255.0f);
+				glColor3ub(c1.r, c1.g, c1.b);
 				glVertex3f(r.x, screenHeight - r.y, 1.0f);
 				glVertex3f(r.x + r.w, screenHeight - r.y, 0.0f);
-				glColor3f(c2.r / 255.0f, c2.g / 255.0f, c2.b / 255.0f);
+				glColor3ub(c2.r, c2.g, c2.b);
 				glVertex3f(r.x + r.w, screenHeight - r.y - r.h, 0.0f);
 				glVertex3f(r.x, screenHeight - r.y - r.h, 0.0f);
 				glEnd();
 			}
 
-			float tw2 = b->getTextTexture()->getWidth() * b->getTextWidth();
-			float th2 = b->getTextTexture()->getHeight() * b->getTextHeight();
+			float tw2 = 0.5f * b->getTextTexture()->getWidth() * b->getTextWidth();
+			float th2 = 0.5f * b->getTextTexture()->getHeight() * b->getTextHeight();
 
 			glColor3f(1.0f, 1.0f, 1.0f);
 			glEnable(GL_TEXTURE_2D);
@@ -112,28 +114,59 @@ void ScreenManager::drawScreen()
 			glBegin(GL_QUADS);
 
 			glTexCoord2f(0.0f, 0.0f);
-			if(b->centeredText())
-				glVertex3f(r.x + r.w * 0.5f - tw2, screenHeight - r.y - r.h * 0.5f + th2, 1.1f);
-			else
-				glVertex3f(r.x, screenHeight - r.y + 2.0f * th2, 1.1f);
 
+			Rectangle textbox(r.x, r.y,
+					2.0f * tw2, 2.0f * th2);
+
+			switch(b->centeredText()) {
+				case TextAlignment::TopLeft:
+					break;
+
+				case TextAlignment::TopMiddle:
+					textbox.x += r.w * 0.5f - tw2;
+					break;
+
+				case TextAlignment::TopRight:
+					textbox.x += r.w - 2.0f * tw2;
+					break;
+
+				case TextAlignment::MiddleLeft:
+					textbox.y += r.h * 0.5f - th2;
+					break;
+
+				case TextAlignment::Centered:
+					textbox.x += r.w * 0.5f - tw2;
+					textbox.y += r.h * 0.5f - th2;
+					break;
+
+				case TextAlignment::MiddleRight:
+					textbox.x += r.w - 2.0f * tw2;
+					textbox.y += r.h * 0.5f - th2;
+					break;
+
+				case TextAlignment::BottomLeft:
+					textbox.y += r.h - 2.0f * th2;
+					break;
+
+				case TextAlignment::BottomMiddle:
+					textbox.x += r.w * 0.5f - tw2;
+					textbox.y += r.h - 2.0f * th2;
+					break;
+
+				case TextAlignment::BottomRight:
+					textbox.x += r.w - 2.0f * tw2;
+					textbox.y += r.h - 2.0f * th2;
+					break;
+			}
+
+			textbox.y = screenHeight - textbox.y;
+			glVertex3f(textbox.x,             textbox.y, 1.1f);
 			glTexCoord2f(1.0f, 0.0f);
-			if(b->centeredText())
-				glVertex3f(r.x + r.w * 0.5f + tw2, screenHeight - r.y - r.h * 0.5f + th2, 1.1f);
-			else
-				glVertex3f(r.x + 2.0f * tw2, screenHeight - r.y + 2.0f * th2, 1.1f);
-
+			glVertex3f(textbox.x + textbox.w, textbox.y, 1.1f);
 			glTexCoord2f(1.0f, 1.0f);
-			if(b->centeredText())
-				glVertex3f(r.x + r.w * 0.5f + tw2, screenHeight - r.y - r.h * 0.5f - th2, 1.1f);
-			else
-				glVertex3f(r.x + 2.0f * tw2, screenHeight - r.y, 1.1f);
-
+			glVertex3f(textbox.x + textbox.w, textbox.y - textbox.h, 1.1f);
 			glTexCoord2f(0.0f, 1.0f);
-			if(b->centeredText())
-				glVertex3f(r.x + r.w * 0.5f - tw2, screenHeight - r.y - r.h * 0.5f - th2, 1.1f);
-			else
-				glVertex3f(r.x, screenHeight - r.y, 1.1f);
+			glVertex3f(textbox.x,             textbox.y - textbox.h, 1.1f);
 
 			glEnd();
 		}

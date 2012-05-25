@@ -8,33 +8,51 @@ namespace Soccer {
 
 LeagueScreen::LeagueScreen(std::shared_ptr<ScreenManager> sm, std::shared_ptr<StatefulLeague> l)
 	: Screen(sm),
-	mLeague(l)
+	mLeague(l),
+	mTextSize(0.048f),
+	mPreviousMatch(nullptr)
 {
-	addButton("Back",  Common::Rectangle(0.02f, 0.90f, 0.25f, 0.06f));
-	mNextButton = addButton("Round", Common::Rectangle(0.40f, 0.90f, 0.25f, 0.06f));
+	addButton("Back",  Common::Rectangle(0.02f, 0.90f, 0.20f, 0.06f));
+	mResultButton = addButton("Result", Common::Rectangle(0.24f, 0.90f, 0.20f, 0.06f));
 
 	drawTable();
+	drawInfo();
+}
 
+void LeagueScreen::addText(LabelType t, const char* text, float x, float y,
+		TextAlignment align)
+{
+	std::vector<std::shared_ptr<Button>>* bts = nullptr;
+	switch(t) {
+		case LabelType::Table:
+			bts = &mTableLabels;
+			break;
+
+		case LabelType::Result:
+			bts = &mResultLabels;
+			break;
+	}
+
+	bts->push_back(addLabel(text, x, y, align, 0.6f));
 }
 
 void LeagueScreen::drawTable()
 {
 	float y = 0.09f;
-	const float textSize = 0.056f;
 
 	for(auto l : mTableLabels) {
 		removeButton(l);
 	}
 	mTableLabels.clear();
 
-	mTableLabels.push_back(addLabel("Team",    0.05f, y, false, textSize));
-	mTableLabels.push_back(addLabel("M",       0.40f, y, false, textSize));
-	mTableLabels.push_back(addLabel("W",       0.45f, y, false, textSize));
-	mTableLabels.push_back(addLabel("D",       0.50f, y, false, textSize));
-	mTableLabels.push_back(addLabel("L",       0.55f, y, false, textSize));
-	mTableLabels.push_back(addLabel("F",       0.60f, y, false, textSize));
-	mTableLabels.push_back(addLabel("A",       0.65f, y, false, textSize));
-	mTableLabels.push_back(addLabel("P",       0.70f, y, false, textSize));
+	addText(LabelType::Table, "Team",    0.05f, y);
+	addText(LabelType::Table, "M",       0.25f, y);
+	addText(LabelType::Table, "W",       0.30f, y);
+	addText(LabelType::Table, "D",       0.35f, y);
+	addText(LabelType::Table, "L",       0.40f, y);
+	addText(LabelType::Table, "F",       0.45f, y);
+	addText(LabelType::Table, "A",       0.50f, y);
+	addText(LabelType::Table, "P",       0.55f, y);
 	y += 0.03f;
 
 	const std::map<std::shared_ptr<StatefulTeam>, LeagueEntry>& es = mLeague->getEntries();
@@ -54,15 +72,42 @@ void LeagueScreen::drawTable()
 			});
 
 	for(auto e : ves) {
-		mTableLabels.push_back(addLabel(e.first->getName().c_str(),                    0.05f, y, false, textSize));
-		mTableLabels.push_back(addLabel(std::to_string(e.second.Matches).c_str(),      0.40f, y, false, textSize));
-		mTableLabels.push_back(addLabel(std::to_string(e.second.Wins).c_str(),         0.45f, y, false, textSize));
-		mTableLabels.push_back(addLabel(std::to_string(e.second.Draws).c_str(),        0.50f, y, false, textSize));
-		mTableLabels.push_back(addLabel(std::to_string(e.second.Losses).c_str(),       0.55f, y, false, textSize));
-		mTableLabels.push_back(addLabel(std::to_string(e.second.GoalsFor).c_str(),     0.60f, y, false, textSize));
-		mTableLabels.push_back(addLabel(std::to_string(e.second.GoalsAgainst).c_str(), 0.65f, y, false, textSize));
-		mTableLabels.push_back(addLabel(std::to_string(e.second.Points).c_str(),       0.70f, y, false, textSize));
+		addText(LabelType::Table, e.first->getName().c_str(),                    0.05f, y);
+		addText(LabelType::Table, std::to_string(e.second.Matches).c_str(),      0.25f, y);
+		addText(LabelType::Table, std::to_string(e.second.Wins).c_str(),         0.30f, y);
+		addText(LabelType::Table, std::to_string(e.second.Draws).c_str(),        0.35f, y);
+		addText(LabelType::Table, std::to_string(e.second.Losses).c_str(),       0.40f, y);
+		addText(LabelType::Table, std::to_string(e.second.GoalsFor).c_str(),     0.45f, y);
+		addText(LabelType::Table, std::to_string(e.second.GoalsAgainst).c_str(), 0.50f, y);
+		addText(LabelType::Table, std::to_string(e.second.Points).c_str(),       0.55f, y);
 		y += 0.03f;
+	}
+}
+
+void LeagueScreen::drawInfo()
+{
+	for(auto l : mResultLabels) {
+		removeButton(l);
+	}
+	mResultLabels.clear();
+
+	if(mPreviousMatch) {
+		addText(LabelType::Result, mPreviousMatch->getTeam(0)->getName().c_str(), 0.73f, 0.85f, TextAlignment::MiddleRight);
+		addText(LabelType::Result, std::to_string(mPreviousMatch->getResult().HomeGoals).c_str(), 0.74f, 0.85f,
+				TextAlignment::Centered);
+		addText(LabelType::Result, " - ", 0.75f, 0.85f,
+				TextAlignment::Centered);
+		addText(LabelType::Result, std::to_string(mPreviousMatch->getResult().AwayGoals).c_str(), 0.76f, 0.85f,
+				TextAlignment::Centered);
+		addText(LabelType::Result, mPreviousMatch->getTeam(1)->getName().c_str(), 0.77f, 0.85f);
+	}
+
+	std::shared_ptr<Match> nextmatch = mLeague->getNextMatch();
+	if(nextmatch) {
+		addText(LabelType::Result, nextmatch->getTeam(0)->getName().c_str(), 0.73f, 0.88f, TextAlignment::MiddleRight);
+		addText(LabelType::Result, " - ", 0.75f, 0.88f,
+				TextAlignment::Centered);
+		addText(LabelType::Result, nextmatch->getTeam(1)->getName().c_str(), 0.77f, 0.88f);
 	}
 }
 
@@ -72,12 +117,14 @@ void LeagueScreen::buttonPressed(std::shared_ptr<Button> button)
 	if(buttonText == "Back") {
 		mScreenManager->dropScreensUntil("Main Menu");
 	}
-	else if(buttonText == "Round") {
+	else if(buttonText == "Result") {
+		mPreviousMatch = mLeague->getNextMatch();
 		bool done = mLeague->nextMatch([&](const Match& m) { return playMatch(m); });
 		if(done) {
-			mNextButton->hide();
+			mResultButton->hide();
 		}
 		drawTable();
+		drawInfo();
 	}
 }
 

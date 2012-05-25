@@ -45,6 +45,7 @@ bool StatefulLeague::nextMatch(std::function<MatchResult (const Match& v)> func)
 	if(!res.Played) {
 		return false;
 	}
+	mNextMatch->setResult(res);
 	auto meit1 = mEntries.find(mNextMatch->getTeam(0));
 	auto meit2 = mEntries.find(mNextMatch->getTeam(1));
 	assert(meit1 != mEntries.end());
@@ -118,5 +119,9 @@ void StatefulLeague::setRoundRobin(std::vector<std::shared_ptr<StatefulTeam>>& t
 	}
 }
 
+std::shared_ptr<Match> StatefulLeague::getNextMatch() const
+{
+	return mNextMatch;
+}
 
 }

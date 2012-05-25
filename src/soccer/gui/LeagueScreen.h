@@ -18,12 +18,23 @@ class LeagueScreen : public Screen {
 		const std::string& getName() const;
 
 	private:
+		enum class LabelType {
+			Table,
+			Result,
+		};
+
 		MatchResult playMatch(const Match& m);
 		void drawTable();
+		void drawInfo();
+		void addText(LabelType t, const char* text, float x, float y,
+				TextAlignment align = TextAlignment::MiddleLeft);
 		static const std::string ScreenName;
 		std::shared_ptr<StatefulLeague> mLeague;
-		std::shared_ptr<Button> mNextButton;
+		const float mTextSize;
+		std::shared_ptr<Button> mResultButton;
 		std::vector<std::shared_ptr<Button>> mTableLabels;
+		std::vector<std::shared_ptr<Button>> mResultLabels;
+		std::shared_ptr<Match> mPreviousMatch;
 };
 
 }

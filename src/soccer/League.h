@@ -93,6 +93,7 @@ class StatefulLeague {
 		bool nextMatch(std::function<MatchResult (const Match& v)> func);
 		const Schedule& getSchedule() const;
 		const std::map<std::shared_ptr<StatefulTeam>, LeagueEntry>& getEntries() const;
+		std::shared_ptr<Match> getNextMatch() const;
 
 	private:
 		void setRoundRobin(std::vector<std::shared_ptr<StatefulTeam>>& teams);
