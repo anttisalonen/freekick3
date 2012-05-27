@@ -14,6 +14,7 @@ LeagueScreen::LeagueScreen(std::shared_ptr<ScreenManager> sm, std::shared_ptr<St
 	addButton("Back",  Common::Rectangle(0.02f, 0.90f, 0.20f, 0.06f));
 	mResultButton = addButton("Result", Common::Rectangle(0.24f, 0.90f, 0.20f, 0.06f));
 
+	updateRoundMatches();
 	drawTable();
 	drawInfo();
 }
@@ -105,6 +106,15 @@ void LeagueScreen::drawInfo()
 	}
 }
 
+void LeagueScreen::updateRoundMatches()
+{
+	mRoundMatches.clear();
+	const Round* r = mLeague->getCurrentRound();
+	if(r) {
+		mRoundMatches = r->getMatches();
+	}
+}
+
 void LeagueScreen::buttonPressed(std::shared_ptr<Button> button)
 {
 	const std::string& buttonText = button->getText();
@@ -113,11 +123,7 @@ void LeagueScreen::buttonPressed(std::shared_ptr<Button> button)
 	}
 	else if(buttonText == "Result") {
 		if(allRoundMatchesPlayed()) {
-			mRoundMatches.clear();
-			const Round* r = mLeague->getCurrentRound();
-			if(r) {
-				mRoundMatches = r->getMatches();
-			}
+			updateRoundMatches();
 		}
 		bool done = mLeague->nextMatch([&](const Match& m) { return playMatch(m); });
 		if(done) {

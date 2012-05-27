@@ -29,6 +29,7 @@ class LeagueScreen : public Screen {
 		void addText(LabelType t, const char* text, float x, float y,
 				TextAlignment align = TextAlignment::MiddleLeft);
 		bool allRoundMatchesPlayed() const;
+		void updateRoundMatches();
 		static const std::string ScreenName;
 		std::shared_ptr<StatefulLeague> mLeague;
 		const float mTextSize;
