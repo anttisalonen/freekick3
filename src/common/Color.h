@@ -13,6 +13,12 @@ struct Color {
 	inline bool operator==(const Color& f) const;
 	inline bool operator<(const Color& f) const;
 	unsigned char r, g, b;
+
+	static const Color Red;
+	static const Color Green;
+	static const Color Blue;
+	static const Color Black;
+	static const Color White;
 };
 
 bool Color::operator==(const Color& f) const

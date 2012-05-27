@@ -32,7 +32,8 @@ bool Screen::removeButton(std::shared_ptr<Button> b)
 	return false;
 }
 
-std::shared_ptr<Button> Screen::addLabel(const char* text, float x, float y, TextAlignment centered, float fsize)
+std::shared_ptr<Button> Screen::addLabel(const char* text, float x, float y, TextAlignment centered,
+		float fsize, Common::Color col)
 {
 	float xp = x;
 	float yp = y;
@@ -80,6 +81,7 @@ std::shared_ptr<Button> Screen::addLabel(const char* text, float x, float y, Tex
 	}
 	std::shared_ptr<Button> b = addButton(text, Rectangle(xp,
 				yp, 2.0f * w2, 2.0f * h2));
+	b->setTextColor(col);
 	b->setTransparent(true);
 	b->deactivate();
 	b->setCenteredText(centered);

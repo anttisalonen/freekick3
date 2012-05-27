@@ -52,6 +52,8 @@ class Button {
 		void setTextHeight(float f);
 		float getTextWidth() const;
 		float getTextHeight() const;
+		void setTextColor(const Common::Color& c);
+		const Common::Color& getTextColor() const;
 
 		static Common::Color DefaultColor1;
 		static Common::Color DefaultColor2;
@@ -66,6 +68,7 @@ class Button {
 		TextAlignment mCenteredText;
 		Common::Color mColor1;
 		Common::Color mColor2;
+		Common::Color mTextColor;
 		float mTextWidth;
 		float mTextHeight;
 };

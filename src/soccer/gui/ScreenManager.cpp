@@ -108,7 +108,8 @@ void ScreenManager::drawScreen()
 			float tw2 = 0.5f * b->getTextTexture()->getWidth() * b->getTextWidth();
 			float th2 = 0.5f * b->getTextTexture()->getHeight() * b->getTextHeight();
 
-			glColor3f(1.0f, 1.0f, 1.0f);
+			const Common::Color& textcolor = b->getTextColor();
+			glColor3ub(textcolor.r, textcolor.g, textcolor.b);
 			glEnable(GL_TEXTURE_2D);
 			glBindTexture(GL_TEXTURE_2D, b->getTextTexture()->getTexture());
 			glBegin(GL_QUADS);

@@ -20,6 +20,7 @@ Button::Button(const char* text, TTF_Font* font, const Rectangle& dim)
 	mCenteredText(TextAlignment::Centered),
 	mColor1(DefaultColor1),
 	mColor2(DefaultColor2),
+	mTextColor(Common::Color::White),
 	mTextWidth(0.5f),
 	mTextHeight(0.5f)
 {
@@ -146,6 +147,16 @@ float Button::getTextWidth() const
 float Button::getTextHeight() const
 {
 	return mTextHeight;
+}
+
+void Button::setTextColor(const Common::Color& c)
+{
+	mTextColor = c;
+}
+
+const Common::Color& Button::getTextColor() const
+{
+	return mTextColor;
 }
 
 }
