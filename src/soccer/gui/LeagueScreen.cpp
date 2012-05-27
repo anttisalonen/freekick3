@@ -9,7 +9,8 @@ namespace Soccer {
 LeagueScreen::LeagueScreen(std::shared_ptr<ScreenManager> sm, std::shared_ptr<StatefulLeague> l)
 	: Screen(sm),
 	mLeague(l),
-	mTextSize(0.048f)
+	mTextSize(0.048f),
+	mMyTeamColor(128, 128, 255)
 {
 	addButton("Back",  Common::Rectangle(0.02f, 0.90f, 0.20f, 0.06f));
 	mResultButton = addButton("Result", Common::Rectangle(0.24f, 0.90f, 0.20f, 0.06f));
@@ -20,7 +21,7 @@ LeagueScreen::LeagueScreen(std::shared_ptr<ScreenManager> sm, std::shared_ptr<St
 }
 
 void LeagueScreen::addText(LabelType t, const char* text, float x, float y,
-		TextAlignment align)
+		TextAlignment align, Common::Color col)
 {
 	std::vector<std::shared_ptr<Button>>* bts = nullptr;
 	switch(t) {
@@ -33,7 +34,7 @@ void LeagueScreen::addText(LabelType t, const char* text, float x, float y,
 			break;
 	}
 
-	bts->push_back(addLabel(text, x, y, align, 0.6f));
+	bts->push_back(addLabel(text, x, y, align, 0.6f, col));
 }
 
 void LeagueScreen::drawTable()
@@ -72,7 +73,10 @@ void LeagueScreen::drawTable()
 			});
 
 	for(auto e : ves) {
-		addText(LabelType::Table, e.first->getName().c_str(),                    0.05f, y);
+		const Common::Color& textColor = e.first->getController().HumanControlled ?
+			mMyTeamColor : Common::Color::White;
+		addText(LabelType::Table, e.first->getName().c_str(),                    0.05f, y,
+				TextAlignment::MiddleLeft, textColor);
 		addText(LabelType::Table, std::to_string(e.second.Matches).c_str(),      0.25f, y);
 		addText(LabelType::Table, std::to_string(e.second.Wins).c_str(),         0.30f, y);
 		addText(LabelType::Table, std::to_string(e.second.Draws).c_str(),        0.35f, y);
@@ -93,9 +97,15 @@ void LeagueScreen::drawInfo()
 
 	float y = 0.1f;
 	for(auto m : mRoundMatches) {
-		addText(LabelType::Result, m->getTeam(0)->getName().c_str(), 0.73f, y, TextAlignment::MiddleRight);
+		const Common::Color& textColor1 = m->getTeam(0)->getController().HumanControlled ?
+			mMyTeamColor : Common::Color::White;
+		const Common::Color& textColor2 = m->getTeam(1)->getController().HumanControlled ?
+			mMyTeamColor : Common::Color::White;
+		addText(LabelType::Result, m->getTeam(0)->getName().c_str(), 0.73f, y,
+				TextAlignment::MiddleRight, textColor1);
 		addText(LabelType::Result, " - ", 0.75f, y, TextAlignment::Centered);
-		addText(LabelType::Result, m->getTeam(1)->getName().c_str(), 0.77f, y);
+		addText(LabelType::Result, m->getTeam(1)->getName().c_str(), 0.77f, y,
+				TextAlignment::MiddleLeft, textColor2);
 		if(m->getResult().Played) {
 			addText(LabelType::Result, std::to_string(m->getResult().HomeGoals).c_str(), 0.74f, y,
 					TextAlignment::Centered);

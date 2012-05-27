@@ -27,7 +27,8 @@ class LeagueScreen : public Screen {
 		void drawTable();
 		void drawInfo();
 		void addText(LabelType t, const char* text, float x, float y,
-				TextAlignment align = TextAlignment::MiddleLeft);
+				TextAlignment align = TextAlignment::MiddleLeft,
+				Common::Color col = Common::Color::White);
 		bool allRoundMatchesPlayed() const;
 		void updateRoundMatches();
 		static const std::string ScreenName;
@@ -37,6 +38,7 @@ class LeagueScreen : public Screen {
 		std::vector<std::shared_ptr<Button>> mTableLabels;
 		std::vector<std::shared_ptr<Button>> mResultLabels;
 		std::vector<std::shared_ptr<Match>> mRoundMatches;
+		Common::Color mMyTeamColor;
 };
 
 }
