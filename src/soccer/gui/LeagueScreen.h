@@ -32,6 +32,9 @@ class LeagueScreen : public Screen {
 		bool allRoundMatchesPlayed() const;
 		void updateRoundMatches();
 		bool playNextMatch(bool display);
+		void addMatchLabels(const Match& m, float xp, float yp);
+		void updateScreenElements();
+		bool shouldShowSkipButton() const;
 
 		static const std::string ScreenName;
 		std::shared_ptr<StatefulLeague> mLeague;

@@ -18,8 +18,7 @@ LeagueScreen::LeagueScreen(std::shared_ptr<ScreenManager> sm, std::shared_ptr<St
 	mMatchButton  = addButton("Match",  Common::Rectangle(0.76f, 0.90f, 0.23f, 0.06f));
 
 	updateRoundMatches();
-	drawTable();
-	drawInfo();
+	updateScreenElements();
 }
 
 void LeagueScreen::addText(LabelType t, const char* text, float x, float y,
@@ -90,6 +89,25 @@ void LeagueScreen::drawTable()
 	}
 }
 
+void LeagueScreen::addMatchLabels(const Match& m, float xp, float yp)
+{
+	const Common::Color& textColor1 = m.getTeam(0)->getController().HumanControlled ?
+		mMyTeamColor : Common::Color::White;
+	const Common::Color& textColor2 = m.getTeam(1)->getController().HumanControlled ?
+		mMyTeamColor : Common::Color::White;
+	addText(LabelType::Result, m.getTeam(0)->getName().c_str(), xp - 0.02f, yp,
+			TextAlignment::MiddleRight, textColor1);
+	addText(LabelType::Result, " - ", xp, yp, TextAlignment::Centered);
+	addText(LabelType::Result, m.getTeam(1)->getName().c_str(), xp + 0.02f, yp,
+			TextAlignment::MiddleLeft, textColor2);
+	if(m.getResult().Played) {
+		addText(LabelType::Result, std::to_string(m.getResult().HomeGoals).c_str(), 0.74f, yp,
+				TextAlignment::Centered);
+		addText(LabelType::Result, std::to_string(m.getResult().AwayGoals).c_str(), 0.76f, yp,
+				TextAlignment::Centered);
+	}
+}
+
 void LeagueScreen::drawInfo()
 {
 	for(auto l : mResultLabels) {
@@ -99,22 +117,17 @@ void LeagueScreen::drawInfo()
 
 	float y = 0.1f;
 	for(auto m : mRoundMatches) {
-		const Common::Color& textColor1 = m->getTeam(0)->getController().HumanControlled ?
-			mMyTeamColor : Common::Color::White;
-		const Common::Color& textColor2 = m->getTeam(1)->getController().HumanControlled ?
-			mMyTeamColor : Common::Color::White;
-		addText(LabelType::Result, m->getTeam(0)->getName().c_str(), 0.73f, y,
-				TextAlignment::MiddleRight, textColor1);
-		addText(LabelType::Result, " - ", 0.75f, y, TextAlignment::Centered);
-		addText(LabelType::Result, m->getTeam(1)->getName().c_str(), 0.77f, y,
-				TextAlignment::MiddleLeft, textColor2);
-		if(m->getResult().Played) {
-			addText(LabelType::Result, std::to_string(m->getResult().HomeGoals).c_str(), 0.74f, y,
-					TextAlignment::Centered);
-			addText(LabelType::Result, std::to_string(m->getResult().AwayGoals).c_str(), 0.76f, y,
-					TextAlignment::Centered);
-		}
+		// next round
+		addMatchLabels(*m, 0.75f, y);
 		y += 0.03f;
+	}
+
+	{
+		// next match
+		std::shared_ptr<Match> m = mLeague->getNextMatch();
+		if(m) {
+			addMatchLabels(*m, 0.50f, 0.88f);
+		}
 	}
 }
 
@@ -133,19 +146,31 @@ bool LeagueScreen::playNextMatch(bool display)
 		updateRoundMatches();
 	}
 	bool done = mLeague->nextMatch([&](const Match& m) { return playMatch(display, m); });
-	if(done) {
+	return done;
+}
+
+void LeagueScreen::updateScreenElements()
+{
+	const std::shared_ptr<Match> m = mLeague->getNextMatch();
+	if(!m) {
 		mSkipButton->hide();
 		mResultButton->hide();
 		mMatchButton->hide();
 	}
 	else {
-		const std::shared_ptr<Match> m = mLeague->getNextMatch();
 		mSkipButton->hide();
-		if(m && !(m->getTeam(0)->getController().HumanControlled ||
-					m->getTeam(1)->getController().HumanControlled))
+		if(shouldShowSkipButton())
 			mSkipButton->show();
 	}
-	return done;
+	drawTable();
+	drawInfo();
+}
+
+bool LeagueScreen::shouldShowSkipButton() const
+{
+	const std::shared_ptr<Match> m = mLeague->getNextMatch();
+	return m && !(m->getTeam(0)->getController().HumanControlled ||
+				m->getTeam(1)->getController().HumanControlled);
 }
 
 void LeagueScreen::buttonPressed(std::shared_ptr<Button> button)
@@ -155,23 +180,20 @@ void LeagueScreen::buttonPressed(std::shared_ptr<Button> button)
 		mScreenManager->dropScreensUntil("Main Menu");
 	}
 	else if(buttonText == "Skip") {
-		while(!mSkipButton->hidden()) {
+		while(shouldShowSkipButton()) {
 			bool done = playNextMatch(false);
 			if(done)
 				break;
 		}
-		drawTable();
-		drawInfo();
+		updateScreenElements();
 	}
 	else if(buttonText == "Result") {
 		playNextMatch(false);
-		drawTable();
-		drawInfo();
+		updateScreenElements();
 	}
 	else if(buttonText == "Match") {
 		playNextMatch(true);
-		drawTable();
-		drawInfo();
+		updateScreenElements();
 	}
 }
 
