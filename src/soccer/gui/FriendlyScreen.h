@@ -19,7 +19,6 @@ class FriendlyScreen : public TeamBrowser {
 		const std::string& getName() const;
 
 	private:
-		void playMatch(const char* datafile, int teamnum, int playernum);
 		static const std::string ScreenName;
 };
 

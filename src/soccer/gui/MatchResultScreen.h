@@ -12,7 +12,7 @@ namespace Soccer {
 
 class MatchResultScreen : public Screen {
 	public:
-		MatchResultScreen(std::shared_ptr<ScreenManager> sm, const char* resultfilename);
+		MatchResultScreen(std::shared_ptr<ScreenManager> sm, const Match& match);
 		void buttonPressed(std::shared_ptr<Button> button);
 		const std::string& getName() const;
 

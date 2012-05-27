@@ -23,7 +23,7 @@ class LeagueScreen : public Screen {
 			Result,
 		};
 
-		MatchResult playMatch(const Match& m);
+		MatchResult playMatch(bool display, const Match& m);
 		void drawTable();
 		void drawInfo();
 		void addText(LabelType t, const char* text, float x, float y,
@@ -31,10 +31,14 @@ class LeagueScreen : public Screen {
 				Common::Color col = Common::Color::White);
 		bool allRoundMatchesPlayed() const;
 		void updateRoundMatches();
+		bool playNextMatch(bool display);
+
 		static const std::string ScreenName;
 		std::shared_ptr<StatefulLeague> mLeague;
 		const float mTextSize;
+		std::shared_ptr<Button> mSkipButton;
 		std::shared_ptr<Button> mResultButton;
+		std::shared_ptr<Button> mMatchButton;
 		std::vector<std::shared_ptr<Button>> mTableLabels;
 		std::vector<std::shared_ptr<Button>> mResultLabels;
 		std::vector<std::shared_ptr<Match>> mRoundMatches;

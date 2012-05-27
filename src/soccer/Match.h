@@ -21,12 +21,14 @@ struct MatchResult {
 class Match {
 	public:
 		Match(const std::shared_ptr<StatefulTeam> t1, const std::shared_ptr<StatefulTeam> t2);
-		void play();
+		MatchResult play(bool display) const;
 		const MatchResult& getResult() const;
 		void setResult(const MatchResult& m);
 		const std::shared_ptr<StatefulTeam> getTeam(int i) const;
 
 	private:
+		static void playMatch(const char* datafile, int teamnum, int playernum);
+
 		const std::shared_ptr<StatefulTeam> mTeam1;
 		const std::shared_ptr<StatefulTeam> mTeam2;
 		MatchResult mResult;

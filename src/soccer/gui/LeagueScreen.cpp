@@ -12,8 +12,10 @@ LeagueScreen::LeagueScreen(std::shared_ptr<ScreenManager> sm, std::shared_ptr<St
 	mTextSize(0.048f),
 	mMyTeamColor(128, 128, 255)
 {
-	addButton("Back",  Common::Rectangle(0.02f, 0.90f, 0.20f, 0.06f));
-	mResultButton = addButton("Result", Common::Rectangle(0.24f, 0.90f, 0.20f, 0.06f));
+	addButton("Back",  Common::Rectangle(0.01f, 0.90f, 0.23f, 0.06f));
+	mSkipButton   = addButton("Skip",   Common::Rectangle(0.26f, 0.90f, 0.23f, 0.06f));
+	mResultButton = addButton("Result", Common::Rectangle(0.51f, 0.90f, 0.23f, 0.06f));
+	mMatchButton  = addButton("Match",  Common::Rectangle(0.76f, 0.90f, 0.23f, 0.06f));
 
 	updateRoundMatches();
 	drawTable();
@@ -125,30 +127,58 @@ void LeagueScreen::updateRoundMatches()
 	}
 }
 
+bool LeagueScreen::playNextMatch(bool display)
+{
+	if(allRoundMatchesPlayed()) {
+		updateRoundMatches();
+	}
+	bool done = mLeague->nextMatch([&](const Match& m) { return playMatch(display, m); });
+	if(done) {
+		mSkipButton->hide();
+		mResultButton->hide();
+		mMatchButton->hide();
+	}
+	else {
+		const std::shared_ptr<Match> m = mLeague->getNextMatch();
+		mSkipButton->hide();
+		if(m && !(m->getTeam(0)->getController().HumanControlled ||
+					m->getTeam(1)->getController().HumanControlled))
+			mSkipButton->show();
+	}
+	return done;
+}
+
 void LeagueScreen::buttonPressed(std::shared_ptr<Button> button)
 {
 	const std::string& buttonText = button->getText();
 	if(buttonText == "Back") {
 		mScreenManager->dropScreensUntil("Main Menu");
 	}
+	else if(buttonText == "Skip") {
+		while(!mSkipButton->hidden()) {
+			bool done = playNextMatch(false);
+			if(done)
+				break;
+		}
+		drawTable();
+		drawInfo();
+	}
 	else if(buttonText == "Result") {
-		if(allRoundMatchesPlayed()) {
-			updateRoundMatches();
-		}
-		bool done = mLeague->nextMatch([&](const Match& m) { return playMatch(m); });
-		if(done) {
-			mResultButton->hide();
-		}
+		playNextMatch(false);
+		drawTable();
+		drawInfo();
+	}
+	else if(buttonText == "Match") {
+		playNextMatch(true);
 		drawTable();
 		drawInfo();
 	}
 }
 
-MatchResult LeagueScreen::playMatch(const Match& m)
+MatchResult LeagueScreen::playMatch(bool display, const Match& m)
 {
-	int h = rand() % 4;
-	int a = rand() % 4;
-	return MatchResult(h, a);
+	const MatchResult& r = m.play(display);
+	return r;
 }
 
 const std::string LeagueScreen::ScreenName = std::string("League Screen");

@@ -119,7 +119,7 @@ void StatefulLeague::setRoundRobin(std::vector<std::shared_ptr<StatefulTeam>>& t
 	}
 }
 
-std::shared_ptr<Match> StatefulLeague::getNextMatch() const
+const std::shared_ptr<Match> StatefulLeague::getNextMatch() const
 {
 	return mNextMatch;
 }
