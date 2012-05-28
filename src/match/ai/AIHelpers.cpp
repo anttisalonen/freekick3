@@ -95,7 +95,7 @@ AbsVector3 AIHelpers::getPassKickVector(const Player& from, const Player& to)
 AbsVector3 AIHelpers::getPassKickVector(const Player& from, const AbsVector3& pos, const AbsVector3& vel)
 {
 	AbsVector3 tgt = AbsVector3(pos.v + vel.v * 1.0f - from.getPosition().v);
-	float powercoeff = std::max(0.3, 1.6 * tgt.v.length() / from.getMaximumKickPower());
+	float powercoeff = std::max(0.3, 1.6 * tgt.v.length() / from.getMaximumShotPower());
 	tgt.v.normalize();
 	tgt.v *= powercoeff;
 	return tgt;

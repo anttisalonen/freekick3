@@ -32,7 +32,7 @@ class Player : public MatchEntity, public Soccer::Player {
 		const RelVector3& getHomePosition() const;
 		void setHomePosition(const RelVector3& p);
 		double getRunSpeed() const; // m/s
-		double getMaximumKickPower() const; // ball speed in m/s
+		double getMaximumShotPower() const; // ball speed in m/s
 		void setController(PlayerController* c);
 		void setAIControlled();
 		bool isAIControlled() const;

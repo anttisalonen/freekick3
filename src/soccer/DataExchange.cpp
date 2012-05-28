@@ -49,9 +49,13 @@ std::shared_ptr<Player> DataExchange::parsePlayer(const TiXmlElement* pelem)
 	else
 		throw std::runtime_error("Error parsing player position");
 
-	sk.KickPower = getPlayerSkill(skillselem, "KickPower");
+	sk.ShotPower = getPlayerSkill(skillselem, "ShotPower");
 	sk.RunSpeed = getPlayerSkill(skillselem, "RunSpeed");
 	sk.BallControl = getPlayerSkill(skillselem, "BallControl");
+	sk.Passing = getPlayerSkill(skillselem, "Passing");
+	sk.Tackling = getPlayerSkill(skillselem, "Tackling");
+	sk.Heading = getPlayerSkill(skillselem, "Heading");
+	sk.GoalKeeping = getPlayerSkill(skillselem, "GoalKeeping");
 	return std::shared_ptr<Player>(new Player(id, name, position, sk));
 }
 
@@ -244,15 +248,27 @@ TiXmlElement* DataExchange::createPlayerElement(const Player& p)
 	playerelem->LinkEndChild(poselem);
 
 	TiXmlElement* skillselem = new TiXmlElement("Skills");
-	TiXmlElement* skill1elem = new TiXmlElement("KickPower");
-	TiXmlElement* skill2elem = new TiXmlElement("RunSpeed");
-	TiXmlElement* skill3elem = new TiXmlElement("BallControl");
-	skill1elem->LinkEndChild(new TiXmlText(std::to_string(p.getSkills().KickPower)));
-	skill2elem->LinkEndChild(new TiXmlText(std::to_string(p.getSkills().RunSpeed)));
-	skill3elem->LinkEndChild(new TiXmlText(std::to_string(p.getSkills().BallControl)));
+	TiXmlElement* skill1elem = new TiXmlElement("ShotPower");
+	TiXmlElement* skill2elem = new TiXmlElement("Passing");
+	TiXmlElement* skill3elem = new TiXmlElement("RunSpeed");
+	TiXmlElement* skill4elem = new TiXmlElement("BallControl");
+	TiXmlElement* skill5elem = new TiXmlElement("Tackling");
+	TiXmlElement* skill6elem = new TiXmlElement("Heading");
+	TiXmlElement* skill7elem = new TiXmlElement("GoalKeeping");
+	skill1elem->LinkEndChild(new TiXmlText(std::to_string(p.getSkills().ShotPower)));
+	skill2elem->LinkEndChild(new TiXmlText(std::to_string(p.getSkills().Passing)));
+	skill3elem->LinkEndChild(new TiXmlText(std::to_string(p.getSkills().RunSpeed)));
+	skill4elem->LinkEndChild(new TiXmlText(std::to_string(p.getSkills().BallControl)));
+	skill5elem->LinkEndChild(new TiXmlText(std::to_string(p.getSkills().Tackling)));
+	skill6elem->LinkEndChild(new TiXmlText(std::to_string(p.getSkills().Heading)));
+	skill7elem->LinkEndChild(new TiXmlText(std::to_string(p.getSkills().GoalKeeping)));
 	skillselem->LinkEndChild(skill1elem);
 	skillselem->LinkEndChild(skill2elem);
 	skillselem->LinkEndChild(skill3elem);
+	skillselem->LinkEndChild(skill4elem);
+	skillselem->LinkEndChild(skill5elem);
+	skillselem->LinkEndChild(skill6elem);
+	skillselem->LinkEndChild(skill7elem);
 	playerelem->LinkEndChild(skillselem);
 
 	return playerelem;

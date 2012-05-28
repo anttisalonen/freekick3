@@ -16,6 +16,10 @@ class TeamTactics {
 		TeamTactics();
 		/* NOTE: the key is the player index (1..11). */
 		std::map<int, PlayerTactics> mTactics;
+		float Pressure;    // counter attacks vs. pressure
+		float Organized;   // creative vs. organized
+		float LongBalls;   // short passes vs. long balls
+		float AttackWings; // attacks on center vs .wings
 };
 
 struct TeamController {

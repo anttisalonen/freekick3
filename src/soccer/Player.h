@@ -7,12 +7,21 @@ namespace Soccer {
 
 struct PlayerSkills {
 	PlayerSkills()
-		: KickPower(1.0f),
+		: ShotPower(1.0f),
+		Passing(1.0f),
 		RunSpeed(1.0f),
-		BallControl(1.0f) { }
-	float KickPower;
+		BallControl(1.0f),
+		Tackling(1.0f),
+		Heading(1.0f),
+		GoalKeeping(1.0f)
+		{ }
+	float ShotPower;
+	float Passing;
 	float RunSpeed;
 	float BallControl;
+	float Tackling;
+	float Heading;
+	float GoalKeeping;
 };
 
 enum class PlayerPosition {

@@ -10,7 +10,7 @@ Player::Player(Match* match, Team* team, const Soccer::Player& p,
 	: MatchEntity(match, match->convertRelativeToAbsoluteVector(team->getPausePosition())),
 	Soccer::Player(p),
 	mTeam(team),
-	mBallKickedTimer(1.0f - p.getSkills().BallControl * 0.5f),
+	mBallKickedTimer(1.0f - p.getSkills().Tackling * 0.5f),
 	mTactics(t),
 	mShirtNumber(sn)
 {
@@ -80,9 +80,9 @@ double Player::getRunSpeed() const
 	return 8.0f * ((1.0f + mSkills.RunSpeed) * 0.5f);
 }
 
-double Player::getMaximumKickPower() const
+double Player::getMaximumShotPower() const
 {
-	return 30.0f + 10.0f * mSkills.KickPower;
+	return 30.0f + 10.0f * mSkills.ShotPower;
 }
 
 void Player::setController(PlayerController* c)

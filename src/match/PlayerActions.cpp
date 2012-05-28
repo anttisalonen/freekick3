@@ -45,7 +45,7 @@ void KickBallPA::applyPlayerAction(Match& match, Player& p, double time)
 	if(mDiff.v.length() > 1.0f)
 		mDiff.v.normalize();
 	AbsVector3 v(mDiff);
-	v.v *= p.getMaximumKickPower();
+	v.v *= p.getMaximumShotPower();
 	int failpoints = match.kickBall(&p, v);
 	p.setVelocity(AbsVector3());
 

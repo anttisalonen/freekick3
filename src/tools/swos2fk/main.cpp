@@ -201,7 +201,8 @@ class FreekickWriter {
 	private:
 		void setupDefaultNationalities();
 		const char* teamNationalityToString(int i);
-		std::string scramble(const char* n);
+		static Soccer::PlayerSkills convertSkill(const s_player& pl);
+		static std::string scramble(int idx, const char* n);
 		std::string mOutputDir;
 		std::string mTeamFile;
 		const std::vector<s_team>& mTeams;
@@ -381,37 +382,13 @@ const char* FreekickWriter::teamNationalityToString(int i)
 		return it->second.c_str();
 }
 
-std::string FreekickWriter::scramble(const char* n)
+std::string FreekickWriter::scramble(int idx, const char* n)
 {
-	std::string ret(n);
-	for(unsigned int i = 0; i < ret.size(); i++) {
-		if(isdigit(ret[i])) {
-			if(ret[i] == '9')
-				ret[i] = '0';
-			else
-				ret[i]++;
-		}
-		if(isalpha(ret[i])) {
-			switch(ret[i]) {
-				case 'a': ret[i] = 'e'; break;
-				case 'A': ret[i] = 'E'; break;
-				case 'e': ret[i] = 'i'; break;
-				case 'E': ret[i] = 'I'; break;
-				case 'i': ret[i] = 'o'; break;
-				case 'I': ret[i] = 'O'; break;
-				case 'o': ret[i] = 'u'; break;
-				case 'O': ret[i] = 'U'; break;
-				case 'u': ret[i] = 'y'; break;
-				case 'U': ret[i] = 'Y'; break;
-				case 'y': ret[i] = 'a'; break;
-				case 'Y': ret[i] = 'A'; break;
-				case 'z': case 'Z': case ' ': break;
-				case 'p': case 'P': case 'w': case 'W': break;
-				default: ret[i]++; break;
-			}
-		}
-	}
-	return ret;
+	char f[2];
+	f[0] = 'A';
+	f[1] = '\0';
+	f[0] += idx % 26;
+	return std::string(f);
 }
 
 const char* playerNationalityToString(int n)
@@ -586,6 +563,83 @@ const char* leagueLevelToString(int i)
 	return "Non-League";
 }
 
+Soccer::PlayerSkills FreekickWriter::convertSkill(const s_player& pl)
+{
+	Soccer::PlayerSkills plskills;
+	plskills.ShotPower   = (rand() % 400 + 400) * 0.001f * std::min(49, pl.value + 1) / 49.0f;
+	plskills.Passing     = (rand() % 400 + 400) * 0.001f * std::min(49, pl.value + 1) / 49.0f;
+	plskills.BallControl = (rand() % 400 + 400) * 0.001f * std::min(49, pl.value + 1) / 49.0f;
+	plskills.Tackling    = (rand() % 400 + 400) * 0.001f * std::min(49, pl.value + 1) / 49.0f;
+	plskills.Heading     = (rand() % 400 + 400) * 0.001f * std::min(49, pl.value + 1) / 49.0f;
+	plskills.RunSpeed    = (rand() % 400 + 400) * 0.001f * std::min(49, pl.value + 1) / 49.0f;
+	plskills.GoalKeeping = (rand() % 400 + 400) * 0.001f * std::min(49, pl.value + 1) / 49.0f;
+	switch(pl.field_position) {
+		case 0: // gk
+			plskills.ShotPower   *= 1.0f;
+			plskills.Passing     *= 1.0f;
+			plskills.BallControl *= 0.8f;
+			plskills.Tackling    *= 0.5f;
+			plskills.Heading     *= 0.5f;
+			plskills.RunSpeed    *= 0.5f;
+			plskills.GoalKeeping *= 1.0f;
+			break;
+
+		case 1: // back
+		case 2:
+			plskills.ShotPower   *= 0.8f;
+			plskills.Passing     *= 1.0f;
+			plskills.BallControl *= 1.0f;
+			plskills.Tackling    *= 1.2f;
+			plskills.Heading     *= 0.8f;
+			plskills.RunSpeed    *= 1.2f;
+			plskills.GoalKeeping *= 0.2f;
+			break;
+
+		case 3: // def
+			plskills.ShotPower   *= 0.8f;
+			plskills.Passing     *= 1.2f;
+			plskills.BallControl *= 1.0f;
+			plskills.Tackling    *= 1.2f;
+			plskills.Heading     *= 0.8f;
+			plskills.RunSpeed    *= 1.0f;
+			plskills.GoalKeeping *= 0.2f;
+			break;
+
+		case 4: // wing
+		case 5:
+			plskills.ShotPower   *= 1.0f;
+			plskills.Passing     *= 1.2f;
+			plskills.BallControl *= 1.0f;
+			plskills.Tackling    *= 0.8f;
+			plskills.Heading     *= 0.8f;
+			plskills.RunSpeed    *= 1.2f;
+			plskills.GoalKeeping *= 0.2f;
+			break;
+
+		case 6: // midfield
+			plskills.ShotPower   *= 0.8f;
+			plskills.Passing     *= 1.2f;
+			plskills.BallControl *= 1.0f;
+			plskills.Tackling    *= 1.0f;
+			plskills.Heading     *= 1.0f;
+			plskills.RunSpeed    *= 1.0f;
+			plskills.GoalKeeping *= 0.2f;
+			break;
+
+		case 7: // forward
+		default:
+			plskills.ShotPower   *= 1.2f;
+			plskills.Passing     *= 1.0f;
+			plskills.BallControl *= 1.0f;
+			plskills.Tackling    *= 0.8f;
+			plskills.Heading     *= 1.2f;
+			plskills.RunSpeed    *= 0.8f;
+			plskills.GoalKeeping *= 0.2f;
+			break;
+	}
+	return plskills;
+}
+
 int FreekickWriter::write()
 {
 	Soccer::TeamDatabase teamdb;
@@ -622,19 +676,19 @@ int FreekickWriter::write()
 			}
 
 			Soccer::PlayerSkills plskills;
-			plskills.KickPower   = (rand() % 800 + 200) * 0.001f * std::min(49, sp.value + 1) / 49.0f;
-			plskills.BallControl = (rand() % 800 + 200) * 0.001f * std::min(49, sp.value + 1) / 49.0f;
-			plskills.RunSpeed    = (rand() % 800 + 200) * 0.001f * std::min(49, sp.value + 1) / 49.0f;
+			plskills = convertSkill(sp);
 
 			std::shared_ptr<Soccer::Player> pl(new Soccer::Player(sp.id,
-						mScramble ? scramble(sp.player_name).c_str() : sp.player_name,
+						mScramble ? scramble(players.size(),
+							sp.player_name).c_str() : sp.player_name,
 						plpos, plskills));
 			players.push_back(pl);
 			playerdb.insert(std::make_pair(pl->getId(), pl));
 		}
 
 		std::shared_ptr<Soccer::Team> t(new Soccer::Team(mCurrentTeamId,
-					mScramble ? scramble(st.team_name).c_str() : st.team_name, players));
+					mScramble ? scramble(league->getContainer().size(),
+						st.team_name).c_str() : st.team_name, players));
 		league->addT(t);
 		mCurrentTeamId++;
 	}
@@ -740,6 +794,9 @@ void usage(const char* pn)
 {
 	fprintf(stderr, "Usage: %s [-s] [-t teams mapping file] <output directory> <input file 1> [input file 2 ...]\n",
 			pn);
+	fprintf(stderr, "\t-s\tscramble team and player names\n");
+	fprintf(stderr, "\t-t\tfile mapping nationality number to name (default: SWOS defaults)\n");
+	fprintf(stderr, "\n");
 	fprintf(stderr, "\tOutput directory must exist. Existing files will be overwritten.\n");
 	fprintf(stderr, "\tInput files are SWOS data files. The country name will be looked up from the\n");
 	fprintf(stderr, "\tteam mapping file (defaults to original SWOS teams).\n");
