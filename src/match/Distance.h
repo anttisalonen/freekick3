@@ -1,7 +1,7 @@
 #ifndef DISTANCE_H
 #define DISTANCE_H
 
-#include "Vector3.h"
+#include "common/Vector3.h"
 
 struct RelVector3 {
 	RelVector3() { }

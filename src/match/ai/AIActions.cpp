@@ -2,10 +2,11 @@
 #include <iostream>
 #include <algorithm>
 
+#include "common/Math.h"
+
 #include "match/ai/AIActions.h"
 #include "match/ai/AIHelpers.h"
 #include "match/MatchHelpers.h"
-#include "match/Math.h"
 
 AIActionChooser::AIActionChooser(const std::vector<std::shared_ptr<AIAction>>& actions,
 		bool debug)
@@ -111,7 +112,7 @@ AIShootAction::AIShootAction(const Player* p)
 	for(auto thistgt : shoottargets) {
 		float thisscore = defscore;
 		for(auto op : MatchHelpers::getOpposingPlayers(*p)) {
-			float dist = Math::pointToLineDistance(p->getPosition().v,
+			float dist = Common::Math::pointToLineDistance(p->getPosition().v,
 					thistgt.v,
 					op->getPosition().v);
 			if(dist < maxOppDist) {
@@ -153,7 +154,7 @@ AIDribbleAction::AIDribbleAction(const Player* p)
 			continue;
 		float thisscore = 1.0f;
 		for(auto op : MatchHelpers::getOpposingPlayers(*p)) {
-			float dist = Math::pointToLineDistance(p->getPosition().v,
+			float dist = Common::Math::pointToLineDistance(p->getPosition().v,
 					p->getPosition().v + vec.v,
 					op->getPosition().v);
 			if(dist < 12.0) {
@@ -215,7 +216,7 @@ AIPassAction::AIPassAction(const Player* p)
 
 		if(thisscore > mScore) {
 			for(auto op : MatchHelpers::getOpposingPlayers(*sp)) {
-				float dist = Math::pointToLineDistance(p->getPosition().v,
+				float dist = Common::Math::pointToLineDistance(p->getPosition().v,
 						sp->getPosition().v,
 						op->getPosition().v);
 				if(dist < 5.0) {
@@ -304,7 +305,7 @@ AIGuardAction::AIGuardAction(const Player* p)
 		for(auto pl : MatchHelpers::getOwnPlayers(*p)) {
 			if(&*pl == p)
 				continue;
-			float disttoown = Math::pointToLineDistance(op->getPosition().v,
+			float disttoown = Common::Math::pointToLineDistance(op->getPosition().v,
 					owngoal.v,
 					pl->getPosition().v);
 			if(disttoown < 1.0f) {
@@ -339,7 +340,7 @@ AIBlockAction::AIBlockAction(const Player* p)
 	for(auto pl : MatchHelpers::getOwnPlayers(*p)) {
 		if(&*pl == p || pl->isGoalkeeper())
 			continue;
-		float disttoown = Math::pointToLineDistance(op->getPosition().v,
+		float disttoown = Common::Math::pointToLineDistance(op->getPosition().v,
 				owngoal.v,
 				pl->getPosition().v);
 		if(disttoown < 1.0f) {

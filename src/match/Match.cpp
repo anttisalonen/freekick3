@@ -23,44 +23,17 @@ Match::Match(const Soccer::Match& m)
 	 * it should probably be included in the match data. */
 	for(int j = 0; j < 2; j++) {
 		mTeams[j] = std::shared_ptr<Team>(new Team(this, *m.getTeam(j), j == 0));
-		int gk = 0, df = 0, mf = 0, fw = 0;
-		int i = 0;
-		while(mTeams[j]->getNumPlayers() < numPlayers) {
-			std::shared_ptr<Soccer::Player> pl(m.getTeam(j)->getPlayer(i));
-			i++;
-			if(!pl)
-				break;
-
-			switch(pl->getPlayerPosition()) {
-				case Soccer::PlayerPosition::Goalkeeper:
-					if(gk < 1) {
-						mTeams[j]->addPlayer(*pl);
-						gk++;
-					}
-					break;
-
-				case Soccer::PlayerPosition::Defender:
-					if(df < 4) {
-						mTeams[j]->addPlayer(*pl);
-						df++;
-					}
-					break;
-
-				case Soccer::PlayerPosition::Midfielder:
-					if(mf < 4) {
-						mTeams[j]->addPlayer(*pl);
-						mf++;
-					}
-					break;
-
-				case Soccer::PlayerPosition::Forward:
-					if(fw < 2) {
-						mTeams[j]->addPlayer(*pl);
-						fw++;
-					}
-					break;
-
+		unsigned int i = 0;
+		for(auto n : mTeams[j]->getTactics().mTactics) {
+			std::shared_ptr<Soccer::Player> pl(m.getTeam(j)->getPlayerById(n.first));
+			if(!pl) {
+				std::cerr << "Warning: Team " << mTeams[j]->getName() << " is missing player ID " << n.first << ".\n";
+				continue;
 			}
+			mTeams[j]->addPlayer(*pl);
+			i++;
+			if(i >= numPlayers)
+				break;
 		}
 
 		if(mTeams[j]->getNumPlayers() < numPlayers) {

@@ -105,6 +105,7 @@ class StatefulLeague {
 		int mThisRound;
 		int mNextMatchId;
 		const int mGoalsPerWin;
+		const int mNumCycles;
 };
 
 }

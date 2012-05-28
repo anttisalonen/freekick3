@@ -5,53 +5,86 @@
 
 namespace Soccer {
 
-TeamTactics::TeamTactics()
+TeamTactics::TeamTactics(const Team& team)
+	: Pressure(0.5f),
+	Organized(0.5f),
+	LongBalls(0.5f),
+	AttackWings(0.5f)
 {
 	// 4-4-2.
-	for(int i = 0; i < 11; i++) {
+	int gk = 0;
+	int df = 0;
+	int mf = 0;
+	int fw = 0;
+	for(auto p : team.getPlayers()) {
 		PlayerTactics t(0.5, 0.40f);
-		switch(i) {
-			case 0:
-			default:
+		switch(p->getPlayerPosition()) {
+			case PlayerPosition::Goalkeeper:
+				if(gk < 1) {
+					mTactics.insert(std::make_pair(p->getId(), t));
+					gk++;
+				}
 				break;
-			case 1:
-				t.WidthPosition = -0.50;
-				t.Radius = 0.20f;
+
+			case PlayerPosition::Defender:
+				if(df < 4) {
+					if(df == 0) {
+						t.WidthPosition = -0.50;
+						t.Radius = 0.20f;
+					}
+					else if(df == 1) {
+						t.WidthPosition = -0.20;
+						t.Radius = 0.40f;
+					}
+					else if(df == 2) {
+						t.WidthPosition = 0.20;
+						t.Radius = 0.40f;
+					}
+					else {
+						t.WidthPosition = 0.50;
+						t.Radius = 0.20f;
+					}
+					mTactics.insert(std::make_pair(p->getId(), t));
+					df++;
+				}
 				break;
-			case 2:
-				t.WidthPosition = -0.20;
-				t.Radius = 0.40f;
+
+			case PlayerPosition::Midfielder:
+				if(mf < 4) {
+					if(mf == 0) {
+						t.WidthPosition = -0.70;
+						t.Radius = 0.30f;
+					}
+					else if(mf == 1) {
+						t.WidthPosition = -0.20;
+					}
+					else if(mf == 2) {
+						t.WidthPosition = 0.20;
+					}
+					else {
+						t.WidthPosition = 0.70;
+						t.Radius = 0.30f;
+					}
+					mTactics.insert(std::make_pair(p->getId(), t));
+					mf++;
+				}
 				break;
-			case 3:
-				t.WidthPosition = 0.20;
-				t.Radius = 0.40f;
-				break;
-			case 4:
-				t.WidthPosition = 0.50;
-				t.Radius = 0.20f;
-				break;
-			case 5:
-				t.WidthPosition = -0.70;
-				t.Radius = 0.30f;
-				break;
-			case 6:
-				t.WidthPosition = -0.20;
-				break;
-			case 7:
-				t.WidthPosition = 0.20;
-				break;
-			case 8:
-				t.WidthPosition = 0.70;
-				t.Radius = 0.30f;
-				break;
-			case 9:
-				t.WidthPosition = -0.30;
-				break;
-			case 10:
-				t.WidthPosition = 0.30;
+
+			case PlayerPosition::Forward:
+				if(fw < 2) {
+					if(fw == 0) {
+						t.WidthPosition = -0.30;
+					}
+					else {
+						t.WidthPosition = 0.30;
+					}
+					mTactics.insert(std::make_pair(p->getId(), t));
+					fw++;
+				}
 				break;
 		}
-		mTactics.insert(std::make_pair(i + 1, t));
+		if(gk + df + mf + fw >= 11)
+			break;
 	}
 }
 
@@ -106,6 +139,18 @@ const std::string& Team::getName() const
 	return mName;
 }
 
+const std::vector<std::shared_ptr<Player>>& Team::getPlayers() const
+{
+	return mPlayers;
+}
+
+const std::shared_ptr<Player> Team::getPlayerById(int i) const
+{
+	for(auto p : mPlayers)
+		if(p->getId() == i)
+			return p;
+	return nullptr;
+}
 
 StatefulTeam::StatefulTeam(const Team& t, TeamController c, const TeamTactics& tt)
 	: Team(t),
@@ -117,6 +162,11 @@ StatefulTeam::StatefulTeam(const Team& t, TeamController c, const TeamTactics& t
 const TeamController& StatefulTeam::getController() const
 {
 	return mController;
+}
+
+const TeamTactics& StatefulTeam::getTactics() const
+{
+	return mTactics;
 }
 
 }

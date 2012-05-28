@@ -10,10 +10,10 @@
 #include "common/Texture.h"
 #include "common/Color.h"
 #include "common/Rectangle.h"
+#include "common/Vector3.h"
 
 #include "match/MatchGUI.h"
 #include "match/Clock.h"
-#include "Vector3.h"
 #include "match/PlayerController.h"
 #include "match/PlayerActions.h"
 

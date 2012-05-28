@@ -15,7 +15,7 @@ BINDIR       = bin
 
 # Common lib
 
-COMMONSRCFILES = SDLSurface.cpp Texture.cpp SDL_utils.cpp Color.cpp
+COMMONSRCFILES = SDLSurface.cpp Texture.cpp SDL_utils.cpp Color.cpp Math.cpp
 COMMONSRCDIR = src/common
 COMMONSRCS = $(addprefix $(COMMONSRCDIR)/, $(COMMONSRCFILES))
 COMMONOBJS = $(COMMONSRCS:.cpp=.o)
@@ -55,7 +55,7 @@ SOCCERDEPS = $(SOCCERSRCS:.cpp=.dep)
 MATCHBINNAME = freekick3-match
 MATCHBIN     = $(BINDIR)/$(MATCHBINNAME)
 MATCHSRCDIR = src/match
-MATCHSRCFILES = Math.cpp Clock.cpp Pitch.cpp Ball.cpp \
+MATCHSRCFILES = Clock.cpp Pitch.cpp Ball.cpp \
 	   Match.cpp MatchHelpers.cpp MatchEntity.cpp Team.cpp Player.cpp PlayerActions.cpp \
 	   Referee.cpp RefereeActions.cpp \
 	   ai/PlayerAIController.cpp ai/AIActions.cpp ai/AIPlayStates.cpp ai/AIHelpers.cpp \

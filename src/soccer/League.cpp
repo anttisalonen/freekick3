@@ -7,7 +7,8 @@ StatefulLeague::StatefulLeague(std::vector<std::shared_ptr<StatefulTeam>>& teams
 	: mNextMatch(nullptr),
 	mThisRound(0),
 	mNextMatchId(0),
-	mGoalsPerWin(3)
+	mGoalsPerWin(3),
+	mNumCycles(2)
 {
 	setRoundRobin(teams);
 	setNextMatch();
@@ -102,15 +103,25 @@ void StatefulLeague::setRoundRobin(std::vector<std::shared_ptr<StatefulTeam>>& t
 		odd = 1;
 	}
 
-	unsigned int numrounds = odd ? teams.size() : teams.size() - 1;
+	unsigned int numrounds = mNumCycles * (odd ? teams.size() : teams.size() - 1);
 	for(unsigned int j = 0; j < numrounds; j++) {
 		Round r;
 
 		for(unsigned int i = 0; i < (teams.size() + odd) / 2; i++) {
 			unsigned int other = teams.size() + odd - 1 - i;
 			if(other < teams.size()) {
-				r.addMatch(std::shared_ptr<Match>(new Match(teams[i], teams[other])));
-				printf("%5d-%-5d ", teams[i]->getId(), teams[other]->getId());
+				unsigned int ind1, ind2;
+				if(j & 1) {
+					ind1 = other;
+					ind2 = i;
+				}
+				else {
+					ind1 = i;
+					ind2 = other;
+				}
+
+				r.addMatch(std::shared_ptr<Match>(new Match(teams[ind1], teams[ind2])));
+				printf("%5d-%-5d ", teams[ind1]->getId(), teams[ind2]->getId());
 			}
 		}
 		printf("\n");

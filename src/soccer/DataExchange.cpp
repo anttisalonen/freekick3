@@ -173,8 +173,8 @@ std::shared_ptr<Match> DataExchange::parseMatchDataFile(const char* fn)
 		throw std::runtime_error(ss.str());
 	}
 
-	std::shared_ptr<Match> m(new Match(std::shared_ptr<StatefulTeam>(new StatefulTeam(*teams[0], tcs[0], TeamTactics())),
-				std::shared_ptr<StatefulTeam>(new StatefulTeam(*teams[1], tcs[1], TeamTactics()))));
+	std::shared_ptr<Match> m(new Match(std::shared_ptr<StatefulTeam>(new StatefulTeam(*teams[0], tcs[0], TeamTactics(*teams[0]))),
+				std::shared_ptr<StatefulTeam>(new StatefulTeam(*teams[1], tcs[1], TeamTactics(*teams[1])))));
 	m->setResult(mres);
 	return m;
 }

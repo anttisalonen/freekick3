@@ -39,8 +39,11 @@ void FriendlyScreen::clickedDone()
 			teamnum = thisteamnum;
 		thisteamnum++;
 	}
-	Match m(std::shared_ptr<StatefulTeam>(new StatefulTeam(*teams[0], TeamController(teamnum == 1, 0), TeamTactics())),
-				std::shared_ptr<StatefulTeam>(new StatefulTeam(*teams[1], TeamController(teamnum == 2, 0), TeamTactics())));
+	/* TODO: create tactics */
+	Match m(std::shared_ptr<StatefulTeam>(new StatefulTeam(*teams[0], TeamController(teamnum == 1, 0),
+					TeamTactics(*teams[0]))),
+				std::shared_ptr<StatefulTeam>(new StatefulTeam(*teams[1], TeamController(teamnum == 2, 0),
+						TeamTactics(*teams[1]))));
 	MatchResult res = m.play(true);
 	m.setResult(res);
 	mScreenManager->addScreen(std::shared_ptr<Screen>(new MatchResultScreen(mScreenManager, m)));

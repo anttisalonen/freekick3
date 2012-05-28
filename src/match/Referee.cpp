@@ -2,7 +2,8 @@
 
 #include <stdexcept>
 
-#include "match/Math.h"
+#include "common/Math.h"
+
 #include "match/MatchHelpers.h"
 #include "match/Referee.h"
 #include "match/RefereeActions.h"
@@ -152,8 +153,8 @@ std::shared_ptr<RefereeAction> Referee::setOutOfPlay()
 				bp.v.x = 1.0f;
 			if(bp.v.y == 0.0f)
 				bp.v.y = 1.0f;
-			mRestartPosition.v.x = signum(bp.v.x) * mMatch->getPitchWidth() * 0.5f;
-			mRestartPosition.v.y = signum(bp.v.y) * mMatch->getPitchHeight() * 0.5f;
+			mRestartPosition.v.x = Common::signum(bp.v.x) * mMatch->getPitchWidth() * 0.5f;
+			mRestartPosition.v.y = Common::signum(bp.v.y) * mMatch->getPitchHeight() * 0.5f;
 			mFirstTeamInControl = !mFirstTeamInControl;
 			return std::shared_ptr<RefereeAction>(new ChangePlayStateRA(PlayState::OutCornerkick));
 		}

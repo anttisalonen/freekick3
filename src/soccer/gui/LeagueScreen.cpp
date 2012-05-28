@@ -49,12 +49,13 @@ void LeagueScreen::drawTable()
 
 	addText(LabelType::Table, "Team",    0.05f, y);
 	addText(LabelType::Table, "M",       0.25f, y);
-	addText(LabelType::Table, "W",       0.30f, y);
-	addText(LabelType::Table, "D",       0.35f, y);
-	addText(LabelType::Table, "L",       0.40f, y);
-	addText(LabelType::Table, "F",       0.45f, y);
-	addText(LabelType::Table, "A",       0.50f, y);
-	addText(LabelType::Table, "P",       0.55f, y);
+	addText(LabelType::Table, "W",       0.29f, y);
+	addText(LabelType::Table, "D",       0.33f, y);
+	addText(LabelType::Table, "L",       0.37f, y);
+	addText(LabelType::Table, "GF",      0.41f, y);
+	addText(LabelType::Table, "GA",      0.45f, y);
+	addText(LabelType::Table, "GD",      0.49f, y);
+	addText(LabelType::Table, "P",       0.53f, y);
 	y += 0.03f;
 
 	const std::map<std::shared_ptr<StatefulTeam>, LeagueEntry>& es = mLeague->getEntries();
@@ -79,12 +80,14 @@ void LeagueScreen::drawTable()
 		addText(LabelType::Table, e.first->getName().c_str(),                    0.05f, y,
 				TextAlignment::MiddleLeft, textColor);
 		addText(LabelType::Table, std::to_string(e.second.Matches).c_str(),      0.25f, y);
-		addText(LabelType::Table, std::to_string(e.second.Wins).c_str(),         0.30f, y);
-		addText(LabelType::Table, std::to_string(e.second.Draws).c_str(),        0.35f, y);
-		addText(LabelType::Table, std::to_string(e.second.Losses).c_str(),       0.40f, y);
-		addText(LabelType::Table, std::to_string(e.second.GoalsFor).c_str(),     0.45f, y);
-		addText(LabelType::Table, std::to_string(e.second.GoalsAgainst).c_str(), 0.50f, y);
-		addText(LabelType::Table, std::to_string(e.second.Points).c_str(),       0.55f, y);
+		addText(LabelType::Table, std::to_string(e.second.Wins).c_str(),         0.29f, y);
+		addText(LabelType::Table, std::to_string(e.second.Draws).c_str(),        0.33f, y);
+		addText(LabelType::Table, std::to_string(e.second.Losses).c_str(),       0.37f, y);
+		addText(LabelType::Table, std::to_string(e.second.GoalsFor).c_str(),     0.41f, y);
+		addText(LabelType::Table, std::to_string(e.second.GoalsAgainst).c_str(), 0.45f, y);
+		addText(LabelType::Table, std::to_string(e.second.GoalsFor - e.second.GoalsAgainst).c_str(),
+											 0.49f, y);
+		addText(LabelType::Table, std::to_string(e.second.Points).c_str(),       0.53f, y);
 		y += 0.03f;
 	}
 }

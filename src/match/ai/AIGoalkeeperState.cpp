@@ -1,4 +1,5 @@
-#include "match/Math.h"
+#include "common/Math.h"
+
 #include "match/ai/AIHelpers.h"
 #include "match/MatchHelpers.h"
 #include "match/ai/AIPlayStates.h"
@@ -50,7 +51,7 @@ std::shared_ptr<PlayerAction> AIGoalkeeperState::actOffBall(double time)
 		}
 	}
 	AbsVector3 point = mPivotPoint.v + diffvec.v.normalized() * mDistanceFromPivot;
-	point.v.x = clamp(-3.0f, point.v.x, 3.0f);
+	point.v.x = Common::clamp(-3.0f, point.v.x, 3.0f);
 	if(mPivotPoint.v.y > 0)
 		point.v.y = std::min(mPlayer->getMatch()->getPitchHeight() * 0.5f, point.v.y);
 	else

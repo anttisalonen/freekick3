@@ -1,4 +1,5 @@
-#include "match/Math.h"
+#include "common/Math.h"
+
 #include "match/Ball.h"
 #include "match/Match.h"
 #include "match/Player.h"
@@ -68,7 +69,7 @@ void Ball::update(float time)
 			}
 			else {
 				// net
-				mPosition.v.y = clamp(-mMatch->getPitchHeight() * 0.5f - 3.0f,
+				mPosition.v.y = Common::clamp(-mMatch->getPitchHeight() * 0.5f - 3.0f,
 						mPosition.v.y,
 						mMatch->getPitchHeight() * 0.5f + 3.0f);
 				if(mPosition.v.y > mMatch->getPitchHeight() * 0.5f ||

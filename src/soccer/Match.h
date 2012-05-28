@@ -18,6 +18,30 @@ struct MatchResult {
 	bool Played;
 };
 
+class SimulationStrength {
+	public:
+		SimulationStrength(const StatefulTeam& t);
+		MatchResult simulateAgainst(const SimulationStrength& t2);
+
+	private:
+		static int pickOne(const std::vector<float>& values);
+		float mCenterDefense;
+		float mCenterGet;
+		float mCenterUse;
+		float mLeftDefense;
+		float mLeftGet;
+		float mLeftUse;
+		float mRightDefense;
+		float mRightGet;
+		float mRightUse;
+
+		float mCenterTry;
+		float mLeftTry;
+		float mRightTry;
+
+		float mLongBalls;
+};
+
 class Match {
 	public:
 		Match(const std::shared_ptr<StatefulTeam> t1, const std::shared_ptr<StatefulTeam> t2);
@@ -28,6 +52,7 @@ class Match {
 
 	private:
 		static void playMatch(const char* datafile, int teamnum, int playernum);
+		MatchResult simulateMatchResult() const;
 
 		const std::shared_ptr<StatefulTeam> mTeam1;
 		const std::shared_ptr<StatefulTeam> mTeam2;

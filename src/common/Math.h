@@ -3,9 +3,11 @@
 
 #include <algorithm>
 
-#include "Vector3.h"
+#include "common/Vector3.h"
 
 #define PI 3.1415926535
+
+namespace Common {
 
 template <typename T>
 T signum(T v)
@@ -30,6 +32,8 @@ class Math {
 				const Vector3& l2,
 				const Vector3& p);
 };
+
+}
 
 #endif
 

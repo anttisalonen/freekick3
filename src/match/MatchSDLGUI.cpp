@@ -9,8 +9,8 @@
 #include <GL/gl.h>
 
 #include "common/SDL_utils.h"
+#include "common/Math.h"
 
-#include "match/Math.h"
 #include "match/MatchSDLGUI.h"
 #include "match/MatchHelpers.h"
 #include "match/ai/PlayerAIController.h"

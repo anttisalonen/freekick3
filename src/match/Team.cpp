@@ -1,6 +1,7 @@
 #include <assert.h>
 
-#include "match/Math.h"
+#include "common/Math.h"
+
 #include "match/Team.h"
 #include "match/MatchHelpers.h"
 #include "match/ai/AIHelpers.h"
@@ -29,7 +30,7 @@ Team::Team(Match* match, const Soccer::StatefulTeam& t, bool first)
 
 void Team::addPlayer(const Soccer::Player& pl)
 {
-	const auto it = mTactics.mTactics.find(mPlayers.size() + 1);
+	const auto it = mTactics.mTactics.find(pl.getId());
 	assert(it != mTactics.mTactics.end());
 	std::shared_ptr<Player> p(new Player(mMatch, this, pl, mPlayers.size() + 1, it->second));
 	mPlayers.push_back(p);
@@ -204,7 +205,7 @@ float Team::calculatePassScoreAt(const std::vector<std::shared_ptr<Player>>& off
 		const float optimumDist = 20.0f;
 		pts += AIHelpers::linearScale(distToPl, optimumDist);
 	}
-	pts = clamp(0.0f, pts, 1.0f);
+	pts = Common::clamp(0.0f, pts, 1.0f);
 	//printf("Pts: %3.3f - ", pts);
 
 	if(pts > 0.0f) {
@@ -217,7 +218,7 @@ float Team::calculatePassScoreAt(const std::vector<std::shared_ptr<Player>>& off
 					break;
 			}
 		}
-		pts = clamp(0.0f, pts, 1.0f);
+		pts = Common::clamp(0.0f, pts, 1.0f);
 	}
 	// std::cout << "Total pass points: " << pts << "\n";
 	//printf("Pts: %3.3f - ", pts);

@@ -11,9 +11,11 @@
 
 namespace Soccer {
 
+class Team;
+
 class TeamTactics {
 	public:
-		TeamTactics();
+		TeamTactics(const Team& team);
 		/* NOTE: the key is the player index (1..11). */
 		std::map<int, PlayerTactics> mTactics;
 		float Pressure;    // counter attacks vs. pressure
@@ -40,6 +42,8 @@ class Team {
 		void fetchPlayersFromDB(const PlayerDatabase& db);
 		int getId() const;
 		const std::string& getName() const;
+		const std::vector<std::shared_ptr<Player>>& getPlayers() const;
+		const std::shared_ptr<Player> getPlayerById(int i) const;
 	protected:
 		int mId;
 		std::string mName;
@@ -52,6 +56,7 @@ class StatefulTeam : public Team {
 	public:
 		StatefulTeam(const Team& t, TeamController c, const TeamTactics& tt);
 		const TeamController& getController() const;
+		const TeamTactics& getTactics() const;
 
 	private:
 		TeamController mController;
