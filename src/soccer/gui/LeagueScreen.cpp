@@ -61,7 +61,7 @@ void LeagueScreen::drawTable()
 	const std::map<std::shared_ptr<StatefulTeam>, LeagueEntry>& es = mLeague->getEntries();
 	std::vector<std::pair<std::shared_ptr<StatefulTeam>, LeagueEntry>> ves(es.begin(), es.end());
 	std::sort(ves.begin(), ves.end(), [](const std::pair<std::shared_ptr<StatefulTeam>, LeagueEntry>& p1,
-				const std::pair<std::shared_ptr<StatefulTeam>, LeagueEntry>& p2) {
+				const std::pair<std::shared_ptr<StatefulTeam>, LeagueEntry>& p2) -> bool {
 			if(p1.second.Points != p2.second.Points)
 				return p1.second.Points > p2.second.Points;
 			int gd1 = p1.second.GoalsFor - p1.second.GoalsAgainst;
