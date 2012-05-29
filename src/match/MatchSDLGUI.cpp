@@ -202,6 +202,32 @@ void MatchSDLGUI::drawEnvironment()
 	}
 }
 
+int MatchSDLGUI::playerTextureIndex(const Player* p)
+{
+	const AbsVector3& vel = p->getVelocity();
+	auto it = mPlayerTextureIndices.find(p);
+	int dir = 0;
+	if(it == mPlayerTextureIndices.end()) {
+		it = mPlayerTextureIndices.insert(std::make_pair(p, 0)).first;
+	}
+	if(vel.v.null()) {
+		return it->second;
+	}
+	else {
+		if(vel.v.x > fabs(vel.v.y)) {
+			dir = 1; // west
+		}
+		else if(vel.v.x < -fabs(vel.v.y)) {
+			dir = 3; // east
+		}
+		else if(vel.v.y < 0) {
+			dir = 2; // south
+		}
+		it->second = dir;
+		return dir;
+	}
+}
+
 void MatchSDLGUI::drawPlayers()
 {
 	for(int i = 0; i < 2; i++) {
@@ -216,11 +242,12 @@ void MatchSDLGUI::drawPlayers()
 
 			drawSprite(*mPlayerShadowTexture,
 					Rectangle((-mCamera.x + v.v.x - 0.8f + v.v.z * 0.5f) * mScaleLevel + screenWidth * 0.5f,
-						(-mCamera.y + v.v.y - 0.1f + v.v.z * 0.7f) * mScaleLevel + screenHeight * 0.5f,
+						(-mCamera.y + v.v.y - 0.8f + v.v.z * 0.7f) * mScaleLevel + screenHeight * 0.5f,
 						mScaleLevel * 2.0f, mScaleLevel * 2.0f),
 					Rectangle(1, 1, -1, -1), playerShadowHeight);
 
-			drawSprite(pl->getTeam()->isFirst() ? *mPlayerTextureHome : *mPlayerTextureAway,
+			drawSprite(pl->getTeam()->isFirst() ? *mPlayerTextureHome[playerTextureIndex(pl)] :
+					*mPlayerTextureAway[playerTextureIndex(pl)],
 					Rectangle((-mCamera.x + v.v.x - 0.8f + v.v.z * 0.5f) * mScaleLevel + screenWidth * 0.5f,
 						(-mCamera.y + v.v.y + v.v.z * 1.0f) * mScaleLevel + screenHeight * 0.5f,
 						mScaleLevel * 2.0f, mScaleLevel * 2.0f),
@@ -304,11 +331,18 @@ void MatchSDLGUI::loadTextures()
 {
 	mBallTexture = std::shared_ptr<Texture>(new Texture("share/ball1.png", 0, 8));
 	mBallShadowTexture = std::shared_ptr<Texture>(new Texture("share/ball1shadow.png", 0, 8));
-	SDLSurface surf("share/player1-n.png");
-	surf.changePixelColor(Color(255, 0, 0), Color(255, 255, 255));
-	mPlayerTextureHome = std::shared_ptr<Texture>(new Texture(surf, 0, 32));
-	surf.changePixelColor(Color(255, 255, 255), Color(0, 0, 0));
-	mPlayerTextureAway = std::shared_ptr<Texture>(new Texture(surf, 0, 32));
+	SDLSurface surfs[4] = { SDLSurface("share/player1-n.png"),
+		SDLSurface("share/player1-w.png"),
+		SDLSurface("share/player1-s.png"),
+		SDLSurface("share/player1-e.png") };
+	int i = 0;
+	for(auto& s : surfs) {
+		s.changePixelColor(Color(255, 0, 0), Color(255, 255, 255));
+		mPlayerTextureHome[i] = std::shared_ptr<Texture>(new Texture(s, 0, 32));
+		s.changePixelColor(Color(255, 255, 255), Color(0, 0, 0));
+		mPlayerTextureAway[i] = std::shared_ptr<Texture>(new Texture(s, 0, 32));
+		i++;
+	}
 	mPitchTexture = std::shared_ptr<Texture>(new Texture("share/grass1.png", 0, 0));
 	mPlayerShadowTexture = std::shared_ptr<Texture>(new Texture("share/player1shadow.png", 0, 32));
 

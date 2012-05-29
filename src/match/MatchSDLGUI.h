@@ -97,10 +97,12 @@ class MatchSDLGUI : public MatchGUI, public PlayerController {
 		void setupPitchLines();
 		void drawPitchLines();
 		void drawGoals();
+		int playerTextureIndex(const Player* p);
 		Clock mClock;
 		SDL_Surface* mScreen;
-		std::shared_ptr<Common::Texture> mPlayerTextureHome;
-		std::shared_ptr<Common::Texture> mPlayerTextureAway;
+		std::map<const Player*, int> mPlayerTextureIndices;
+		std::shared_ptr<Common::Texture> mPlayerTextureHome[4];
+		std::shared_ptr<Common::Texture> mPlayerTextureAway[4];
 		std::shared_ptr<Common::Texture> mPlayerShadowTexture;
 		std::shared_ptr<Common::Texture> mPitchTexture;
 		std::shared_ptr<Common::Texture> mBallTexture;
