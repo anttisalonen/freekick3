@@ -1,3 +1,6 @@
+#include <stdlib.h>
+#include <time.h>
+
 #include <iostream>
 #include <stdexcept>
 
@@ -52,6 +55,7 @@ Menu::Menu()
 
 void Menu::run()
 {
+	srand(time(NULL));
 	mScreenManager->drawScreen();
 	while(mScreenManager->isRunning()) {
 		if(mScreenManager->handleEvents())
