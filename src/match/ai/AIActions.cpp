@@ -286,7 +286,7 @@ AIFetchBallAction::AIFetchBallAction(const Player* p)
 	float maxdist = 20.0f;
 	float dist = MatchEntity::distanceBetween(*p,
 			*p->getMatch()->getBall());
-	mScore = 0.5f * std::max(0.01f, (maxdist - dist) / maxdist);
+	mScore = std::max(0.01f, (maxdist - dist) / maxdist);
 	AbsVector3 tgtpos = p->getMatch()->getBall()->getPosition();
 	mScore = AIHelpers::checkTacticArea(*p, mScore, tgtpos);
 	mAction = AIHelpers::createMoveActionTo(*p, tgtpos);
