@@ -4,6 +4,8 @@
 #include <vector>
 #include <memory>
 
+#include "common/Color.h"
+
 #include "soccer/DataExchange.h"
 #include "soccer/Player.h"
 #include "soccer/Continent.h"
@@ -32,10 +34,35 @@ struct TeamController {
 	int PlayerShirtNumber;
 };
 
+class Kit {
+	public:
+		enum class KitType {
+			Plain,
+			Striped,
+			HorizontalStriped,
+			ColoredSleeves
+		};
+
+		Kit(KitType t, const Common::Color& shirt1, const Common::Color& shirt2,
+				const Common::Color& shorts, const Common::Color& socks);
+		const Common::Color& getPrimaryShirtColor() const;
+		const Common::Color& getSecondaryShirtColor() const;
+		const Common::Color& getShortsColor() const;
+		const Common::Color& getSocksColor() const;
+		KitType getKitType() const;
+
+	private:
+		KitType mType;
+		Common::Color mPrimaryShirtColor;
+		Common::Color mSecondaryShirtColor;
+		Common::Color mShortsColor;
+		Common::Color mSocksColor;
+};
+
 class Team {
 	public:
-		Team(int id, const char* name, const std::vector<int>& players);
-		Team(int id, const char* name, const std::vector<std::shared_ptr<Player>>& players);
+		Team(int id, const char* name, const Kit& homekit, const Kit& awaykit, const std::vector<int>& players);
+		Team(int id, const char* name, const Kit& homekit, const Kit& awaykit, const std::vector<std::shared_ptr<Player>>& players);
 		virtual ~Team() { }
 		void addPlayer(std::shared_ptr<Player> p);
 		const std::shared_ptr<Player> getPlayer(unsigned int i) const;
@@ -44,12 +71,16 @@ class Team {
 		const std::string& getName() const;
 		const std::vector<std::shared_ptr<Player>>& getPlayers() const;
 		const std::shared_ptr<Player> getPlayerById(int i) const;
+		const Kit& getHomeKit() const;
+		const Kit& getAwayKit() const;
 	protected:
 		int mId;
 		std::string mName;
 	private:
 		std::vector<int> mPlayerIds;
 		std::vector<std::shared_ptr<Player>> mPlayers;
+		Kit mHomeKit;
+		Kit mAwayKit;
 };
 
 class StatefulTeam : public Team {

@@ -1,6 +1,8 @@
 #include <string>
 #include <stdexcept>
 
+#include "common/Color.h"
+
 #include "soccer/DataExchange.h"
 #include "soccer/Match.h"
 #include "soccer/Player.h"
@@ -90,12 +92,48 @@ std::shared_ptr<Team> DataExchange::parseTeam(const TiXmlElement* teamelem)
 		}
 	}
 
+	std::vector<Kit> kits;
+	const TiXmlElement* kitselem = teamelem->FirstChildElement("Kits");
+	if(!kitselem)
+		throw std::runtime_error("Error parsing kits in team");
+
+	for(const TiXmlElement* kitelem = kitselem->FirstChildElement(); kitelem; kitelem = kitelem->NextSiblingElement()) {
+		int kittype;
+		if(kitelem->QueryIntAttribute("type", &kittype) != TIXML_SUCCESS)
+			throw std::runtime_error("Error parsing kit in team");
+		if(kittype < 0 || kittype > 3)
+			throw std::runtime_error("Error parsing kit type in team");
+
+		Common::Color colors[4];
+		int j = 0;
+		for(auto cs : { "ShirtColor1", "ShirtColor2", "ShortsColor", "SocksColor" }) {
+			const TiXmlElement* color1elem = kitelem->FirstChildElement(cs);
+			if(!color1elem)
+				throw std::runtime_error("Error parsing kit in team");
+			int components[3];
+			int i = 0;
+			for(auto s : { "r", "g", "b" }) {
+				if(color1elem->QueryIntAttribute(s, &components[i]) != TIXML_SUCCESS)
+					throw std::runtime_error("Error parsing kit in team");
+				if(components[i] < 0 || components[i] > 255)
+					throw std::runtime_error("Error parsing kit in team");
+				i++;
+			}
+			colors[j++] = Common::Color(components[0], components[1], components[2]);
+		}
+		kits.push_back(Kit(Kit::KitType(kittype), colors[0], colors[1], colors[2], colors[3]));
+	}
+
+	if(kits.size() != 2) {
+		throw std::runtime_error("Error parsing kits in team");
+	}
+
 	std::shared_ptr<Team> team;
 	if(playerids.empty()) {
-		team.reset(new Team(id, name, players));
+		team.reset(new Team(id, name, kits[0], kits[1], players));
 	}
 	else {
-		team.reset(new Team(id, name, playerids));
+		team.reset(new Team(id, name, kits[0], kits[1], playerids));
 		for(auto p : players)
 			team->addPlayer(p);
 	}
@@ -213,6 +251,39 @@ TiXmlElement* DataExchange::createTeamElement(const Team& t, bool reference_play
 		}
 	}
 	teamelem->LinkEndChild(playerselem);
+
+	TiXmlElement* kitselem = new TiXmlElement("Kits");
+	for(auto k : { t.getHomeKit(), t.getAwayKit() }) {
+		TiXmlElement* kitelem = new TiXmlElement("Kit");
+		kitelem->SetAttribute("type", int(k.getKitType()));
+
+		TiXmlElement* col1elem = new TiXmlElement("ShirtColor1");
+		col1elem->SetAttribute("r", int(k.getPrimaryShirtColor().r));
+		col1elem->SetAttribute("g", int(k.getPrimaryShirtColor().g));
+		col1elem->SetAttribute("b", int(k.getPrimaryShirtColor().b));
+
+		TiXmlElement* col2elem = new TiXmlElement("ShirtColor2");
+		col2elem->SetAttribute("r", int(k.getSecondaryShirtColor().r));
+		col2elem->SetAttribute("g", int(k.getSecondaryShirtColor().g));
+		col2elem->SetAttribute("b", int(k.getSecondaryShirtColor().b));
+
+		TiXmlElement* col3elem = new TiXmlElement("ShortsColor");
+		col3elem->SetAttribute("r", int(k.getShortsColor().r));
+		col3elem->SetAttribute("g", int(k.getShortsColor().g));
+		col3elem->SetAttribute("b", int(k.getShortsColor().b));
+
+		TiXmlElement* col4elem = new TiXmlElement("SocksColor");
+		col4elem->SetAttribute("r", int(k.getSocksColor().r));
+		col4elem->SetAttribute("g", int(k.getSocksColor().g));
+		col4elem->SetAttribute("b", int(k.getSocksColor().b));
+
+		kitelem->LinkEndChild(col1elem);
+		kitelem->LinkEndChild(col2elem);
+		kitelem->LinkEndChild(col3elem);
+		kitelem->LinkEndChild(col4elem);
+		kitselem->LinkEndChild(kitelem);
+	}
+	teamelem->LinkEndChild(kitselem);
 
 	return teamelem;
 }

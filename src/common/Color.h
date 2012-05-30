@@ -1,6 +1,8 @@
 #ifndef COLOR_H
 #define COLOR_H
 
+#include <stdlib.h>
+
 namespace Common {
 
 struct Color {
@@ -12,6 +14,8 @@ struct Color {
 		b(b_) { }
 	inline bool operator==(const Color& f) const;
 	inline bool operator<(const Color& f) const;
+	inline int operator-(const Color& f) const;
+	inline void mix(const Color& c);
 	unsigned char r, g, b;
 
 	static const Color Red;
@@ -33,6 +37,26 @@ bool Color::operator<(const Color& f) const
 	if(g != f.g)
 		return g < f.g;
 	return b < f.b;
+}
+
+int Color::operator-(const Color& f) const
+{
+	int ret = 0;
+	ret += abs(r - f.r);
+	ret += abs(g - f.g);
+	ret += abs(b - f.b);
+	return ret;
+}
+
+void Color::mix(const Color& c)
+{
+	int r1 = r + c.r;
+	int g1 = g + c.g;
+	int b1 = b + c.b;
+
+	r = r1 / 2;
+	g = g1 / 2;
+	b = b1 / 2;
 }
 
 }

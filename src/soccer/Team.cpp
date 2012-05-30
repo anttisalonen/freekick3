@@ -5,6 +5,8 @@
 
 namespace Soccer {
 
+using namespace Common;
+
 TeamTactics::TeamTactics(const Team& team)
 	: Pressure(0.5f),
 	Organized(0.5f),
@@ -88,17 +90,57 @@ TeamTactics::TeamTactics(const Team& team)
 	}
 }
 
-Team::Team(int id, const char* name, const std::vector<int>& players)
-	: mId(id),
-	mName(name),
-	mPlayerIds(players)
+Kit::Kit(KitType t, const Common::Color& shirt1, const Common::Color& shirt2,
+		const Common::Color& shorts, const Common::Color& socks)
+	: mType(t),
+	mPrimaryShirtColor(shirt1),
+	mSecondaryShirtColor(shirt2),
+	mShortsColor(shorts),
+	mSocksColor(socks)
 {
 }
 
-Team::Team(int id, const char* name, const std::vector<std::shared_ptr<Player>>& players)
+Kit::KitType Kit::getKitType() const
+{
+	return mType;
+}
+
+const Color& Kit::getPrimaryShirtColor() const
+{
+	return mPrimaryShirtColor;
+}
+
+const Color& Kit::getSecondaryShirtColor() const
+{
+	return mSecondaryShirtColor;
+}
+
+const Color& Kit::getShortsColor() const
+{
+	return mShortsColor;
+}
+
+const Color& Kit::getSocksColor() const
+{
+	return mSocksColor;
+}
+
+
+Team::Team(int id, const char* name, const Kit& homekit, const Kit& awaykit, const std::vector<int>& players)
 	: mId(id),
 	mName(name),
-	mPlayers(players)
+	mPlayerIds(players),
+	mHomeKit(homekit),
+	mAwayKit(awaykit)
+{
+}
+
+Team::Team(int id, const char* name, const Kit& homekit, const Kit& awaykit, const std::vector<std::shared_ptr<Player>>& players)
+	: mId(id),
+	mName(name),
+	mPlayers(players),
+	mHomeKit(homekit),
+	mAwayKit(awaykit)
 {
 }
 
@@ -151,6 +193,17 @@ const std::shared_ptr<Player> Team::getPlayerById(int i) const
 			return p;
 	return nullptr;
 }
+
+const Kit& Team::getHomeKit() const
+{
+	return mHomeKit;
+}
+
+const Kit& Team::getAwayKit() const
+{
+	return mAwayKit;
+}
+
 
 StatefulTeam::StatefulTeam(const Team& t, TeamController c, const TeamTactics& tt)
 	: Team(t),

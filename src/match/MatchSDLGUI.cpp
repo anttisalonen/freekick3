@@ -320,6 +320,49 @@ void MatchSDLGUI::finishFrame()
 	SDL_GL_SwapBuffers();
 }
 
+std::pair<const Soccer::Kit, const Soccer::Kit> MatchSDLGUI::getKits() const
+{
+	Soccer::Kit kits[4] = {mMatch->getTeam(0)->getHomeKit(),
+		mMatch->getTeam(0)->getAwayKit(),
+		mMatch->getTeam(1)->getHomeKit(),
+		mMatch->getTeam(1)->getAwayKit()};
+
+	int diffs[4];
+	memset(diffs, 0, sizeof(diffs));
+
+	for(int i = 0; i < 2; i++) {
+		for(int j = 0; j < 2; j++) {
+			Color sc1 = kits[i].getPrimaryShirtColor();
+			Color sc2 = kits[2 + j].getPrimaryShirtColor();
+			if(kits[i].getKitType() != Soccer::Kit::KitType::Plain)
+				sc1.mix(kits[i].getSecondaryShirtColor());
+			if(kits[2 + j].getKitType() != Soccer::Kit::KitType::Plain)
+				sc2.mix(kits[2 + j].getSecondaryShirtColor());
+			diffs[i * 2 + j] = (sc1 - sc2) +
+				0.2f * (kits[i].getShortsColor() - kits[2 + j].getShortsColor());
+#if 0
+			printf("Kit 1: %d %d %d - Kit 2: %d %d %d - diff: %d\n",
+					sc1.r,
+					sc1.g,
+					sc1.b,
+					sc2.r,
+					sc2.g,
+					sc2.b,
+					diffs[i * 2 + j]);
+#endif
+		}
+	}
+	if(diffs[0] > 420 || (diffs[0] > diffs[1] && diffs[0] > diffs[2] && diffs[0] > diffs[3]))
+		return std::make_pair(kits[0], kits[2]);
+	if(diffs[1] > 420 || (diffs[1] > diffs[2] && diffs[1] > diffs[3]))
+		return std::make_pair(kits[0], kits[3]);
+
+	if(diffs[2] > 420 || diffs[2] > diffs[3])
+		return std::make_pair(kits[1], kits[2]);
+
+	return std::make_pair(kits[1], kits[3]);
+}
+
 void MatchSDLGUI::loadTextures()
 {
 	mBallTexture = std::shared_ptr<Texture>(new Texture("share/ball1.png", 0, 8));
@@ -328,12 +371,20 @@ void MatchSDLGUI::loadTextures()
 		SDLSurface("share/player1-w.png"),
 		SDLSurface("share/player1-s.png"),
 		SDLSurface("share/player1-e.png") };
+	std::pair<const Soccer::Kit, const Soccer::Kit> kits = getKits();
 	int i = 0;
 	for(auto& s : surfs) {
-		s.changePixelColor(Color(255, 0, 0), Color(255, 255, 255));
-		mPlayerTextureHome[i] = std::shared_ptr<Texture>(new Texture(s, 0, 32));
-		s.changePixelColor(Color(255, 255, 255), Color(0, 0, 0));
-		mPlayerTextureAway[i] = std::shared_ptr<Texture>(new Texture(s, 0, 32));
+		SDLSurface homes(s);
+		SDLSurface aways(s);
+		/* TODO: support other shirt types than plain */
+		homes.changePixelColors( { { Color(255, 0, 0),   kits.first.getPrimaryShirtColor() },
+				           { Color(255, 240, 0), kits.first.getShortsColor() },
+				           { Color(0, 0, 255),   kits.first.getSocksColor() } } );
+		mPlayerTextureHome[i] = std::shared_ptr<Texture>(new Texture(homes, 0, 32));
+		aways.changePixelColors( { { Color(255, 0, 0),   kits.second.getPrimaryShirtColor() },
+				           { Color(255, 240, 0), kits.second.getShortsColor() },
+				           { Color(0, 0, 255),   kits.second.getSocksColor() } } );
+		mPlayerTextureAway[i] = std::shared_ptr<Texture>(new Texture(aways, 0, 32));
 		i++;
 	}
 	mPitchTexture = std::shared_ptr<Texture>(new Texture("share/grass1.png", 0, 0));

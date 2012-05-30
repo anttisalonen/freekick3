@@ -203,6 +203,8 @@ class FreekickWriter {
 		const char* teamNationalityToString(int i);
 		static Soccer::PlayerSkills convertSkill(const s_player& pl);
 		static std::string scramble(int idx, const char* n);
+		static Soccer::Kit swosKitToSoccerKit(const s_kit& s);
+		static Common::Color swosColorToCommonColor(int c);
 		std::string mOutputDir;
 		std::string mTeamFile;
 		const std::vector<s_team>& mTeams;
@@ -640,12 +642,78 @@ Soccer::PlayerSkills FreekickWriter::convertSkill(const s_player& pl)
 	return plskills;
 }
 
+Common::Color FreekickWriter::swosColorToCommonColor(int c)
+{
+	switch(c) {
+		case 0: // gray
+		default:
+			return Common::Color(128, 128, 128);
+
+		case 1: // white
+			return Common::Color::White;
+
+		case 2: // black
+			return Common::Color::Black;
+
+		case 3: // orange
+			return Common::Color(255, 165, 0);
+
+		case 4: // red
+			return Common::Color::Red;
+
+		case 5: // blue
+			return Common::Color::Blue;
+
+		case 6: // brown
+			return Common::Color(150, 75, 0);
+
+		case 7: // light blue
+			return Common::Color(173, 216, 230);
+
+		case 8: // green
+			return Common::Color::Green;
+
+		case 9: // yellow
+			return Common::Color(255, 240, 0);
+	}
+}
+
+Soccer::Kit FreekickWriter::swosKitToSoccerKit(const s_kit& s)
+{
+	Soccer::Kit::KitType t;
+	switch(s.type) {
+		case 0:
+		default:
+			t = Soccer::Kit::KitType::Plain;
+			break;
+
+		case 1:
+			t = Soccer::Kit::KitType::ColoredSleeves;
+			break;
+
+		case 2:
+			t = Soccer::Kit::KitType::Striped;
+			break;
+
+		case 3:
+			t = Soccer::Kit::KitType::HorizontalStriped;
+			break;
+	}
+
+	return Soccer::Kit(t, swosColorToCommonColor(s.first_color),
+			swosColorToCommonColor(s.second_color),
+			swosColorToCommonColor(s.short_color),
+			swosColorToCommonColor(s.socks_color));
+}
+
 int FreekickWriter::write()
 {
 	Soccer::TeamDatabase teamdb;
 	Soccer::PlayerDatabase playerdb;
 
 	for(auto& st : mTeams) {
+		Soccer::Kit homekit = swosKitToSoccerKit(st.primary_kit);
+		Soccer::Kit awaykit = swosKitToSoccerKit(st.secondary_kit);
 		std::shared_ptr<Soccer::League> league = teamdb.getOrCreateLeague(nationToContinent(st.nation),
 				teamNationalityToString(st.nation), leagueLevelToString(st.division));
 
@@ -688,7 +756,8 @@ int FreekickWriter::write()
 
 		std::shared_ptr<Soccer::Team> t(new Soccer::Team(mCurrentTeamId,
 					mScramble ? scramble(league->getContainer().size(),
-						st.team_name).c_str() : st.team_name, players));
+						st.team_name).c_str() : st.team_name,
+					homekit, awaykit, players));
 		league->addT(t);
 		mCurrentTeamId++;
 	}

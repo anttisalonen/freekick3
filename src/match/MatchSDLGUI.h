@@ -98,6 +98,7 @@ class MatchSDLGUI : public MatchGUI, public PlayerController {
 		void drawPitchLines();
 		void drawGoals();
 		int playerTextureIndex(const Player* p);
+		std::pair<const Soccer::Kit, const Soccer::Kit> getKits() const;
 		Clock mClock;
 		SDL_Surface* mScreen;
 		std::shared_ptr<Common::Texture> mPlayerTextureHome[4];
