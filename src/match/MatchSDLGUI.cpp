@@ -204,28 +204,21 @@ void MatchSDLGUI::drawEnvironment()
 
 int MatchSDLGUI::playerTextureIndex(const Player* p)
 {
-	const AbsVector3& vel = p->getVelocity();
-	auto it = mPlayerTextureIndices.find(p);
+	AbsVector3 vec = p->getVelocity();
+	if(vec.v.null()) {
+		vec = MatchEntity::vectorFromTo(*p, *mMatch->getBall());
+	}
 	int dir = 0;
-	if(it == mPlayerTextureIndices.end()) {
-		it = mPlayerTextureIndices.insert(std::make_pair(p, 0)).first;
+	if(vec.v.x > fabs(vec.v.y)) {
+		dir = 1; // west
 	}
-	if(vel.v.null()) {
-		return it->second;
+	else if(vec.v.x < -fabs(vec.v.y)) {
+		dir = 3; // east
 	}
-	else {
-		if(vel.v.x > fabs(vel.v.y)) {
-			dir = 1; // west
-		}
-		else if(vel.v.x < -fabs(vel.v.y)) {
-			dir = 3; // east
-		}
-		else if(vel.v.y < 0) {
-			dir = 2; // south
-		}
-		it->second = dir;
-		return dir;
+	else if(vec.v.y < 0) {
+		dir = 2; // south
 	}
+	return dir;
 }
 
 void MatchSDLGUI::drawPlayers()

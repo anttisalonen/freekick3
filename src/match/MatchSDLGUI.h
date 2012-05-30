@@ -100,7 +100,6 @@ class MatchSDLGUI : public MatchGUI, public PlayerController {
 		int playerTextureIndex(const Player* p);
 		Clock mClock;
 		SDL_Surface* mScreen;
-		std::map<const Player*, int> mPlayerTextureIndices;
 		std::shared_ptr<Common::Texture> mPlayerTextureHome[4];
 		std::shared_ptr<Common::Texture> mPlayerTextureAway[4];
 		std::shared_ptr<Common::Texture> mPlayerShadowTexture;
