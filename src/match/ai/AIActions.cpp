@@ -263,7 +263,7 @@ AILongPassAction::AILongPassAction(const Player* p)
 			continue;
 
 		double thisscore = std::max(mPlayer->getTeam()->getShotScoreAt(sp->getPosition()) - myshotscore,
-				mPlayer->getTeam()->getPassScoreAt(sp->getPosition()) - mypassscore);
+				0.5f * mPlayer->getTeam()->getPassScoreAt(sp->getPosition()) - mypassscore);
 
 		if(thisscore > mScore) {
 			mScore = thisscore;
