@@ -21,9 +21,12 @@ std::shared_ptr<PlayerAction> AIMidfielderState::actNearBall(double time)
 
 std::shared_ptr<PlayerAction> AIMidfielderState::actOffBall(double time)
 {
-	mDescription = std::string("Midfield");
-	return AIHelpers::createMoveActionTo(*mPlayer,
-			AIHelpers::getPassPosition(*mPlayer));
+	AbsVector3 v = AIHelpers::getPassPosition(*mPlayer);
+	std::stringstream ss;
+	char buf[128];
+	sprintf(buf, "Midfield %d %d", (int)v.v.x, (int)v.v.y);
+	mDescription = std::string(buf);
+	return AIHelpers::createMoveActionTo(*mPlayer, v);
 }
 
 
