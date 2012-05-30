@@ -341,22 +341,23 @@ AIBlockAction::AIBlockAction(const Player* p)
 	AbsVector3 owngoal = MatchHelpers::ownGoalPosition(*p);
 	const Player* op = MatchHelpers::nearestOppositePlayerToBall(*p->getTeam());
 	float disttogoal = (owngoal.v - op->getPosition().v).length();
+	AbsVector3 blockpos = AbsVector3((op->getPosition().v + owngoal.v) * 0.5f);
 	mScore = std::min(1.0f, (100.0f - disttogoal) / 50.0f);
 	for(auto pl : MatchHelpers::getOwnPlayers(*p)) {
 		if(&*pl == p || pl->isGoalkeeper())
 			continue;
-		float disttoown = Common::Math::pointToLineDistance(op->getPosition().v,
-				owngoal.v,
-				pl->getPosition().v);
-		if(disttoown < 1.0f) {
+		float disttoown =
+			Common::Math::pointToLineDistance(blockpos.v,
+					owngoal.v,
+					pl->getPosition().v);
+		if(disttoown < 0.5f) {
 			mScore = -1.0f;
 			break;
 		}
 	}
-	AbsVector3 pos = AbsVector3((op->getPosition().v + owngoal.v) * 0.5f);
 	if(mScore > 0.0f)
-		mScore = AIHelpers::checkTacticArea(*p, mScore, pos);
-	mAction = AIHelpers::createMoveActionTo(*p, pos, 1.0f);
+		mScore = AIHelpers::checkTacticArea(*p, mScore, blockpos);
+	mAction = AIHelpers::createMoveActionTo(*p, blockpos, 1.0f);
 }
 
 const char* AIBlockAction::mActionName = "Block";
@@ -397,7 +398,7 @@ AIGuardAreaAction::AIGuardAreaAction(const Player* p)
 {
 	// action to move to the correct X position
 	float bestx = p->getMatch()->getPitchWidth() * 0.5f * p->getTactics().WidthPosition;
-	mScore = 0.1f;
+	mScore = 0.01f;
 	AbsVector3 tgtpos = p->getPosition();
 	tgtpos.v.x = bestx;
 	mAction = AIHelpers::createMoveActionTo(*p, tgtpos, 10.0f);
