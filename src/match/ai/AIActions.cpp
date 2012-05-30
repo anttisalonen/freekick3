@@ -225,7 +225,10 @@ AIPassAction::AIPassAction(const Player* p)
 						sp->getPosition().v,
 						op->getPosition().v);
 				if(dist < 5.0) {
-					thisscore -= 0.2f * ((5.0 - dist) / 5.0);
+					float decr = (5.0 - dist) / 5.0;
+					float disttogoal = (MatchHelpers::ownGoalPosition(*sp).v - op->getPosition().v).length();
+					float coeff = 0.2f + std::max(0.0f, ((40.0f - disttogoal) / 40.0f) * 1.0f);
+					thisscore -= coeff * decr;
 				}
 			}
 			if(thisscore > mScore) {
