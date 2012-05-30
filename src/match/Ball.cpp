@@ -18,12 +18,12 @@ Ball::Ball(Match* match)
 void Ball::update(float time)
 {
 	if(!mGrabbed) {
-		bool outsideBefore1 = mPosition.v.x < -GOAL_WIDTH_2 + GOAL_NET_RADIUS;
-		bool outsideBefore2 = mPosition.v.x > GOAL_WIDTH_2 - GOAL_NET_RADIUS;
+		bool outsideBefore1 = mPosition.v.x < -GOAL_WIDTH_2 - GOAL_NET_RADIUS;
+		bool outsideBefore2 = mPosition.v.x > GOAL_WIDTH_2 + GOAL_NET_RADIUS;
 		bool outsideBefore3 = mPosition.v.z > GOAL_HEIGHT;
 		MatchEntity::update(time);
-		bool outsideAfter1 = mPosition.v.x < -GOAL_WIDTH_2 + GOAL_NET_RADIUS;
-		bool outsideAfter2 = mPosition.v.x > GOAL_WIDTH_2 - GOAL_NET_RADIUS;
+		bool outsideAfter1 = mPosition.v.x < -GOAL_WIDTH_2 - GOAL_NET_RADIUS;
+		bool outsideAfter2 = mPosition.v.x > GOAL_WIDTH_2 + GOAL_NET_RADIUS;
 		bool outsideAfter3 = mPosition.v.z > GOAL_HEIGHT;
 
 		if(mVelocity.v.length() > 2.0f &&
