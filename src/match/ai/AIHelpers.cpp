@@ -1,10 +1,13 @@
 #include <stdlib.h>
 #include <algorithm>
 
-#include "match/ai/AIHelpers.h"
+#include "common/Math.h"
+
 #include "match/Team.h"
 #include "match/Match.h"
 #include "match/MatchHelpers.h"
+
+#include "match/ai/AIHelpers.h"
 
 std::shared_ptr<PlayerAction> AIHelpers::createMoveActionTo(const Player& p,
 		const AbsVector3& pos)
@@ -45,20 +48,26 @@ std::shared_ptr<PlayerAction> AIHelpers::createMoveActionToBall(const Player& p)
 
 AbsVector3 AIHelpers::getShotPosition(const Player& p)
 {
-	return getPositionByFunc(p, [&](const AbsVector3& v) { return p.getTeam()->getShotScoreAt(v); });
+	AbsVector3 v = getPositionByFunc(p, [&](const AbsVector3& v) { return p.getTeam()->getShotScoreAt(v); });
+	if((v.v - p.getPosition().v).length() > 2.0f)
+		return v;
+	else
+		return p.getPosition();
 }
 
 AbsVector3 AIHelpers::getPassPosition(const Player& p)
 {
-	return getPositionByFunc(p, [&](const AbsVector3& v) { return p.getTeam()->getPassScoreAt(v); });
+	AbsVector3 v = getPositionByFunc(p, [&](const AbsVector3& v) { return p.getTeam()->getPassScoreAt(v); });
+	if((v.v - p.getPosition().v).length() > 2.0f)
+		return v;
+	else
+		return p.getPosition();
 }
 
 AbsVector3 AIHelpers::getPositionByFunc(const Player& p, std::function<float (const AbsVector3& v)> func)
 {
 	float best = 0.001f;
 	AbsVector3 sp(p.getPosition());
-	sp.v.y = 0.0f; // move stuck player towards middle
-	sp.v.x = p.getMatch()->getPitchWidth() * 0.5f * p.getTactics().WidthPosition;
 	const int range = 40;
 	const int step = 5;
 	int minx = int(p.getMatch()->getPitchWidth() * -0.5f + 1);
@@ -114,7 +123,7 @@ float AIHelpers::checkTacticArea(const Player& p, float score, const AbsVector3&
 	float myx = p.getPosition().v.x;
 	float dist = fabs(myx - bestx);
 	float val;
-	val = std::max(0.0f, 1.0f - (dist / maxDist));
+	val = Common::clamp(0.0f, 1.0f - (dist / maxDist), 1.0f);
 	// printf("dist: %3.1f - maxdist: %3.1f - should: %3.1f - is: %3.1f - val: %3.3f\n", dist, maxDist, bestx, myx, val);
 	return score * val;
 }
