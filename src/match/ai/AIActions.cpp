@@ -64,6 +64,11 @@ const char* AIAction::getName() const
 	return mName;
 }
 
+std::string AIAction::getDescription() const
+{
+	return std::string(mName) + " " + mAction->getDescription();
+}
+
 AINullAction::AINullAction(const Player* p)
 	: AIAction(mActionName, p)
 {

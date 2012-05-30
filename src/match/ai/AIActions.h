@@ -25,6 +25,7 @@ class AIAction {
 		std::shared_ptr<PlayerAction> getAction() const;
 		double getScore() const;
 		const char* getName() const;
+		std::string getDescription() const;
 	protected:
 		const char* mName;
 		const Player* mPlayer;

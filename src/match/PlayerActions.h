@@ -10,17 +10,20 @@ class PlayerAction {
 	public:
 		virtual ~PlayerAction() { }
 		virtual void applyPlayerAction(Match& match, Player& p, double time) = 0;
+		virtual std::string getDescription() const = 0;
 };
 
 class IdlePA : public PlayerAction {
 	public:
 		void applyPlayerAction(Match& match, Player& p, double time);
+		std::string getDescription() const;
 };
 
 class RunToPA : public PlayerAction {
 	public:
 		RunToPA(const AbsVector3& v);
 		void applyPlayerAction(Match& match, Player& p, double time);
+		std::string getDescription() const;
 	private:
 		AbsVector3 mDiff;
 };
@@ -31,6 +34,7 @@ class KickBallPA : public PlayerAction {
 		// 1 being the maximum power
 		KickBallPA(const AbsVector3& v, Player* passtgt = nullptr, bool absolute = false);
 		void applyPlayerAction(Match& match, Player& p, double time);
+		std::string getDescription() const;
 	private:
 		AbsVector3 mDiff;
 		Player* mPassTarget;
@@ -40,6 +44,7 @@ class KickBallPA : public PlayerAction {
 class GrabBallPA : public PlayerAction {
 	public:
 		void applyPlayerAction(Match& match, Player& p, double time);
+		std::string getDescription() const;
 };
 
 #endif

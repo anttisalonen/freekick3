@@ -39,7 +39,7 @@ std::shared_ptr<PlayerAction> AIDefendState::actOffBall(double time)
 				AIActionChooser actionchooser(actions, false);
 
 				std::shared_ptr<AIAction> best = actionchooser.getBestAction();
-				mDescription = std::string("Defending - ") + best->getName();
+				mDescription = std::string("Defending - ") + best->getDescription();
 				return best->getAction();
 			}
 
