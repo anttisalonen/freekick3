@@ -328,7 +328,7 @@ AIGuardAction::AIGuardAction(const Player* p)
 		}
 	}
 	mScore = highestdangerousness;
-	mAction = AIHelpers::createMoveActionTo(*p, tgtpos);
+	mAction = AIHelpers::createMoveActionTo(*p, tgtpos, 1.0f);
 }
 
 const char* AIGuardAction::mActionName = "Guard";
@@ -356,7 +356,7 @@ AIBlockAction::AIBlockAction(const Player* p)
 	AbsVector3 pos = AbsVector3((op->getPosition().v + owngoal.v) * 0.5f);
 	if(mScore > 0.0f)
 		mScore = AIHelpers::checkTacticArea(*p, mScore, pos);
-	mAction = AIHelpers::createMoveActionTo(*p, pos);
+	mAction = AIHelpers::createMoveActionTo(*p, pos, 1.0f);
 }
 
 const char* AIBlockAction::mActionName = "Block";
@@ -387,7 +387,7 @@ AIBlockPassAction::AIBlockPassAction(const Player* p)
 		}
 	}
 	AbsVector3 tgtpos = AbsVector3((p->getPosition().v + bestpos.v) * 0.5f);
-	mAction = AIHelpers::createMoveActionTo(*p, tgtpos);
+	mAction = AIHelpers::createMoveActionTo(*p, tgtpos, 1.0f);
 }
 
 const char* AIBlockPassAction::mActionName = "Block pass";
@@ -400,7 +400,7 @@ AIGuardAreaAction::AIGuardAreaAction(const Player* p)
 	mScore = 0.1f;
 	AbsVector3 tgtpos = p->getPosition();
 	tgtpos.v.x = bestx;
-	mAction = AIHelpers::createMoveActionTo(*p, tgtpos);
+	mAction = AIHelpers::createMoveActionTo(*p, tgtpos, 10.0f);
 }
 
 const char* AIGuardAreaAction::mActionName = "Guard area";

@@ -10,11 +10,11 @@
 #include "match/ai/AIHelpers.h"
 
 std::shared_ptr<PlayerAction> AIHelpers::createMoveActionTo(const Player& p,
-		const AbsVector3& pos)
+		const AbsVector3& pos, float threshold)
 {
 	AbsVector3 v(pos);
 	v.v -= p.getPosition().v;
-	if(v.v.length() < 0.3f) {
+	if(v.v.length() < threshold) {
 		return std::shared_ptr<PlayerAction>(new IdlePA());
 	}
 	else {

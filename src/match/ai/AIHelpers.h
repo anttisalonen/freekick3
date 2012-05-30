@@ -11,7 +11,7 @@
 class AIHelpers {
 	public:
 		static std::shared_ptr<PlayerAction> createMoveActionTo(const Player& p,
-				const AbsVector3& pos);
+				const AbsVector3& pos, float threshold = 0.3f);
 		static std::shared_ptr<PlayerAction> createMoveActionToBall(const Player& p);
 		static AbsVector3 getShotPosition(const Player& p);
 		static AbsVector3 getPassPosition(const Player& p);
