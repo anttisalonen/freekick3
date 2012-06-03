@@ -46,7 +46,6 @@ class Team : public Soccer::StatefulTeam {
 		float calculatePassScoreAt(const std::vector<std::shared_ptr<Player>>& offensivePlayers,
 				const AbsVector3& pos) const;
 		void getSupportPositionCoordinates(const AbsVector3& pos, unsigned int& i, unsigned int& j) const;
-		static float linearScale(float dist, float opt);
 		Match* mMatch;
 		bool mFirst;
 		std::vector<std::shared_ptr<Player>> mPlayers;
