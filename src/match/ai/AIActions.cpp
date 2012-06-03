@@ -321,7 +321,8 @@ AILongPassAction::AILongPassAction(const Player* p)
 	}
 	if(mScore >= -1.0f) {
 		tgt.v.z += tgt.v.length() * 0.3f;
-		tgt.v *= 0.7f;
+		/* TODO: this coefficient should be dependent on air viscosity */
+		tgt.v *= 0.5f;
 		mAction = std::shared_ptr<PlayerAction>(new KickBallPA(tgt, tgtPlayer));
 	}
 }

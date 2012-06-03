@@ -266,7 +266,7 @@ double Match::getRollInertiaFactor() const
 double Match::getAirViscosityFactor() const
 {
 	// higher makes ball slower
-	return 0.7;
+	return 0.4;
 }
 
 void Match::addGoal(bool forFirst)
