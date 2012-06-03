@@ -81,10 +81,28 @@ void Ball::update(float time)
 
 						// keep ball on the correct side of the net
 						if(outsideBefore1 != outsideAfter1) {
-							mPosition.v.x = -GOAL_WIDTH_2 - 0.1f;
+							// left net
+							mPosition.v.x = -GOAL_WIDTH_2;
+							if(outsideBefore1) {
+								// outside the goal
+								mPosition.v.x -= 0.3f;
+							}
+							else {
+								// inside the goal
+								mPosition.v.x += 0.3f;
+							}
 						}
 						else {
-							mPosition.v.x = GOAL_WIDTH_2 + 0.1f;
+							// right net
+							mPosition.v.x = GOAL_WIDTH_2;
+							if(outsideBefore2) {
+								// outside the goal
+								mPosition.v.x += 0.3f;
+							}
+							else {
+								// inside the goal
+								mPosition.v.x -= 0.3f;
+							}
 						}
 					}
 					if(outsideBefore3 != outsideAfter3) {
