@@ -32,7 +32,7 @@ TeamTactics::TeamTactics(const Team& team)
 				if(df < 4) {
 					if(df == 0) {
 						t.WidthPosition = -0.50;
-						t.Radius = 0.20f;
+						t.Radius = 0.55f;
 					}
 					else if(df == 1) {
 						t.WidthPosition = -0.20;
@@ -44,7 +44,7 @@ TeamTactics::TeamTactics(const Team& team)
 					}
 					else {
 						t.WidthPosition = 0.50;
-						t.Radius = 0.20f;
+						t.Radius = 0.55f;
 					}
 					mTactics.insert(std::make_pair(p->getId(), t));
 					df++;
