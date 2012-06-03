@@ -61,40 +61,7 @@ std::shared_ptr<PlayerAction> PlayerAIController::actOffPlay(double time)
 			mPlayer->getMatch()->getPlayState() == PlayState::OutKickoff ?
 			mPlayer->getShirtNumber() == 10 : nearest;
 		if(shouldkickball) {
-			float dist = (mPlayer->getMatch()->getBall()->getPosition().v -
-					mPlayer->getPosition().v).length();
-			bool cankickball = mPlayer->getMatch()->getPlayState() != PlayState::OutKickoff ||
-				MatchHelpers::playersPositionedForKickoff(*mPlayer->getMatch(),
-						*mPlayer);
-			if(cankickball && dist < MAX_KICK_DISTANCE * 0.7f) {
-				if(mKickInTimer.checkAndRewind()) {
-					return mPlayState->act(time);
-				}
-				else {
-					mKickInTimer.doCountdown(time);
-					return std::shared_ptr<PlayerAction>(new IdlePA());
-				}
-			}
-			else {
-				if(MatchHelpers::distanceToPitch(*mPlayer->getMatch(),
-							mPlayer->getMatch()->getBall()->getPosition())
-						< 1.0f) {
-					return AIHelpers::createMoveActionTo(*mPlayer,
-							mPlayer->getMatch()->getBall()->getPosition());
-				} else {
-					if(!MatchHelpers::onOwnSide(*mPlayer)) {
-						AbsVector3 v = mPlayer->getMatch()->getBall()->getPosition();
-						if(MatchHelpers::attacksUp(*mPlayer))
-							v.v.y -= 1.0f;
-						else
-							v.v.y += 1.0f;
-						return AIHelpers::createMoveActionTo(*mPlayer, v);
-					}
-					else {
-						return std::shared_ptr<PlayerAction>(new IdlePA());
-					}
-				}
-			}
+			return doRestart(time);
 		}
 		else {
 			if(mPlayer->getMatch()->getPlayState() == PlayState::OutKickoff) {
@@ -119,6 +86,92 @@ std::shared_ptr<PlayerAction> PlayerAIController::actOffPlay(double time)
 			return mPlayState->actOnRestart(time);
 		}
 	}
+}
+
+std::shared_ptr<PlayerAction> PlayerAIController::doRestart(double time)
+{
+	// called when this player should restart the game
+	AbsVector3 shoulddiff;
+
+	// if the ball is far out, idle
+	if(MatchHelpers::distanceToPitch(*mPlayer->getMatch(),
+				mPlayer->getMatch()->getBall()->getPosition()) > 1.0f) {
+		return std::shared_ptr<PlayerAction>(new IdlePA());
+	}
+
+	const AbsVector3& ballpos = mPlayer->getMatch()->getBall()->getPosition();
+	switch(mPlayer->getMatch()->getPlayState()) {
+		case PlayState::OutThrowin:
+			{
+				if(ballpos.v.x < 0.0f)
+					shoulddiff.v.x = -1.0f;
+				else
+					shoulddiff.v.x = 1.0f;
+
+				break;
+			}
+
+		case PlayState::OutIndirectFreekick:
+		case PlayState::OutDirectFreekick:
+		case PlayState::OutPenaltykick:
+		case PlayState::OutDroppedball:
+		case PlayState::OutGoalkick:
+			{
+				if(MatchHelpers::attacksUp(*mPlayer))
+					shoulddiff.v.y = -1.0f;
+				else
+					shoulddiff.v.y = 1.0f;
+				break;
+			}
+
+		case PlayState::OutCornerkick:
+			{
+				if(ballpos.v.x < 0.0f)
+					shoulddiff.v.x = -1.0f;
+				else
+					shoulddiff.v.x = 1.0f;
+				if(ballpos.v.y < 0.0f)
+					shoulddiff.v.y = -1.0f;
+				else
+					shoulddiff.v.y = 1.0f;
+
+				break;
+			}
+
+		case PlayState::InPlay:
+		default:
+			break;
+	}
+
+	shoulddiff.v.normalize();
+	shoulddiff.v *= MAX_KICK_DISTANCE * 0.8f;
+	AbsVector3 shouldpos(mPlayer->getMatch()->getBall()->getPosition().v + shoulddiff.v);
+	return gotoKickPositionOrKick(time, shouldpos);
+}
+
+std::shared_ptr<PlayerAction> PlayerAIController::gotoKickPositionOrKick(double time, const AbsVector3& pos)
+{
+	// called with the position where the player should restart from
+	AbsVector3 tgt(pos.v - mPlayer->getPosition().v);
+	if(tgt.v.length() < 0.5f) {
+		// near target - see if we can kick the ball (should be true)
+		// if we can, wait for a while, then restart
+		// if we can't, run to the ball
+		float dist = (mPlayer->getMatch()->getBall()->getPosition().v -
+				mPlayer->getPosition().v).length();
+		bool cankickball = MatchHelpers::playersPositionedForRestart(*mPlayer->getMatch(), *mPlayer);
+		if(cankickball && dist < MAX_KICK_DISTANCE * 1.0f) {
+			if(mKickInTimer.checkAndRewind()) {
+				return mPlayState->act(time);
+			}
+			else {
+				mKickInTimer.doCountdown(time);
+				return std::shared_ptr<PlayerAction>(new IdlePA());
+			}
+		}
+	}
+
+	return AIHelpers::createMoveActionTo(*mPlayer, pos);
 }
 
 void PlayerAIController::matchHalfChanged(MatchHalf m)

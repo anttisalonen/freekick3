@@ -178,16 +178,83 @@ bool MatchHelpers::playersOnPause(const Match& m)
 	return true;
 }
 
-bool MatchHelpers::playersPositionedForKickoff(const Match& m, const Player& nearest)
+bool MatchHelpers::playersPositionedForRestart(const Match& m, const Player& restarter)
 {
-	for(int i = 0; i < 2; i++) {
-		for(auto p : getTeamPlayers(m, i)) {
-			if(&*p != &nearest && !onOwnSideAndReady(*p)) {
-				return false;
+	switch(m.getPlayState()) {
+		case PlayState::OutKickoff:
+			for(int i = 0; i < 2; i++) {
+				for(auto p : getTeamPlayers(m, i)) {
+					if(&*p != &restarter && !onOwnSideAndReady(*p)) {
+						return false;
+					}
+				}
 			}
-		}
+			return true;
+
+		case PlayState::OutThrowin:
+		case PlayState::OutCornerkick:
+		case PlayState::OutIndirectFreekick:
+		case PlayState::OutDirectFreekick:
+		case PlayState::OutPenaltykick:
+		case PlayState::OutDroppedball:
+			for(auto p : getOpposingPlayers(restarter)) {
+				/* TODO: move this magic constant */
+				if(MatchEntity::distanceBetween(*m.getBall(), *p) < 9.15f) {
+					return false;
+				}
+			}
+			return true;
+
+		case PlayState::OutGoalkick:
+			for(auto p : getOpposingPlayers(restarter)) {
+				if(inOpposingPenaltyArea(*p))
+					return false;
+			}
+			return true;
+
+		case PlayState::InPlay:
+			return true;
 	}
 	return true;
+}
+
+// returns 0 if not in any penalty area,
+// -1 if in lower, 1 if in upper penalty area.
+int MatchHelpers::inPenaltyArea(const Player& p)
+{
+	const AbsVector3& v = p.getPosition();
+	const Match& m = *p.getMatch();
+
+	bool in_x = fabs(v.v.x) < 20.15f;
+	float yp = v.v.y;
+
+	if(!in_x)
+		return 0;
+
+	if(yp < m.getPitchHeight() * -0.5f + 16.5f)
+		return -1;
+	if(yp > m.getPitchHeight() * 0.5f - 16.5f)
+		return 1;
+
+	return 0;
+}
+
+bool MatchHelpers::inOwnPenaltyArea(const Player& p)
+{
+	int v = inPenaltyArea(p);
+	if(v == 0)
+		return false;
+	return (v == -1 && MatchHelpers::attacksUp(p)) ||
+			(v == 1 && !MatchHelpers::attacksUp(p));
+}
+
+bool MatchHelpers::inOpposingPenaltyArea(const Player& p)
+{
+	int v = inPenaltyArea(p);
+	if(v == 0)
+		return false;
+	return (v == 1 && MatchHelpers::attacksUp(p)) ||
+			(v == -1 && !MatchHelpers::attacksUp(p));
 }
 
 bool MatchHelpers::onOwnSide(const Player& p)

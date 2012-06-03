@@ -84,6 +84,18 @@ AIState::AIState(Player* p, AIPlayController* m)
 {
 }
 
+std::shared_ptr<PlayerAction> AIState::actOnBall(double time)
+{
+	mDescription = std::string("Preparing kick");
+	return mPlayController->switchState(std::shared_ptr<AIState>(new AIKickBallState(mPlayer, mPlayController)), time);
+}
+
+std::shared_ptr<PlayerAction> AIState::actNearBall(double time)
+{
+	mDescription = std::string("Fetching");
+	return AIHelpers::createMoveActionToBall(*mPlayer);
+}
+
 std::shared_ptr<PlayerAction> AIState::switchState(std::shared_ptr<AIState> newstate, double time)
 {
 	return mPlayController->switchState(newstate, time);

@@ -28,14 +28,16 @@ class AIState {
 	public:
 		AIState(Player* p, AIPlayController* m);
 		virtual ~AIState() { }
-		virtual std::shared_ptr<PlayerAction> actOnBall(double time) = 0;
-		virtual std::shared_ptr<PlayerAction> actNearBall(double time) = 0;
+		virtual std::shared_ptr<PlayerAction> actOnBall(double time);
+		virtual std::shared_ptr<PlayerAction> actNearBall(double time);
 		virtual std::shared_ptr<PlayerAction> actOffBall(double time) = 0;
 		const std::string& getDescription() const;
 		virtual void matchHalfChanged(MatchHalf m) { }
 	protected:
 		std::shared_ptr<PlayerAction> switchState(std::shared_ptr<AIState> newstate, double time);
 		void setNewState(std::shared_ptr<AIState> newstate);
+		std::shared_ptr<PlayerAction> gotoKickPositionOrKick(double time, const AbsVector3& pos) const;
+		std::shared_ptr<PlayerAction> fetchAndKickBall(double time, bool kicking) const;
 		Player* mPlayer;
 		AIPlayController* mPlayController;
 		std::string mDescription;
@@ -58,8 +60,6 @@ class AIGoalkeeperState : public AIState {
 class AIDefendState : public AIState {
 	public:
 		AIDefendState(Player* p, AIPlayController* m);
-		std::shared_ptr<PlayerAction> actOnBall(double time);
-		std::shared_ptr<PlayerAction> actNearBall(double time);
 		std::shared_ptr<PlayerAction> actOffBall(double time);
 };
 
@@ -74,18 +74,15 @@ class AIKickBallState : public AIState {
 class AIOffensiveState : public AIState {
 	public:
 		AIOffensiveState(Player* p, AIPlayController* m);
-		std::shared_ptr<PlayerAction> actOnBall(double time);
-		std::shared_ptr<PlayerAction> actNearBall(double time);
 		std::shared_ptr<PlayerAction> actOffBall(double time);
 };
 
 class AIMidfielderState : public AIState {
 	public:
 		AIMidfielderState(Player* p, AIPlayController* m);
-		std::shared_ptr<PlayerAction> actOnBall(double time);
-		std::shared_ptr<PlayerAction> actNearBall(double time);
 		std::shared_ptr<PlayerAction> actOffBall(double time);
 };
+
 
 
 #endif

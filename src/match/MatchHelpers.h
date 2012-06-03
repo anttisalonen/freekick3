@@ -32,9 +32,12 @@ class MatchHelpers {
 		static bool attacksUp(const Team& t);
 		static bool onPitch(const Match& m, const AbsVector3& v);
 		static bool playersOnPause(const Match& m);
-		static bool playersPositionedForKickoff(const Match& m, const Player& nearest);
+		static bool playersPositionedForRestart(const Match& m, const Player& restarter);
 		static bool onOwnSideAndReady(const Player& p);
 		static bool onOwnSide(const Player& p);
+		static int inPenaltyArea(const Player& p);
+		static bool inOwnPenaltyArea(const Player& p);
+		static bool inOpposingPenaltyArea(const Player& p);
 };
 
 #endif

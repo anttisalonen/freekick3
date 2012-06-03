@@ -188,19 +188,9 @@ bool Referee::isFirstTeamInControl() const
 
 bool Referee::ballGrabbed(const Player& p)
 {
-	bool in_x = fabs(p.getPosition().v.x) < 20.15f;
-	bool in_y;
-	float yp = p.getPosition().v.y;
+	bool inPen = MatchHelpers::inOwnPenaltyArea(p);
 
-	if(MatchHelpers::attacksUp(p)) {
-		in_y = yp < p.getMatch()->getPitchHeight() * -0.5f + 16.5f;
-	}
-	else {
-		in_y = yp > p.getMatch()->getPitchHeight() * 0.5f - 16.5f;
-	}
-	in_y &= onPitch(p);
-
-	if(!in_y || !in_x)
+	if(!inPen || !onPitch(p))
 		return false;
 
 	mFirstTeamInControl = p.getTeam()->isFirst();

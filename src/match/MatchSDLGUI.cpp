@@ -629,7 +629,6 @@ std::shared_ptr<PlayerAction> MatchSDLGUI::act(double time)
 {
 	float kickpower = 0.0f;
 	bool mouseaim = false;
-	AbsVector3 toBall = AbsVector3(mMatch->getBall()->getPosition().v - mPlayer->getPosition().v);
 	if((mMouseAim && MatchHelpers::canKickBall(*mPlayer))|| (mPlayerKickPower && !mPlayerKickPowerVelocity)) {
 		// about to kick
 		kickpower = mPlayerKickPower;
@@ -644,15 +643,7 @@ std::shared_ptr<PlayerAction> MatchSDLGUI::act(double time)
 		return AIHelpers::createMoveActionTo(*mPlayer,
 				mPlayer->getMatch()->convertRelativeToAbsoluteVector(mPlayer->getHomePosition()));
 	}
-	if(!playing(mMatch->getPlayState()) && MatchHelpers::allowedToKick(*mPlayer)) {
-		// restart
-		bool nearest = MatchHelpers::nearestOwnPlayerTo(*mPlayer,
-				mPlayer->getMatch()->getBall()->getPosition());
-		if(nearest && toBall.v.length() > MAX_KICK_DISTANCE) {
-			return std::shared_ptr<PlayerAction>(new
-					RunToPA(AbsVector3(toBall.v.normalized())));
-		}
-	}
+
 	if(kickpower) {
 		// kicking
 		if(!mouseaim) {
@@ -709,10 +700,8 @@ void MatchSDLGUI::setPlayerController(double frameTime)
 	mPlayerSwitchTimer.doCountdown(frameTime);
 	mPlayerSwitchTimer.check();
 	if(playing(mMatch->getMatchHalf())) {
-		if(mPlayer->isAIControlled()) {
-			mPlayer->setController(this);
-			mPlayerKickPower = 0.0f;
-			printf("Now controlling\n");
+		if(!playing(mMatch->getPlayState())) {
+			mPlayer->setAIControlled();
 		}
 		if(mControlledPlayerIndex == -1) {
 			Player* pl = mMatch->getTeam(mControlledTeamIndex)->getPlayerReceivingPass();
