@@ -68,12 +68,13 @@ AbsVector3 AIHelpers::getPositionByFunc(const Player& p, std::function<float (co
 {
 	float best = 0.001f;
 	AbsVector3 sp(p.getPosition());
-	const int range = 40;
+	const int range = 60;
 	const int step = 5;
-	int minx = int(p.getMatch()->getPitchWidth() * -0.5f + 1);
-	int maxx = int(-minx);
+	int minx = int(p.getMatch()->getPitchWidth()  * -0.5f + 1);
+	int maxx = int(p.getMatch()->getPitchWidth()  *  0.5f - 1);
 	int miny = int(p.getMatch()->getPitchHeight() * -0.5f + 1);
-	int maxy = int(-miny);
+	int maxy = int(p.getMatch()->getPitchHeight() *  0.5f - 1);
+
 	for(int j = std::max(miny, (int)(p.getPosition().v.y - range));
 			j <= std::min(maxy, (int)(p.getPosition().v.y + range));
 			j += step) {
@@ -81,18 +82,20 @@ AbsVector3 AIHelpers::getPositionByFunc(const Player& p, std::function<float (co
 				i <= std::min(maxx, (int)(p.getPosition().v.x + range));
 				i += step) {
 			AbsVector3 thispos(AbsVector3(i, j, 0));
-			float thisvalue = func(thispos);
-			if(thisvalue > best && MatchHelpers::nearestOwnPlayerTo(p, thispos)) {
-				thisvalue = AIHelpers::checkTacticArea(p, thisvalue, thispos);
-				if((thisvalue > best) || (thisvalue == best && j == 0 && i == 0)) {
-					best = thisvalue;
-					sp.v.x = i;
-					sp.v.y = j;
-					//printf("Best: (%3.3f, %3.3f) => %3.3f\n", sp.v.x, sp.v.y, best);
+			if(MatchHelpers::nearestOwnPlayerTo(p, thispos)) {
+				float thisvalue = func(thispos);
+				if(thisvalue > best) {
+					thisvalue = AIHelpers::checkTacticArea(p, thisvalue, thispos);
+					if(thisvalue > best) {
+						best = thisvalue;
+						sp.v.x = i;
+						sp.v.y = j;
+					}
 				}
 			}
 		}
 	}
+
 	return sp;
 }
 
