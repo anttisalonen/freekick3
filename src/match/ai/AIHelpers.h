@@ -19,7 +19,8 @@ class AIHelpers {
 		static AbsVector3 getPassKickVector(const Player& from, const Player& to);
 		static AbsVector3 getPassKickVector(const Player& from, const AbsVector3& pos, const AbsVector3& vel);
 		static float checkTacticArea(const Player& p, float score, const AbsVector3& pos);
-		static float linearScale(float dist, float opt);
+		static float scaledDistanceFrom(float dist, float opt);
+		static float scaledCoefficient(float dist, float maximum);
 
 	private:
 		static AbsVector3 getPositionByFunc(const Player& p, std::function<float (const AbsVector3& v)> func);

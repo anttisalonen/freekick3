@@ -171,7 +171,7 @@ float Team::calculateShotScoreAt(const AbsVector3& pos) const
 		float distToBall = (pos.v - mMatch->getBall()->getPosition().v).length();
 		// corresponds rather directly to how defensive the team plays
 		const float optimumDist = 30.0f;
-		float coefficient = AIHelpers::linearScale(distToBall, optimumDist);
+		float coefficient = AIHelpers::scaledDistanceFrom(distToBall, optimumDist);
 		if(distToBall > optimumDist || distToGoal > 30.0f)
 			pts *= coefficient;
 	}
@@ -196,14 +196,14 @@ float Team::calculatePassScoreAt(const std::vector<std::shared_ptr<Player>>& off
 		const AbsVector3& pos) const
 {
 	/* TODO: this function returns too often 0 (i.e. when there are no
-	 * forwards near the goal). This leads to midfielders staying on the
-	 * middle line. Make this function richer. */
+	 * forwards near the goal). This leads to midfielders standing still.
+	 * Make this function richer. */
 	float pts = 0.0f;
 
 	for(auto op : offensivePlayers) {
 		float distToPl = (pos.v - op->getPosition().v).length();
 		const float optimumDist = 20.0f;
-		pts += AIHelpers::linearScale(distToPl, optimumDist);
+		pts += AIHelpers::scaledDistanceFrom(distToPl, optimumDist);
 	}
 	pts = Common::clamp(0.0f, pts, 1.0f);
 	//printf("Pts: %3.3f - ", pts);

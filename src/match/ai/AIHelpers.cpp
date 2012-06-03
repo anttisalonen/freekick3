@@ -130,10 +130,17 @@ float AIHelpers::checkTacticArea(const Player& p, float score, const AbsVector3&
 	return score * val;
 }
 
-float AIHelpers::linearScale(float dist, float opt)
+float AIHelpers::scaledDistanceFrom(float dist, float opt)
 {
 	float distFromOptimum = fabs(opt - dist);
 	return std::max(0.0f, (opt - distFromOptimum) / opt);
+}
+
+float AIHelpers::scaledCoefficient(float dist, float maximum)
+{
+	assert(maximum != 0.0f);
+	assert(dist >= 0.0f);
+	return std::max(0.0f, (maximum - dist) / maximum);
 }
 
 
