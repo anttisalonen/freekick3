@@ -120,8 +120,7 @@ float AIHelpers::checkTacticArea(const Player& p, float score, const AbsVector3&
 	float bestx = p.getMatch()->getPitchWidth() * 0.5f * p.getTactics().WidthPosition;
 	float maxDist = p.getMatch()->getPitchWidth() * 0.5f * p.getTactics().Radius;
 	assert(maxDist != 0.0f);
-	float myx = p.getPosition().v.x;
-	float dist = fabs(myx - bestx);
+	float dist = fabs(pos.v.x - bestx);
 	float val;
 	val = Common::clamp(0.0f, 1.0f - (dist / maxDist), 1.0f);
 	// printf("dist: %3.1f - maxdist: %3.1f - should: %3.1f - is: %3.1f - val: %3.3f\n", dist, maxDist, bestx, myx, val);
