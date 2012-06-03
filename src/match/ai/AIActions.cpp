@@ -141,6 +141,51 @@ AIShootAction::AIShootAction(const Player* p)
 
 const char* AIShootAction::mActionName = "Shoot";
 
+AIClearAction::AIClearAction(const Player* p)
+	: AIAction(mActionName, p)
+{
+	AbsVector3 tgt;
+	float distToOwnGoal = (MatchHelpers::ownGoalPosition(*p).v - p->getMatch()->getBall()->getPosition().v).length();
+	float distToOpposingPlayer = MatchEntity::distanceBetween(*p->getMatch()->getBall(),
+				*MatchHelpers::nearestOppositePlayerToBall(*p->getTeam()));
+
+	const float maxDist = 20.0f;
+	mScore = 0.0f;
+
+	mScore = AIHelpers::scaledCoefficient(distToOwnGoal, maxDist);
+	if(mScore > 0.0f && distToOpposingPlayer < 5.0f) {
+		Vector3 vecToBall = p->getMatch()->getBall()->getPosition().v - p->getPosition().v;
+		if(vecToBall.null()) {
+			vecToBall = MatchHelpers::oppositeGoalPosition(*p).v - p->getPosition().v;
+		}
+		vecToBall.normalize();
+
+		Vector3 kickvec1(vecToBall);
+		Vector3 kickvec2(vecToBall);
+		const float sr1 = sin(PI / 4.0f);
+		const float cr1 = cos(PI / 4.0f);
+		const float sr2 = sin(-PI / 4.0f);
+		const float cr2 = cos(-PI / 4.0f);
+		kickvec1.x = vecToBall.x * cr1 - vecToBall.y * sr1;
+		kickvec1.y = vecToBall.x * sr1 + vecToBall.y * cr1;
+		kickvec2.x = vecToBall.x * cr2 - vecToBall.y * sr2;
+		kickvec2.y = vecToBall.x * sr2 + vecToBall.y * cr2;
+
+		kickvec1 *= 50.0f;
+		kickvec2 *= 50.0f;
+
+		float dist1 = (MatchHelpers::ownGoalPosition(*p).v - kickvec1).length();
+		float dist2 = (MatchHelpers::ownGoalPosition(*p).v - kickvec2).length();
+
+		tgt = AbsVector3(dist1 > dist2 ? kickvec1 : kickvec2);
+		tgt.v.z = tgt.v.length() * 0.8f;
+	}
+
+	mAction = std::shared_ptr<PlayerAction>(new KickBallPA(tgt, nullptr, false));
+}
+
+const char* AIClearAction::mActionName = "Clear";
+
 AIDribbleAction::AIDribbleAction(const Player* p)
 	: AIAction(mActionName, p)
 {

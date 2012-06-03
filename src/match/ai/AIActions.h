@@ -45,6 +45,12 @@ class AIShootAction : public AIAction {
 		static const char* mActionName;
 };
 
+class AIClearAction : public AIAction {
+	public:
+		AIClearAction(const Player* p);
+		static const char* mActionName;
+};
+
 class AIDribbleAction : public AIAction {
 	public:
 		AIDribbleAction(const Player* p);
