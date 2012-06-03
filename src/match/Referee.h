@@ -22,6 +22,7 @@ class Referee {
 		bool isFirstTeamInControl() const;
 		bool ballGrabbed(const Player& p);
 		void matchHalfChanged(MatchHalf m);
+		const Player* getPlayerInControl() const;
 	private:
 		bool allPlayersOnOwnSideAndReady() const;
 		bool onPitch(const MatchEntity& m) const;
@@ -31,6 +32,7 @@ class Referee {
 		AbsVector3 mRestartPosition;
 		Countdown mOutOfPlayClock;
 		Countdown mWaitForResumeClock;
+		const Player* mPlayerInControl;
 };
 
 #endif

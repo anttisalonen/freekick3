@@ -12,7 +12,8 @@ Referee::Referee()
 	: mMatch(nullptr),
 	mFirstTeamInControl(true),
 	mOutOfPlayClock(1.0f),
-	mWaitForResumeClock(0.1f)
+	mWaitForResumeClock(0.1f),
+	mPlayerInControl(nullptr)
 {
 }
 
@@ -99,11 +100,13 @@ bool Referee::ballKicked(const Player& p, const AbsVector3& vel)
 			switch(mMatch->getPlayState()) {
 				case PlayState::InPlay:
 					mFirstTeamInControl = p.getTeam()->isFirst();
+					mPlayerInControl = &p;
 					return true;
 				default:
 					if(p.getTeam()->isFirst() == mFirstTeamInControl) {
 						mMatch->setPlayState(PlayState::InPlay);
 						mFirstTeamInControl = p.getTeam()->isFirst();
+						mPlayerInControl = &p;
 						mWaitForResumeClock.rewind();
 						return true;
 					}
@@ -128,6 +131,7 @@ std::shared_ptr<RefereeAction> Referee::setOutOfPlay()
 		if(bp.v.x < 0.0f)
 			mRestartPosition.v.x = -mRestartPosition.v.x;
 		mFirstTeamInControl = !mFirstTeamInControl;
+		mPlayerInControl = nullptr;
 		return std::shared_ptr<RefereeAction>(new ChangePlayStateRA(PlayState::OutThrowin));
 	}
 	if(fabs(bp.v.y + br.v.y) > 1.0f) {
@@ -145,6 +149,7 @@ std::shared_ptr<RefereeAction> Referee::setOutOfPlay()
 			}
 			mMatch->addGoal(firstscores);
 			mFirstTeamInControl = !firstscores;
+			mPlayerInControl = nullptr;
 			return std::shared_ptr<RefereeAction>(new ChangePlayStateRA(PlayState::OutKickoff));
 		}
 		if((((bp.v.y < 0.0f) == mFirstTeamInControl) && (mMatch->getMatchHalf() == MatchHalf::FirstHalf)) ||
@@ -156,6 +161,7 @@ std::shared_ptr<RefereeAction> Referee::setOutOfPlay()
 			mRestartPosition.v.x = Common::signum(bp.v.x) * mMatch->getPitchWidth() * 0.5f;
 			mRestartPosition.v.y = Common::signum(bp.v.y) * mMatch->getPitchHeight() * 0.5f;
 			mFirstTeamInControl = !mFirstTeamInControl;
+			mPlayerInControl = nullptr;
 			return std::shared_ptr<RefereeAction>(new ChangePlayStateRA(PlayState::OutCornerkick));
 		}
 		else {
@@ -168,6 +174,7 @@ std::shared_ptr<RefereeAction> Referee::setOutOfPlay()
 				mRestartPosition.v.y = -mRestartPosition.v.y;
 			}
 			mFirstTeamInControl = !mFirstTeamInControl;
+			mPlayerInControl = nullptr;
 			return std::shared_ptr<RefereeAction>(new ChangePlayStateRA(PlayState::OutGoalkick));
 		}
 	}
@@ -197,14 +204,21 @@ bool Referee::ballGrabbed(const Player& p)
 		return false;
 
 	mFirstTeamInControl = p.getTeam()->isFirst();
+	mPlayerInControl = &p;
 	return true;
 }
 
 void Referee::matchHalfChanged(MatchHalf m)
 {
+	mPlayerInControl = nullptr;
 	if(m == MatchHalf::HalfTimePauseEnd) {
 		mFirstTeamInControl = false;
 	}
+}
+
+const Player* Referee::getPlayerInControl() const
+{
+	return mPlayerInControl;
 }
 
 

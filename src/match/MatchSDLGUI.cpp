@@ -172,6 +172,22 @@ void MatchSDLGUI::drawEnvironment()
 	sprintf(timebuf, "%d min.", min);
 	drawText(10, screenHeight - 30, FontConfig(timebuf, Color(255, 255, 255), 1.5f), true, false);
 
+	{
+		const Player* playerincontrol = mMatch->getReferee()->getPlayerInControl();
+		if(playerincontrol) {
+			std::string plname = playerincontrol->getName();
+			size_t spacepos = plname.find_first_of(' ');
+			if(spacepos != plname.npos && spacepos < plname.size() + 1)
+				plname.assign(plname, spacepos + 1, 30);
+			char plbuf[128];
+			snprintf(plbuf, 127, "%d %s", playerincontrol->getShirtNumber(),
+					plname.c_str());
+			plbuf[127] = '\0';
+
+			drawText(10, screenHeight - 50, FontConfig(plbuf, Color(255, 255, 255), 1.0f), true, false);
+		}
+	}
+
 	if(mDebugDisplay > 1) {
 		const Team* t = mMatch->getTeam(mDebugDisplay == 2 ? 0 : 1);
 		for(int j = -pheight * 0.5f + 8; j < pheight * 0.5 - 8; j += 8) {
