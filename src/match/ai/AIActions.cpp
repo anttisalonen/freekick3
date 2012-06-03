@@ -205,7 +205,7 @@ AIDribbleAction::AIDribbleAction(const Player* p)
 		float thisscore = 1.0f;
 		for(auto op : MatchHelpers::getOpposingPlayers(*p)) {
 			float dist = Common::Math::pointToLineDistance(p->getPosition().v,
-					p->getPosition().v + vec.v,
+					p->getPosition().v + vec.v * 2.0f,
 					op->getPosition().v);
 			if(dist < 12.0) {
 				thisscore -= (12.0 - dist) / 12.0;
