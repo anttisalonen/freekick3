@@ -60,12 +60,17 @@ void Ball::update(float time)
 			if((xOnPost && yOnPost && mPosition.v.z < GOAL_HEIGHT + GOAL_POST_RADIUS) ||
 					(yOnPost && zOnPost && mPosition.v.x < GOAL_WIDTH_2 + GOAL_POST_RADIUS)) {
 				// post/bar
-				mVelocity.v.y = -mVelocity.v.y;
-				mVelocity.v *= 0.9f;
 
 				// keep ball on the pitch
-				mPosition.v.y = mPosition.v.y > 0.0f ?
-					mMatch->getPitchHeight() * 0.5f : -mMatch->getPitchHeight() * 0.5f;
+				if(mPosition.v.y > 0.0f) {
+					mVelocity.v.y = -fabs(mVelocity.v.y);
+					mPosition.v.y = mMatch->getPitchHeight() * 0.5f - GOAL_POST_RADIUS - BALL_RADIUS * 1.2f;
+				}
+				else {
+					mVelocity.v.y = fabs(mVelocity.v.y);
+					mPosition.v.y = -mMatch->getPitchHeight() * 0.5f + GOAL_POST_RADIUS + BALL_RADIUS * 1.2f;
+				}
+				mVelocity.v *= 0.9f;
 			}
 			else {
 				// net
