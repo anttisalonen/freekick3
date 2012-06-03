@@ -352,15 +352,51 @@ std::pair<const Soccer::Kit, const Soccer::Kit> MatchSDLGUI::getKits() const
 #endif
 		}
 	}
-	if(diffs[0] > 420 || (diffs[0] > diffs[1] && diffs[0] > diffs[2] && diffs[0] > diffs[3]))
+	if(diffs[0] > 240 || (diffs[0] > diffs[1] && diffs[0] > diffs[2] && diffs[0] > diffs[3]))
 		return std::make_pair(kits[0], kits[2]);
-	if(diffs[1] > 420 || (diffs[1] > diffs[2] && diffs[1] > diffs[3]))
+	if(diffs[1] > 240 || (diffs[1] > diffs[2] && diffs[1] > diffs[3]))
 		return std::make_pair(kits[0], kits[3]);
 
-	if(diffs[2] > 420 || diffs[2] > diffs[3])
+	if(diffs[2] > 240 || diffs[2] > diffs[3])
 		return std::make_pair(kits[1], kits[2]);
 
 	return std::make_pair(kits[1], kits[3]);
+}
+
+Common::Color MatchSDLGUI::mapKitColor(const Soccer::Kit& kit, const Common::Color& c)
+{
+	if(c.r == 255) {
+		switch(kit.getKitType()) {
+			case Soccer::Kit::KitType::Plain:
+				return kit.getPrimaryShirtColor();
+
+			case Soccer::Kit::KitType::Striped:
+				if(c.g & 0x80)
+					return kit.getSecondaryShirtColor();
+				else
+					return kit.getPrimaryShirtColor();
+
+			case Soccer::Kit::KitType::HorizontalStriped:
+				if(c.b & 0x80)
+					return kit.getSecondaryShirtColor();
+				else
+					return kit.getPrimaryShirtColor();
+
+			case Soccer::Kit::KitType::ColoredSleeves:
+				if(c.g & 0x40)
+					return kit.getSecondaryShirtColor();
+				else
+					return kit.getPrimaryShirtColor();
+		}
+	}
+	else if(c.r == 240 && c.g == 240 && c.b == 0) {
+		return kit.getShortsColor();
+	}
+	else if(c.r == 0 && c.g == 0 && c.b == 255) {
+		return kit.getSocksColor();
+	}
+
+	return c;
 }
 
 void MatchSDLGUI::loadTextures()
@@ -376,14 +412,9 @@ void MatchSDLGUI::loadTextures()
 	for(auto& s : surfs) {
 		SDLSurface homes(s);
 		SDLSurface aways(s);
-		/* TODO: support other shirt types than plain */
-		homes.changePixelColors( { { Color(255, 0, 0),   kits.first.getPrimaryShirtColor() },
-				           { Color(255, 240, 0), kits.first.getShortsColor() },
-				           { Color(0, 0, 255),   kits.first.getSocksColor() } } );
+		homes.mapPixelColor( [&] (const Color& c) { return mapKitColor(kits.first, c); } );
 		mPlayerTextureHome[i] = std::shared_ptr<Texture>(new Texture(homes, 0, 32));
-		aways.changePixelColors( { { Color(255, 0, 0),   kits.second.getPrimaryShirtColor() },
-				           { Color(255, 240, 0), kits.second.getShortsColor() },
-				           { Color(0, 0, 255),   kits.second.getSocksColor() } } );
+		aways.mapPixelColor( [&] (const Color& c) { return mapKitColor(kits.second, c); } );
 		mPlayerTextureAway[i] = std::shared_ptr<Texture>(new Texture(aways, 0, 32));
 		i++;
 	}

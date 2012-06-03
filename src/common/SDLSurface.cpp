@@ -59,20 +59,29 @@ void SDLSurface::changePixelColor(const Color& from,
 
 void SDLSurface::changePixelColors(const std::map<Color, Color>& mapping)
 {
-	int bpp = mSurface->format->BytesPerPixel ;
+	return mapPixelColor([&] (const Color& c) -> Color {
+			auto it = mapping.find(c);
+			if(it != mapping.end())
+				return it->second;
+			else
+				return c;
+			});
+}
+
+void SDLSurface::mapPixelColor(std::function<Color (const Color&)> mapping)
+{
+	int bpp = mSurface->format->BytesPerPixel;
 	if(bpp != 4 && bpp != 3) {
 		throw std::runtime_error("Can only change pixel color with bpp = 3 or 4");
 	}
-	std::map<Uint32, Uint32> sdlmapping;
-	for(auto p : mapping)
-		sdlmapping.insert(std::make_pair(SDL_MapRGB(mSurface->format, p.first.r, p.first.g, p.first.b),
-					SDL_MapRGB(mSurface->format, p.second.r, p.second.g, p.second.b)));
 	for(int i = 0; i < mSurface->h; i++) {
 		for(int j = 0; j < mSurface->w; j++) {
 			Uint32 *bufp = (Uint32*)mSurface->pixels + i * mSurface->pitch / bpp + j;
-			auto it = sdlmapping.find(*bufp);
-			if(it != sdlmapping.end())
-				*bufp = it->second;
+			Uint8 r, g, b, a;
+			SDL_GetRGBA(*bufp, mSurface->format, &r, &g, &b, &a);
+			Color c = Color(r, g, b);
+			Color c2 = mapping(c);
+			*bufp = SDL_MapRGBA(mSurface->format, c2.r, c2.g, c2.b, a);
 		}
 	}
 }

@@ -2,6 +2,7 @@
 #define SDLSURFACE_H
 
 #include <map>
+#include <algorithm>
 
 #include <SDL_image.h>
 
@@ -20,6 +21,7 @@ class SDLSurface {
 		void changePixelColor(const Color& from,
 				const Color& to);
 		void changePixelColors(const std::map<Color, Color>& mapping);
+		void mapPixelColor(std::function<Color (const Color&)> mapping);
 	private:
 		SDL_Surface* mSurface;
 };
