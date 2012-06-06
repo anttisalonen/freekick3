@@ -98,6 +98,8 @@ Kit::Kit(KitType t, const Common::Color& shirt1, const Common::Color& shirt2,
 	mShortsColor(shorts),
 	mSocksColor(socks)
 {
+	if(mType == KitType::Plain)
+		mSecondaryShirtColor = mPrimaryShirtColor;
 }
 
 Kit::KitType Kit::getKitType() const

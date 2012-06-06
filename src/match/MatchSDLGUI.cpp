@@ -336,47 +336,51 @@ void MatchSDLGUI::finishFrame()
 	SDL_GL_SwapBuffers();
 }
 
+bool MatchSDLGUI::kitConflict(const Soccer::Kit& kit0, const Soccer::Kit& kit1) const
+{
+	static const int colorThreshold = 160;
+
+	if(kit0.getPrimaryShirtColor() - kit1.getPrimaryShirtColor() < colorThreshold)
+		return true;
+
+	if(kit0.getPrimaryShirtColor() - kit1.getSecondaryShirtColor() < colorThreshold)
+		return true;
+
+	if(kit0.getSecondaryShirtColor() - kit1.getPrimaryShirtColor() < colorThreshold)
+		return true;
+
+	if(kit0.getSecondaryShirtColor() - kit1.getSecondaryShirtColor() < colorThreshold)
+		return true;
+
+	return false;
+}
+
 std::pair<const Soccer::Kit, const Soccer::Kit> MatchSDLGUI::getKits() const
 {
-	Soccer::Kit kits[4] = {mMatch->getTeam(0)->getHomeKit(),
-		mMatch->getTeam(0)->getAwayKit(),
-		mMatch->getTeam(1)->getHomeKit(),
-		mMatch->getTeam(1)->getAwayKit()};
+	if(!kitConflict(mMatch->getTeam(0)->getHomeKit(),
+			mMatch->getTeam(1)->getHomeKit()))
+		return std::make_pair(mMatch->getTeam(0)->getHomeKit(),
+				mMatch->getTeam(1)->getHomeKit());
 
-	int diffs[4];
-	memset(diffs, 0, sizeof(diffs));
+	if(!kitConflict(mMatch->getTeam(0)->getHomeKit(),
+			mMatch->getTeam(1)->getAwayKit()))
+		return std::make_pair(mMatch->getTeam(0)->getHomeKit(),
+				mMatch->getTeam(1)->getAwayKit());
 
-	for(int i = 0; i < 2; i++) {
-		for(int j = 0; j < 2; j++) {
-			Color sc1 = kits[i].getPrimaryShirtColor();
-			Color sc2 = kits[2 + j].getPrimaryShirtColor();
-			if(kits[i].getKitType() != Soccer::Kit::KitType::Plain)
-				sc1.mix(kits[i].getSecondaryShirtColor());
-			if(kits[2 + j].getKitType() != Soccer::Kit::KitType::Plain)
-				sc2.mix(kits[2 + j].getSecondaryShirtColor());
-			diffs[i * 2 + j] = (sc1 - sc2) +
-				0.2f * (kits[i].getShortsColor() - kits[2 + j].getShortsColor());
-#if 0
-			printf("Kit 1: %d %d %d - Kit 2: %d %d %d - diff: %d\n",
-					sc1.r,
-					sc1.g,
-					sc1.b,
-					sc2.r,
-					sc2.g,
-					sc2.b,
-					diffs[i * 2 + j]);
-#endif
-		}
-	}
-	if(diffs[0] > 240 || (diffs[0] > diffs[1] && diffs[0] > diffs[2] && diffs[0] > diffs[3]))
-		return std::make_pair(kits[0], kits[2]);
-	if(diffs[1] > 240 || (diffs[1] > diffs[2] && diffs[1] > diffs[3]))
-		return std::make_pair(kits[0], kits[3]);
+	if(!kitConflict(mMatch->getTeam(0)->getAwayKit(),
+			mMatch->getTeam(1)->getHomeKit()))
+		return std::make_pair(mMatch->getTeam(0)->getAwayKit(),
+				mMatch->getTeam(1)->getHomeKit());
 
-	if(diffs[2] > 240 || diffs[2] > diffs[3])
-		return std::make_pair(kits[1], kits[2]);
+	if(!kitConflict(mMatch->getTeam(0)->getAwayKit(),
+			mMatch->getTeam(1)->getAwayKit()))
+		return std::make_pair(mMatch->getTeam(0)->getAwayKit(),
+				mMatch->getTeam(1)->getAwayKit());
 
-	return std::make_pair(kits[1], kits[3]);
+	return std::make_pair(Soccer::Kit(Soccer::Kit::KitType::Plain,
+				Common::Color::Red, Common::Color::Red, Common::Color::Red, Common::Color::Red),
+			Soccer::Kit(Soccer::Kit::KitType::Plain,
+				Common::Color::Blue, Common::Color::Blue, Common::Color::Blue, Common::Color::Blue));
 }
 
 Common::Color MatchSDLGUI::mapKitColor(const Soccer::Kit& kit, const Common::Color& c)
