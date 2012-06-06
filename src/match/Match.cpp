@@ -7,6 +7,8 @@
 #include "match/PlayerActions.h"
 #include "match/RefereeActions.h"
 
+#define TACKLE_DISTANCE 1.0f
+
 Match::Match(const Soccer::Match& m)
 	: Soccer::Match(m),
 	mTime(0),
@@ -90,12 +92,24 @@ const Referee* Match::getReferee() const
 void Match::update(double time)
 {
 	mBall->update(time);
-	for(auto& t : mTeams) {
+	for(int i = 0; i < 2; i++) {
+		int j = i == 0 ? 1 : 0;
+		auto& t = mTeams[i];
+
 		t->act(time);
 		for(auto& p : t->getPlayers()) {
 			std::shared_ptr<PlayerAction> a(p->act(time));
 			applyPlayerAction(a, p, time);
 			p->update(time);
+			for(auto& p2 : mTeams[j]->getPlayers()) {
+				if(p2->tackling() && p->standing()) {
+					float dist = MatchEntity::distanceBetween(*p, *p2);
+					if(dist < TACKLE_DISTANCE) {
+						std::cout << "Tackled player\n";
+						p->setTackled();
+					}
+				}
+			}
 		}
 	}
 
@@ -281,15 +295,19 @@ int Match::getScore(bool first) const
 
 bool Match::grabBall(Player* p)
 {
-	if(p->isGoalkeeper() && !mBall->grabbed() && MatchEntity::distanceBetween(*p, *mBall) < 1.5f &&
-			!MatchHelpers::myTeamInControl(*p) && mReferee.ballGrabbed(*p)) {
-		mBall->grab(p);
-		return true;
+	if(p->isGoalkeeper() && !mBall->grabbed() && !MatchHelpers::myTeamInControl(*p) && mReferee.ballGrabbed(*p)) {
+		float distToBall = MatchEntity::distanceBetween(*p, *mBall);
+		float maxDist = p->standing() ? 1.5f : 1.0f;
+		float ballHeight = mBall->getPosition().v.z;
+		float maxBallHeight = p->standing() ? 2.0f : 0.5f;
+		if(maxDist >= distToBall && maxBallHeight >= ballHeight) {
+			mBall->grab(p);
+			return true;
+		}
 	}
-	else {
-		std::cout << "Can't grab the ball.\n";
-		return false;
-	}
+
+	std::cout << "Can't grab the ball.\n";
+	return false;
 }
 
 void Match::updateTime(double time)

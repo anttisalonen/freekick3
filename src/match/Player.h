@@ -43,6 +43,10 @@ class Player : public MatchEntity, public Soccer::Player {
 		const PlayerTactics& getTactics() const;
 		const PlayerAIController* getAIController() const;
 		void matchHalfChanged(MatchHalf m);
+		void setTackling();
+		void setTackled();
+		bool standing() const;
+		bool tackling() const;
 	private:
 		Team* mTeam;
 		PlayerController* mController;
@@ -51,6 +55,8 @@ class Player : public MatchEntity, public Soccer::Player {
 		Countdown mBallKickedTimer;
 		PlayerTactics mTactics;
 		ShirtNumber mShirtNumber;
+		Countdown mTacklingTimer;
+		Countdown mTackledTimer;
 };
 
 #endif

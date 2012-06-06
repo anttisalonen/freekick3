@@ -12,7 +12,9 @@ Player::Player(Match* match, Team* team, const Soccer::Player& p,
 	mTeam(team),
 	mBallKickedTimer(1.0f - p.getSkills().Tackling * 0.5f),
 	mTactics(t),
-	mShirtNumber(sn)
+	mShirtNumber(sn),
+	mTacklingTimer(1.0f), /* TODO: make dependent on player skill */
+	mTackledTimer(2.0f)   /* TODO: make dependent on player skill */
 {
 	mAIController = new PlayerAIController(this);
 	setAIControlled();
@@ -107,7 +109,7 @@ void Player::ballKicked()
 
 bool Player::canKickBall() const
 {
-	return !mBallKickedTimer.running();
+	return standing() && !mBallKickedTimer.running();
 }
 
 void Player::update(float time)
@@ -125,6 +127,15 @@ void Player::update(float time)
 	}
 	mBallKickedTimer.doCountdown(time);
 	mBallKickedTimer.check();
+
+	mTacklingTimer.doCountdown(time);
+	if(mTacklingTimer.running() && mTacklingTimer.timeLeft() < 0.5f) {
+		mVelocity.v.zero();
+		mTacklingTimer.check();
+	}
+
+	mTackledTimer.doCountdown(time);
+	mTackledTimer.check();
 }
 
 void Player::setPlayerTactics(const PlayerTactics& t)
@@ -148,4 +159,27 @@ void Player::matchHalfChanged(MatchHalf m)
 	if(mController != mAIController)
 		mAIController->matchHalfChanged(m);
 }
+
+void Player::setTackling()
+{
+	mTacklingTimer.rewind();
+}
+
+void Player::setTackled()
+{
+	mTackledTimer.rewind();
+	mVelocity.v.zero();
+	mAcceleration.v.zero();
+}
+
+bool Player::standing() const
+{
+	return !tackling() && !mTackledTimer.running();
+}
+
+bool Player::tackling() const
+{
+	return mTacklingTimer.running();
+}
+
 

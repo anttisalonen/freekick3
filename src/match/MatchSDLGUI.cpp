@@ -48,7 +48,8 @@ MatchSDLGUI::MatchSDLGUI(std::shared_ptr<Match> match, bool observer, int teamnu
 	mPlayerSwitchTimer(0.2f),
 	mPaused(false),
 	mDebugDisplay(0),
-	mFixedFrameTime(0.0f)
+	mFixedFrameTime(0.0f),
+	mTackling(false)
 {
 	mScreen = SDL_utils::initSDL(screenWidth, screenHeight);
 
@@ -218,7 +219,7 @@ void MatchSDLGUI::drawEnvironment()
 	}
 }
 
-int MatchSDLGUI::playerTextureIndex(const Player* p)
+const std::shared_ptr<Texture> MatchSDLGUI::playerTexture(const Player* p)
 {
 	AbsVector3 vec = p->getVelocity();
 	if(vec.v.null()) {
@@ -234,7 +235,17 @@ int MatchSDLGUI::playerTextureIndex(const Player* p)
 	else if(vec.v.y < 0) {
 		dir = 2; // south
 	}
-	return dir;
+	if(p->tackling())
+		dir += 8;
+	else if(!p->standing())
+		dir += 4;
+
+	if(p->getTeam()->isFirst()) {
+		return mPlayerTextureHome[dir];
+	}
+	else {
+		return mPlayerTextureAway[dir];
+	}
 }
 
 void MatchSDLGUI::drawPlayers()
@@ -255,8 +266,7 @@ void MatchSDLGUI::drawPlayers()
 						mScaleLevel * 2.0f, mScaleLevel * 2.0f),
 					Rectangle(1, 1, -1, -1), playerShadowHeight);
 
-			drawSprite(pl->getTeam()->isFirst() ? *mPlayerTextureHome[playerTextureIndex(pl)] :
-					*mPlayerTextureAway[playerTextureIndex(pl)],
+			drawSprite(*playerTexture(pl),
 					Rectangle((-mCamera.x + v.v.x - 0.8f + v.v.z * 0.5f) * mScaleLevel + screenWidth * 0.5f,
 						(-mCamera.y + v.v.y + v.v.z * 1.0f) * mScaleLevel + screenHeight * 0.5f,
 						mScaleLevel * 2.0f, mScaleLevel * 2.0f),
@@ -423,19 +433,29 @@ void MatchSDLGUI::loadTextures()
 {
 	mBallTexture = std::shared_ptr<Texture>(new Texture("share/ball1.png", 0, 8));
 	mBallShadowTexture = std::shared_ptr<Texture>(new Texture("share/ball1shadow.png", 0, 8));
-	SDLSurface surfs[4] = { SDLSurface("share/player1-n.png"),
+	SDLSurface surfs[12] = { SDLSurface("share/player1-n.png"),
 		SDLSurface("share/player1-w.png"),
 		SDLSurface("share/player1-s.png"),
-		SDLSurface("share/player1-e.png") };
+		SDLSurface("share/player1-e.png"),
+		SDLSurface("share/player1-fallen-n.png"),
+		SDLSurface("share/player1-fallen-w.png"),
+		SDLSurface("share/player1-fallen-s.png"),
+		SDLSurface("share/player1-fallen-e.png"),
+		SDLSurface("share/player1-tackle-n.png"),
+		SDLSurface("share/player1-tackle-w.png"),
+		SDLSurface("share/player1-tackle-s.png"),
+		SDLSurface("share/player1-tackle-e.png") };
+
 	std::pair<const Soccer::Kit, const Soccer::Kit> kits = getKits();
 	int i = 0;
 	for(auto& s : surfs) {
 		SDLSurface homes(s);
 		SDLSurface aways(s);
 		homes.mapPixelColor( [&] (const Color& c) { return mapKitColor(kits.first, c); } );
-		mPlayerTextureHome[i] = std::shared_ptr<Texture>(new Texture(homes, 0, 32));
 		aways.mapPixelColor( [&] (const Color& c) { return mapKitColor(kits.second, c); } );
+		mPlayerTextureHome[i] = std::shared_ptr<Texture>(new Texture(homes, 0, 32));
 		mPlayerTextureAway[i] = std::shared_ptr<Texture>(new Texture(aways, 0, 32));
+
 		i++;
 	}
 	mPitchTexture = std::shared_ptr<Texture>(new Texture("share/grass1.png", 0, 0));
@@ -513,6 +533,10 @@ bool MatchSDLGUI::handleInput(float frameTime)
 						mDebugDisplay++;
 						if(mDebugDisplay > 3)
 							mDebugDisplay = 0;
+						break;
+
+					case SDLK_SPACE:
+						mTackling = true;
 						break;
 
 					default:
@@ -692,8 +716,14 @@ std::shared_ptr<PlayerAction> MatchSDLGUI::act(double time)
 			return AIHelpers::createMoveActionTo(*mPlayer, mMatch->getBall()->getPosition());
 		}
 		if(!mPlayerControlVelocity.null()) {
-			// not about to kick => run around
-			return std::shared_ptr<PlayerAction>(new RunToPA(AbsVector3(mPlayerControlVelocity)));
+			if(mTackling) {
+				mTackling = false;
+				return std::shared_ptr<PlayerAction>(new TacklePA(AbsVector3(mPlayerControlVelocity)));
+			}
+			else {
+				// not about to kick or tackle => run around
+				return std::shared_ptr<PlayerAction>(new RunToPA(AbsVector3(mPlayerControlVelocity)));
+			}
 		}
 	}
 	return std::shared_ptr<PlayerAction>(new IdlePA());

@@ -47,5 +47,14 @@ class GrabBallPA : public PlayerAction {
 		std::string getDescription() const;
 };
 
+class TacklePA : public PlayerAction {
+	public:
+		TacklePA(const AbsVector3& v);
+		void applyPlayerAction(Match& match, Player& p, double time);
+		std::string getDescription() const;
+	private:
+		AbsVector3 mDiff;
+};
+
 #endif
 

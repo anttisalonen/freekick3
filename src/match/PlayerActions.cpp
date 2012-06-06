@@ -24,6 +24,8 @@ RunToPA::RunToPA(const AbsVector3& v)
 
 void RunToPA::applyPlayerAction(Match& match, Player& p, double time)
 {
+	if(!p.standing())
+		return;
 	mDiff.v.z = 0.0f;
 	if(mDiff.v.length() < 0.1f)
 		return;
@@ -83,6 +85,28 @@ void GrabBallPA::applyPlayerAction(Match& match, Player& p, double time)
 std::string GrabBallPA::getDescription() const
 {
 	return std::string("Grab");
+}
+
+TacklePA::TacklePA(const AbsVector3& v)
+	: mDiff(v)
+{
+}
+
+void TacklePA::applyPlayerAction(Match& match, Player& p, double time)
+{
+	if(!p.standing())
+		return;
+	mDiff.v.z = 0.0f;
+	if(mDiff.v.length() < 0.1f)
+		return;
+	AbsVector3 v(mDiff.v.normalized());
+	p.setAcceleration(v.v * 50.0f); /* TODO: use a player skill as the coefficient */
+	p.setTackling();
+}
+
+std::string TacklePA::getDescription() const
+{
+	return std::string("Tackle");
 }
 
 

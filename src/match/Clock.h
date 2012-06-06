@@ -20,6 +20,7 @@ class Countdown {
 		void rewind();
 		bool check();
 		bool running() const;
+		float timeLeft() const;
 	private:
 		float mFrom;
 		float mNow;

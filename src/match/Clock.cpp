@@ -86,4 +86,9 @@ bool Countdown::running() const
 	return !mChecked;
 }
 
+float Countdown::timeLeft() const
+{
+	return std::max(0.0f, mNow);
+}
+
 

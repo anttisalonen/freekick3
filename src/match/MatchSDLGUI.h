@@ -97,14 +97,14 @@ class MatchSDLGUI : public MatchGUI, public PlayerController {
 		void setupPitchLines();
 		void drawPitchLines();
 		void drawGoals();
-		int playerTextureIndex(const Player* p);
+		const std::shared_ptr<Common::Texture> playerTexture(const Player* p);
 		std::pair<const Soccer::Kit, const Soccer::Kit> getKits() const;
 		static Common::Color mapKitColor(const Soccer::Kit& kit, const Common::Color& c);
 		bool kitConflict(const Soccer::Kit& kit0, const Soccer::Kit& kit1) const;
 		Clock mClock;
 		SDL_Surface* mScreen;
-		std::shared_ptr<Common::Texture> mPlayerTextureHome[4];
-		std::shared_ptr<Common::Texture> mPlayerTextureAway[4];
+		std::shared_ptr<Common::Texture> mPlayerTextureHome[12];
+		std::shared_ptr<Common::Texture> mPlayerTextureAway[12];
 		std::shared_ptr<Common::Texture> mPlayerShadowTexture;
 		std::shared_ptr<Common::Texture> mPitchTexture;
 		std::shared_ptr<Common::Texture> mBallTexture;
@@ -130,6 +130,7 @@ class MatchSDLGUI : public MatchGUI, public PlayerController {
 		bool mPaused;
 		int mDebugDisplay;
 		float mFixedFrameTime;
+		bool mTackling;
 };
 
 #endif
