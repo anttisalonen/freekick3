@@ -207,8 +207,9 @@ bool MatchHelpers::playersPositionedForRestart(const Match& m, const Player& res
 
 		case PlayState::OutGoalkick:
 			for(auto p : getOpposingPlayers(restarter)) {
-				if(inOpposingPenaltyArea(*p))
+				if(inOpposingPenaltyArea(*p)) {
 					return false;
+				}
 			}
 			return true;
 

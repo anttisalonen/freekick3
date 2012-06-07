@@ -88,9 +88,9 @@ std::shared_ptr<PlayerAction> PlayerAIController::actOffPlay(double time)
 	}
 }
 
+// called when this player should restart the game
 std::shared_ptr<PlayerAction> PlayerAIController::doRestart(double time)
 {
-	// called when this player should restart the game
 	AbsVector3 shoulddiff;
 
 	// if the ball is far out, idle
@@ -159,14 +159,23 @@ std::shared_ptr<PlayerAction> PlayerAIController::gotoKickPositionOrKick(double 
 		// if we can't, run to the ball
 		float dist = (mPlayer->getMatch()->getBall()->getPosition().v -
 				mPlayer->getPosition().v).length();
-		bool cankickball = MatchHelpers::playersPositionedForRestart(*mPlayer->getMatch(), *mPlayer);
-		if(cankickball && dist < MAX_KICK_DISTANCE * 1.0f) {
-			if(mKickInTimer.checkAndRewind()) {
-				return mPlayState->act(time);
+		bool shouldkickball = MatchHelpers::playersPositionedForRestart(*mPlayer->getMatch(), *mPlayer);
+		if(shouldkickball) {
+			if(dist < MAX_KICK_DISTANCE * 1.0f) {
+				if(mKickInTimer.checkAndRewind()) {
+					return mPlayState->act(time);
+				}
+				else {
+					mKickInTimer.doCountdown(time);
+					return std::shared_ptr<PlayerAction>(new IdlePA());
+				}
 			}
 			else {
-				mKickInTimer.doCountdown(time);
-				return std::shared_ptr<PlayerAction>(new IdlePA());
+				// We end up here when the player is supposed to move close (but not to) the ball
+				// (shouldpos), but AIHelpers::createMoveActionTo() stays still a bit further
+				// away from that position - creating a deadlock if the player then idles.
+				// Correct by moving to the ball.
+				return AIHelpers::createMoveActionToBall(*mPlayer);
 			}
 		}
 	}
