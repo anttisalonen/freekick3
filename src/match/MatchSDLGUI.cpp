@@ -235,10 +235,14 @@ const std::shared_ptr<Texture> MatchSDLGUI::playerTexture(const Player* p)
 	else if(vec.v.y < 0) {
 		dir = 2; // south
 	}
-	if(p->tackling())
+	if(p->tackling()) {
 		dir += 8;
-	else if(!p->standing())
-		dir += 4;
+	}
+	else if(!p->standing()) {
+		// Just pick one of the images. We don't want the fallen player
+		// to turn to look at the ball.
+		dir = 5;
+	}
 
 	if(p->getTeam()->isFirst()) {
 		return mPlayerTextureHome[dir];
