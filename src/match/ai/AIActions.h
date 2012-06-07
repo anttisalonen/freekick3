@@ -99,4 +99,10 @@ class AIGuardAreaAction : public AIAction {
 		static const char* mActionName;
 };
 
+class AITackleAction : public AIAction {
+	public:
+		AITackleAction(const Player* p);
+		static const char* mActionName;
+};
+
 #endif

@@ -455,4 +455,34 @@ AIGuardAreaAction::AIGuardAreaAction(const Player* p)
 
 const char* AIGuardAreaAction::mActionName = "Guard area";
 
+AITackleAction::AITackleAction(const Player* p)
+	: AIAction(mActionName, p)
+{
+	// action to tackle the ball/opponent currently holding the ball
+	float maxdist = 3.0f;
+	Vector3 tacklevec = p->getMatch()->getBall()->getPosition().v +
+		p->getMatch()->getBall()->getVelocity().v * 0.5f -
+		p->getPosition().v;
+	float dist = tacklevec.length();
+	mScore = -1.0f;
+	if(dist < maxdist) {
+		Player* nearestopp = MatchHelpers::nearestOppositePlayerToBall(*p->getTeam());
+		if(nearestopp->standing()) {
+			float oppdist = MatchEntity::distanceBetween(*p,
+					*nearestopp);
+			const float maxOppDist = 2.0f;
+			if(oppdist < maxOppDist) {
+				float distToOwnGoal = (MatchHelpers::ownGoalPosition(*p).v -
+						p->getMatch()->getBall()->getPosition().v).length();
+				if(distToOwnGoal > 10.0f && distToOwnGoal < 80.0f) {
+					mScore = 1.0f - (oppdist / maxOppDist);
+				}
+			}
+		}
+	}
+	mAction = std::shared_ptr<PlayerAction>(new TacklePA(tacklevec));
+}
+
+const char* AITackleAction::mActionName = "Tackle";
+
 

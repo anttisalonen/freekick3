@@ -26,6 +26,7 @@ std::shared_ptr<PlayerAction> AIDefendState::actOffBall(double time)
 				actions.push_back(std::shared_ptr<AIAction>(new AIGuardAction(mPlayer)));
 				actions.push_back(std::shared_ptr<AIAction>(new AIBlockPassAction(mPlayer)));
 				actions.push_back(std::shared_ptr<AIAction>(new AIGuardAreaAction(mPlayer)));
+				actions.push_back(std::shared_ptr<AIAction>(new AITackleAction(mPlayer)));
 				AIActionChooser actionchooser(actions, false);
 
 				std::shared_ptr<AIAction> best = actionchooser.getBestAction();

@@ -16,6 +16,7 @@ std::shared_ptr<PlayerAction> AIKickBallState::actOnBall(double time)
 	actions.push_back(std::shared_ptr<AIAction>(new AIPassAction(mPlayer)));
 	actions.push_back(std::shared_ptr<AIAction>(new AIShootAction(mPlayer)));
 	actions.push_back(std::shared_ptr<AIAction>(new AIClearAction(mPlayer)));
+	actions.push_back(std::shared_ptr<AIAction>(new AITackleAction(mPlayer)));
 
 	if(mPlayer->getMatch()->getPlayState() == PlayState::InPlay)
 		actions.push_back(std::shared_ptr<AIAction>(new AIDribbleAction(mPlayer)));
