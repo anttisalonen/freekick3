@@ -657,6 +657,7 @@ std::shared_ptr<PlayerAction> MatchSDLGUI::act(double time)
 {
 	float kickpower = 0.0f;
 	bool mouseaim = false;
+	AbsVector3 toBall = AbsVector3(mMatch->getBall()->getPosition().v - mPlayer->getPosition().v);
 	if((mMouseAim && MatchHelpers::canKickBall(*mPlayer))|| (mPlayerKickPower && !mPlayerKickPowerVelocity)) {
 		// about to kick
 		kickpower = mPlayerKickPower;
@@ -670,6 +671,24 @@ std::shared_ptr<PlayerAction> MatchSDLGUI::act(double time)
 		// opponent kickoff
 		return AIHelpers::createMoveActionTo(*mPlayer,
 				mPlayer->getMatch()->convertRelativeToAbsoluteVector(mPlayer->getHomePosition()));
+	}
+	if(!playing(mMatch->getPlayState())) {
+		// restart
+		if(MatchHelpers::allowedToKick(*mPlayer)) {
+			bool nearest = MatchHelpers::nearestOwnPlayerTo(*mPlayer,
+					mPlayer->getMatch()->getBall()->getPosition());
+			if(nearest && toBall.v.length() > MAX_KICK_DISTANCE) {
+				return AIHelpers::createMoveActionToBall(*mPlayer);
+			}
+		}
+		else {
+			// if blocking restart, run towards center of pitch
+			const Player* restarter =
+				MatchHelpers::nearestOppositePlayerToBall(*mPlayer->getTeam());
+			assert(restarter);
+			if(!MatchHelpers::playerPositionedForRestart(*restarter, *mPlayer))
+				return AIHelpers::createMoveActionTo(*mPlayer, AbsVector3(0, 0, 0));
+		}
 	}
 
 	if(kickpower) {
@@ -710,7 +729,7 @@ std::shared_ptr<PlayerAction> MatchSDLGUI::act(double time)
 			}
 		}
 	}
-	else if(playing(mMatch->getPlayState())) {
+	else {
 		if(mPlayerKickPowerVelocity) {
 			// powering kick up => run to/stay on ball
 			return AIHelpers::createMoveActionTo(*mPlayer, mMatch->getBall()->getPosition());
@@ -725,8 +744,8 @@ std::shared_ptr<PlayerAction> MatchSDLGUI::act(double time)
 				return std::shared_ptr<PlayerAction>(new RunToPA(AbsVector3(mPlayerControlVelocity)));
 			}
 		}
+		return std::shared_ptr<PlayerAction>(new IdlePA());
 	}
-	return std::shared_ptr<PlayerAction>(new IdlePA());
 }
 
 void MatchSDLGUI::setPlayerController(double frameTime)
@@ -734,8 +753,10 @@ void MatchSDLGUI::setPlayerController(double frameTime)
 	mPlayerSwitchTimer.doCountdown(frameTime);
 	mPlayerSwitchTimer.check();
 	if(playing(mMatch->getMatchHalf())) {
-		if(!playing(mMatch->getPlayState())) {
-			mPlayer->setAIControlled();
+		if(mPlayer->isAIControlled()) {
+			mPlayer->setController(this);
+			mPlayerKickPower = 0.0f;
+			printf("Now controlling\n");
 		}
 		if(mControlledPlayerIndex == -1) {
 			Player* pl = mMatch->getTeam(mControlledTeamIndex)->getPlayerReceivingPass();

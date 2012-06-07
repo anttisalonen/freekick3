@@ -178,13 +178,39 @@ bool MatchHelpers::playersOnPause(const Match& m)
 	return true;
 }
 
+bool MatchHelpers::playerPositionedForRestart(const Player& restarter, const Player& p)
+{
+	switch(p.getMatch()->getPlayState()) {
+		case PlayState::OutKickoff:
+			return &p == &restarter || onOwnSideAndReady(p);
+
+		case PlayState::OutThrowin:
+		case PlayState::OutCornerkick:
+		case PlayState::OutIndirectFreekick:
+		case PlayState::OutDirectFreekick:
+		case PlayState::OutPenaltykick:
+		case PlayState::OutDroppedball:
+			/* TODO: move this magic constant */
+			return !isOpposingPlayer(restarter, p) ||
+				MatchEntity::distanceBetween(*p.getMatch()->getBall(), p) > 9.15f;
+
+		case PlayState::OutGoalkick:
+			return !isOpposingPlayer(restarter, p) ||
+				!inOpposingPenaltyArea(p);
+
+		case PlayState::InPlay:
+			return true;
+	}
+	return true;
+}
+
 bool MatchHelpers::playersPositionedForRestart(const Match& m, const Player& restarter)
 {
 	switch(m.getPlayState()) {
 		case PlayState::OutKickoff:
 			for(int i = 0; i < 2; i++) {
 				for(auto p : getTeamPlayers(m, i)) {
-					if(&*p != &restarter && !onOwnSideAndReady(*p)) {
+					if(!playerPositionedForRestart(restarter, *p)) {
 						return false;
 					}
 				}
@@ -198,8 +224,7 @@ bool MatchHelpers::playersPositionedForRestart(const Match& m, const Player& res
 		case PlayState::OutPenaltykick:
 		case PlayState::OutDroppedball:
 			for(auto p : getOpposingPlayers(restarter)) {
-				/* TODO: move this magic constant */
-				if(MatchEntity::distanceBetween(*m.getBall(), *p) < 9.15f) {
+				if(!playerPositionedForRestart(restarter, *p)) {
 					return false;
 				}
 			}
@@ -207,7 +232,7 @@ bool MatchHelpers::playersPositionedForRestart(const Match& m, const Player& res
 
 		case PlayState::OutGoalkick:
 			for(auto p : getOpposingPlayers(restarter)) {
-				if(inOpposingPenaltyArea(*p)) {
+				if(!playerPositionedForRestart(restarter, *p)) {
 					return false;
 				}
 			}
@@ -278,6 +303,11 @@ bool MatchHelpers::onOwnSideAndReady(const Player& p)
 		return false;
 	}
 	return true;
+}
+
+bool MatchHelpers::isOpposingPlayer(const Player& p1, const Player& p2)
+{
+	return p1.getTeam()->isFirst() != p2.getTeam()->isFirst();
 }
 
 
