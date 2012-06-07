@@ -130,7 +130,7 @@ void Player::update(float time)
 
 	mTacklingTimer.doCountdown(time);
 	if(mTacklingTimer.running() && mTacklingTimer.timeLeft() < 0.5f) {
-		mVelocity.v.zero();
+		mVelocity.v *= 0.5f;
 		mTacklingTimer.check();
 	}
 
