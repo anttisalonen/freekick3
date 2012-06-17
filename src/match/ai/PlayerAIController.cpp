@@ -10,14 +10,14 @@ PlayerAIController::PlayerAIController(Player* p)
 	: PlayerController(p),
 	mKickInTimer(1.0f)
 {
-	mPlayState = std::shared_ptr<AIPlayController>(new AIPlayController(p));
+	mPlayState = boost::shared_ptr<AIPlayController>(new AIPlayController(p));
 }
 
 /* TODO: this module uses getShirtNumber() as the player index number.
  * Rework it so that either the player index is used instead or
  * the player index is not needed. */
 
-std::shared_ptr<PlayerAction> PlayerAIController::act(double time)
+boost::shared_ptr<PlayerAction> PlayerAIController::act(double time)
 {
 	switch(mPlayer->getMatch()->getMatchHalf()) {
 		case MatchHalf::NotStarted:
@@ -52,7 +52,7 @@ const std::string& PlayerAIController::getDescription() const
 	return mPlayState->getDescription();
 }
 
-std::shared_ptr<PlayerAction> PlayerAIController::actOffPlay(double time)
+boost::shared_ptr<PlayerAction> PlayerAIController::actOffPlay(double time)
 {
 	if(MatchHelpers::myTeamInControl(*mPlayer)) {
 		bool nearest = MatchHelpers::nearestOwnPlayerTo(*mPlayer,
@@ -73,7 +73,7 @@ std::shared_ptr<PlayerAction> PlayerAIController::actOffPlay(double time)
 							mPlayer->getMatch()->convertRelativeToAbsoluteVector(mPlayer->getHomePosition()));
 			}
 			else {
-				return std::shared_ptr<PlayerAction>(new IdlePA());
+				return boost::shared_ptr<PlayerAction>(new IdlePA());
 			}
 		}
 	}
@@ -89,14 +89,14 @@ std::shared_ptr<PlayerAction> PlayerAIController::actOffPlay(double time)
 }
 
 // called when this player should restart the game
-std::shared_ptr<PlayerAction> PlayerAIController::doRestart(double time)
+boost::shared_ptr<PlayerAction> PlayerAIController::doRestart(double time)
 {
 	AbsVector3 shoulddiff;
 
 	// if the ball is far out, idle
 	if(MatchHelpers::distanceToPitch(*mPlayer->getMatch(),
 				mPlayer->getMatch()->getBall()->getPosition()) > 1.0f) {
-		return std::shared_ptr<PlayerAction>(new IdlePA());
+		return boost::shared_ptr<PlayerAction>(new IdlePA());
 	}
 
 	const AbsVector3& ballpos = mPlayer->getMatch()->getBall()->getPosition();
@@ -149,7 +149,7 @@ std::shared_ptr<PlayerAction> PlayerAIController::doRestart(double time)
 	return gotoKickPositionOrKick(time, shouldpos);
 }
 
-std::shared_ptr<PlayerAction> PlayerAIController::gotoKickPositionOrKick(double time, const AbsVector3& pos)
+boost::shared_ptr<PlayerAction> PlayerAIController::gotoKickPositionOrKick(double time, const AbsVector3& pos)
 {
 	// called with the position where the player should restart from
 	AbsVector3 tgt(pos.v - mPlayer->getPosition().v);
@@ -167,7 +167,7 @@ std::shared_ptr<PlayerAction> PlayerAIController::gotoKickPositionOrKick(double 
 				}
 				else {
 					mKickInTimer.doCountdown(time);
-					return std::shared_ptr<PlayerAction>(new IdlePA());
+					return boost::shared_ptr<PlayerAction>(new IdlePA());
 				}
 			}
 			else {

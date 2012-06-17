@@ -1,7 +1,7 @@
 #ifndef MATCHSDLGUI_H
 #define MATCHSDLGUI_H
 
-#include <memory>
+#include <boost/shared_ptr.hpp>
 #include <map>
 
 #include <SDL.h>
@@ -55,13 +55,13 @@ bool FontConfig::operator<(const FontConfig& f) const
 }
 
 struct TextTexture {
-	inline TextTexture(std::shared_ptr<Common::Texture> t, unsigned int w, unsigned int h);
-	std::shared_ptr<Common::Texture> mTexture;
+	inline TextTexture(boost::shared_ptr<Common::Texture> t, unsigned int w, unsigned int h);
+	boost::shared_ptr<Common::Texture> mTexture;
 	unsigned int mWidth;
 	unsigned int mHeight;
 };
 
-TextTexture::TextTexture(std::shared_ptr<Common::Texture> t, unsigned int w, unsigned int h)
+TextTexture::TextTexture(boost::shared_ptr<Common::Texture> t, unsigned int w, unsigned int h)
 	: mTexture(t),
 	mWidth(w),
 	mHeight(h)
@@ -70,11 +70,11 @@ TextTexture::TextTexture(std::shared_ptr<Common::Texture> t, unsigned int w, uns
 
 class MatchSDLGUI : public MatchGUI, public PlayerController {
 	public:
-		MatchSDLGUI(std::shared_ptr<Match> match, bool observer, int teamnum, int playernum,
+		MatchSDLGUI(boost::shared_ptr<Match> match, bool observer, int teamnum, int playernum,
 				int ticksPerSec, bool debug);
 		~MatchSDLGUI();
 		bool play();
-		std::shared_ptr<PlayerAction> act(double time);
+		boost::shared_ptr<PlayerAction> act(double time);
 	private:
 		void drawEnvironment();
 		void drawPlayers();
@@ -97,19 +97,19 @@ class MatchSDLGUI : public MatchGUI, public PlayerController {
 		void setupPitchLines();
 		void drawPitchLines();
 		void drawGoals();
-		const std::shared_ptr<Common::Texture> playerTexture(const Player* p);
+		const boost::shared_ptr<Common::Texture> playerTexture(const Player* p);
 		std::pair<const Soccer::Kit, const Soccer::Kit> getKits() const;
 		static Common::Color mapKitColor(const Soccer::Kit& kit, const Common::Color& c);
 		bool kitConflict(const Soccer::Kit& kit0, const Soccer::Kit& kit1) const;
 		Clock mClock;
 		SDL_Surface* mScreen;
-		std::shared_ptr<Common::Texture> mPlayerTextureHome[12];
-		std::shared_ptr<Common::Texture> mPlayerTextureAway[12];
-		std::shared_ptr<Common::Texture> mPlayerShadowTexture;
-		std::shared_ptr<Common::Texture> mPitchTexture;
-		std::shared_ptr<Common::Texture> mBallTexture;
-		std::shared_ptr<Common::Texture> mBallShadowTexture;
-		std::shared_ptr<Common::Texture> mGoal1Texture;
+		boost::shared_ptr<Common::Texture> mPlayerTextureHome[12];
+		boost::shared_ptr<Common::Texture> mPlayerTextureAway[12];
+		boost::shared_ptr<Common::Texture> mPlayerShadowTexture;
+		boost::shared_ptr<Common::Texture> mPitchTexture;
+		boost::shared_ptr<Common::Texture> mBallTexture;
+		boost::shared_ptr<Common::Texture> mBallShadowTexture;
+		boost::shared_ptr<Common::Texture> mGoal1Texture;
 		float mScaleLevel;
 		float mScaleLevelVelocity;
 		bool mFreeCamera;
@@ -119,7 +119,7 @@ class MatchSDLGUI : public MatchGUI, public PlayerController {
 		double mPlayerKickPower;
 		double mPlayerKickPowerVelocity;
 		TTF_Font* mFont;
-		std::map<FontConfig, std::shared_ptr<TextTexture>> mTextMap;
+		std::map<FontConfig, boost::shared_ptr<TextTexture>> mTextMap;
 		bool mObserver;
 		bool mMouseAim;
 		Countdown mHalfTimeTimer;

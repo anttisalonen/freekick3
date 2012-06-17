@@ -6,7 +6,7 @@
 #include <iostream>
 #include <fstream>
 #include <vector>
-#include <memory>
+#include <boost/shared_ptr.hpp>
 #include <map>
 
 #include "soccer/DataExchange.h"
@@ -714,13 +714,13 @@ int FreekickWriter::write()
 	for(auto& st : mTeams) {
 		Soccer::Kit homekit = swosKitToSoccerKit(st.primary_kit);
 		Soccer::Kit awaykit = swosKitToSoccerKit(st.secondary_kit);
-		std::shared_ptr<Soccer::League> league = teamdb.getOrCreateLeague(nationToContinent(st.nation),
+		boost::shared_ptr<Soccer::League> league = teamdb.getOrCreateLeague(nationToContinent(st.nation),
 				teamNationalityToString(st.nation), leagueLevelToString(st.division));
 
 		printf("%s in %s - %s - %s\n", st.team_name, leagueLevelToString(st.division),
 				teamNationalityToString(st.nation), nationToContinent(st.nation));
 
-		std::vector<std::shared_ptr<Soccer::Player>> players;
+		std::vector<boost::shared_ptr<Soccer::Player>> players;
 
 		for(auto& sp : st.players) {
 			Soccer::PlayerPosition plpos;
@@ -746,7 +746,7 @@ int FreekickWriter::write()
 			Soccer::PlayerSkills plskills;
 			plskills = convertSkill(sp);
 
-			std::shared_ptr<Soccer::Player> pl(new Soccer::Player(sp.id,
+			boost::shared_ptr<Soccer::Player> pl(new Soccer::Player(sp.id,
 						mScramble ? scramble(players.size(),
 							sp.player_name).c_str() : sp.player_name,
 						plpos, plskills));
@@ -754,7 +754,7 @@ int FreekickWriter::write()
 			playerdb.insert(std::make_pair(pl->getId(), pl));
 		}
 
-		std::shared_ptr<Soccer::Team> t(new Soccer::Team(mCurrentTeamId,
+		boost::shared_ptr<Soccer::Team> t(new Soccer::Team(mCurrentTeamId,
 					mScramble ? scramble(league->getContainer().size(),
 						st.team_name).c_str() : st.team_name,
 					homekit, awaykit, players));

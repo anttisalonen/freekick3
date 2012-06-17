@@ -2,7 +2,7 @@
 #define AIACTIONS_H
 
 #include <string>
-#include <memory>
+#include <boost/shared_ptr.hpp>
 #include <vector>
 
 #include "match/Player.h"
@@ -12,17 +12,17 @@ class AIAction;
 
 class AIActionChooser {
 	public:
-		AIActionChooser(const std::vector<std::shared_ptr<AIAction>>& actions,
+		AIActionChooser(const std::vector<boost::shared_ptr<AIAction>>& actions,
 				bool debug);
-		std::shared_ptr<AIAction> getBestAction();
+		boost::shared_ptr<AIAction> getBestAction();
 	private:
-		std::shared_ptr<AIAction> mBestAction;
+		boost::shared_ptr<AIAction> mBestAction;
 };
 
 class AIAction {
 	public:
 		AIAction(const char* name, const Player* p);
-		std::shared_ptr<PlayerAction> getAction() const;
+		boost::shared_ptr<PlayerAction> getAction() const;
 		double getScore() const;
 		const char* getName() const;
 		std::string getDescription() const;
@@ -30,7 +30,7 @@ class AIAction {
 		const char* mName;
 		const Player* mPlayer;
 		double mScore;
-		std::shared_ptr<PlayerAction> mAction;
+		boost::shared_ptr<PlayerAction> mAction;
 };
 
 class AINullAction : public AIAction {

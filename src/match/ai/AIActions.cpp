@@ -8,9 +8,9 @@
 #include "match/ai/AIHelpers.h"
 #include "match/MatchHelpers.h"
 
-AIActionChooser::AIActionChooser(const std::vector<std::shared_ptr<AIAction>>& actions,
+AIActionChooser::AIActionChooser(const std::vector<boost::shared_ptr<AIAction>>& actions,
 		bool debug)
-	: mBestAction(nullptr)
+	: mBestAction(boost::shared_ptr<AIAction>())
 {
 	double bestscore = -1.0;
 
@@ -35,7 +35,7 @@ AIActionChooser::AIActionChooser(const std::vector<std::shared_ptr<AIAction>>& a
 	}
 }
 
-std::shared_ptr<AIAction> AIActionChooser::getBestAction()
+boost::shared_ptr<AIAction> AIActionChooser::getBestAction()
 {
 	return mBestAction;
 }
@@ -44,11 +44,11 @@ AIAction::AIAction(const char* name, const Player* p)
 	: mName(name),
 	mPlayer(p),
 	mScore(-1.0),
-	mAction(nullptr)
+	mAction(boost::shared_ptr<PlayerAction>())
 {
 }
 
-std::shared_ptr<PlayerAction> AIAction::getAction() const
+boost::shared_ptr<PlayerAction> AIAction::getAction() const
 {
 	assert(mAction);
 	return mAction;
@@ -73,7 +73,7 @@ AINullAction::AINullAction(const Player* p)
 	: AIAction(mActionName, p)
 {
 	mScore = 0.0;
-	mAction = std::shared_ptr<PlayerAction>(new IdlePA());
+	mAction = boost::shared_ptr<PlayerAction>(new IdlePA());
 }
 
 const char* AINullAction::mActionName = "Null";
@@ -91,7 +91,7 @@ AIShootAction::AIShootAction(const Player* p)
 			ps == PlayState::OutIndirectFreekick ||
 			ps == PlayState::OutDroppedball) {
 		mScore = -1.0f;
-		mAction = std::shared_ptr<PlayerAction>(new KickBallPA(shoottarget, nullptr, true));
+		mAction = boost::shared_ptr<PlayerAction>(new KickBallPA(shoottarget, nullptr, true));
 		return;
 	}
 
@@ -100,7 +100,7 @@ AIShootAction::AIShootAction(const Player* p)
 
 	if((p->getPosition().v - shoottarget.v).length() < 6.0f) {
 		mScore = 1.0f;
-		mAction = std::shared_ptr<PlayerAction>(new KickBallPA(shoottarget, nullptr, true));
+		mAction = boost::shared_ptr<PlayerAction>(new KickBallPA(shoottarget, nullptr, true));
 		return;
 	}
 
@@ -136,7 +136,7 @@ AIShootAction::AIShootAction(const Player* p)
 	}
 
 	mScore = maxscore;
-	mAction = std::shared_ptr<PlayerAction>(new KickBallPA(tgt, nullptr, true));
+	mAction = boost::shared_ptr<PlayerAction>(new KickBallPA(tgt, nullptr, true));
 }
 
 const char* AIShootAction::mActionName = "Shoot";
@@ -181,7 +181,7 @@ AIClearAction::AIClearAction(const Player* p)
 		tgt.v.z = tgt.v.length() * 0.8f;
 	}
 
-	mAction = std::shared_ptr<PlayerAction>(new KickBallPA(tgt, nullptr, false));
+	mAction = boost::shared_ptr<PlayerAction>(new KickBallPA(tgt, nullptr, false));
 }
 
 const char* AIClearAction::mActionName = "Clear";
@@ -224,7 +224,7 @@ AIDribbleAction::AIDribbleAction(const Player* p)
 		}
 	}
 	mScore = bestscore;
-	mAction = std::shared_ptr<PlayerAction>(new KickBallPA(bestvec));
+	mAction = boost::shared_ptr<PlayerAction>(new KickBallPA(bestvec));
 }
 
 const char* AIDribbleAction::mActionName = "Dribble";
@@ -235,7 +235,7 @@ AIPassAction::AIPassAction(const Player* p)
 	mScore = -1.0;
 	AbsVector3 tgt;
 	Player* tgtPlayer = nullptr;
-	mAction = std::shared_ptr<PlayerAction>(new KickBallPA(MatchHelpers::oppositeGoalPosition(*p),
+	mAction = boost::shared_ptr<PlayerAction>(new KickBallPA(MatchHelpers::oppositeGoalPosition(*p),
 				nullptr, true));
 	for(auto sp : MatchHelpers::getOwnPlayers(*p)) {
 		if(sp.get() == p) {
@@ -284,7 +284,7 @@ AIPassAction::AIPassAction(const Player* p)
 		}
 	}
 	if(mScore >= -1.0f) {
-		mAction = std::shared_ptr<PlayerAction>(new KickBallPA(tgt, tgtPlayer));
+		mAction = boost::shared_ptr<PlayerAction>(new KickBallPA(tgt, tgtPlayer));
 	}
 }
 
@@ -296,7 +296,7 @@ AILongPassAction::AILongPassAction(const Player* p)
 	mScore = -1.0;
 	AbsVector3 tgt;
 	Player* tgtPlayer = nullptr;
-	mAction = std::shared_ptr<PlayerAction>(new KickBallPA(MatchHelpers::oppositeGoalPosition(*p),
+	mAction = boost::shared_ptr<PlayerAction>(new KickBallPA(MatchHelpers::oppositeGoalPosition(*p),
 				nullptr, true));
 
 	float myshotscore = mPlayer->getTeam()->getShotScoreAt(p->getPosition());
@@ -323,7 +323,7 @@ AILongPassAction::AILongPassAction(const Player* p)
 		tgt.v.z += tgt.v.length() * 0.3f;
 		/* TODO: this coefficient should be dependent on air viscosity */
 		tgt.v *= 0.5f;
-		mAction = std::shared_ptr<PlayerAction>(new KickBallPA(tgt, tgtPlayer));
+		mAction = boost::shared_ptr<PlayerAction>(new KickBallPA(tgt, tgtPlayer));
 	}
 }
 
@@ -480,7 +480,7 @@ AITackleAction::AITackleAction(const Player* p)
 			}
 		}
 	}
-	mAction = std::shared_ptr<PlayerAction>(new TacklePA(tacklevec));
+	mAction = boost::shared_ptr<PlayerAction>(new TacklePA(tacklevec));
 }
 
 const char* AITackleAction::mActionName = "Tackle";

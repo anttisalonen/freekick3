@@ -9,13 +9,13 @@
 
 #include "match/ai/AIHelpers.h"
 
-std::shared_ptr<PlayerAction> AIHelpers::createMoveActionTo(const Player& p,
+boost::shared_ptr<PlayerAction> AIHelpers::createMoveActionTo(const Player& p,
 		const AbsVector3& pos, float threshold)
 {
 	AbsVector3 v(pos);
 	v.v -= p.getPosition().v;
 	if(v.v.length() < threshold) {
-		return std::shared_ptr<PlayerAction>(new IdlePA());
+		return boost::shared_ptr<PlayerAction>(new IdlePA());
 	}
 	else {
 		const AbsVector3& vel = p.getVelocity();
@@ -23,14 +23,14 @@ std::shared_ptr<PlayerAction> AIHelpers::createMoveActionTo(const Player& p,
 			double dotp = v.v.normalized().dot(vel.v.normalized());
 			if(fabs(dotp) < 0.5f) {
 				// bring to halt first
-				return std::shared_ptr<PlayerAction>(new IdlePA());
+				return boost::shared_ptr<PlayerAction>(new IdlePA());
 			}
 		}
-		return std::shared_ptr<PlayerAction>(new RunToPA(v));
+		return boost::shared_ptr<PlayerAction>(new RunToPA(v));
 	}
 }
 
-std::shared_ptr<PlayerAction> AIHelpers::createMoveActionToBall(const Player& p)
+boost::shared_ptr<PlayerAction> AIHelpers::createMoveActionToBall(const Player& p)
 {
 	const Ball* b = p.getMatch()->getBall();
 	const AbsVector3& vel = b->getVelocity();

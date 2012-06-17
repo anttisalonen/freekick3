@@ -1,7 +1,7 @@
 #ifndef REFEREE_H
 #define REFEREE_H
 
-#include <memory>
+#include <boost/shared_ptr.hpp>
 
 #include "match/MatchEntity.h"
 #include "match/Distance.h"
@@ -17,7 +17,7 @@ class Referee {
 	public:
 		Referee();
 		void setMatch(Match* m);
-		std::shared_ptr<RefereeAction> act(double time);
+		boost::shared_ptr<RefereeAction> act(double time);
 		bool ballKicked(const Player& p, const AbsVector3& vel);
 		bool isFirstTeamInControl() const;
 		bool ballGrabbed(const Player& p);
@@ -26,7 +26,7 @@ class Referee {
 	private:
 		bool allPlayersOnOwnSideAndReady() const;
 		bool onPitch(const MatchEntity& m) const;
-		std::shared_ptr<RefereeAction> setOutOfPlay();
+		boost::shared_ptr<RefereeAction> setOutOfPlay();
 		Match* mMatch;
 		bool mFirstTeamInControl;
 		AbsVector3 mRestartPosition;

@@ -2,7 +2,7 @@
 #define SOCCER_SCREENMANAGER_H
 
 #include <string>
-#include <memory>
+#include <boost/shared_ptr.hpp>
 #include <vector>
 
 #include <SDL_image.h>
@@ -23,7 +23,7 @@ class ScreenManager {
 	public:
 		ScreenManager(const Menu& m);
 		~ScreenManager();
-		void addScreen(std::shared_ptr<Screen> s);
+		void addScreen(boost::shared_ptr<Screen> s);
 		void dropScreen();
 		void dropScreensUntil(const std::string& screenname);
 		void drawScreen();
@@ -38,12 +38,12 @@ class ScreenManager {
 
 	private:
 		bool recordMouseButton(bool up, int x, int y);
-		std::shared_ptr<Screen> getCurrentScreen() const;
+		boost::shared_ptr<Screen> getCurrentScreen() const;
 		const Menu& mMenu;
-		std::vector<std::shared_ptr<Screen>> mScreens;
+		std::vector<boost::shared_ptr<Screen>> mScreens;
 		SDL_Surface* mScreen;
 		TTF_Font* mFont;
-		std::shared_ptr<Common::Texture> mBackground;
+		boost::shared_ptr<Common::Texture> mBackground;
 		std::string mPressedButton;
 };
 

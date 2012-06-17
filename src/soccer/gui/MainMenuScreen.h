@@ -7,8 +7,8 @@ namespace Soccer {
 
 class MainMenuScreen : public Screen {
 	public:
-		MainMenuScreen(std::shared_ptr<ScreenManager> sm);
-		void buttonPressed(std::shared_ptr<Button> button);
+		MainMenuScreen(boost::shared_ptr<ScreenManager> sm);
+		void buttonPressed(boost::shared_ptr<Button> button);
 		const std::string& getName() const;
 
 	private:

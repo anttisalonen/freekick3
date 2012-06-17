@@ -33,7 +33,7 @@ ScreenManager::ScreenManager(const Menu& m)
 		throw std::runtime_error("Loading font");
 	}
 
-	mBackground = std::shared_ptr<Texture>(new Texture("share/bg.png", 0, 0));
+	mBackground = boost::shared_ptr<Texture>(new Texture("share/bg.png", 0, 0));
 }
 
 ScreenManager::~ScreenManager()
@@ -44,7 +44,7 @@ ScreenManager::~ScreenManager()
 	SDL_Quit();
 }
 
-void ScreenManager::addScreen(std::shared_ptr<Screen> s)
+void ScreenManager::addScreen(boost::shared_ptr<Screen> s)
 {
 	mScreens.push_back(s);
 }
@@ -84,7 +84,7 @@ void ScreenManager::drawScreen()
 	glEnd();
 
 	// draw buttons
-	std::shared_ptr<Screen> currentScreen = getCurrentScreen();
+	boost::shared_ptr<Screen> currentScreen = getCurrentScreen();
 	if(currentScreen) {
 		for(auto b : currentScreen->getButtons()) {
 			if(b->hidden())
@@ -215,7 +215,7 @@ bool ScreenManager::handleEvents()
 
 bool ScreenManager::recordMouseButton(bool up, int x, int y)
 {
-	std::shared_ptr<Screen> currentScreen = getCurrentScreen();
+	boost::shared_ptr<Screen> currentScreen = getCurrentScreen();
 	if(!currentScreen) {
 		return true;
 	}
@@ -243,10 +243,10 @@ bool ScreenManager::isRunning() const
 	return !mScreens.empty();
 }
 
-std::shared_ptr<Screen> ScreenManager::getCurrentScreen() const
+boost::shared_ptr<Screen> ScreenManager::getCurrentScreen() const
 {
 	if(mScreens.empty())
-		return nullptr;
+		return boost::shared_ptr<Screen>();
 	else
 		return mScreens[mScreens.size() - 1];
 }

@@ -2,7 +2,7 @@
 #define SOCCER_SCREEN_H
 
 #include <string>
-#include <memory>
+#include <boost/shared_ptr.hpp>
 #include <vector>
 
 #include "common/Rectangle.h"
@@ -14,23 +14,23 @@ namespace Soccer {
 
 class Screen {
 	public:
-		Screen(std::shared_ptr<ScreenManager> sm);
+		Screen(boost::shared_ptr<ScreenManager> sm);
 		virtual ~Screen() { }
-		const std::vector<std::shared_ptr<Button>>& getButtons() const;
-		virtual void buttonPressed(std::shared_ptr<Button> button) = 0;
+		const std::vector<boost::shared_ptr<Button>>& getButtons() const;
+		virtual void buttonPressed(boost::shared_ptr<Button> button) = 0;
 		virtual const std::string& getName() const = 0;
 
 	protected:
-		std::shared_ptr<Button> addButton(const char* text, const Common::Rectangle& dim);
-		std::shared_ptr<Button> addLabel(const char* text, float x, float y,
+		boost::shared_ptr<Button> addButton(const char* text, const Common::Rectangle& dim);
+		boost::shared_ptr<Button> addLabel(const char* text, float x, float y,
 				TextAlignment centered = TextAlignment::Centered,
 				float fsize = 1.0f, Common::Color col = Common::Color::White);
-		bool removeButton(std::shared_ptr<Button> b);
-		std::shared_ptr<ScreenManager> mScreenManager;
+		bool removeButton(boost::shared_ptr<Button> b);
+		boost::shared_ptr<ScreenManager> mScreenManager;
 
 	private:
-		void setButtonTextSize(std::shared_ptr<Button> b);
-		std::vector<std::shared_ptr<Button>> mButtons;
+		void setButtonTextSize(boost::shared_ptr<Button> b);
+		std::vector<boost::shared_ptr<Button>> mButtons;
 
 };
 

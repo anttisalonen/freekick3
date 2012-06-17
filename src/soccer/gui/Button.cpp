@@ -34,7 +34,7 @@ Button::Button(const char* text, TTF_Font* font, const Rectangle& dim)
 		throw std::runtime_error("Rendering text");
 	}
 	else {
-		mTextTexture = std::shared_ptr<Texture>(new Texture(textsurface));
+		mTextTexture = boost::shared_ptr<Texture>(new Texture(textsurface));
 		SDL_FreeSurface(textsurface);
 	}
 }

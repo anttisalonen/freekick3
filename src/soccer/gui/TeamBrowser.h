@@ -3,7 +3,7 @@
 
 #include <map>
 #include <string>
-#include <memory>
+#include <boost/shared_ptr.hpp>
 
 #include "soccer/Team.h"
 
@@ -19,38 +19,38 @@ enum class TeamSelection {
 
 class TeamBrowser : public Screen {
 	public:
-		TeamBrowser(std::shared_ptr<ScreenManager> sm);
-		void buttonPressed(std::shared_ptr<Button> button);
+		TeamBrowser(boost::shared_ptr<ScreenManager> sm);
+		void buttonPressed(boost::shared_ptr<Button> button);
 
 	protected:
-		virtual bool enteringContinent(std::shared_ptr<Continent> p);
-		virtual bool enteringCountry(std::shared_ptr<LeagueSystem> p);
-		virtual bool enteringLeague(std::shared_ptr<League> p);
-		virtual bool clickingOnTeam(std::shared_ptr<Team> p);
+		virtual bool enteringContinent(boost::shared_ptr<Continent> p);
+		virtual bool enteringCountry(boost::shared_ptr<LeagueSystem> p);
+		virtual bool enteringLeague(boost::shared_ptr<League> p);
+		virtual bool clickingOnTeam(boost::shared_ptr<Team> p);
 		virtual bool canClickDone() = 0;
 		virtual void clickedDone() = 0;
-		std::map<std::shared_ptr<Team>, TeamSelection> mSelectedTeams;
+		std::map<boost::shared_ptr<Team>, TeamSelection> mSelectedTeams;
 		int getCurrentLevel() const;
 
 	private:
 		void clearCurrentButtons();
 		void addContinentButtons();
-		void addCountryButtons(std::shared_ptr<Continent> c);
-		void addLeagueButtons(std::shared_ptr<LeagueSystem> c);
-		void addTeamButtons(std::shared_ptr<League> l);
+		void addCountryButtons(boost::shared_ptr<Continent> c);
+		void addLeagueButtons(boost::shared_ptr<LeagueSystem> c);
+		void addTeamButtons(boost::shared_ptr<League> l);
 		void addSelectionButton(const char* text, int i, int maxnum);
-		void teamClicked(std::shared_ptr<Button> button);
-		void setTeamButtonColor(std::shared_ptr<Button> button) const;
+		void teamClicked(boost::shared_ptr<Button> button);
+		void setTeamButtonColor(boost::shared_ptr<Button> button) const;
 
-		std::shared_ptr<Button> mPlayButton;
-		std::map<std::string, std::shared_ptr<Continent>> mContinentButtons;
-		std::map<std::string, std::shared_ptr<LeagueSystem>> mCountryButtons;
-		std::map<std::string, std::shared_ptr<League>> mLeagueButtons;
-		std::map<std::string, std::shared_ptr<Team>> mTeamButtons;
-		std::vector<std::shared_ptr<Button>> mCurrentButtons;
-		std::shared_ptr<Continent> mCurrentContinent;
-		std::shared_ptr<LeagueSystem> mCurrentCountry;
-		std::shared_ptr<League> mCurrentLeague;
+		boost::shared_ptr<Button> mPlayButton;
+		std::map<std::string, boost::shared_ptr<Continent>> mContinentButtons;
+		std::map<std::string, boost::shared_ptr<LeagueSystem>> mCountryButtons;
+		std::map<std::string, boost::shared_ptr<League>> mLeagueButtons;
+		std::map<std::string, boost::shared_ptr<Team>> mTeamButtons;
+		std::vector<boost::shared_ptr<Button>> mCurrentButtons;
+		boost::shared_ptr<Continent> mCurrentContinent;
+		boost::shared_ptr<LeagueSystem> mCurrentCountry;
+		boost::shared_ptr<League> mCurrentLeague;
 		int mCurrentLevel;
 };
 

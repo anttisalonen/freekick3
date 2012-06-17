@@ -1,7 +1,7 @@
 #include <stdlib.h>
 
 #include <iostream>
-#include <memory>
+#include <boost/shared_ptr.hpp>
 
 #include "soccer/DataExchange.h"
 
@@ -65,8 +65,8 @@ int main(int argc, char** argv)
 		}
 	}
 	try {
-		std::shared_ptr<Soccer::Match> matchdata = Soccer::DataExchange::parseMatchDataFile(argv[1]);
-		std::shared_ptr<Match> match(new Match(*matchdata));
+		boost::shared_ptr<Soccer::Match> matchdata = Soccer::DataExchange::parseMatchDataFile(argv[1]);
+		boost::shared_ptr<Match> match(new Match(*matchdata));
 		std::unique_ptr<MatchSDLGUI> matchGUI(new MatchSDLGUI(match, observer, teamnum, playernum,
 					ticksPerSec, debug));
 		if(matchGUI->play()) {

@@ -3,6 +3,8 @@
 
 #include <stdlib.h>
 
+#include "common/Serialization.h"
+
 namespace Common {
 
 struct Color {
@@ -23,6 +25,15 @@ struct Color {
 	static const Color Blue;
 	static const Color Black;
 	static const Color White;
+
+	friend class boost::serialization::access;
+	template<class Archive>
+	void serialize(Archive& ar, const unsigned int version)
+	{
+		ar & r;
+		ar & g;
+		ar & b;
+	}
 };
 
 bool Color::operator==(const Color& f) const

@@ -1,28 +1,28 @@
-#ifndef SOCCER_MATCHRESULTSCREEN_H
-#define SOCCER_MATCHRESULTSCREEN_H
+#ifndef SOCCER_LOADGAMESCREEN_H
+#define SOCCER_LOADGAMESCREEN_H
 
-#include <map>
+#include <vector>
 #include <string>
 #include <boost/shared_ptr.hpp>
 
 #include "soccer/gui/Screen.h"
-#include "soccer/Team.h"
 
 namespace Soccer {
 
-class MatchResultScreen : public Screen {
+class LoadGameScreen : public Screen {
 	public:
-		MatchResultScreen(boost::shared_ptr<ScreenManager> sm, const Match& match);
+		LoadGameScreen(boost::shared_ptr<ScreenManager> sm);
 		void buttonPressed(boost::shared_ptr<Button> button);
 		const std::string& getName() const;
 
 	private:
+		void collectSavedFiles();
+		std::vector<std::string> mSavedFiles;
 		static const std::string ScreenName;
 };
 
 }
 
 #endif
-
 
 

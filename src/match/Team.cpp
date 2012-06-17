@@ -32,7 +32,7 @@ void Team::addPlayer(const Soccer::Player& pl)
 {
 	const auto it = mTactics.mTactics.find(pl.getId());
 	assert(it != mTactics.mTactics.end());
-	std::shared_ptr<Player> p(new Player(mMatch, this, pl, mPlayers.size() + 1, it->second));
+	boost::shared_ptr<Player> p(new Player(mMatch, this, pl, mPlayers.size() + 1, it->second));
 	mPlayers.push_back(p);
 }
 
@@ -62,7 +62,7 @@ unsigned int Team::getNumPlayers() const
 	return mPlayers.size();
 }
 
-const std::vector<std::shared_ptr<Player>>& Team::getPlayers() const
+const std::vector<boost::shared_ptr<Player>>& Team::getPlayers() const
 {
 	return mPlayers;
 }
@@ -124,7 +124,7 @@ float Team::getPassScoreAt(const AbsVector3& pos) const
 
 void Team::updateSupportingPositions()
 {
-	std::vector<std::shared_ptr<Player>> offensivePlayers;
+	std::vector<boost::shared_ptr<Player>> offensivePlayers;
 	Vector3 oppgoal = MatchHelpers::oppositeGoalPosition(*this).v;
 	for(auto pl : mPlayers) {
 		float len = (pl->getPosition().v - oppgoal).length();
@@ -192,7 +192,7 @@ float Team::calculateShotScoreAt(const AbsVector3& pos) const
 	return pts;
 }
 
-float Team::calculatePassScoreAt(const std::vector<std::shared_ptr<Player>>& offensivePlayers,
+float Team::calculatePassScoreAt(const std::vector<boost::shared_ptr<Player>>& offensivePlayers,
 		const AbsVector3& pos) const
 {
 	/* TODO: this function returns too often 0 (i.e. when there are no

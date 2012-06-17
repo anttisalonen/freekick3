@@ -1,7 +1,7 @@
 #ifndef PLAYERCONTROLLER_H
 #define PLAYERCONTROLLER_H
 
-#include <memory>
+#include <boost/shared_ptr.hpp>
 
 class Player;
 class PlayerAction;
@@ -11,7 +11,7 @@ class PlayerController {
 	public:
 		inline PlayerController(Player* p);
 		virtual ~PlayerController() { }
-		virtual std::shared_ptr<PlayerAction> act(double time) = 0;
+		virtual boost::shared_ptr<PlayerAction> act(double time) = 0;
 		virtual void matchHalfChanged(MatchHalf m) { }
 		inline void setPlayer(Player* p);
 	protected:

@@ -1,18 +1,26 @@
 #include <algorithm>
+#include <fstream>
+
+#include <boost/iostreams/filter/bzip2.hpp>
+#include <boost/iostreams/filtering_stream.hpp>
+#include <boost/archive/binary_iarchive.hpp>
+#include <boost/archive/binary_oarchive.hpp>
 
 #include "soccer/Match.h"
 #include "soccer/DataExchange.h"
+#include "soccer/gui/Menu.h"
 #include "soccer/gui/LeagueScreen.h"
 
 namespace Soccer {
 
-LeagueScreen::LeagueScreen(std::shared_ptr<ScreenManager> sm, std::shared_ptr<StatefulLeague> l)
+LeagueScreen::LeagueScreen(boost::shared_ptr<ScreenManager> sm, boost::shared_ptr<StatefulLeague> l)
 	: Screen(sm),
 	mLeague(l),
 	mTextSize(0.048f),
 	mMyTeamColor(128, 128, 255)
 {
 	addButton("Back",  Common::Rectangle(0.01f, 0.90f, 0.23f, 0.06f));
+	addButton("Save",   Common::Rectangle(0.01f, 0.83f, 0.23f, 0.06f));
 	mSkipButton   = addButton("Skip",   Common::Rectangle(0.26f, 0.90f, 0.23f, 0.06f));
 	mResultButton = addButton("Result", Common::Rectangle(0.51f, 0.90f, 0.23f, 0.06f));
 	mMatchButton  = addButton("Match",  Common::Rectangle(0.76f, 0.90f, 0.23f, 0.06f));
@@ -24,7 +32,7 @@ LeagueScreen::LeagueScreen(std::shared_ptr<ScreenManager> sm, std::shared_ptr<St
 void LeagueScreen::addText(LabelType t, const char* text, float x, float y,
 		TextAlignment align, Common::Color col)
 {
-	std::vector<std::shared_ptr<Button>>* bts = nullptr;
+	std::vector<boost::shared_ptr<Button>>* bts = nullptr;
 	switch(t) {
 		case LabelType::Table:
 			bts = &mTableLabels;
@@ -58,10 +66,10 @@ void LeagueScreen::drawTable()
 	addText(LabelType::Table, "P",       0.53f, y);
 	y += 0.03f;
 
-	const std::map<std::shared_ptr<StatefulTeam>, LeagueEntry>& es = mLeague->getEntries();
-	std::vector<std::pair<std::shared_ptr<StatefulTeam>, LeagueEntry>> ves(es.begin(), es.end());
-	std::sort(ves.begin(), ves.end(), [](const std::pair<std::shared_ptr<StatefulTeam>, LeagueEntry>& p1,
-				const std::pair<std::shared_ptr<StatefulTeam>, LeagueEntry>& p2) -> bool {
+	const std::map<boost::shared_ptr<StatefulTeam>, LeagueEntry>& es = mLeague->getEntries();
+	std::vector<std::pair<boost::shared_ptr<StatefulTeam>, LeagueEntry>> ves(es.begin(), es.end());
+	std::sort(ves.begin(), ves.end(), [](const std::pair<boost::shared_ptr<StatefulTeam>, LeagueEntry>& p1,
+				const std::pair<boost::shared_ptr<StatefulTeam>, LeagueEntry>& p2) -> bool {
 			if(p1.second.Points != p2.second.Points)
 				return p1.second.Points > p2.second.Points;
 			int gd1 = p1.second.GoalsFor - p1.second.GoalsAgainst;
@@ -127,7 +135,7 @@ void LeagueScreen::drawInfo()
 
 	{
 		// next match
-		std::shared_ptr<Match> m = mLeague->getNextMatch();
+		boost::shared_ptr<Match> m = mLeague->getNextMatch();
 		if(m) {
 			addMatchLabels(*m, 0.50f, 0.88f);
 		}
@@ -154,7 +162,7 @@ bool LeagueScreen::playNextMatch(bool display)
 
 void LeagueScreen::updateScreenElements()
 {
-	const std::shared_ptr<Match> m = mLeague->getNextMatch();
+	const boost::shared_ptr<Match> m = mLeague->getNextMatch();
 	if(!m) {
 		mSkipButton->hide();
 		mResultButton->hide();
@@ -171,16 +179,19 @@ void LeagueScreen::updateScreenElements()
 
 bool LeagueScreen::shouldShowSkipButton() const
 {
-	const std::shared_ptr<Match> m = mLeague->getNextMatch();
+	const boost::shared_ptr<Match> m = mLeague->getNextMatch();
 	return m && !(m->getTeam(0)->getController().HumanControlled ||
 				m->getTeam(1)->getController().HumanControlled);
 }
 
-void LeagueScreen::buttonPressed(std::shared_ptr<Button> button)
+void LeagueScreen::buttonPressed(boost::shared_ptr<Button> button)
 {
 	const std::string& buttonText = button->getText();
 	if(buttonText == "Back") {
 		mScreenManager->dropScreensUntil("Main Menu");
+	}
+	else if(buttonText == "Save") {
+		saveLeague();
 	}
 	else if(buttonText == "Skip") {
 		while(shouldShowSkipButton()) {
@@ -221,6 +232,18 @@ bool LeagueScreen::allRoundMatchesPlayed() const
 		}
 	}
 	return true;
+}
+
+void LeagueScreen::saveLeague() const
+{
+	std::string filename(Menu::getSaveDir());
+	filename += "/League.sav";
+	std::ofstream ofs(filename, std::ios::out | std::ios::binary | std::ios::trunc);
+	boost::iostreams::filtering_streambuf<boost::iostreams::output> out;
+	out.push(boost::iostreams::bzip2_compressor());
+	out.push(ofs);
+	boost::archive::binary_oarchive oa(out);
+	oa << mLeague;
 }
 
 }

@@ -11,12 +11,12 @@
 
 namespace Soccer {
 
-PresetLeagueScreen::PresetLeagueScreen(std::shared_ptr<ScreenManager> sm)
+PresetLeagueScreen::PresetLeagueScreen(boost::shared_ptr<ScreenManager> sm)
 	: TeamBrowser(sm)
 {
 }
 
-bool PresetLeagueScreen::enteringLeague(std::shared_ptr<League> p)
+bool PresetLeagueScreen::enteringLeague(boost::shared_ptr<League> p)
 {
 	mSelectedTeams.clear();
 	for(auto t : p->getContainer()) {
@@ -32,15 +32,15 @@ bool PresetLeagueScreen::canClickDone()
 
 void PresetLeagueScreen::clickedDone()
 {
-	std::vector<std::shared_ptr<StatefulTeam>> teams;
+	std::vector<boost::shared_ptr<StatefulTeam>> teams;
 	/* TODO: create tactics */
 	for(auto t : mSelectedTeams) {
-		teams.push_back(std::shared_ptr<StatefulTeam>(new StatefulTeam(*t.first,
+		teams.push_back(boost::shared_ptr<StatefulTeam>(new StatefulTeam(*t.first,
 						TeamController(t.second == TeamSelection::Human,
 							0), TeamTactics(*t.first))));
 	}
-	std::shared_ptr<StatefulLeague> league(new StatefulLeague(teams));
-	mScreenManager->addScreen(std::shared_ptr<Screen>(new LeagueScreen(mScreenManager, league)));
+	boost::shared_ptr<StatefulLeague> league(new StatefulLeague(teams));
+	mScreenManager->addScreen(boost::shared_ptr<Screen>(new LeagueScreen(mScreenManager, league)));
 }
 
 const std::string PresetLeagueScreen::ScreenName = std::string("Preset League Screen");
@@ -50,7 +50,7 @@ const std::string& PresetLeagueScreen::getName() const
 	return ScreenName;
 }
 
-bool PresetLeagueScreen::clickingOnTeam(std::shared_ptr<Team> p)
+bool PresetLeagueScreen::clickingOnTeam(boost::shared_ptr<Team> p)
 {
 	auto it2 = mSelectedTeams.find(p);
 	if(it2 != mSelectedTeams.end()) {

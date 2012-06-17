@@ -30,7 +30,7 @@ static const float playerShadowHeight = 0.95f;
 static const float playerHeight = 1.0f;
 static const float textHeight = 5.0f;
 
-MatchSDLGUI::MatchSDLGUI(std::shared_ptr<Match> match, bool observer, int teamnum, int playernum,
+MatchSDLGUI::MatchSDLGUI(boost::shared_ptr<Match> match, bool observer, int teamnum, int playernum,
 		int ticksPerSec, bool debug)
 	: MatchGUI(match),
 	PlayerController(mMatch->getPlayer(0, 9)),
@@ -219,7 +219,7 @@ void MatchSDLGUI::drawEnvironment()
 	}
 }
 
-const std::shared_ptr<Texture> MatchSDLGUI::playerTexture(const Player* p)
+const boost::shared_ptr<Texture> MatchSDLGUI::playerTexture(const Player* p)
 {
 	AbsVector3 vec = p->getVelocity();
 	if(vec.v.null()) {
@@ -435,8 +435,8 @@ Common::Color MatchSDLGUI::mapKitColor(const Soccer::Kit& kit, const Common::Col
 
 void MatchSDLGUI::loadTextures()
 {
-	mBallTexture = std::shared_ptr<Texture>(new Texture("share/ball1.png", 0, 8));
-	mBallShadowTexture = std::shared_ptr<Texture>(new Texture("share/ball1shadow.png", 0, 8));
+	mBallTexture = boost::shared_ptr<Texture>(new Texture("share/ball1.png", 0, 8));
+	mBallShadowTexture = boost::shared_ptr<Texture>(new Texture("share/ball1shadow.png", 0, 8));
 	SDLSurface surfs[12] = { SDLSurface("share/player1-n.png"),
 		SDLSurface("share/player1-w.png"),
 		SDLSurface("share/player1-s.png"),
@@ -457,15 +457,15 @@ void MatchSDLGUI::loadTextures()
 		SDLSurface aways(s);
 		homes.mapPixelColor( [&] (const Color& c) { return mapKitColor(kits.first, c); } );
 		aways.mapPixelColor( [&] (const Color& c) { return mapKitColor(kits.second, c); } );
-		mPlayerTextureHome[i] = std::shared_ptr<Texture>(new Texture(homes, 0, 32));
-		mPlayerTextureAway[i] = std::shared_ptr<Texture>(new Texture(aways, 0, 32));
+		mPlayerTextureHome[i] = boost::shared_ptr<Texture>(new Texture(homes, 0, 32));
+		mPlayerTextureAway[i] = boost::shared_ptr<Texture>(new Texture(aways, 0, 32));
 
 		i++;
 	}
-	mPitchTexture = std::shared_ptr<Texture>(new Texture("share/grass1.png", 0, 0));
-	mPlayerShadowTexture = std::shared_ptr<Texture>(new Texture("share/player1shadow.png", 0, 32));
+	mPitchTexture = boost::shared_ptr<Texture>(new Texture("share/grass1.png", 0, 0));
+	mPlayerShadowTexture = boost::shared_ptr<Texture>(new Texture("share/player1shadow.png", 0, 32));
 
-	mGoal1Texture = std::shared_ptr<Texture>(new Texture("share/goal1.png", 0, 0));
+	mGoal1Texture = boost::shared_ptr<Texture>(new Texture("share/goal1.png", 0, 0));
 }
 
 bool MatchSDLGUI::handleInput(float frameTime)
@@ -657,7 +657,7 @@ void MatchSDLGUI::drawSprite(const Texture& t,
 	glEnd();
 }
 
-std::shared_ptr<PlayerAction> MatchSDLGUI::act(double time)
+boost::shared_ptr<PlayerAction> MatchSDLGUI::act(double time)
 {
 	float kickpower = 0.0f;
 	bool mouseaim = false;
@@ -701,7 +701,7 @@ std::shared_ptr<PlayerAction> MatchSDLGUI::act(double time)
 			Vector3 kicktgt = mPlayerControlVelocity * kickpower;
 			if(mPlayerKickPowerVelocity > 0.5f)
 				kicktgt.z += kicktgt.length() * 0.3f;
-			return std::shared_ptr<PlayerAction>(new KickBallPA(AbsVector3(kicktgt)));
+			return boost::shared_ptr<PlayerAction>(new KickBallPA(AbsVector3(kicktgt)));
 		}
 		else {
 			// pass, shot, dribble?
@@ -715,21 +715,21 @@ std::shared_ptr<PlayerAction> MatchSDLGUI::act(double time)
 				AbsVector3 kicktgt = getMousePositionOnPitch();
 				if(mPlayerKickPowerVelocity > 0.5f)
 					kicktgt.v.z = kicktgt.v.length() * 0.1f;
-				return std::shared_ptr<PlayerAction>(new KickBallPA(kicktgt, nullptr, true));
+				return boost::shared_ptr<PlayerAction>(new KickBallPA(kicktgt, nullptr, true));
 			}
 			else if(passdiff < 5.0f) {
 				// pass
 				AbsVector3 kicktgt = AIHelpers::getPassKickVector(*mPlayer, *passtgt);
 				if(mPlayerKickPowerVelocity > 0.5f)
 					kicktgt.v.z += kicktgt.v.length() * 0.3f;
-				return std::shared_ptr<PlayerAction>(new KickBallPA(kicktgt, passtgt));
+				return boost::shared_ptr<PlayerAction>(new KickBallPA(kicktgt, passtgt));
 			}
 			else {
 				// dribble
 				AbsVector3 kicktgt = AIHelpers::getPassKickVector(*mPlayer, tgt);
 				if(mPlayerKickPowerVelocity > 0.5f)
 					kicktgt.v.z += kicktgt.v.length() * 0.3f;
-				return std::shared_ptr<PlayerAction>(new KickBallPA(kicktgt));
+				return boost::shared_ptr<PlayerAction>(new KickBallPA(kicktgt));
 			}
 		}
 	}
@@ -741,14 +741,14 @@ std::shared_ptr<PlayerAction> MatchSDLGUI::act(double time)
 		if(!mPlayerControlVelocity.null()) {
 			if(mTackling) {
 				mTackling = false;
-				return std::shared_ptr<PlayerAction>(new TacklePA(AbsVector3(mPlayerControlVelocity)));
+				return boost::shared_ptr<PlayerAction>(new TacklePA(AbsVector3(mPlayerControlVelocity)));
 			}
 			else {
 				// not about to kick or tackle => run around
-				return std::shared_ptr<PlayerAction>(new RunToPA(AbsVector3(mPlayerControlVelocity)));
+				return boost::shared_ptr<PlayerAction>(new RunToPA(AbsVector3(mPlayerControlVelocity)));
 			}
 		}
-		return std::shared_ptr<PlayerAction>(new IdlePA());
+		return boost::shared_ptr<PlayerAction>(new IdlePA());
 	}
 }
 
@@ -798,8 +798,8 @@ void MatchSDLGUI::drawText(float x, float y,
 			return;
 		}
 		else {
-			std::shared_ptr<Texture> texture(new Texture(text));
-			std::shared_ptr<TextTexture> ttexture(new TextTexture(texture, text->w, text->h));
+			boost::shared_ptr<Texture> texture(new Texture(text));
+			boost::shared_ptr<TextTexture> ttexture(new TextTexture(texture, text->w, text->h));
 			auto it2 = mTextMap.insert(std::make_pair(f, ttexture));
 			it = it2.first;
 			SDL_FreeSurface(text);

@@ -36,4 +36,8 @@ int Player::getId() const
 	return mId;
 }
 
+Player::Player()
+{
+}
+
 }

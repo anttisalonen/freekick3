@@ -3,7 +3,7 @@
 
 #include <map>
 #include <string>
-#include <memory>
+#include <boost/shared_ptr.hpp>
 
 #include "soccer/Team.h"
 #include "soccer/gui/Screen.h"
@@ -13,7 +13,7 @@ namespace Soccer {
 
 class FriendlyScreen : public TeamBrowser {
 	public:
-		FriendlyScreen(std::shared_ptr<ScreenManager> sm);
+		FriendlyScreen(boost::shared_ptr<ScreenManager> sm);
 		bool canClickDone();
 		void clickedDone();
 		const std::string& getName() const;

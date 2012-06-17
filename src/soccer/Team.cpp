@@ -137,7 +137,7 @@ Team::Team(int id, const char* name, const Kit& homekit, const Kit& awaykit, con
 {
 }
 
-Team::Team(int id, const char* name, const Kit& homekit, const Kit& awaykit, const std::vector<std::shared_ptr<Player>>& players)
+Team::Team(int id, const char* name, const Kit& homekit, const Kit& awaykit, const std::vector<boost::shared_ptr<Player>>& players)
 	: mId(id),
 	mName(name),
 	mPlayers(players),
@@ -146,15 +146,15 @@ Team::Team(int id, const char* name, const Kit& homekit, const Kit& awaykit, con
 {
 }
 
-void Team::addPlayer(std::shared_ptr<Player> p)
+void Team::addPlayer(boost::shared_ptr<Player> p)
 {
 	mPlayers.push_back(p);
 }
 
-const std::shared_ptr<Player> Team::getPlayer(unsigned int i) const
+const boost::shared_ptr<Player> Team::getPlayer(unsigned int i) const
 {
 	if(i >= mPlayers.size())
-		return nullptr;
+		return boost::shared_ptr<Player>();
 	else
 		return mPlayers[i];
 }
@@ -183,17 +183,17 @@ const std::string& Team::getName() const
 	return mName;
 }
 
-const std::vector<std::shared_ptr<Player>>& Team::getPlayers() const
+const std::vector<boost::shared_ptr<Player>>& Team::getPlayers() const
 {
 	return mPlayers;
 }
 
-const std::shared_ptr<Player> Team::getPlayerById(int i) const
+const boost::shared_ptr<Player> Team::getPlayerById(int i) const
 {
 	for(auto p : mPlayers)
 		if(p->getId() == i)
 			return p;
-	return nullptr;
+	return boost::shared_ptr<Player>();
 }
 
 const Kit& Team::getHomeKit() const
@@ -222,6 +222,26 @@ const TeamController& StatefulTeam::getController() const
 const TeamTactics& StatefulTeam::getTactics() const
 {
 	return mTactics;
+}
+
+StatefulTeam::StatefulTeam()
+{
+}
+
+TeamTactics::TeamTactics()
+{
+}
+
+TeamController::TeamController()
+{
+}
+
+Kit::Kit()
+{
+}
+
+Team::Team()
+{
 }
 
 }

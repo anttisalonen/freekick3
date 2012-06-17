@@ -4,14 +4,14 @@ using namespace Common;
 
 namespace Soccer {
 
-Screen::Screen(std::shared_ptr<ScreenManager> sm)
+Screen::Screen(boost::shared_ptr<ScreenManager> sm)
 	: mScreenManager(sm)
 {
 }
 
-std::shared_ptr<Button> Screen::addButton(const char* text, const Rectangle& dim)
+boost::shared_ptr<Button> Screen::addButton(const char* text, const Rectangle& dim)
 {
-	std::shared_ptr<Button> b(new Button(text, mScreenManager->getFont(),
+	boost::shared_ptr<Button> b(new Button(text, mScreenManager->getFont(),
 					Rectangle(dim.x * mScreenManager->getScreenWidth(),
 						dim.y * mScreenManager->getScreenHeight(),
 						dim.w * mScreenManager->getScreenWidth(),
@@ -21,7 +21,7 @@ std::shared_ptr<Button> Screen::addButton(const char* text, const Rectangle& dim
 	return b;
 }
 
-bool Screen::removeButton(std::shared_ptr<Button> b)
+bool Screen::removeButton(boost::shared_ptr<Button> b)
 {
 	for(auto it = mButtons.begin(); it != mButtons.end(); ++it) {
 		if(*it == b) {
@@ -32,7 +32,7 @@ bool Screen::removeButton(std::shared_ptr<Button> b)
 	return false;
 }
 
-std::shared_ptr<Button> Screen::addLabel(const char* text, float x, float y, TextAlignment centered,
+boost::shared_ptr<Button> Screen::addLabel(const char* text, float x, float y, TextAlignment centered,
 		float fsize, Common::Color col)
 {
 	float xp = x;
@@ -79,7 +79,7 @@ std::shared_ptr<Button> Screen::addLabel(const char* text, float x, float y, Tex
 			yp -= 2.0f * h2;
 			break;
 	}
-	std::shared_ptr<Button> b = addButton(text, Rectangle(xp,
+	boost::shared_ptr<Button> b = addButton(text, Rectangle(xp,
 				yp, 2.0f * w2, 2.0f * h2));
 	b->setTextColor(col);
 	b->setTransparent(true);
@@ -90,12 +90,12 @@ std::shared_ptr<Button> Screen::addLabel(const char* text, float x, float y, Tex
 	return b;
 }
 
-const std::vector<std::shared_ptr<Button>>& Screen::getButtons() const
+const std::vector<boost::shared_ptr<Button>>& Screen::getButtons() const
 {
 	return mButtons;
 }
 
-void Screen::setButtonTextSize(std::shared_ptr<Button> b)
+void Screen::setButtonTextSize(boost::shared_ptr<Button> b)
 {
 	const Common::Rectangle& dim = b->getRectangle();
 	float texwidth_pix = b->getTextTexture()->getWidth();

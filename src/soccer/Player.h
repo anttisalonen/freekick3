@@ -3,6 +3,8 @@
 
 #include <string>
 
+#include "common/Serialization.h"
+
 namespace Soccer {
 
 struct PlayerSkills {
@@ -22,6 +24,19 @@ struct PlayerSkills {
 	float Tackling;
 	float Heading;
 	float GoalKeeping;
+
+	friend class boost::serialization::access;
+	template<class Archive>
+	void serialize(Archive& ar, const unsigned int version)
+	{
+		ar & ShotPower;
+		ar & Passing;
+		ar & RunSpeed;
+		ar & BallControl;
+		ar & Tackling;
+		ar & Heading;
+		ar & GoalKeeping;
+	}
 };
 
 enum class PlayerPosition {
@@ -46,6 +61,18 @@ class Player {
 		std::string mName;
 		PlayerPosition mPlayerPosition;
 		PlayerSkills mSkills;
+
+	private:
+		Player(); // serialization
+		friend class boost::serialization::access;
+		template<class Archive>
+		void serialize(Archive& ar, const unsigned int version)
+		{
+			ar & mId;
+			ar & mName;
+			ar & mPlayerPosition;
+			ar & mSkills;
+		}
 };
 
 }

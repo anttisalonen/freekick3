@@ -8,11 +8,11 @@
 
 namespace Soccer {
 
-TeamBrowser::TeamBrowser(std::shared_ptr<ScreenManager> sm)
+TeamBrowser::TeamBrowser(boost::shared_ptr<ScreenManager> sm)
 	: Screen(sm),
-	mCurrentContinent(nullptr),
-	mCurrentCountry(nullptr),
-	mCurrentLeague(nullptr),
+	mCurrentContinent(boost::shared_ptr<Continent>()),
+	mCurrentCountry(boost::shared_ptr<LeagueSystem>()),
+	mCurrentLeague(boost::shared_ptr<League>()),
 	mCurrentLevel(0)
 {
 	addButton("Back", Common::Rectangle(0.02f, 0.90f, 0.25f, 0.06f));
@@ -28,14 +28,14 @@ void TeamBrowser::addSelectionButton(const char* text, int i, int maxnum)
 		return;
 
 	if(maxnum < 10) {
-		std::shared_ptr<Button> b(addButton(text, Common::Rectangle(0.35f, 0.05f + i * 0.08, 0.25, 0.05f)));
+		boost::shared_ptr<Button> b(addButton(text, Common::Rectangle(0.35f, 0.05f + i * 0.08, 0.25, 0.05f)));
 		mCurrentButtons.push_back(b);
 	}
 	else {
 		if(i > 30)
 			return;
 
-		std::shared_ptr<Button> b(addButton(text, Common::Rectangle(0.05f + (i % 3) * 0.30f,
+		boost::shared_ptr<Button> b(addButton(text, Common::Rectangle(0.05f + (i % 3) * 0.30f,
 						0.05f + (i / 3) * 0.08, 0.25, 0.05f)));
 		mCurrentButtons.push_back(b);
 	}
@@ -56,7 +56,7 @@ void TeamBrowser::addContinentButtons()
 	mCurrentLevel = 0;
 }
 
-void TeamBrowser::addCountryButtons(std::shared_ptr<Continent> c)
+void TeamBrowser::addCountryButtons(boost::shared_ptr<Continent> c)
 {
 	clearCurrentButtons();
 	mCountryButtons.clear();
@@ -72,7 +72,7 @@ void TeamBrowser::addCountryButtons(std::shared_ptr<Continent> c)
 	mCurrentContinent = c;
 }
 
-void TeamBrowser::addLeagueButtons(std::shared_ptr<LeagueSystem> c)
+void TeamBrowser::addLeagueButtons(boost::shared_ptr<LeagueSystem> c)
 {
 	clearCurrentButtons();
 	mLeagueButtons.clear();
@@ -88,7 +88,7 @@ void TeamBrowser::addLeagueButtons(std::shared_ptr<LeagueSystem> c)
 	mCurrentCountry = c;
 }
 
-void TeamBrowser::addTeamButtons(std::shared_ptr<League> l)
+void TeamBrowser::addTeamButtons(boost::shared_ptr<League> l)
 {
 	clearCurrentButtons();
 	mTeamButtons.clear();
@@ -115,7 +115,7 @@ void TeamBrowser::clearCurrentButtons()
 	}
 }
 
-void TeamBrowser::buttonPressed(std::shared_ptr<Button> button)
+void TeamBrowser::buttonPressed(boost::shared_ptr<Button> button)
 {
 	const std::string& buttonText = button->getText();
 	if(buttonText == "Back") {
@@ -193,7 +193,7 @@ void TeamBrowser::buttonPressed(std::shared_ptr<Button> button)
 	}
 }
 
-void TeamBrowser::setTeamButtonColor(std::shared_ptr<Button> button) const
+void TeamBrowser::setTeamButtonColor(boost::shared_ptr<Button> button) const
 {
 	const std::string& buttonText = button->getText();
 	auto it = mTeamButtons.find(buttonText);
@@ -216,7 +216,7 @@ void TeamBrowser::setTeamButtonColor(std::shared_ptr<Button> button) const
 	}
 }
 
-void TeamBrowser::teamClicked(std::shared_ptr<Button> button)
+void TeamBrowser::teamClicked(boost::shared_ptr<Button> button)
 {
 	const std::string& buttonText = button->getText();
 	auto it = mTeamButtons.find(buttonText);
@@ -236,22 +236,22 @@ int TeamBrowser::getCurrentLevel() const
 	return mCurrentLevel;
 }
 
-bool TeamBrowser::enteringLeague(std::shared_ptr<League> p)
+bool TeamBrowser::enteringLeague(boost::shared_ptr<League> p)
 {
 	return true;
 }
 
-bool TeamBrowser::enteringContinent(std::shared_ptr<Continent> p)
+bool TeamBrowser::enteringContinent(boost::shared_ptr<Continent> p)
 {
 	return true;
 }
 
-bool TeamBrowser::enteringCountry(std::shared_ptr<LeagueSystem> p)
+bool TeamBrowser::enteringCountry(boost::shared_ptr<LeagueSystem> p)
 {
 	return true;
 }
 
-bool TeamBrowser::clickingOnTeam(std::shared_ptr<Team> p)
+bool TeamBrowser::clickingOnTeam(boost::shared_ptr<Team> p)
 {
 	auto it2 = mSelectedTeams.find(p);
 	if(it2 == mSelectedTeams.end()) {

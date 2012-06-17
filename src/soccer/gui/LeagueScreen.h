@@ -3,7 +3,7 @@
 
 #include <map>
 #include <string>
-#include <memory>
+#include <boost/shared_ptr.hpp>
 
 #include "soccer/League.h"
 
@@ -13,8 +13,8 @@ namespace Soccer {
 
 class LeagueScreen : public Screen {
 	public:
-		LeagueScreen(std::shared_ptr<ScreenManager> sm, std::shared_ptr<StatefulLeague> l);
-		void buttonPressed(std::shared_ptr<Button> button);
+		LeagueScreen(boost::shared_ptr<ScreenManager> sm, boost::shared_ptr<StatefulLeague> l);
+		void buttonPressed(boost::shared_ptr<Button> button);
 		const std::string& getName() const;
 
 	private:
@@ -35,16 +35,17 @@ class LeagueScreen : public Screen {
 		void addMatchLabels(const Match& m, float xp, float yp);
 		void updateScreenElements();
 		bool shouldShowSkipButton() const;
+		void saveLeague() const;
 
 		static const std::string ScreenName;
-		std::shared_ptr<StatefulLeague> mLeague;
+		boost::shared_ptr<StatefulLeague> mLeague;
 		const float mTextSize;
-		std::shared_ptr<Button> mSkipButton;
-		std::shared_ptr<Button> mResultButton;
-		std::shared_ptr<Button> mMatchButton;
-		std::vector<std::shared_ptr<Button>> mTableLabels;
-		std::vector<std::shared_ptr<Button>> mResultLabels;
-		std::vector<std::shared_ptr<Match>> mRoundMatches;
+		boost::shared_ptr<Button> mSkipButton;
+		boost::shared_ptr<Button> mResultButton;
+		boost::shared_ptr<Button> mMatchButton;
+		std::vector<boost::shared_ptr<Button>> mTableLabels;
+		std::vector<boost::shared_ptr<Button>> mResultLabels;
+		std::vector<boost::shared_ptr<Match>> mRoundMatches;
 		Common::Color mMyTeamColor;
 };
 

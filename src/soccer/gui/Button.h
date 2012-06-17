@@ -2,7 +2,7 @@
 #define SOCCER_BUTTON_H
 
 #include <string>
-#include <memory>
+#include <boost/shared_ptr.hpp>
 #include <vector>
 
 #include <SDL_image.h>
@@ -61,7 +61,7 @@ class Button {
 	private:
 		std::string mText;
 		Common::Rectangle mRectangle;
-		std::shared_ptr<Common::Texture> mTextTexture;
+		boost::shared_ptr<Common::Texture> mTextTexture;
 		bool mHidden;
 		bool mActive;
 		bool mTransparent;

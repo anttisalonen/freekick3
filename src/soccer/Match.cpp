@@ -10,7 +10,7 @@
 
 namespace Soccer {
 
-Match::Match(const std::shared_ptr<StatefulTeam> t1, const std::shared_ptr<StatefulTeam> t2)
+Match::Match(const boost::shared_ptr<StatefulTeam> t1, const boost::shared_ptr<StatefulTeam> t2)
 	: mTeam1(t1),
 	mTeam2(t2)
 {
@@ -29,7 +29,7 @@ MatchResult Match::play(bool display) const
 		else if(!mTeam1->getController().HumanControlled && mTeam2->getController().HumanControlled)
 			teamnum = 2;
 		playMatch(matchfilenamebuf, teamnum, 0);
-		std::shared_ptr<Match> match = DataExchange::parseMatchDataFile(matchfilenamebuf);
+		boost::shared_ptr<Match> match = DataExchange::parseMatchDataFile(matchfilenamebuf);
 		unlink(matchfilenamebuf);
 		return match->getResult();
 	}
@@ -345,12 +345,16 @@ void Match::setResult(const MatchResult& m)
 	mResult = m;
 }
 
-const std::shared_ptr<StatefulTeam> Match::getTeam(int i) const
+const boost::shared_ptr<StatefulTeam> Match::getTeam(int i) const
 {
 	if(i == 0)
 		return mTeam1;
 	else
 		return mTeam2;
+}
+
+Match::Match()
+{
 }
 
 }

@@ -122,22 +122,22 @@ bool MatchHelpers::myTeamInControl(const Player& p)
 	return p.getMatch()->getReferee()->isFirstTeamInControl() == p.getTeam()->isFirst();
 }
 
-const std::vector<std::shared_ptr<Player>>& MatchHelpers::getOpposingPlayers(const Team& t)
+const std::vector<boost::shared_ptr<Player>>& MatchHelpers::getOpposingPlayers(const Team& t)
 {
 	return getTeamPlayers(*t.getMatch(), t.isFirst() ? 1 : 0);
 }
 
-const std::vector<std::shared_ptr<Player>>& MatchHelpers::getOpposingPlayers(const Player& p)
+const std::vector<boost::shared_ptr<Player>>& MatchHelpers::getOpposingPlayers(const Player& p)
 {
 	return getOpposingPlayers(*p.getTeam());
 }
 
-const std::vector<std::shared_ptr<Player>>& MatchHelpers::getOwnPlayers(const Player& p)
+const std::vector<boost::shared_ptr<Player>>& MatchHelpers::getOwnPlayers(const Player& p)
 {
 	return getTeamPlayers(*p.getMatch(), p.getTeam()->isFirst() ? 0 : 1);
 }
 
-const std::vector<std::shared_ptr<Player>>& MatchHelpers::getTeamPlayers(const Match& m, unsigned int idx)
+const std::vector<boost::shared_ptr<Player>>& MatchHelpers::getTeamPlayers(const Match& m, unsigned int idx)
 {
 	const Team* t = m.getTeam(idx);
 	assert(t);

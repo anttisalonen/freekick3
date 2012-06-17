@@ -5,7 +5,7 @@ CXXFLAGS += -Wall
 
 CXXFLAGS += $(shell sdl-config --cflags)
 
-FREEKICKLIBS = $(shell sdl-config --libs) -lSDL_image -lSDL_ttf -lGL -ltinyxml
+FREEKICKLIBS = $(shell sdl-config --libs) -lSDL_image -lSDL_ttf -lGL -ltinyxml -lboost_serialization -lboost_iostreams
 SWOS2FKLIBS = -ltinyxml
 
 
@@ -43,6 +43,7 @@ SOCCERSRCFILES = League.cpp \
 		 gui/Button.cpp gui/Screen.cpp gui/ScreenManager.cpp \
 		 gui/MatchResultScreen.cpp gui/MainMenuScreen.cpp gui/TeamBrowser.cpp \
 		 gui/FriendlyScreen.cpp gui/PresetLeagueScreen.cpp \
+		 gui/LoadGameScreen.cpp \
 		 gui/LeagueScreen.cpp \
 		 gui/Menu.cpp main.cpp
 SOCCERSRCS = $(addprefix $(SOCCERSRCDIR)/, $(SOCCERSRCFILES))

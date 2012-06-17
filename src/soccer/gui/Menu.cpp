@@ -22,21 +22,44 @@ namespace Soccer {
 
 using namespace Common;
 
+const std::string& Menu::getDataDir()
+{
+	static std::string mDataDir;
+
+	if(mDataDir.empty()) {
+		const char* homedir = getenv("HOME");
+		if(homedir) {
+			mDataDir += homedir;
+			mDataDir += "/.freekick3";
+		}
+	}
+
+	return mDataDir;
+}
+
+const std::string& Menu::getSaveDir()
+{
+	static std::string mSaveDir;
+
+	if(mSaveDir.empty()) {
+		mSaveDir = getDataDir();
+		mSaveDir += "/saves";
+	}
+
+	return mSaveDir;
+}
+
 Menu::Menu()
 {
 	mScreenManager.reset(new ScreenManager(*this));
 
-	std::string datadir;
-	const char* homedir = getenv("HOME");
-	if(homedir) {
-		datadir += homedir;
-		datadir += "/.freekick3/share/teams";
-		try {
-			DataExchange::updatePlayerDatabase((datadir + "/Players.xml").c_str(), mPlayers);
-			DataExchange::updateTeamDatabase((datadir + "/Teams.xml").c_str(), mTeams);
-		} catch(std::exception& e) {
-			std::cerr << "Note: could not open database files: " << e.what() << "\n";
-		}
+	std::string datadir = getDataDir();
+	datadir += "/share/teams";
+	try {
+		DataExchange::updatePlayerDatabase((datadir + "/Players.xml").c_str(), mPlayers);
+		DataExchange::updateTeamDatabase((datadir + "/Teams.xml").c_str(), mTeams);
+	} catch(std::exception& e) {
+		std::cerr << "Note: could not open database files: " << e.what() << "\n";
 	}
 
 	if(mPlayers.empty())
@@ -50,7 +73,7 @@ Menu::Menu()
 				for(auto t : league.second->getContainer())
 					t.second->fetchPlayersFromDB(mPlayers);
 
-	mScreenManager->addScreen(std::shared_ptr<Screen>(new MainMenuScreen(mScreenManager)));
+	mScreenManager->addScreen(boost::shared_ptr<Screen>(new MainMenuScreen(mScreenManager)));
 }
 
 void Menu::run()

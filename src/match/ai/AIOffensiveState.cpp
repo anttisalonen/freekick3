@@ -8,11 +8,11 @@ AIOffensiveState::AIOffensiveState(Player* p, AIPlayController* m)
 {
 }
 
-std::shared_ptr<PlayerAction> AIOffensiveState::actOffBall(double time)
+boost::shared_ptr<PlayerAction> AIOffensiveState::actOffBall(double time)
 {
 	if(mPlayer->getPlayerPosition() != Soccer::PlayerPosition::Forward &&
 			!MatchHelpers::myTeamInControl(*mPlayer)) {
-		return mPlayController->switchState(std::shared_ptr<AIState>(new AIDefendState(mPlayer, mPlayController)), time);
+		return mPlayController->switchState(boost::shared_ptr<AIState>(new AIDefendState(mPlayer, mPlayController)), time);
 	}
 	else {
 		mDescription = std::string("Supporting");

@@ -1,7 +1,7 @@
 #ifndef AIHELPERS_H
 #define AIHELPERS_H
 
-#include <memory>
+#include <boost/shared_ptr.hpp>
 #include <functional>
 
 #include "match/Player.h"
@@ -10,9 +10,9 @@
 
 class AIHelpers {
 	public:
-		static std::shared_ptr<PlayerAction> createMoveActionTo(const Player& p,
+		static boost::shared_ptr<PlayerAction> createMoveActionTo(const Player& p,
 				const AbsVector3& pos, float threshold = 0.3f);
-		static std::shared_ptr<PlayerAction> createMoveActionToBall(const Player& p);
+		static boost::shared_ptr<PlayerAction> createMoveActionToBall(const Player& p);
 		static AbsVector3 getShotPosition(const Player& p);
 		static AbsVector3 getPassPosition(const Player& p);
 		static AbsVector3 getPassKickVector(const Player& from, const AbsVector3& to);

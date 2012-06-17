@@ -7,7 +7,7 @@
 
 namespace Soccer {
 
-FriendlyScreen::FriendlyScreen(std::shared_ptr<ScreenManager> sm)
+FriendlyScreen::FriendlyScreen(boost::shared_ptr<ScreenManager> sm)
 	: TeamBrowser(sm)
 {
 }
@@ -31,7 +31,7 @@ void FriendlyScreen::clickedDone()
 
 	assert(mSelectedTeams.size() == 2);
 
-	std::vector<std::shared_ptr<Team>> teams;
+	std::vector<boost::shared_ptr<Team>> teams;
 	int thisteamnum = 1;
 	for(auto it : mSelectedTeams) {
 		teams.push_back(it.first);
@@ -40,13 +40,13 @@ void FriendlyScreen::clickedDone()
 		thisteamnum++;
 	}
 	/* TODO: create tactics */
-	Match m(std::shared_ptr<StatefulTeam>(new StatefulTeam(*teams[0], TeamController(teamnum == 1, 0),
+	Match m(boost::shared_ptr<StatefulTeam>(new StatefulTeam(*teams[0], TeamController(teamnum == 1, 0),
 					TeamTactics(*teams[0]))),
-				std::shared_ptr<StatefulTeam>(new StatefulTeam(*teams[1], TeamController(teamnum == 2, 0),
+				boost::shared_ptr<StatefulTeam>(new StatefulTeam(*teams[1], TeamController(teamnum == 2, 0),
 						TeamTactics(*teams[1]))));
 	MatchResult res = m.play(true);
 	m.setResult(res);
-	mScreenManager->addScreen(std::shared_ptr<Screen>(new MatchResultScreen(mScreenManager, m)));
+	mScreenManager->addScreen(boost::shared_ptr<Screen>(new MatchResultScreen(mScreenManager, m)));
 
 	return;
 }

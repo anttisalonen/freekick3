@@ -1,7 +1,7 @@
 #ifndef AIPLAYSTATES_H
 #define AIPLAYSTATES_H
 
-#include <memory>
+#include <boost/shared_ptr.hpp>
 #include <string>
 
 #include "match/Clock.h"
@@ -14,30 +14,30 @@ class AIState;
 class AIPlayController : public PlayerController {
 	public:
 		AIPlayController(Player* p);
-		std::shared_ptr<PlayerAction> act(double time);
-		std::shared_ptr<PlayerAction> switchState(std::shared_ptr<AIState> newstate, double time);
-		void setNewState(std::shared_ptr<AIState> newstate);
+		boost::shared_ptr<PlayerAction> act(double time);
+		boost::shared_ptr<PlayerAction> switchState(boost::shared_ptr<AIState> newstate, double time);
+		void setNewState(boost::shared_ptr<AIState> newstate);
 		const std::string& getDescription() const;
-		std::shared_ptr<PlayerAction> actOnRestart(double time);
+		boost::shared_ptr<PlayerAction> actOnRestart(double time);
 		void matchHalfChanged(MatchHalf m);
 	private:
-		std::shared_ptr<AIState> mCurrentState;
+		boost::shared_ptr<AIState> mCurrentState;
 };
 
 class AIState {
 	public:
 		AIState(Player* p, AIPlayController* m);
 		virtual ~AIState() { }
-		virtual std::shared_ptr<PlayerAction> actOnBall(double time);
-		virtual std::shared_ptr<PlayerAction> actNearBall(double time);
-		virtual std::shared_ptr<PlayerAction> actOffBall(double time) = 0;
+		virtual boost::shared_ptr<PlayerAction> actOnBall(double time);
+		virtual boost::shared_ptr<PlayerAction> actNearBall(double time);
+		virtual boost::shared_ptr<PlayerAction> actOffBall(double time) = 0;
 		const std::string& getDescription() const;
 		virtual void matchHalfChanged(MatchHalf m) { }
 	protected:
-		std::shared_ptr<PlayerAction> switchState(std::shared_ptr<AIState> newstate, double time);
-		void setNewState(std::shared_ptr<AIState> newstate);
-		std::shared_ptr<PlayerAction> gotoKickPositionOrKick(double time, const AbsVector3& pos) const;
-		std::shared_ptr<PlayerAction> fetchAndKickBall(double time, bool kicking) const;
+		boost::shared_ptr<PlayerAction> switchState(boost::shared_ptr<AIState> newstate, double time);
+		void setNewState(boost::shared_ptr<AIState> newstate);
+		boost::shared_ptr<PlayerAction> gotoKickPositionOrKick(double time, const AbsVector3& pos) const;
+		boost::shared_ptr<PlayerAction> fetchAndKickBall(double time, bool kicking) const;
 		Player* mPlayer;
 		AIPlayController* mPlayController;
 		std::string mDescription;
@@ -46,9 +46,9 @@ class AIState {
 class AIGoalkeeperState : public AIState {
 	public:
 		AIGoalkeeperState(Player* p, AIPlayController* m);
-		std::shared_ptr<PlayerAction> actOnBall(double time);
-		std::shared_ptr<PlayerAction> actNearBall(double time);
-		std::shared_ptr<PlayerAction> actOffBall(double time);
+		boost::shared_ptr<PlayerAction> actOnBall(double time);
+		boost::shared_ptr<PlayerAction> actNearBall(double time);
+		boost::shared_ptr<PlayerAction> actOffBall(double time);
 		void matchHalfChanged(MatchHalf m) override;
 	private:
 		void setPivotPoint();
@@ -60,27 +60,27 @@ class AIGoalkeeperState : public AIState {
 class AIDefendState : public AIState {
 	public:
 		AIDefendState(Player* p, AIPlayController* m);
-		std::shared_ptr<PlayerAction> actOffBall(double time);
+		boost::shared_ptr<PlayerAction> actOffBall(double time);
 };
 
 class AIKickBallState : public AIState {
 	public:
 		AIKickBallState(Player* p, AIPlayController* m);
-		std::shared_ptr<PlayerAction> actOnBall(double time);
-		std::shared_ptr<PlayerAction> actNearBall(double time);
-		std::shared_ptr<PlayerAction> actOffBall(double time);
+		boost::shared_ptr<PlayerAction> actOnBall(double time);
+		boost::shared_ptr<PlayerAction> actNearBall(double time);
+		boost::shared_ptr<PlayerAction> actOffBall(double time);
 };
 
 class AIOffensiveState : public AIState {
 	public:
 		AIOffensiveState(Player* p, AIPlayController* m);
-		std::shared_ptr<PlayerAction> actOffBall(double time);
+		boost::shared_ptr<PlayerAction> actOffBall(double time);
 };
 
 class AIMidfielderState : public AIState {
 	public:
 		AIMidfielderState(Player* p, AIPlayController* m);
-		std::shared_ptr<PlayerAction> actOffBall(double time);
+		boost::shared_ptr<PlayerAction> actOffBall(double time);
 };
 
 

@@ -8,7 +8,7 @@ AIMidfielderState::AIMidfielderState(Player* p, AIPlayController* m)
 {
 }
 
-std::shared_ptr<PlayerAction> AIMidfielderState::actOffBall(double time)
+boost::shared_ptr<PlayerAction> AIMidfielderState::actOffBall(double time)
 {
 	AbsVector3 v = AIHelpers::getPassPosition(*mPlayer);
 	std::stringstream ss;

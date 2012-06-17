@@ -4,7 +4,7 @@
 
 namespace Soccer {
 
-MatchResultScreen::MatchResultScreen(std::shared_ptr<ScreenManager> sm, const Match& match)
+MatchResultScreen::MatchResultScreen(boost::shared_ptr<ScreenManager> sm, const Match& match)
 	: Screen(sm)
 {
 	addButton("To Menu", Common::Rectangle(0.02f, 0.90f, 0.25f, 0.06f));
@@ -23,7 +23,7 @@ MatchResultScreen::MatchResultScreen(std::shared_ptr<ScreenManager> sm, const Ma
 	}
 }
 
-void MatchResultScreen::buttonPressed(std::shared_ptr<Button> button)
+void MatchResultScreen::buttonPressed(boost::shared_ptr<Button> button)
 {
 	const std::string& buttonText = button->getText();
 	if(buttonText == "Replay") {

@@ -22,7 +22,7 @@ void Referee::setMatch(Match* m)
 	mMatch = m;
 }
 
-std::shared_ptr<RefereeAction> Referee::act(double time)
+boost::shared_ptr<RefereeAction> Referee::act(double time)
 {
 	switch(mMatch->getMatchHalf()) {
 		case MatchHalf::NotStarted:
@@ -30,9 +30,9 @@ std::shared_ptr<RefereeAction> Referee::act(double time)
 			if(allPlayersOnOwnSideAndReady()) {
 				mFirstTeamInControl = mMatch->getMatchHalf() == MatchHalf::NotStarted;
 				if(mFirstTeamInControl)
-					return std::shared_ptr<RefereeAction>(new ChangeMatchHalfRA(MatchHalf::FirstHalf));
+					return boost::shared_ptr<RefereeAction>(new ChangeMatchHalfRA(MatchHalf::FirstHalf));
 				else
-					return std::shared_ptr<RefereeAction>(new ChangeMatchHalfRA(MatchHalf::SecondHalf));
+					return boost::shared_ptr<RefereeAction>(new ChangeMatchHalfRA(MatchHalf::SecondHalf));
 			}
 			break;
 
@@ -42,7 +42,7 @@ std::shared_ptr<RefereeAction> Referee::act(double time)
 				if(mMatch->getPlayState() == PlayState::InPlay) {
 					if(!mWaitForResumeClock.running()) {
 						if(!onPitch(*mMatch->getBall())) {
-							std::shared_ptr<RefereeAction> act = setOutOfPlay();
+							boost::shared_ptr<RefereeAction> act = setOutOfPlay();
 							if(act) {
 								mOutOfPlayClock.rewind();
 								return act;
@@ -68,7 +68,7 @@ std::shared_ptr<RefereeAction> Referee::act(double time)
 		case MatchHalf::Finished:
 			break;
 	}
-	return std::shared_ptr<RefereeAction>(new IdleRA());
+	return boost::shared_ptr<RefereeAction>(new IdleRA());
 }
 
 bool Referee::allPlayersOnOwnSideAndReady() const
@@ -121,7 +121,7 @@ bool Referee::ballKicked(const Player& p, const AbsVector3& vel)
 	return false;
 }
 
-std::shared_ptr<RefereeAction> Referee::setOutOfPlay()
+boost::shared_ptr<RefereeAction> Referee::setOutOfPlay()
 {
 	RelVector3 bp(mMatch->convertAbsoluteToRelativeVector(mMatch->getBall()->getPosition()));
 	RelVector3 br(mMatch->convertAbsoluteToRelativeVector(AbsVector3(BALL_RADIUS, BALL_RADIUS, BALL_RADIUS)));
@@ -132,7 +132,7 @@ std::shared_ptr<RefereeAction> Referee::setOutOfPlay()
 			mRestartPosition.v.x = -mRestartPosition.v.x;
 		mFirstTeamInControl = !mFirstTeamInControl;
 		mPlayerInControl = nullptr;
-		return std::shared_ptr<RefereeAction>(new ChangePlayStateRA(PlayState::OutThrowin));
+		return boost::shared_ptr<RefereeAction>(new ChangePlayStateRA(PlayState::OutThrowin));
 	}
 	if(fabs(bp.v.y + br.v.y) > 1.0f) {
 		if(fabs(mMatch->getBall()->getPosition().v.x) < GOAL_WIDTH_2 &&
@@ -150,7 +150,7 @@ std::shared_ptr<RefereeAction> Referee::setOutOfPlay()
 			mMatch->addGoal(firstscores);
 			mFirstTeamInControl = !firstscores;
 			mPlayerInControl = nullptr;
-			return std::shared_ptr<RefereeAction>(new ChangePlayStateRA(PlayState::OutKickoff));
+			return boost::shared_ptr<RefereeAction>(new ChangePlayStateRA(PlayState::OutKickoff));
 		}
 		if((((bp.v.y < 0.0f) == mFirstTeamInControl) && (mMatch->getMatchHalf() == MatchHalf::FirstHalf)) ||
 		   (((bp.v.y < 0.0f) != mFirstTeamInControl) && (mMatch->getMatchHalf() == MatchHalf::SecondHalf))) {
@@ -162,7 +162,7 @@ std::shared_ptr<RefereeAction> Referee::setOutOfPlay()
 			mRestartPosition.v.y = Common::signum(bp.v.y) * mMatch->getPitchHeight() * 0.5f;
 			mFirstTeamInControl = !mFirstTeamInControl;
 			mPlayerInControl = nullptr;
-			return std::shared_ptr<RefereeAction>(new ChangePlayStateRA(PlayState::OutCornerkick));
+			return boost::shared_ptr<RefereeAction>(new ChangePlayStateRA(PlayState::OutCornerkick));
 		}
 		else {
 			mRestartPosition.v.x = 9.16f;
@@ -175,10 +175,10 @@ std::shared_ptr<RefereeAction> Referee::setOutOfPlay()
 			}
 			mFirstTeamInControl = !mFirstTeamInControl;
 			mPlayerInControl = nullptr;
-			return std::shared_ptr<RefereeAction>(new ChangePlayStateRA(PlayState::OutGoalkick));
+			return boost::shared_ptr<RefereeAction>(new ChangePlayStateRA(PlayState::OutGoalkick));
 		}
 	}
-	return nullptr;
+	return boost::shared_ptr<RefereeAction>();
 }
 
 bool Referee::isFirstTeamInControl() const

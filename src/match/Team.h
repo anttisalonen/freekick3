@@ -26,7 +26,7 @@ class Team : public Soccer::StatefulTeam {
 		Player* getPlayer(unsigned int idx);
 		const Player* getPlayer(unsigned int idx) const;
 		unsigned int getNumPlayers() const;
-		const std::vector<std::shared_ptr<Player>>& getPlayers() const;
+		const std::vector<boost::shared_ptr<Player>>& getPlayers() const;
 		RelVector3 getPausePosition() const;
 		bool isFirst() const;
 		void act(double time);
@@ -43,12 +43,12 @@ class Team : public Soccer::StatefulTeam {
 		void updatePlayerNearestToBall();
 		void updateSupportingPositions();
 		float calculateShotScoreAt(const AbsVector3& pos) const;
-		float calculatePassScoreAt(const std::vector<std::shared_ptr<Player>>& offensivePlayers,
+		float calculatePassScoreAt(const std::vector<boost::shared_ptr<Player>>& offensivePlayers,
 				const AbsVector3& pos) const;
 		void getSupportPositionCoordinates(const AbsVector3& pos, unsigned int& i, unsigned int& j) const;
 		Match* mMatch;
 		bool mFirst;
-		std::vector<std::shared_ptr<Player>> mPlayers;
+		std::vector<boost::shared_ptr<Player>> mPlayers;
 		Player* mPlayerNearestToBall;
 		Countdown mSupportingPositionsTimer;
 		std::vector<std::vector<OffensivePosition>> mSupportingPositions;

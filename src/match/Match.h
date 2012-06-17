@@ -69,13 +69,13 @@ class Match : public Soccer::Match {
 		bool grabBall(Player* p);
 		double getTime() const;
 	private:
-		void applyPlayerAction(const std::shared_ptr<PlayerAction> a,
-				const std::shared_ptr<Player> p, double time);
+		void applyPlayerAction(const boost::shared_ptr<PlayerAction> a,
+				const boost::shared_ptr<Player> p, double time);
 		void updateReferee(double time);
 		void updateTime(double time);
-		std::shared_ptr<Team> mTeams[2];
-		std::shared_ptr<Ball> mBall;
-		std::map<std::shared_ptr<Player>, std::shared_ptr<PlayerAction>> mCachedActions;
+		boost::shared_ptr<Team> mTeams[2];
+		boost::shared_ptr<Ball> mBall;
+		std::map<boost::shared_ptr<Player>, boost::shared_ptr<PlayerAction>> mCachedActions;
 		Referee mReferee;
 		double mTime;
 		double mTimeAccelerationConstant;

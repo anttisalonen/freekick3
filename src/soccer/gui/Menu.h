@@ -3,7 +3,7 @@
 
 #include <string>
 #include <vector>
-#include <memory>
+#include <boost/shared_ptr.hpp>
 
 #include <SDL.h>
 #include <SDL_ttf.h>
@@ -23,9 +23,11 @@ class Menu {
 		void run();
 		const TeamDatabase& getTeamDatabase() const;
 		const PlayerDatabase& getPlayerDatabase() const;
+		static const std::string& getDataDir();
+		static const std::string& getSaveDir();
 
 	private:
-		std::shared_ptr<ScreenManager> mScreenManager;
+		boost::shared_ptr<ScreenManager> mScreenManager;
 		TeamDatabase mTeams;
 		PlayerDatabase mPlayers;
 };

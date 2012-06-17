@@ -3,7 +3,7 @@
 
 #include <map>
 #include <string>
-#include <memory>
+#include <boost/shared_ptr.hpp>
 
 #include "soccer/Team.h"
 #include "soccer/gui/Screen.h"
@@ -13,12 +13,12 @@ namespace Soccer {
 
 class PresetLeagueScreen : public TeamBrowser {
 	public:
-		PresetLeagueScreen(std::shared_ptr<ScreenManager> sm);
-		bool enteringLeague(std::shared_ptr<League> p);
+		PresetLeagueScreen(boost::shared_ptr<ScreenManager> sm);
+		bool enteringLeague(boost::shared_ptr<League> p);
 		bool canClickDone();
 		void clickedDone();
 		const std::string& getName() const;
-		bool clickingOnTeam(std::shared_ptr<Team> p);
+		bool clickingOnTeam(boost::shared_ptr<Team> p);
 
 	private:
 		static const std::string ScreenName;

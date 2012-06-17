@@ -20,7 +20,7 @@ static float getPlayerSkill(const TiXmlElement* skillselem, const char* skillnam
 	return atof(t);
 }
 
-std::shared_ptr<Player> DataExchange::parsePlayer(const TiXmlElement* pelem)
+boost::shared_ptr<Player> DataExchange::parsePlayer(const TiXmlElement* pelem)
 {
 	PlayerSkills sk;
 	PlayerPosition position;
@@ -58,10 +58,10 @@ std::shared_ptr<Player> DataExchange::parsePlayer(const TiXmlElement* pelem)
 	sk.Tackling = getPlayerSkill(skillselem, "Tackling");
 	sk.Heading = getPlayerSkill(skillselem, "Heading");
 	sk.GoalKeeping = getPlayerSkill(skillselem, "GoalKeeping");
-	return std::shared_ptr<Player>(new Player(id, name, position, sk));
+	return boost::shared_ptr<Player>(new Player(id, name, position, sk));
 }
 
-std::shared_ptr<Team> DataExchange::parseTeam(const TiXmlElement* teamelem)
+boost::shared_ptr<Team> DataExchange::parseTeam(const TiXmlElement* teamelem)
 {
 	int id;
 
@@ -78,7 +78,7 @@ std::shared_ptr<Team> DataExchange::parseTeam(const TiXmlElement* teamelem)
 		throw std::runtime_error("Error parsing team name");
 
 	std::vector<int> playerids;
-	std::vector<std::shared_ptr<Player>> players;
+	std::vector<boost::shared_ptr<Player>> players;
 	for(const TiXmlElement* pelem = playerselem->FirstChildElement(); pelem; pelem = pelem->NextSiblingElement()) {
 		int playerid;
 		if(pelem->QueryIntAttribute("id", &playerid) != TIXML_SUCCESS)
@@ -128,7 +128,7 @@ std::shared_ptr<Team> DataExchange::parseTeam(const TiXmlElement* teamelem)
 		throw std::runtime_error("Error parsing kits in team");
 	}
 
-	std::shared_ptr<Team> team;
+	boost::shared_ptr<Team> team;
 	if(playerids.empty()) {
 		team.reset(new Team(id, name, kits[0], kits[1], players));
 	}
@@ -140,7 +140,7 @@ std::shared_ptr<Team> DataExchange::parseTeam(const TiXmlElement* teamelem)
 	return team;
 }
 
-std::shared_ptr<Match> DataExchange::parseMatchDataFile(const char* fn)
+boost::shared_ptr<Match> DataExchange::parseMatchDataFile(const char* fn)
 {
 	TiXmlDocument doc(fn);
 	std::stringstream ss;
@@ -155,7 +155,7 @@ std::shared_ptr<Match> DataExchange::parseMatchDataFile(const char* fn)
 	if(!teamelem)
 		throw std::runtime_error(ss.str());
 
-	std::vector<std::shared_ptr<Team>> teams;
+	std::vector<boost::shared_ptr<Team>> teams;
 
 	for(; teamelem; teamelem = teamelem->NextSiblingElement()) {
 		if(teams.size() > 2) {
@@ -211,8 +211,8 @@ std::shared_ptr<Match> DataExchange::parseMatchDataFile(const char* fn)
 		throw std::runtime_error(ss.str());
 	}
 
-	std::shared_ptr<Match> m(new Match(std::shared_ptr<StatefulTeam>(new StatefulTeam(*teams[0], tcs[0], TeamTactics(*teams[0]))),
-				std::shared_ptr<StatefulTeam>(new StatefulTeam(*teams[1], tcs[1], TeamTactics(*teams[1])))));
+	boost::shared_ptr<Match> m(new Match(boost::shared_ptr<StatefulTeam>(new StatefulTeam(*teams[0], tcs[0], TeamTactics(*teams[0]))),
+				boost::shared_ptr<StatefulTeam>(new StatefulTeam(*teams[1], tcs[1], TeamTactics(*teams[1])))));
 	m->setResult(mres);
 	return m;
 }
@@ -233,7 +233,7 @@ TiXmlElement* DataExchange::createTeamElement(const Team& t, bool reference_play
 
 	int j = 0;
 	while(1) {
-		std::shared_ptr<Player> p = t.getPlayer(j);
+		boost::shared_ptr<Player> p = t.getPlayer(j);
 		if(!p)
 			break;
 		j++;
@@ -352,7 +352,7 @@ void DataExchange::createMatchDataFile(const Match& m, const char* fn)
 	TiXmlElement* matchelem = new TiXmlElement("Match");
 	TiXmlElement* teamselem = new TiXmlElement("Teams");
 	for(int i = 0; i < 2; i++) {
-		std::shared_ptr<Team> t = m.getTeam(i);
+		boost::shared_ptr<Team> t = m.getTeam(i);
 		TiXmlElement* teamelem = createTeamElement(*t, false);
 		teamselem->LinkEndChild(teamelem);
 	}
@@ -429,8 +429,8 @@ void DataExchange::updateTeamDatabase(const char* fn, TeamDatabase& db)
 
 				for(const TiXmlElement* teamelem = leagueelem->FirstChildElement(); teamelem;
 						teamelem = teamelem->NextSiblingElement()) {
-					std::shared_ptr<Team> t = parseTeam(teamelem);
-					std::shared_ptr<Soccer::League> league = db.getOrCreateLeague(continentname.c_str(),
+					boost::shared_ptr<Team> t = parseTeam(teamelem);
+					boost::shared_ptr<Soccer::League> league = db.getOrCreateLeague(continentname.c_str(),
 							countryname.c_str(), leaguename.c_str());
 					league->addT(t);
 				}
@@ -459,8 +459,8 @@ void DataExchange::updatePlayerDatabase(const char* fn, PlayerDatabase& db)
 	}
 
 	for(TiXmlElement* pelem = playerselem->FirstChildElement(); pelem; pelem = pelem->NextSiblingElement()) {
-		std::shared_ptr<Player> p = parsePlayer(pelem);
-		db.insert(make_pair(p->getId(), p));
+		boost::shared_ptr<Player> p = parsePlayer(pelem);
+		db.insert(std::make_pair(p->getId(), p));
 	}
 }
 

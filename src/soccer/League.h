@@ -1,8 +1,10 @@
 #ifndef SOCCERLEAGUE_H
 #define SOCCERLEAGUE_H
 
-#include <memory>
+#include <boost/shared_ptr.hpp>
 #include <vector>
+
+#include "common/Serialization.h"
 
 #include "soccer/Match.h"
 
@@ -25,38 +27,58 @@ struct LeagueEntry {
 	int Wins;
 	int Draws;
 	int Losses;
+
+	friend class boost::serialization::access;
+	template<class Archive>
+	void serialize(Archive& ar, const unsigned int version)
+	{
+		ar & Points;
+		ar & GoalsFor;
+		ar & GoalsAgainst;
+		ar & Matches;
+		ar & Wins;
+		ar & Draws;
+		ar & Losses;
+	}
 };
 
 class Round {
 	public:
 		Round() { }
-		void addMatch(std::shared_ptr<Match> m)
+		void addMatch(boost::shared_ptr<Match> m)
 		{
 			mMatches.push_back(m);
 		}
-		const std::vector<std::shared_ptr<Match>>& getMatches() const
+		const std::vector<boost::shared_ptr<Match>>& getMatches() const
 		{
 			return mMatches;
 		}
-		const std::shared_ptr<Match> getMatch(unsigned int rn) const
+		const boost::shared_ptr<Match> getMatch(unsigned int rn) const
 		{
 			if(rn >= mMatches.size())
-				return nullptr;
+				return boost::shared_ptr<Match>();
 			else
 				return mMatches[rn];
 		}
 
-		std::shared_ptr<Match> getMatch(unsigned int rn)
+		boost::shared_ptr<Match> getMatch(unsigned int rn)
 		{
 			if(rn >= mMatches.size())
-				return nullptr;
+				return boost::shared_ptr<Match>();
 			else
 				return mMatches[rn];
 		}
 
 
 	private:
-		std::vector<std::shared_ptr<Match>> mMatches;
+		std::vector<boost::shared_ptr<Match>> mMatches;
+
+		friend class boost::serialization::access;
+		template<class Archive>
+		void serialize(Archive& ar, const unsigned int version)
+		{
+			ar & mMatches;
+		}
 };
 
 class Schedule {
@@ -85,27 +107,48 @@ class Schedule {
 
 	private:
 		std::vector<Round> mRounds;
+
+		friend class boost::serialization::access;
+		template<class Archive>
+		void serialize(Archive& ar, const unsigned int version)
+		{
+			ar & mRounds;
+		}
 };
 
 class StatefulLeague {
 	public:
-		StatefulLeague(std::vector<std::shared_ptr<StatefulTeam>>& teams);
+		StatefulLeague(std::vector<boost::shared_ptr<StatefulTeam>>& teams);
 		bool nextMatch(std::function<MatchResult (const Match& v)> func);
 		const Schedule& getSchedule() const;
-		const std::map<std::shared_ptr<StatefulTeam>, LeagueEntry>& getEntries() const;
-		const std::shared_ptr<Match> getNextMatch() const;
+		const std::map<boost::shared_ptr<StatefulTeam>, LeagueEntry>& getEntries() const;
+		const boost::shared_ptr<Match> getNextMatch() const;
 		const Round* getCurrentRound() const;
 
 	private:
-		void setRoundRobin(std::vector<std::shared_ptr<StatefulTeam>>& teams);
+		void setRoundRobin(std::vector<boost::shared_ptr<StatefulTeam>>& teams);
 		void setNextMatch();
-		std::map<std::shared_ptr<StatefulTeam>, LeagueEntry> mEntries;
+		std::map<boost::shared_ptr<StatefulTeam>, LeagueEntry> mEntries;
 		Schedule mSchedule;
-		std::shared_ptr<Match> mNextMatch;
+		boost::shared_ptr<Match> mNextMatch;
 		int mThisRound;
 		int mNextMatchId;
-		const int mGoalsPerWin;
+		const int mPointsPerWin;
 		const int mNumCycles;
+
+		friend class boost::serialization::access;
+		StatefulLeague(); // serialization
+		template<class Archive>
+		void serialize(Archive& ar, const unsigned int version)
+		{
+			ar & mEntries;
+			ar & mSchedule;
+			ar & mNextMatch;
+			ar & mThisRound;
+			ar & mNextMatchId;
+			ar & const_cast<int&>(mPointsPerWin);
+			ar & const_cast<int&>(mNumCycles);
+		}
 };
 
 }

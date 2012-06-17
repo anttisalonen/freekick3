@@ -3,7 +3,7 @@
 
 #include <string>
 #include <vector>
-#include <memory>
+#include <boost/shared_ptr.hpp>
 
 #include "soccer/Container.h"
 
@@ -35,14 +35,14 @@ class TeamDatabase : public Container<Continent> {
 	public:
 		TeamDatabase()
 			: Container<Continent>("Team database") { }
-		std::shared_ptr<Continent> getOrCreateContinent(const char* n);
-		std::shared_ptr<LeagueSystem> getOrCreateLeagueSystem(const char* continentName,
+		boost::shared_ptr<Continent> getOrCreateContinent(const char* n);
+		boost::shared_ptr<LeagueSystem> getOrCreateLeagueSystem(const char* continentName,
 				const char* countryName);
-		std::shared_ptr<League> getOrCreateLeague(const char* continentName,
+		boost::shared_ptr<League> getOrCreateLeague(const char* continentName,
 				const char* countryName, const char* leagueName);
 };
 
-typedef std::map<int, std::shared_ptr<Player>> PlayerDatabase;
+typedef std::map<int, boost::shared_ptr<Player>> PlayerDatabase;
 
 }
 

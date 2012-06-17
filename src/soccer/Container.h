@@ -3,7 +3,7 @@
 
 #include <string>
 #include <vector>
-#include <memory>
+#include <boost/shared_ptr.hpp>
 #include <map>
 
 namespace Soccer {
@@ -13,15 +13,15 @@ class Container {
 	public:
 		Container<T>(const char* containerName);
 		virtual ~Container<T>() { }
-		void addT(std::shared_ptr<T> t);
-		std::shared_ptr<T> getT(const std::string& n);
+		void addT(boost::shared_ptr<T> t);
+		boost::shared_ptr<T> getT(const std::string& n);
 		const std::string& getName() const;
-		std::map<std::string, std::shared_ptr<T>>& getContainer();
-		const std::map<std::string, std::shared_ptr<T>>& getContainer() const;
+		std::map<std::string, boost::shared_ptr<T>>& getContainer();
+		const std::map<std::string, boost::shared_ptr<T>>& getContainer() const;
 
 	protected:
 		std::string mContainerName;
-		std::map<std::string, std::shared_ptr<T>> mTs;
+		std::map<std::string, boost::shared_ptr<T>> mTs;
 };
 
 template<class T>
@@ -31,20 +31,20 @@ Container<T>::Container(const char* containerName)
 }
 
 template<class T>
-void Container<T>::addT(std::shared_ptr<T> t)
+void Container<T>::addT(boost::shared_ptr<T> t)
 {
 	// does not change the container if already there
 	mTs.insert(std::make_pair(t->getName(), t));
 }
 
 template<class T>
-std::shared_ptr<T> Container<T>::getT(const std::string& n)
+boost::shared_ptr<T> Container<T>::getT(const std::string& n)
 {
 	auto it = mTs.find(n);
 	if(it != mTs.end())
 		return it->second;
 	else
-		return nullptr;
+		return boost::shared_ptr<T>();
 }
 
 template<class T>
@@ -54,13 +54,13 @@ const std::string& Container<T>::getName() const
 }
 
 template<class T>
-std::map<std::string, std::shared_ptr<T>>& Container<T>::getContainer()
+std::map<std::string, boost::shared_ptr<T>>& Container<T>::getContainer()
 {
 	return mTs;
 }
 
 template<class T>
-const std::map<std::string, std::shared_ptr<T>>& Container<T>::getContainer() const
+const std::map<std::string, boost::shared_ptr<T>>& Container<T>::getContainer() const
 {
 	return mTs;
 }

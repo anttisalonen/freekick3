@@ -1,7 +1,7 @@
 #ifndef PLAYER_H
 #define PLAYER_H
 
-#include <memory>
+#include <boost/shared_ptr.hpp>
 
 #include "soccer/Player.h"
 #include "soccer/PlayerTactics.h"
@@ -25,7 +25,7 @@ class Player : public MatchEntity, public Soccer::Player {
 		Player(Match* match, Team* team, const Soccer::Player& p,
 				ShirtNumber sn, const PlayerTactics& t);
 		~Player();
-		std::shared_ptr<PlayerAction> act(double time);
+		boost::shared_ptr<PlayerAction> act(double time);
 		int getShirtNumber() const;
 		const Team* getTeam() const;
 		Team* getTeam();
