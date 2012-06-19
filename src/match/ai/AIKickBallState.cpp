@@ -29,7 +29,7 @@ boost::shared_ptr<PlayerAction> AIKickBallState::actOnBall(double time)
 		mPlayController->setNewState(boost::shared_ptr<AIState>(new AIOffensiveState(mPlayer, mPlayController)));
 
 	boost::shared_ptr<AIAction> best = actionchooser.getBestAction();
-	mDescription = std::string("Defending - ") + best->getName();
+	mDescription = std::string("Kicking - ") + best->getName();
 	return best->getAction();
 }
 
