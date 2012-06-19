@@ -144,16 +144,19 @@ const char* AIShootAction::mActionName = "Shoot";
 AIClearAction::AIClearAction(const Player* p)
 	: AIAction(mActionName, p)
 {
-	AbsVector3 tgt;
+	AbsVector3 tgt = MatchHelpers::oppositeGoalPosition(*p);
 	float distToOwnGoal = (MatchHelpers::ownGoalPosition(*p).v - p->getMatch()->getBall()->getPosition().v).length();
 	float distToOpposingPlayer = MatchEntity::distanceBetween(*p->getMatch()->getBall(),
 				*MatchHelpers::nearestOppositePlayerToBall(*p->getTeam()));
 
 	const float maxDist = 20.0f;
-	mScore = 0.0f;
 
-	mScore = AIHelpers::scaledCoefficient(distToOwnGoal, maxDist);
-	if(mScore > 0.0f && distToOpposingPlayer < 5.0f) {
+	if(distToOpposingPlayer < 5.0f)
+		mScore = AIHelpers::scaledCoefficient(distToOwnGoal, maxDist);
+	else
+		mScore = -1.0f;
+
+	if(mScore > 0.0f) {
 		Vector3 vecToBall = p->getMatch()->getBall()->getPosition().v - p->getPosition().v;
 		if(vecToBall.null()) {
 			vecToBall = MatchHelpers::oppositeGoalPosition(*p).v - p->getPosition().v;
