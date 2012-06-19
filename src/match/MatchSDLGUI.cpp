@@ -763,9 +763,7 @@ void MatchSDLGUI::setPlayerController(double frameTime)
 			printf("Now controlling\n");
 		}
 		if(mControlledPlayerIndex == -1) {
-			Player* pl = mMatch->getTeam(mControlledTeamIndex)->getPlayerReceivingPass();
-			if(pl == nullptr)
-				pl = MatchHelpers::nearestOwnPlayerToBall(*mMatch->getTeam(mControlledTeamIndex));
+			Player* pl = MatchHelpers::nearestOwnPlayerToBall(*mMatch->getTeam(mControlledTeamIndex));
 			if(pl != mPlayer && !mPlayerSwitchTimer.running() &&
 					(!pl->isGoalkeeper() || !playing(mMatch->getPlayState()))) {
 				mPlayer->setAIControlled();
