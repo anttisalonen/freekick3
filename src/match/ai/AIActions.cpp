@@ -121,7 +121,12 @@ AIShootAction::AIShootAction(const Player* p)
 					thistgt.v,
 					op->getPosition().v);
 			if(dist < maxOppDist) {
-				thisscore -= 0.05f * ((maxOppDist - dist) / maxOppDist);
+				/* TODO: this value is excellent for configuring whether the team
+				 * tries to score from afar, or perfects the shot position, so
+				 * have it depend on the team tactics. Setting this too high (> 0.2)
+				 * may lead to excessive trying-to-kick-the-ball-through-opponents. */
+				static const float coeff = 0.1f;
+				thisscore -= coeff * ((maxOppDist - dist) / maxOppDist);
 				if(thisscore <= 0.0) {
 					thisscore = 0.0f;
 					break;
@@ -269,13 +274,15 @@ AIPassAction::AIPassAction(const Player* p)
 
 		if(thisscore > mScore) {
 			for(auto op : MatchHelpers::getOpposingPlayers(*sp)) {
+				/* TODO: set maxOppDist and coeff to be dependent on team tactics */
+				static const float maxOppDist = 4.0f;
 				float dist = Common::Math::pointToLineDistance(p->getPosition().v,
 						sp->getPosition().v,
 						op->getPosition().v);
-				if(dist < 5.0) {
-					float decr = (5.0 - dist) / 5.0;
-					float disttogoal = (MatchHelpers::ownGoalPosition(*sp).v - op->getPosition().v).length();
-					float coeff = 0.2f + std::max(0.0f, ((40.0f - disttogoal) / 40.0f) * 1.0f);
+				float angToMe = p->getPosition().v.dot(op->getPosition().v);
+				if(angToMe > 0.0f && dist < maxOppDist) {
+					float decr = (maxOppDist - dist) / maxOppDist;
+					float coeff = 0.5f;
 					thisscore -= coeff * decr;
 				}
 			}
