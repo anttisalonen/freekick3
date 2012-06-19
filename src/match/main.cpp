@@ -8,11 +8,16 @@
 #include "match/Match.h"
 #include "match/MatchSDLGUI.h"
 
+void usage(const char* p)
+{
+	printf("Usage: %s <path to match data file> [-o] [-t team] [-p player] [-f FPS] [-d]\n",
+			p);
+}
+
 int main(int argc, char** argv)
 {
-	if(argc < 2) {
-		printf("Usage: %s <path to match data file> [-o] [-t team] [-p player] [-f FPS] [-d]\n",
-				argv[0]);
+	if(argc < 2 || (argc > 1 && (!strcmp(argv[1], "-h") || !strcmp(argv[1], "--help")))) {
+		usage(argv[0]);
 		exit(1);
 	}
 
