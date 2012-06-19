@@ -15,6 +15,7 @@ AIGoalkeeperState::AIGoalkeeperState(Player* p, AIPlayController* m)
 boost::shared_ptr<PlayerAction> AIGoalkeeperState::actOnBall(double time)
 {
 	if(mPlayer->getMatch()->getBall()->grabbed() && mPlayer->getMatch()->getBall()->getGrabber() == mPlayer) {
+		// holding the ball
 		mHoldBallTimer.doCountdown(time);
 		if(mHoldBallTimer.check()) {
 			return mPlayController->switchState(boost::shared_ptr<AIState>(new AIKickBallState(mPlayer, mPlayController)), time);
@@ -24,7 +25,8 @@ boost::shared_ptr<PlayerAction> AIGoalkeeperState::actOnBall(double time)
 		}
 	}
 	else {
-		if(MatchHelpers::myTeamInControl(*mPlayer)) {
+		// not holding the ball
+		if(MatchHelpers::myTeamInControl(*mPlayer) || !MatchHelpers::canGrabBall(*mPlayer)) {
 			return mPlayController->switchState(boost::shared_ptr<AIState>(new AIKickBallState(mPlayer, mPlayController)), time);
 		}
 		else {
@@ -41,7 +43,28 @@ boost::shared_ptr<PlayerAction> AIGoalkeeperState::actNearBall(double time)
 
 boost::shared_ptr<PlayerAction> AIGoalkeeperState::actOffBall(double time)
 {
-	AbsVector3 ballpos = mPlayer->getMatch()->getBall()->getPosition();
+	const Ball* ball = mPlayer->getMatch()->getBall();
+	AbsVector3 ballpos = ball->getPosition();
+	Vector3 futureballpos = ballpos.v + ball->getVelocity().v * 5.0f;
+	Vector3 goalmiddlepoint = MatchHelpers::ownGoalPosition(*mPlayer).v;
+
+	float balltowardsgoal = Common::Math::pointToLineDistance(ballpos.v, futureballpos, goalmiddlepoint);
+	if(balltowardsgoal < GOAL_WIDTH) {
+		Vector3 tgtpos = Common::Math::lineLineIntersection2D(ballpos.v,
+				futureballpos,
+				Vector3(-GOAL_WIDTH, goalmiddlepoint.y, 0),
+				Vector3(GOAL_WIDTH, goalmiddlepoint.y, 0));
+		// tgtpos may be null when the ball doesn't move
+		if(!tgtpos.null()) {
+			if(MatchHelpers::attacksUp(*mPlayer))
+				tgtpos.y += 1.0f;
+			else
+				tgtpos.y -= 1.0f;
+
+			return AIHelpers::createMoveActionTo(*mPlayer, AbsVector3(tgtpos));
+		}
+	}
+
 	AbsVector3 diffvec = ballpos.v - mPivotPoint.v;
 	AbsVector3 vectoball = MatchEntity::vectorFromTo(*mPlayer, *mPlayer->getMatch()->getBall());
 	if(vectoball.v.length() < 10.0f) {

@@ -20,12 +20,11 @@ class Referee {
 		boost::shared_ptr<RefereeAction> act(double time);
 		bool ballKicked(const Player& p, const AbsVector3& vel);
 		bool isFirstTeamInControl() const;
-		bool ballGrabbed(const Player& p);
+		void ballGrabbed(const Player& p);
 		void matchHalfChanged(MatchHalf m);
 		const Player* getPlayerInControl() const;
 	private:
 		bool allPlayersOnOwnSideAndReady() const;
-		bool onPitch(const MatchEntity& m) const;
 		boost::shared_ptr<RefereeAction> setOutOfPlay();
 		Match* mMatch;
 		bool mFirstTeamInControl;

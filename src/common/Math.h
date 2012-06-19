@@ -31,6 +31,10 @@ class Math {
 		static double pointToLineDistance(const Vector3& l1,
 				const Vector3& l2,
 				const Vector3& p);
+		static Vector3 lineLineIntersection2D(const Vector3& p1,
+				const Vector3& p2,
+				const Vector3& p3,
+				const Vector3& p4);
 };
 
 }

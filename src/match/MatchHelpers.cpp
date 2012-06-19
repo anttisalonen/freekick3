@@ -167,6 +167,11 @@ bool MatchHelpers::onPitch(const Match& m, const AbsVector3& v)
 	return v.v.x >= -pw2 && v.v.y >= -ph2 && v.v.x <= pw2 && v.v.y <= ph2;
 }
 
+bool MatchHelpers::onPitch(const MatchEntity& m)
+{
+	return MatchHelpers::onPitch(*m.getMatch(), m.getPosition());
+}
+
 bool MatchHelpers::playersOnPause(const Match& m)
 {
 	for(int i = 0; i < 2; i++) {
@@ -308,6 +313,25 @@ bool MatchHelpers::onOwnSideAndReady(const Player& p)
 bool MatchHelpers::isOpposingPlayer(const Player& p1, const Player& p2)
 {
 	return p1.getTeam()->isFirst() != p2.getTeam()->isFirst();
+}
+
+bool MatchHelpers::canGrabBall(const Player& p)
+{
+	const Ball* b = p.getMatch()->getBall();
+	if(p.isGoalkeeper() && !b->grabbed() &&
+			!myTeamInControl(p) &&
+			inOwnPenaltyArea(p) &&
+			onPitch(p)) {
+		float distToBall = MatchEntity::distanceBetween(p, *b);
+		float maxDist = p.standing() ? 1.5f : 1.0f;
+		float ballHeight = b->getPosition().v.z;
+		float maxBallHeight = p.standing() ? 2.0f : 0.5f;
+		if(maxDist >= distToBall && maxBallHeight >= ballHeight) {
+			return true;
+		}
+	}
+
+	return false;
 }
 
 

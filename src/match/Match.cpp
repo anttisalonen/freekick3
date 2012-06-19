@@ -295,19 +295,15 @@ int Match::getScore(bool first) const
 
 bool Match::grabBall(Player* p)
 {
-	if(p->isGoalkeeper() && !mBall->grabbed() && !MatchHelpers::myTeamInControl(*p) && mReferee.ballGrabbed(*p)) {
-		float distToBall = MatchEntity::distanceBetween(*p, *mBall);
-		float maxDist = p->standing() ? 1.5f : 1.0f;
-		float ballHeight = mBall->getPosition().v.z;
-		float maxBallHeight = p->standing() ? 2.0f : 0.5f;
-		if(maxDist >= distToBall && maxBallHeight >= ballHeight) {
-			mBall->grab(p);
-			return true;
-		}
+	if(MatchHelpers::canGrabBall(*p)) {
+		mBall->grab(p);
+		mReferee.ballGrabbed(*p);
+		return true;
 	}
-
-	std::cout << "Can't grab the ball.\n";
-	return false;
+	else {
+		std::cout << "Can't grab the ball.\n";
+		return false;
+	}
 }
 
 void Match::updateTime(double time)

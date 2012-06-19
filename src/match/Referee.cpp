@@ -41,7 +41,7 @@ boost::shared_ptr<RefereeAction> Referee::act(double time)
 			if(!mOutOfPlayClock.running()) {
 				if(mMatch->getPlayState() == PlayState::InPlay) {
 					if(!mWaitForResumeClock.running()) {
-						if(!onPitch(*mMatch->getBall())) {
+						if(!MatchHelpers::onPitch(*mMatch->getBall())) {
 							boost::shared_ptr<RefereeAction> act = setOutOfPlay();
 							if(act) {
 								mOutOfPlayClock.rewind();
@@ -80,11 +80,6 @@ bool Referee::allPlayersOnOwnSideAndReady() const
 		}
 	}
 	return true;
-}
-
-bool Referee::onPitch(const MatchEntity& m) const
-{
-	return MatchHelpers::onPitch(*mMatch, m.getPosition());
 }
 
 bool Referee::ballKicked(const Player& p, const AbsVector3& vel)
@@ -186,16 +181,10 @@ bool Referee::isFirstTeamInControl() const
 	return mFirstTeamInControl;
 }
 
-bool Referee::ballGrabbed(const Player& p)
+void Referee::ballGrabbed(const Player& p)
 {
-	bool inPen = MatchHelpers::inOwnPenaltyArea(p);
-
-	if(!inPen || !onPitch(p))
-		return false;
-
 	mFirstTeamInControl = p.getTeam()->isFirst();
 	mPlayerInControl = &p;
-	return true;
 }
 
 void Referee::matchHalfChanged(MatchHalf m)

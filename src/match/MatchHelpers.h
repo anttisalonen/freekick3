@@ -31,6 +31,7 @@ class MatchHelpers {
 		static bool attacksUp(const Player& p);
 		static bool attacksUp(const Team& t);
 		static bool onPitch(const Match& m, const AbsVector3& v);
+		static bool onPitch(const MatchEntity& m);
 		static bool playersOnPause(const Match& m);
 		static bool playerPositionedForRestart(const Player& restarter, const Player& p);
 		static bool playersPositionedForRestart(const Match& m, const Player& restarter);
@@ -40,6 +41,7 @@ class MatchHelpers {
 		static bool inOwnPenaltyArea(const Player& p);
 		static bool inOpposingPenaltyArea(const Player& p);
 		static bool isOpposingPlayer(const Player& p1, const Player& p2);
+		static bool canGrabBall(const Player& p);
 };
 
 #endif
