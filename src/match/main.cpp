@@ -10,7 +10,12 @@
 
 void usage(const char* p)
 {
-	printf("Usage: %s <path to match data file> [-o] [-t team] [-p player] [-f FPS] [-d]\n",
+	printf("Usage: %s <path to match data file> [-o] [-t team] [-p player] [-f FPS] [-d]\n\n"
+			"\t-o\tobserver mode\n"
+			"\t-t team\tteam number (1 or 2)\n"
+			"\t-p num\tplayer number (1-11)\n"
+			"\t-f FPS\tfixed frame rate\n"
+			"\t-d\tdebug mode\n\n",
 			p);
 }
 
