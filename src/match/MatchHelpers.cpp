@@ -45,6 +45,8 @@ Player* MatchHelpers::nearestOwnPlayerTo(const Team& t, const AbsVector3& v)
 	Player* np = nullptr;
 	float smallest_dist = 1000000.0f;
 	for(const auto& tp : t.getPlayers()) {
+		if(!tp->standing())
+			continue;
 		float this_dist = (v.v - tp->getPosition().v).length();
 		if(this_dist < smallest_dist) {
 			smallest_dist = this_dist;
