@@ -111,8 +111,8 @@ AIShootAction::AIShootAction(const Player* p)
 	std::vector<AbsVector3> shoottargets;
 
 	shoottargets.push_back(shoottarget);
-	shoottargets.push_back(AbsVector3(shoottarget.v + Vector3(GOAL_WIDTH_2 - 0.2f, 0, 0)));
-	shoottargets.push_back(AbsVector3(shoottarget.v + Vector3(-GOAL_WIDTH_2 + 0.2f, 0, 0)));
+	shoottargets.push_back(AbsVector3(shoottarget.v + Vector3(GOAL_WIDTH_2 * 0.9f, 0, 0)));
+	shoottargets.push_back(AbsVector3(shoottarget.v + Vector3(-GOAL_WIDTH_2 * 0.9f, 0, 0)));
 
 	for(auto thistgt : shoottargets) {
 		float thisscore = defscore;

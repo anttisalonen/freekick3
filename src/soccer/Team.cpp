@@ -76,9 +76,11 @@ TeamTactics::TeamTactics(const Team& team)
 				if(fw < 2) {
 					if(fw == 0) {
 						t.WidthPosition = -0.30;
+						t.Radius = 0.55f;
 					}
 					else {
 						t.WidthPosition = 0.30;
+						t.Radius = 0.55f;
 					}
 					mTactics.insert(std::make_pair(p->getId(), t));
 					fw++;
