@@ -317,22 +317,22 @@ AILongPassAction::AILongPassAction(const Player* p)
 			continue;
 		}
 		double dist = MatchEntity::distanceBetween(*p, *sp);
-		if(dist < 15.0)
+		if(dist < 25.0)
 			continue;
 
 		double thisscore = std::max(mPlayer->getTeam()->getShotScoreAt(sp->getPosition()) - myshotscore,
 				0.5f * mPlayer->getTeam()->getPassScoreAt(sp->getPosition()) - mypassscore);
 
-		if(thisscore > mScore) {
+		if(thisscore > 0.0f && thisscore > mScore) {
 			mScore = thisscore;
 			tgt = AIHelpers::getPassKickVector(*mPlayer, *sp);
 			tgtPlayer = sp.get();
 		}
 	}
-	if(mScore >= -1.0f) {
-		tgt.v.z += tgt.v.length() * 0.3f;
+	if(mScore >= 0.0f) {
+		tgt.v.z += tgt.v.length() * 0.4f;
 		/* TODO: this coefficient should be dependent on air viscosity */
-		tgt.v *= 0.5f;
+		tgt.v *= 0.4f;
 		mAction = boost::shared_ptr<PlayerAction>(new KickBallPA(tgt, tgtPlayer));
 	}
 }
