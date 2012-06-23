@@ -42,6 +42,7 @@ class MatchHelpers {
 		static bool inOpposingPenaltyArea(const Player& p);
 		static bool isOpposingPlayer(const Player& p1, const Player& p2);
 		static bool canGrabBall(const Player& p);
+		static bool goodKickingPosition(const Player& p, const AbsVector3& v);
 };
 
 #endif

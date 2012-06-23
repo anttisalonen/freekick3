@@ -336,4 +336,10 @@ bool MatchHelpers::canGrabBall(const Player& p)
 	return false;
 }
 
+bool MatchHelpers::goodKickingPosition(const Player& p, const AbsVector3& v)
+{
+	Vector3 pb = p.getMatch()->getBall()->getPosition().v - p.getPosition().v;
+	Vector3 pt = (p.getMatch()->getBall()->getPosition().v + v.v) - p.getPosition().v;
+	return pt.dot(pb) >= 0.0f;
+}
 

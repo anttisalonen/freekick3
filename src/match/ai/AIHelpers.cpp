@@ -143,4 +143,14 @@ float AIHelpers::scaledCoefficient(float dist, float maximum)
 	return std::max(0.0f, (maximum - dist) / maximum);
 }
 
+float AIHelpers::checkKickSuccess(const Player& p, const AbsVector3& v, float score)
+{
+	if(score < 0.0f)
+		return score;
+	if(!MatchHelpers::goodKickingPosition(p, v))
+		return score * 0.1f;
+	else
+		return score;
+}
+
 

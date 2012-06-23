@@ -249,9 +249,7 @@ int Match::kickBall(Player* p, const AbsVector3& v)
 		if(!(mBall->getVelocity().v.length() / 80.0f < p->getSkills().BallControl))
 			failpoints++;
 		{
-			Vector3 pb = mBall->getPosition().v - p->getPosition().v;
-			Vector3 pt = (mBall->getPosition().v + v.v) - p->getPosition().v;
-			if(pt.dot(pb) < 0.0f) {
+			if(!MatchHelpers::goodKickingPosition(*p, v)) {
 				failpoints += 2;
 			}
 		}

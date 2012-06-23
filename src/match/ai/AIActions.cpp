@@ -133,6 +133,8 @@ AIShootAction::AIShootAction(const Player* p)
 				}
 			}
 		}
+		thisscore = AIHelpers::checkKickSuccess(*mPlayer, AbsVector3(thistgt.v - mPlayer->getPosition().v),
+							thisscore);
 		if(thisscore > maxscore) {
 			thistgt.v.z = (thistgt.v - p->getPosition().v).length() * 0.05f;
 			maxscore = thisscore;
@@ -187,6 +189,7 @@ AIClearAction::AIClearAction(const Player* p)
 
 		tgt = AbsVector3(dist1 > dist2 ? kickvec1 : kickvec2);
 		tgt.v.z = tgt.v.length() * 0.8f;
+		mScore = AIHelpers::checkKickSuccess(*mPlayer, tgt, mScore);
 	}
 
 	mAction = boost::shared_ptr<PlayerAction>(new KickBallPA(tgt, nullptr, false));
@@ -226,6 +229,9 @@ AIDribbleAction::AIDribbleAction(const Player* p)
 			thisscore = thisscore * ((vec.v.y + dribblelen) / (2.0f * dribblelen));
 		else
 			thisscore = thisscore * ((vec.v.y - dribblelen) / (2.0f * dribblelen));
+
+		thisscore = AIHelpers::checkKickSuccess(*mPlayer, vec, thisscore);
+
 		if(thisscore > bestscore) {
 			bestscore = thisscore;
 			bestvec = AbsVector3(vec.v.normalized() * 0.3f);
@@ -242,6 +248,7 @@ AIPassAction::AIPassAction(const Player* p)
 {
 	mScore = -1.0;
 	AbsVector3 tgt;
+	AbsVector3 thistgt;
 	Player* tgtPlayer = nullptr;
 	mAction = boost::shared_ptr<PlayerAction>(new KickBallPA(MatchHelpers::oppositeGoalPosition(*p),
 				nullptr, true));
@@ -286,10 +293,12 @@ AIPassAction::AIPassAction(const Player* p)
 					thisscore -= coeff * decr;
 				}
 			}
+			thistgt = AIHelpers::getPassKickVector(*mPlayer, *sp);
+			thisscore = AIHelpers::checkKickSuccess(*mPlayer, thistgt, thisscore);
 			if(thisscore > mScore) {
 				mScore = thisscore;
-				tgt = AIHelpers::getPassKickVector(*mPlayer, *sp);
 				tgtPlayer = sp.get();
+				tgt = thistgt;
 			}
 		}
 	}
@@ -323,9 +332,11 @@ AILongPassAction::AILongPassAction(const Player* p)
 		double thisscore = std::max(mPlayer->getTeam()->getShotScoreAt(sp->getPosition()) - myshotscore,
 				0.5f * mPlayer->getTeam()->getPassScoreAt(sp->getPosition()) - mypassscore);
 
+		tgt = AIHelpers::getPassKickVector(*mPlayer, *sp);
+		thisscore = AIHelpers::checkKickSuccess(*mPlayer, tgt, thisscore);
+
 		if(thisscore > 0.0f && thisscore > mScore) {
 			mScore = thisscore;
-			tgt = AIHelpers::getPassKickVector(*mPlayer, *sp);
 			tgtPlayer = sp.get();
 		}
 	}
