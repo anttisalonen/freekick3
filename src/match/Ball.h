@@ -15,8 +15,9 @@ class Ball : public MatchEntity {
 		bool grabbed() const;
 		void grab(Player* p);
 		const Player* getGrabber() const;
+		const Player* checkPlayerCollisions();
 	private:
-		void checkCollision(const Player& p);
+		bool checkCollision(const Player& p);
 		AbsVector3 mCollisionFreePoint;
 		bool mGrabbed;
 		Player* mGrabber;

@@ -94,15 +94,13 @@ bool Referee::ballKicked(const Player& p, const AbsVector3& vel)
 		case MatchHalf::SecondHalf:
 			switch(mMatch->getPlayState()) {
 				case PlayState::InPlay:
-					mFirstTeamInControl = p.getTeam()->isFirst();
-					mPlayerInControl = &p;
+					ballTouched(p);
 					return true;
 				default:
 					if(p.getTeam()->isFirst() == mFirstTeamInControl) {
 						mMatch->setPlayState(PlayState::InPlay);
-						mFirstTeamInControl = p.getTeam()->isFirst();
-						mPlayerInControl = &p;
 						mWaitForResumeClock.rewind();
+						ballTouched(p);
 						return true;
 					}
 					else {
@@ -200,4 +198,9 @@ const Player* Referee::getPlayerInControl() const
 	return mPlayerInControl;
 }
 
+void Referee::ballTouched(const Player& p)
+{
+	mFirstTeamInControl = p.getTeam()->isFirst();
+	mPlayerInControl = &p;
+}
 

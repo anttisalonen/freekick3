@@ -15,6 +15,21 @@ Ball::Ball(Match* match)
 	mPosition.v.z = 0.10f;
 }
 
+const Player* Ball::checkPlayerCollisions()
+{
+	const Player* ret = nullptr;
+	if(mVelocity.v.length() > 2.0f &&
+			(mPosition.v - mCollisionFreePoint.v).length() > collisionIgnoreDistance) {
+		for(int i = 0; i < 2; i++) {
+			for(auto p : mMatch->getTeam(i)->getPlayers()) {
+				if(checkCollision(*p))
+					ret = p.get();
+			}
+		}
+	}
+	return ret;
+}
+
 void Ball::update(float time)
 {
 	if(!mGrabbed) {
@@ -26,14 +41,6 @@ void Ball::update(float time)
 		bool outsideAfter2 = mPosition.v.x > GOAL_WIDTH_2 + GOAL_NET_RADIUS;
 		bool outsideAfter3 = mPosition.v.z > GOAL_HEIGHT;
 
-		if(mVelocity.v.length() > 2.0f &&
-				(mPosition.v - mCollisionFreePoint.v).length() > collisionIgnoreDistance) {
-			for(int i = 0; i < 2; i++) {
-				for(auto p : mMatch->getTeam(i)->getPlayers()) {
-					checkCollision(*p);
-				}
-			}
-		}
 		if(mPosition.v.z < 0.15f) {
 			if(fabs(mVelocity.v.z) < 0.1f)
 				mVelocity.v.z = 0.0f;
@@ -137,7 +144,7 @@ void Ball::kicked(Player* p)
 	mGrabber = nullptr;
 }
 
-void Ball::checkCollision(const Player& p)
+bool Ball::checkCollision(const Player& p)
 {
 	float dist = MatchEntity::distanceBetween(*this, p);
 	if(dist < 1.0f) {
@@ -146,6 +153,10 @@ void Ball::checkCollision(const Player& p)
 			mVelocity.v *= -0.1f;
 		else
 			mVelocity.v *= -0.7f;
+		return true;
+	}
+	else {
+		return false;
 	}
 }
 

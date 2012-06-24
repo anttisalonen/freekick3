@@ -23,6 +23,7 @@ class Referee {
 		void ballGrabbed(const Player& p);
 		void matchHalfChanged(MatchHalf m);
 		const Player* getPlayerInControl() const;
+		void ballTouched(const Player& p);
 	private:
 		bool allPlayersOnOwnSideAndReady() const;
 		boost::shared_ptr<RefereeAction> setOutOfPlay();
