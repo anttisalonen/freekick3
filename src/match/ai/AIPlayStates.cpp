@@ -63,7 +63,7 @@ boost::shared_ptr<PlayerAction> AIPlayController::actOnRestart(double time)
 		AbsVector3 dir = MatchEntity::vectorFromTo(*mPlayer->getMatch()->getBall(),
 				*mPlayer);
 		float disttooppgoal = (mPlayer->getPosition().v - MatchHelpers::oppositeGoalPosition(*mPlayer).v).length();
-		if(dir.v.length() < 9.15f || disttooppgoal < 25.0f) {
+		if(dir.v.length() < 10.0f || disttooppgoal < 35.0f) {
 				return AIHelpers::createMoveActionTo(*mPlayer,
 						AbsVector3(mPlayer->getPosition().v + dir.v));
 		}
