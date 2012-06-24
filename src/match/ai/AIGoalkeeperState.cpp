@@ -50,7 +50,7 @@ boost::shared_ptr<PlayerAction> AIGoalkeeperState::actOffBall(double time)
 	AbsVector3 ballpos = ball->getPosition();
 	Vector3 futureballpos = ballpos.v + ball->getVelocity().v * 1.0f;
 	Vector3 goalmiddlepoint = MatchHelpers::ownGoalPosition(*mPlayer).v;
-	static const float gkdisttogoal = 1.0f;
+	static const float gkdisttogoal = 0.2f;
 	if(MatchHelpers::attacksUp(*mPlayer))
 		goalmiddlepoint.y += gkdisttogoal;
 	else
@@ -65,8 +65,7 @@ boost::shared_ptr<PlayerAction> AIGoalkeeperState::actOffBall(double time)
 		// tgtpos may be null when the ball doesn't move
 		if(!tgtpos.null()) {
 			float timetogoal = (ballpos.v - goalmiddlepoint).length() / ball->getVelocity().v.length();
-			if(timetogoal < 0.5f && fabs(ballpos.v.z) > 2.0f &&
-					fabs(futureballpos.z) > 2.0f &&
+			if(timetogoal < 0.5f && futureballpos.z > 2.0f &&
 					(tgtpos - mPlayer->getPosition().v).length() < 1.0f) {
 				// jump
 				tgtpos -= mPlayer->getPosition().v;
