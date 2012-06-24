@@ -92,10 +92,6 @@ const Referee* Match::getReferee() const
 void Match::update(double time)
 {
 	mBall->update(time);
-	const Player* collided = mBall->checkPlayerCollisions();
-	if(collided) {
-		mReferee.ballTouched(*collided);
-	}
 
 	for(int i = 0; i < 2; i++) {
 		int j = i == 0 ? 1 : 0;
@@ -116,6 +112,11 @@ void Match::update(double time)
 				}
 			}
 		}
+	}
+
+	const Player* collided = mBall->checkPlayerCollisions();
+	if(collided) {
+		mReferee.ballTouched(*collided);
 	}
 
 	updateReferee(time);

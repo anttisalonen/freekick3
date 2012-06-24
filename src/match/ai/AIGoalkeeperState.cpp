@@ -38,15 +38,23 @@ boost::shared_ptr<PlayerAction> AIGoalkeeperState::actOnBall(double time)
 
 boost::shared_ptr<PlayerAction> AIGoalkeeperState::actNearBall(double time)
 {
-	return actOffBall(time);
+	if(MatchEntity::distanceBetween(*mPlayer, *mPlayer->getMatch()->getBall()) < 0.1f)
+		return actOnBall(time);
+	else
+		return actOffBall(time);
 }
 
 boost::shared_ptr<PlayerAction> AIGoalkeeperState::actOffBall(double time)
 {
 	const Ball* ball = mPlayer->getMatch()->getBall();
 	AbsVector3 ballpos = ball->getPosition();
-	Vector3 futureballpos = ballpos.v + ball->getVelocity().v * 5.0f;
+	Vector3 futureballpos = ballpos.v + ball->getVelocity().v * 1.0f;
 	Vector3 goalmiddlepoint = MatchHelpers::ownGoalPosition(*mPlayer).v;
+	static const float gkdisttogoal = 1.0f;
+	if(MatchHelpers::attacksUp(*mPlayer))
+		goalmiddlepoint.y += gkdisttogoal;
+	else
+		goalmiddlepoint.y -= gkdisttogoal;
 
 	float balltowardsgoal = Common::Math::pointToLineDistance(ballpos.v, futureballpos, goalmiddlepoint);
 	if(Common::signum(ball->getVelocity().v.y) == Common::signum(goalmiddlepoint.y) && balltowardsgoal < GOAL_WIDTH_2) {
@@ -56,15 +64,13 @@ boost::shared_ptr<PlayerAction> AIGoalkeeperState::actOffBall(double time)
 				Vector3(GOAL_WIDTH_2, goalmiddlepoint.y, 0));
 		// tgtpos may be null when the ball doesn't move
 		if(!tgtpos.null()) {
-			if(MatchHelpers::attacksUp(*mPlayer))
-				tgtpos.y += 1.0f;
-			else
-				tgtpos.y -= 1.0f;
-
-			if(fabs(futureballpos.z) > 2.0f && (tgtpos - mPlayer->getPosition().v).length() < 1.0f) {
+			float timetogoal = (ballpos.v - goalmiddlepoint).length() / ball->getVelocity().v.length();
+			if(timetogoal < 0.5f && fabs(ballpos.v.z) > 2.0f &&
+					fabs(futureballpos.z) > 2.0f &&
+					(tgtpos - mPlayer->getPosition().v).length() < 1.0f) {
 				// jump
-				tgtpos.z = fabs(futureballpos.z);
 				tgtpos -= mPlayer->getPosition().v;
+				tgtpos.z = fabs(futureballpos.z);
 				return boost::shared_ptr<PlayerAction>(new JumpToPA(AbsVector3(tgtpos)));
 			}
 			else {
