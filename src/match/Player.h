@@ -47,6 +47,7 @@ class Player : public MatchEntity, public Soccer::Player {
 		void setTackled();
 		bool standing() const;
 		bool tackling() const;
+		bool isAirborne() const;
 	private:
 		Team* mTeam;
 		PlayerController* mController;

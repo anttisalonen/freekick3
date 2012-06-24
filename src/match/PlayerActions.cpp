@@ -1,6 +1,8 @@
 #include <iostream>
 #include <algorithm>
 
+#include "common/Math.h"
+
 #include "match/PlayerActions.h"
 #include "match/Match.h"
 #include "match/MatchHelpers.h"
@@ -24,7 +26,7 @@ RunToPA::RunToPA(const AbsVector3& v)
 
 void RunToPA::applyPlayerAction(Match& match, Player& p, double time)
 {
-	if(!p.standing())
+	if(!p.standing() || p.isAirborne())
 		return;
 	mDiff.v.z = 0.0f;
 	if(mDiff.v.length() < 0.1f)
@@ -94,7 +96,7 @@ TacklePA::TacklePA(const AbsVector3& v)
 
 void TacklePA::applyPlayerAction(Match& match, Player& p, double time)
 {
-	if(!p.standing())
+	if(!p.standing() || p.isAirborne())
 		return;
 	mDiff.v.z = 0.0f;
 	if(mDiff.v.length() < 0.1f)
@@ -107,6 +109,27 @@ void TacklePA::applyPlayerAction(Match& match, Player& p, double time)
 std::string TacklePA::getDescription() const
 {
 	return std::string("Tackle");
+}
+
+JumpToPA::JumpToPA(const AbsVector3& v)
+	: mDiff(v)
+{
+}
+
+void JumpToPA::applyPlayerAction(Match& match, Player& p, double time)
+{
+	if(!p.standing() || p.isAirborne() || mDiff.v.z < 0.01f)
+		return;
+	if(mDiff.v.length() < 0.1f)
+		return;
+	AbsVector3 v(mDiff.v.normalized());
+	v.v *= 80.0f;
+	p.setAcceleration(v.v);
+}
+
+std::string JumpToPA::getDescription() const
+{
+	return std::string("Jump to " + std::to_string((int)mDiff.v.x) + " " + std::to_string((int)mDiff.v.y) + " " + std::to_string(mDiff.v.z));
 }
 
 

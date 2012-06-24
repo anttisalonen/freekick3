@@ -49,7 +49,7 @@ boost::shared_ptr<PlayerAction> AIGoalkeeperState::actOffBall(double time)
 	Vector3 goalmiddlepoint = MatchHelpers::ownGoalPosition(*mPlayer).v;
 
 	float balltowardsgoal = Common::Math::pointToLineDistance(ballpos.v, futureballpos, goalmiddlepoint);
-	if(balltowardsgoal < GOAL_WIDTH_2) {
+	if(Common::signum(ball->getVelocity().v.y) == Common::signum(goalmiddlepoint.y) && balltowardsgoal < GOAL_WIDTH_2) {
 		Vector3 tgtpos = Common::Math::lineLineIntersection2D(ballpos.v,
 				futureballpos,
 				Vector3(-GOAL_WIDTH_2, goalmiddlepoint.y, 0),
@@ -61,7 +61,15 @@ boost::shared_ptr<PlayerAction> AIGoalkeeperState::actOffBall(double time)
 			else
 				tgtpos.y -= 1.0f;
 
-			return AIHelpers::createMoveActionTo(*mPlayer, AbsVector3(tgtpos));
+			if(fabs(futureballpos.z) > 2.0f && (tgtpos - mPlayer->getPosition().v).length() < 1.0f) {
+				// jump
+				tgtpos.z = fabs(futureballpos.z);
+				tgtpos -= mPlayer->getPosition().v;
+				return boost::shared_ptr<PlayerAction>(new JumpToPA(AbsVector3(tgtpos)));
+			}
+			else {
+				return AIHelpers::createMoveActionTo(*mPlayer, AbsVector3(tgtpos));
+			}
 		}
 	}
 

@@ -119,7 +119,7 @@ void Player::update(float time)
 		mVelocity.v.normalize();
 		mVelocity.v *= getRunSpeed();
 	}
-	if(mPosition.v.z < 0.05f) {
+	if(!isAirborne()) {
 		mPosition.v.z = 0.0f;
 	}
 	else {
@@ -182,4 +182,8 @@ bool Player::tackling() const
 	return mTacklingTimer.running();
 }
 
+bool Player::isAirborne() const
+{
+	return mPosition.v.z > 0.05f;
+}
 

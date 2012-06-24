@@ -56,5 +56,14 @@ class TacklePA : public PlayerAction {
 		AbsVector3 mDiff;
 };
 
+class JumpToPA : public PlayerAction {
+	public:
+		JumpToPA(const AbsVector3& v);
+		void applyPlayerAction(Match& match, Player& p, double time);
+		std::string getDescription() const;
+	private:
+		AbsVector3 mDiff;
+};
+
 #endif
 

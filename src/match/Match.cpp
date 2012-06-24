@@ -107,7 +107,7 @@ void Match::update(double time)
 			applyPlayerAction(a, p, time);
 			p->update(time);
 			for(auto& p2 : mTeams[j]->getPlayers()) {
-				if(p2->tackling() && p->standing()) {
+				if(p2->tackling() && p->standing() && !p->isAirborne()) {
 					float dist = MatchEntity::distanceBetween(*p, *p2);
 					if(dist < TACKLE_DISTANCE) {
 						std::cout << "Tackled player\n";
