@@ -31,7 +31,7 @@ static const float playerHeight = 1.0f;
 static const float textHeight = 5.0f;
 
 MatchSDLGUI::MatchSDLGUI(boost::shared_ptr<Match> match, bool observer, int teamnum, int playernum,
-		int ticksPerSec, bool debug)
+		int ticksPerSec, bool debug, bool randomise)
 	: MatchGUI(match),
 	PlayerController(mMatch->getPlayer(0, 9)),
 	mScaleLevel(15.0f),
@@ -48,7 +48,8 @@ MatchSDLGUI::MatchSDLGUI(boost::shared_ptr<Match> match, bool observer, int team
 	mPaused(false),
 	mDebugDisplay(0),
 	mFixedFrameTime(0.0f),
-	mTackling(false)
+	mTackling(false),
+	mRandomise(randomise)
 {
 	mScreen = SDL_utils::initSDL(screenWidth, screenHeight);
 
@@ -97,6 +98,12 @@ bool MatchSDLGUI::play()
 	while(1) {
 		double newTime = Clock::getTime();
 		double frameTime = mFixedFrameTime ? mFixedFrameTime : newTime - prevTime;
+		if(mFixedFrameTime && mRandomise) {
+			double add = rand() / (double)RAND_MAX;
+			add -= 0.5f;
+			add *= 0.01f * mFixedFrameTime;
+			frameTime += add;
+		}
 		prevTime = newTime;
 
 		if(!mPaused) {

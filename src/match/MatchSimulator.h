@@ -14,10 +14,12 @@
 
 class MatchSimulator : public MatchGUI {
 	public:
-		MatchSimulator(boost::shared_ptr<Match> match, int ticksPerSec);
+		MatchSimulator(boost::shared_ptr<Match> match, int ticksPerSec,
+				bool randomise);
 		bool play();
 	private:
 		float mFixedFrameTime;
+		bool mRandomise;
 };
 
 #endif

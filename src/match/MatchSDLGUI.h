@@ -71,7 +71,7 @@ TextTexture::TextTexture(boost::shared_ptr<Common::Texture> t, unsigned int w, u
 class MatchSDLGUI : public MatchGUI, public PlayerController {
 	public:
 		MatchSDLGUI(boost::shared_ptr<Match> match, bool observer, int teamnum, int playernum,
-				int ticksPerSec, bool debug);
+				int ticksPerSec, bool debug, bool randomise);
 		~MatchSDLGUI();
 		bool play();
 		boost::shared_ptr<PlayerAction> act(double time);
@@ -129,6 +129,7 @@ class MatchSDLGUI : public MatchGUI, public PlayerController {
 		int mDebugDisplay;
 		float mFixedFrameTime;
 		bool mTackling;
+		bool mRandomise;
 };
 
 #endif

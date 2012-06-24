@@ -11,7 +11,7 @@
 
 void usage(const char* p)
 {
-	printf("Usage: %s <path to match data file> [-o] [-t team] [-p player] [-f FPS] [-d] [-m sec] [-x]\n\n"
+	printf("Usage: %s <path to match data file> [-o] [-t team] [-p player] [-f FPS [-s seed]] [-d] [-m sec] [-x]\n\n"
 			"\t-o\tobserver mode\n"
 			"\t-t team\tteam number (1 or 2)\n"
 			"\t-p num\tplayer number (1-11)\n"
@@ -19,6 +19,7 @@ void usage(const char* p)
 			"\t-d\tdebug mode\n"
 			"\t-m sec\tmatch time in seconds (default: 180)\n"
 			"\t-x\ndisable GUI\n"
+			"\t-s seed\tmake fixed frame rate non-deterministic with seed (-1: use time)\n"
 			"\n",
 			p);
 }
@@ -37,6 +38,8 @@ int main(int argc, char** argv)
 	int ticksPerSec = 0;
 	double seconds = 180.0;
 	bool disableGUI = false;
+	bool useseed = false;
+	int seed = 0;
 
 	for(int i = 2; i < argc; i++) {
 		if(!strcmp(argv[i], "-o")) {
@@ -78,21 +81,37 @@ int main(int argc, char** argv)
 		else if(!strcmp(argv[i], "-x")) {
 			disableGUI = true;
 		}
+		else if(!strcmp(argv[i], "-s")) {
+			if(++i >= argc) { printf("-s requires a numeric argument.\n"); exit(1); }
+			useseed = true;
+			seed = atoi(argv[i]);
+			if(seed == -1) {
+				seed = time(NULL);
+			}
+		}
 		else {
 			printf("Unknown option: \"%s\"\n", argv[i]);
 			exit(1);
 		}
 	}
+
 	try {
 		boost::shared_ptr<Soccer::Match> matchdata = Soccer::DataExchange::parseMatchDataFile(argv[1]);
 		boost::shared_ptr<Match> match(new Match(*matchdata, seconds));
 		boost::shared_ptr<MatchGUI> gui;
 		if(disableGUI) {
-			gui = boost::shared_ptr<MatchGUI>(new MatchSimulator(match, ticksPerSec));
+			gui = boost::shared_ptr<MatchGUI>(new MatchSimulator(match, ticksPerSec, useseed));
 		}
 		else {
 			gui = boost::shared_ptr<MatchGUI>(new MatchSDLGUI(match, observer, teamnum, playernum,
-					ticksPerSec, debug));
+					ticksPerSec, debug, useseed));
+		}
+
+		if(useseed) {
+			// initialise seed after constructing MatchSDLGUI as SDL seems to
+			// initialise it as well
+			printf("Seed: %d\n", seed);
+			srand(seed);
 		}
 
 		if(gui->play()) {
