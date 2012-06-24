@@ -93,7 +93,6 @@ class MatchSDLGUI : public MatchGUI, public PlayerController {
 				const FontConfig& f,
 				bool screencoordinates, bool centered);
 		AbsVector3 getMousePositionOnPitch() const;
-		bool progressMatch(double frameTime);
 		void setupPitchLines();
 		void drawPitchLines();
 		void drawGoals();
@@ -122,7 +121,6 @@ class MatchSDLGUI : public MatchGUI, public PlayerController {
 		std::map<FontConfig, boost::shared_ptr<TextTexture>> mTextMap;
 		bool mObserver;
 		bool mMouseAim;
-		Countdown mHalfTimeTimer;
 		int mControlledPlayerIndex;
 		int mControlledTeamIndex;
 		std::vector<std::vector<LineCoord>> mPitchLines;

@@ -7,16 +7,18 @@
 
 #include "match/Match.h"
 #include "match/MatchSDLGUI.h"
+#include "match/MatchSimulator.h"
 
 void usage(const char* p)
 {
-	printf("Usage: %s <path to match data file> [-o] [-t team] [-p player] [-f FPS] [-d] [-m sec]\n\n"
+	printf("Usage: %s <path to match data file> [-o] [-t team] [-p player] [-f FPS] [-d] [-m sec] [-x]\n\n"
 			"\t-o\tobserver mode\n"
 			"\t-t team\tteam number (1 or 2)\n"
 			"\t-p num\tplayer number (1-11)\n"
 			"\t-f FPS\tfixed frame rate\n"
 			"\t-d\tdebug mode\n"
 			"\t-m sec\tmatch time in seconds (default: 180)\n"
+			"\t-x\ndisable GUI\n"
 			"\n",
 			p);
 }
@@ -34,6 +36,7 @@ int main(int argc, char** argv)
 	int playernum = 0;
 	int ticksPerSec = 0;
 	double seconds = 180.0;
+	bool disableGUI = false;
 
 	for(int i = 2; i < argc; i++) {
 		if(!strcmp(argv[i], "-o")) {
@@ -72,6 +75,9 @@ int main(int argc, char** argv)
 				exit(1);
 			}
 		}
+		else if(!strcmp(argv[i], "-x")) {
+			disableGUI = true;
+		}
 		else {
 			printf("Unknown option: \"%s\"\n", argv[i]);
 			exit(1);
@@ -80,9 +86,16 @@ int main(int argc, char** argv)
 	try {
 		boost::shared_ptr<Soccer::Match> matchdata = Soccer::DataExchange::parseMatchDataFile(argv[1]);
 		boost::shared_ptr<Match> match(new Match(*matchdata, seconds));
-		std::unique_ptr<MatchSDLGUI> matchGUI(new MatchSDLGUI(match, observer, teamnum, playernum,
+		boost::shared_ptr<MatchGUI> gui;
+		if(disableGUI) {
+			gui = boost::shared_ptr<MatchGUI>(new MatchSimulator(match, ticksPerSec));
+		}
+		else {
+			gui = boost::shared_ptr<MatchGUI>(new MatchSDLGUI(match, observer, teamnum, playernum,
 					ticksPerSec, debug));
-		if(matchGUI->play()) {
+		}
+
+		if(gui->play()) {
 			// finished match
 			printf("Final score: %d - %d\n", match->getResult().HomeGoals,
 					match->getResult().AwayGoals);

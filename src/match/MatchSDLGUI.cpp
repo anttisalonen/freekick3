@@ -42,7 +42,6 @@ MatchSDLGUI::MatchSDLGUI(boost::shared_ptr<Match> match, bool observer, int team
 	mFont(nullptr),
 	mObserver(observer),
 	mMouseAim(false),
-	mHalfTimeTimer(1.0f),
 	mControlledPlayerIndex(playernum - 1),
 	mControlledTeamIndex(teamnum - 1),
 	mPlayerSwitchTimer(0.2f),
@@ -125,25 +124,6 @@ bool MatchSDLGUI::play()
 		return true;
 	}
 	return false;
-}
-
-bool MatchSDLGUI::progressMatch(double frameTime)
-{
-	if(!playing(mMatch->getMatchHalf()) &&
-			mMatch->getMatchHalf() != MatchHalf::NotStarted &&
-			mMatch->getMatchHalf() != MatchHalf::HalfTimePauseEnd &&
-			MatchHelpers::playersOnPause(*mMatch)) {
-		mHalfTimeTimer.doCountdown(frameTime);
-		if(mHalfTimeTimer.checkAndRewind()) {
-			if(mMatch->matchOver()) {
-				return false;
-			}
-			else {
-				mMatch->setMatchHalf(MatchHalf::HalfTimePauseEnd);
-			}
-		}
-	}
-	return true;
 }
 
 void MatchSDLGUI::drawEnvironment()
