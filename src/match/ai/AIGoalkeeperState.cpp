@@ -26,7 +26,7 @@ boost::shared_ptr<PlayerAction> AIGoalkeeperState::actOnBall(double time)
 	}
 	else {
 		// not holding the ball
-		if(MatchHelpers::myTeamInControl(*mPlayer) || !MatchHelpers::canGrabBall(*mPlayer)) {
+		if(!MatchHelpers::canGrabBall(*mPlayer)) {
 			return mPlayController->switchState(boost::shared_ptr<AIState>(new AIKickBallState(mPlayer, mPlayController)), time);
 		}
 		else {
