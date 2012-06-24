@@ -329,7 +329,6 @@ bool MatchHelpers::canGrabBall(const Player& p)
 		float ballHeight = b->getPosition().v.z;
 		float maxBallHeight = p.isAirborne() ? p.getPosition().v.z + 2.0f : p.standing() ? 2.0f : 0.5f;
 		float minBallHeight = p.isAirborne() ? p.getPosition().v.z : 0.0f;
-		std::cout << "Ball height " << minBallHeight << " " << ballHeight << " " << maxBallHeight << "\n";
 		if(maxDist >= distToBall && maxBallHeight >= ballHeight && minBallHeight <= ballHeight) {
 			return true;
 		}
