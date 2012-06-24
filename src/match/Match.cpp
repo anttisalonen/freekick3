@@ -9,15 +9,16 @@
 
 #define TACKLE_DISTANCE 1.0f
 
-Match::Match(const Soccer::Match& m)
+Match::Match(const Soccer::Match& m, double matchtime)
 	: Soccer::Match(m),
 	mTime(0),
-	mTimeAccelerationConstant(30),
+	mTimeAccelerationConstant(90.0f / matchtime),
 	mMatchHalf(MatchHalf::NotStarted),
 	mPlayState(PlayState::OutKickoff),
 	mPitch(Pitch(68.0f, 105.0f))
 {
 	static const unsigned int numPlayers = 11;
+	assert(matchtime);
 
 	mScore[0] = mScore[1] = 0;
 
@@ -313,7 +314,7 @@ bool Match::grabBall(Player* p)
 void Match::updateTime(double time)
 {
 	if(playing(mMatchHalf) && playing(mPlayState) && !mBall->grabbed()) {
-		mTime += time * mTimeAccelerationConstant / 60.0f;
+		mTime += time * mTimeAccelerationConstant;
 		if(mTime >= 45.0f && (fabs(mBall->getPosition().v.y) < 20.0f || mTime > 50.5f)) {
 			setMatchHalf(mMatchHalf == MatchHalf::FirstHalf ?
 					MatchHalf::HalfTimePauseBegin : MatchHalf::Finished);

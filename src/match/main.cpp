@@ -10,12 +10,14 @@
 
 void usage(const char* p)
 {
-	printf("Usage: %s <path to match data file> [-o] [-t team] [-p player] [-f FPS] [-d]\n\n"
+	printf("Usage: %s <path to match data file> [-o] [-t team] [-p player] [-f FPS] [-d] [-m sec]\n\n"
 			"\t-o\tobserver mode\n"
 			"\t-t team\tteam number (1 or 2)\n"
 			"\t-p num\tplayer number (1-11)\n"
 			"\t-f FPS\tfixed frame rate\n"
-			"\t-d\tdebug mode\n\n",
+			"\t-d\tdebug mode\n"
+			"\t-m sec\tmatch time in seconds (default: 180)\n"
+			"\n",
 			p);
 }
 
@@ -31,6 +33,7 @@ int main(int argc, char** argv)
 	int teamnum = 1;
 	int playernum = 0;
 	int ticksPerSec = 0;
+	double seconds = 180.0;
 
 	for(int i = 2; i < argc; i++) {
 		if(!strcmp(argv[i], "-o")) {
@@ -40,11 +43,7 @@ int main(int argc, char** argv)
 			debug = true;
 		}
 		else if(!strcmp(argv[i], "-p")) {
-			i++;
-			if(i >= argc) {
-				printf("-p requires a numeric argument between 1 and 11.\n");
-				exit(1);
-			}
+			if(++i >= argc) { printf("-p requires a numeric argument between 1 and 11.\n"); exit(1); }
 			int num = atoi(argv[i]);
 			if(num < 1 || num > 11) {
 				printf("-p requires a numeric argument between 1 and 11.\n");
@@ -53,11 +52,7 @@ int main(int argc, char** argv)
 			playernum = num;
 		}
 		else if(!strcmp(argv[i], "-t")) {
-			i++;
-			if(i >= argc) {
-				printf("-t requires a numeric argument between 1 and 2.\n");
-				exit(1);
-			}
+			if(++i >= argc) { printf("-t requires a numeric argument between 1 and 2.\n"); exit(1); }
 			int num = atoi(argv[i]);
 			if(num < 1 || num > 2) {
 				printf("-t requires a numeric argument between 1 and 2.\n");
@@ -66,17 +61,25 @@ int main(int argc, char** argv)
 			teamnum = num;
 		}
 		else if(!strcmp(argv[i], "-f")) {
-			i++;
-			if(i >= argc) {
-				printf("-f requires a numeric argument.\n");
+			if(++i >= argc) { printf("-f requires a numeric argument.\n"); exit(1); }
+			ticksPerSec = atoi(argv[i]);
+		}
+		else if(!strcmp(argv[i], "-m")) {
+			if(++i >= argc) { printf("-m requires a numeric argument.\n"); exit(1); }
+			seconds = atof(argv[i]);
+			if(seconds <= 0.0) {
+				printf("-m argument must be greater than 0.\n");
 				exit(1);
 			}
-			ticksPerSec = atoi(argv[i]);
+		}
+		else {
+			printf("Unknown option: \"%s\"\n", argv[i]);
+			exit(1);
 		}
 	}
 	try {
 		boost::shared_ptr<Soccer::Match> matchdata = Soccer::DataExchange::parseMatchDataFile(argv[1]);
-		boost::shared_ptr<Match> match(new Match(*matchdata));
+		boost::shared_ptr<Match> match(new Match(*matchdata, seconds));
 		std::unique_ptr<MatchSDLGUI> matchGUI(new MatchSDLGUI(match, observer, teamnum, playernum,
 					ticksPerSec, debug));
 		if(matchGUI->play()) {

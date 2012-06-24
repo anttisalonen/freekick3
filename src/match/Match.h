@@ -43,7 +43,7 @@ bool playing(PlayState h);
 
 class Match : public Soccer::Match {
 	public:
-		Match(const Soccer::Match& m);
+		Match(const Soccer::Match& m, double matchtime);
 		Team* getTeam(unsigned int team);
 		const Team* getTeam(unsigned int team) const;
 		const Player* getPlayer(unsigned int team, unsigned int idx) const;
