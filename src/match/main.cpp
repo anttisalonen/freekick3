@@ -7,7 +7,6 @@
 
 #include "match/Match.h"
 #include "match/MatchSDLGUI.h"
-#include "match/MatchSimulator.h"
 
 void usage(const char* p)
 {
@@ -99,13 +98,8 @@ int main(int argc, char** argv)
 		boost::shared_ptr<Soccer::Match> matchdata = Soccer::DataExchange::parseMatchDataFile(argv[1]);
 		boost::shared_ptr<Match> match(new Match(*matchdata, seconds));
 		boost::shared_ptr<MatchGUI> gui;
-		if(disableGUI) {
-			gui = boost::shared_ptr<MatchGUI>(new MatchSimulator(match, ticksPerSec, useseed));
-		}
-		else {
-			gui = boost::shared_ptr<MatchGUI>(new MatchSDLGUI(match, observer, teamnum, playernum,
-					ticksPerSec, debug, useseed));
-		}
+		gui = boost::shared_ptr<MatchGUI>(new MatchSDLGUI(match, observer, teamnum, playernum,
+					ticksPerSec, debug, useseed, disableGUI));
 
 		if(useseed) {
 			// initialise seed after constructing MatchSDLGUI as SDL seems to

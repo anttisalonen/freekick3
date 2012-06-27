@@ -31,7 +31,7 @@ static const float playerHeight = 1.0f;
 static const float textHeight = 5.0f;
 
 MatchSDLGUI::MatchSDLGUI(boost::shared_ptr<Match> match, bool observer, int teamnum, int playernum,
-		int ticksPerSec, bool debug, bool randomise)
+		int ticksPerSec, bool debug, bool randomise, bool disablegui)
 	: MatchGUI(match),
 	PlayerController(mMatch->getPlayer(0, 9)),
 	mScaleLevel(15.0f),
@@ -49,8 +49,16 @@ MatchSDLGUI::MatchSDLGUI(boost::shared_ptr<Match> match, bool observer, int team
 	mDebugDisplay(0),
 	mFixedFrameTime(0.0f),
 	mTackling(false),
-	mRandomise(randomise)
+	mRandomise(randomise),
+	mDisableGUI(disablegui)
 {
+	if(ticksPerSec) {
+		mFixedFrameTime = 1.0f / ticksPerSec;
+	}
+	if(mDisableGUI) {
+		return;
+	}
+
 	mScreen = SDL_utils::initSDL(screenWidth, screenHeight);
 
 	loadTextures();
@@ -70,9 +78,6 @@ MatchSDLGUI::MatchSDLGUI(boost::shared_ptr<Match> match, bool observer, int team
 		mDebugDisplay = 2;
 	}
 
-	if(ticksPerSec) {
-		mFixedFrameTime = 1.0f / ticksPerSec;
-	}
 }
 
 MatchSDLGUI::~MatchSDLGUI()
@@ -108,17 +113,19 @@ bool MatchSDLGUI::play()
 
 		if(!mPaused) {
 			mMatch->update(frameTime);
-			if(!mObserver)
+			if(!mDisableGUI && !mObserver)
 				setPlayerController(frameTime);
 		}
 
-		if(handleInput(frameTime))
+		if(!mDisableGUI && handleInput(frameTime))
 			break;
-		startFrame();
-		drawEnvironment();
-		drawBall();
-		drawPlayers();
-		finishFrame();
+		if(!mDisableGUI) {
+			startFrame();
+			drawEnvironment();
+			drawBall();
+			drawPlayers();
+			finishFrame();
+		}
 
 		if(!mPaused) {
 			if(!progressMatch(frameTime))
