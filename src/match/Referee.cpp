@@ -123,6 +123,7 @@ boost::shared_ptr<RefereeAction> Referee::setOutOfPlay()
 		mRestartPosition.v.x = mMatch->getPitchWidth() * 0.5f;
 		if(bp.v.x < 0.0f)
 			mRestartPosition.v.x = -mRestartPosition.v.x;
+		mRestartPosition.v.z = 0.0f;
 		mFirstTeamInControl = !mFirstTeamInControl;
 		mPlayerInControl = nullptr;
 		return boost::shared_ptr<RefereeAction>(new ChangePlayStateRA(PlayState::OutThrowin));
@@ -133,6 +134,7 @@ boost::shared_ptr<RefereeAction> Referee::setOutOfPlay()
 			// goal
 			mRestartPosition.v.x = 0.0f;
 			mRestartPosition.v.y = 0.0f;
+			mRestartPosition.v.z = 0.0f;
 			bool firstscores;
 			if(bp.v.y > 1.0f) {
 				firstscores = mMatch->getMatchHalf() == MatchHalf::FirstHalf;
@@ -153,6 +155,7 @@ boost::shared_ptr<RefereeAction> Referee::setOutOfPlay()
 				bp.v.y = 1.0f;
 			mRestartPosition.v.x = Common::signum(bp.v.x) * mMatch->getPitchWidth() * 0.5f;
 			mRestartPosition.v.y = Common::signum(bp.v.y) * mMatch->getPitchHeight() * 0.5f;
+			mRestartPosition.v.z = 0.0f;
 			mFirstTeamInControl = !mFirstTeamInControl;
 			mPlayerInControl = nullptr;
 			return boost::shared_ptr<RefereeAction>(new ChangePlayStateRA(PlayState::OutCornerkick));
@@ -166,6 +169,7 @@ boost::shared_ptr<RefereeAction> Referee::setOutOfPlay()
 			if(bp.v.y < 0) {
 				mRestartPosition.v.y = -mRestartPosition.v.y;
 			}
+			mRestartPosition.v.z = 0.0f;
 			mFirstTeamInControl = !mFirstTeamInControl;
 			mPlayerInControl = nullptr;
 			return boost::shared_ptr<RefereeAction>(new ChangePlayStateRA(PlayState::OutGoalkick));
