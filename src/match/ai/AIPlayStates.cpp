@@ -63,9 +63,11 @@ boost::shared_ptr<PlayerAction> AIPlayController::actOnRestart(double time)
 		AbsVector3 dir = MatchEntity::vectorFromTo(*mPlayer->getMatch()->getBall(),
 				*mPlayer);
 		float disttooppgoal = (mPlayer->getPosition().v - MatchHelpers::oppositeGoalPosition(*mPlayer).v).length();
-		if(dir.v.length() < 10.0f || disttooppgoal < 35.0f) {
-				return AIHelpers::createMoveActionTo(*mPlayer,
-						AbsVector3(mPlayer->getPosition().v + dir.v));
+		if(dir.v.length() < 9.5f || disttooppgoal < 25.0f) {
+			// NOTE: max limit of disttooppgoal must not exceed half of the pitch width.
+			// In that case a player may stay outside the pitch and the match would hang.
+			return AIHelpers::createMoveActionTo(*mPlayer,
+					AbsVector3(mPlayer->getPosition().v + dir.v));
 		}
 		else {
 			return mCurrentState->actOffBall(time);
