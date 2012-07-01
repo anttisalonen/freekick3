@@ -39,11 +39,11 @@ void FriendlyScreen::clickedDone()
 			teamnum = thisteamnum;
 		thisteamnum++;
 	}
-	/* TODO: create tactics */
+
 	Match m(boost::shared_ptr<StatefulTeam>(new StatefulTeam(*teams[0], TeamController(teamnum == 1, 0),
-					TeamTactics(*teams[0]))),
+					AITactics::createTeamTactics(*teams[0]))),
 				boost::shared_ptr<StatefulTeam>(new StatefulTeam(*teams[1], TeamController(teamnum == 2, 0),
-						TeamTactics(*teams[1]))));
+						AITactics::createTeamTactics(*teams[1]))));
 	MatchResult res = m.play(true);
 	m.setResult(res);
 	mScreenManager->addScreen(boost::shared_ptr<Screen>(new MatchResultScreen(mScreenManager, m)));

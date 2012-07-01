@@ -22,6 +22,7 @@ class AIHelpers {
 		static float scaledDistanceFrom(float dist, float opt);
 		static float scaledCoefficient(float dist, float maximum);
 		static float checkKickSuccess(const Player& p, const AbsVector3& v, float score);
+		static float getPassForwardCoefficient(const Player& p, const Player& tp);
 
 	private:
 		static AbsVector3 getPositionByFunc(const Player& p, std::function<float (const AbsVector3& v)> func);

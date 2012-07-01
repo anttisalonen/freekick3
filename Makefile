@@ -40,6 +40,7 @@ SOCCERBINNAME = freekick3
 SOCCERBIN     = $(BINDIR)/$(SOCCERBINNAME)
 SOCCERSRCDIR  = src/soccer
 SOCCERSRCFILES = League.cpp \
+		 ai/AITactics.cpp \
 		 gui/Button.cpp gui/Screen.cpp gui/ScreenManager.cpp \
 		 gui/MatchResultScreen.cpp gui/MainMenuScreen.cpp gui/TeamBrowser.cpp \
 		 gui/FriendlyScreen.cpp gui/PresetLeagueScreen.cpp \
@@ -59,9 +60,10 @@ MATCHSRCDIR = src/match
 MATCHSRCFILES = Clock.cpp Pitch.cpp Ball.cpp \
 	   Match.cpp MatchHelpers.cpp MatchEntity.cpp Team.cpp Player.cpp PlayerActions.cpp \
 	   Referee.cpp RefereeActions.cpp \
-	   ai/PlayerAIController.cpp ai/AIActions.cpp ai/AIPlayStates.cpp ai/AIHelpers.cpp \
+	   ai/AIActions.cpp ai/AIHelpers.cpp \
 	   ai/AIGoalkeeperState.cpp ai/AIDefendState.cpp \
 	   ai/AIMidfielderState.cpp ai/AIKickBallState.cpp ai/AIOffensiveState.cpp \
+	   ai/PlayerAIController.cpp ai/AIPlayStates.cpp ai/AITacticParameters.cpp \
 	   MatchSDLGUI.cpp \
 	   main.cpp
 

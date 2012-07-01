@@ -14,7 +14,8 @@ Team::Team(Match* match, const Soccer::StatefulTeam& t, bool first)
 	mFirst(first),
 	mPlayerNearestToBall(nullptr),
 	mSupportingPositionsTimer(0.5f),
-	mPlayerReceivingPass(nullptr)
+	mPlayerReceivingPass(nullptr),
+	mAITacticParameters(new AITacticParameters(t))
 {
 	for(unsigned int j = SUPPORTING_POS_RESOLUTION * 2;
 			j <= match->getPitchHeight() - SUPPORTING_POS_RESOLUTION;
@@ -264,4 +265,8 @@ bool Team::isOffsidePosition(const AbsVector3& pos) const
 	return offsideplayers < 2 && ((mMatch->getBall()->getPosition().v.y < pos.v.y) == MatchHelpers::attacksUp(*this));
 }
 
+const AITacticParameters& Team::getAITacticParameters() const
+{
+	return *mAITacticParameters;
+}
 

@@ -140,6 +140,42 @@ boost::shared_ptr<Team> DataExchange::parseTeam(const TiXmlElement* teamelem)
 	return team;
 }
 
+TeamTactics DataExchange::parseTactics(const TiXmlElement* elem)
+{
+	float pressure, longballs, fastpassing, shootclose;
+
+	if(elem->QueryFloatAttribute("pressure", &pressure) != TIXML_SUCCESS)
+		throw std::runtime_error("Error parsing Tactics pressure");
+	if(elem->QueryFloatAttribute("longballs", &longballs) != TIXML_SUCCESS)
+		throw std::runtime_error("Error parsing Tactics long balls");
+	if(elem->QueryFloatAttribute("fastpassing", &fastpassing) != TIXML_SUCCESS)
+		throw std::runtime_error("Error parsing Tactics fast passing");
+	if(elem->QueryFloatAttribute("shootclose", &shootclose) != TIXML_SUCCESS)
+		throw std::runtime_error("Error parsing Tactics shoot close");
+
+	const TiXmlElement* playerselem = elem->FirstChildElement("Players");
+
+	std::map<int, PlayerTactics> pt;
+	for(const TiXmlElement* pelem = playerselem->FirstChildElement(); pelem; pelem = pelem->NextSiblingElement()) {
+		float widthposition;
+		float radius;
+		int playerid;
+
+		if(pelem->QueryIntAttribute("id", &playerid) != TIXML_SUCCESS)
+			throw std::runtime_error("Error parsing Tactics player ID");
+		if(pelem->QueryFloatAttribute("widthposition", &widthposition) != TIXML_SUCCESS)
+			throw std::runtime_error("Error parsing Tactics width position");
+		if(pelem->QueryFloatAttribute("radius", &radius) != TIXML_SUCCESS)
+			throw std::runtime_error("Error parsing Tactics radius");
+		pt.insert(std::make_pair(playerid, PlayerTactics(widthposition, radius)));
+	}
+	if(pt.size() != 11) {
+		throw std::runtime_error("Error parsing Tactics (expecting 11 player tactics)");
+	}
+
+	return TeamTactics(pt, pressure, longballs, fastpassing, shootclose);
+}
+
 boost::shared_ptr<Match> DataExchange::parseMatchDataFile(const char* fn)
 {
 	TiXmlDocument doc(fn);
@@ -211,8 +247,24 @@ boost::shared_ptr<Match> DataExchange::parseMatchDataFile(const char* fn)
 		throw std::runtime_error(ss.str());
 	}
 
-	boost::shared_ptr<Match> m(new Match(boost::shared_ptr<StatefulTeam>(new StatefulTeam(*teams[0], tcs[0], TeamTactics(*teams[0]))),
-				boost::shared_ptr<StatefulTeam>(new StatefulTeam(*teams[1], tcs[1], TeamTactics(*teams[1])))));
+	std::vector<TeamTactics> tt;
+
+	TiXmlElement* tacticelem = handle.FirstChild("Match").FirstChild("TeamTactics").FirstChild("Team").ToElement();
+	if(!tacticelem)
+		throw std::runtime_error(ss.str());
+
+	for(; tacticelem; tacticelem = tacticelem->NextSiblingElement()) {
+		if(tt.size() > 2) {
+			throw std::runtime_error(ss.str());
+		}
+		tt.push_back(parseTactics(tacticelem));
+	}
+	if(tt.size() != 2) {
+		throw std::runtime_error(ss.str());
+	}
+
+	boost::shared_ptr<Match> m(new Match(boost::shared_ptr<StatefulTeam>(new StatefulTeam(*teams[0], tcs[0], tt[0])),
+				boost::shared_ptr<StatefulTeam>(new StatefulTeam(*teams[1], tcs[1], tt[1]))));
 	m->setResult(mres);
 	return m;
 }
@@ -288,6 +340,30 @@ TiXmlElement* DataExchange::createTeamElement(const Team& t, bool reference_play
 	return teamelem;
 }
 
+TiXmlElement* DataExchange::createTeamTacticsElement(const TeamTactics& t)
+{
+	TiXmlElement* teamelem = new TiXmlElement("Team");
+
+	teamelem->SetDoubleAttribute("pressure", t.Pressure);
+	teamelem->SetDoubleAttribute("longballs", t.LongBalls);
+	teamelem->SetDoubleAttribute("fastpassing", t.FastPassing);
+	teamelem->SetDoubleAttribute("shootclose", t.ShootClose);
+
+	TiXmlElement* playerselem = new TiXmlElement("Players");
+
+	assert(t.mTactics.size() == 11);
+	for(auto p : t.mTactics) {
+		TiXmlElement* playerelem = new TiXmlElement("Player");
+		playerelem->SetAttribute("id", p.first);
+		playerelem->SetDoubleAttribute("widthposition", p.second.WidthPosition);
+		playerelem->SetDoubleAttribute("radius", p.second.Radius);
+		playerselem->LinkEndChild(playerelem);
+	}
+	teamelem->LinkEndChild(playerselem);
+
+	return teamelem;
+}
+
 TiXmlElement* DataExchange::createPlayerElement(const Player& p)
 {
 	TiXmlElement* playerelem = new TiXmlElement("Player");
@@ -358,6 +434,13 @@ void DataExchange::createMatchDataFile(const Match& m, const char* fn)
 	}
 	matchelem->LinkEndChild(teamselem);
 
+	TiXmlElement* teamtacticselem = new TiXmlElement("TeamTactics");
+	for(int i = 0; i < 2; i++) {
+		TiXmlElement* tacticelem = createTeamTacticsElement(m.getTeam(i)->getTactics());
+		teamtacticselem->LinkEndChild(tacticelem);
+	}
+	matchelem->LinkEndChild(teamtacticselem);
+
 	TiXmlElement* matchresultelem = new TiXmlElement("MatchResult");
 	matchresultelem->SetAttribute("played", m.getResult().Played ? "1" : "0");
 	TiXmlElement* homereselem = new TiXmlElement("Home");
@@ -367,8 +450,6 @@ void DataExchange::createMatchDataFile(const Match& m, const char* fn)
 	matchresultelem->LinkEndChild(homereselem);
 	matchresultelem->LinkEndChild(awayreselem);
 	matchelem->LinkEndChild(matchresultelem);
-
-	/* TODO: add team tactics */
 
 	{
 		TiXmlElement* controllerselem = new TiXmlElement("Controllers");

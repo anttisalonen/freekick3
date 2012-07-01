@@ -22,15 +22,13 @@ Match::Match(const Soccer::Match& m, double matchtime)
 
 	mScore[0] = mScore[1] = 0;
 
-	/* TODO: add AI to decide which players should play -
-	 * it should probably be included in the match data. */
 	for(int j = 0; j < 2; j++) {
 		mTeams[j] = boost::shared_ptr<Team>(new Team(this, *m.getTeam(j), j == 0));
 		unsigned int i = 0;
 		for(auto n : mTeams[j]->getTactics().mTactics) {
 			boost::shared_ptr<Soccer::Player> pl(m.getTeam(j)->getPlayerById(n.first));
 			if(!pl) {
-				std::cerr << "Warning: Team " << mTeams[j]->getName() << " is missing player ID " << n.first << ".\n";
+				std::cerr << "Warning: Team " << mTeams[j]->getName() << " is missing tactics for player ID " << n.first << ".\n";
 				continue;
 			}
 			mTeams[j]->addPlayer(*pl);

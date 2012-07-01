@@ -13,6 +13,7 @@ namespace Soccer {
 class Match;
 class Player;
 class Team;
+class TeamTactics;
 
 class DataExchange {
 	public:
@@ -25,6 +26,9 @@ class DataExchange {
 		static boost::shared_ptr<Team> parseTeam(const TiXmlElement* teamelem);
 		static TiXmlElement* createTeamElement(const Team& t, bool reference_players);
 		static TiXmlElement* createPlayerElement(const Player& p);
+		
+		static TeamTactics parseTactics(const TiXmlElement* elem);
+		static TiXmlElement* createTeamTacticsElement(const TeamTactics& t);
 
 		static void createTeamDatabase(const char* fn, const TeamDatabase& db);
 		static void createPlayerDatabase(const char* fn, const PlayerDatabase& db);

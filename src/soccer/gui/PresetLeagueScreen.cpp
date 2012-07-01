@@ -33,12 +33,13 @@ bool PresetLeagueScreen::canClickDone()
 void PresetLeagueScreen::clickedDone()
 {
 	std::vector<boost::shared_ptr<StatefulTeam>> teams;
-	/* TODO: create tactics */
+
 	for(auto t : mSelectedTeams) {
 		teams.push_back(boost::shared_ptr<StatefulTeam>(new StatefulTeam(*t.first,
 						TeamController(t.second == TeamSelection::Human,
-							0), TeamTactics(*t.first))));
+							0), AITactics::createTeamTactics(*t.first))));
 	}
+
 	boost::shared_ptr<StatefulLeague> league(new StatefulLeague(teams));
 	mScreenManager->addScreen(boost::shared_ptr<Screen>(new LeagueScreen(mScreenManager, league)));
 }

@@ -9,6 +9,8 @@
 #include "match/Player.h"
 #include "match/Distance.h"
 
+#include "match/ai/AITacticParameters.h"
+
 enum class MatchHalf;
 
 class Team : public Soccer::StatefulTeam {
@@ -39,6 +41,7 @@ class Team : public Soccer::StatefulTeam {
 		Player* getPlayerReceivingPass();
 		void ballKicked(Player* p);
 		bool isOffsidePosition(const AbsVector3& pos) const;
+		const AITacticParameters& getAITacticParameters() const;
 	private:
 		void updatePlayerNearestToBall();
 		void updateSupportingPositions();
@@ -53,6 +56,7 @@ class Team : public Soccer::StatefulTeam {
 		Countdown mSupportingPositionsTimer;
 		std::vector<std::vector<OffensivePosition>> mSupportingPositions;
 		Player* mPlayerReceivingPass;
+		std::shared_ptr<AITacticParameters> mAITacticParameters;
 };
 
 #endif

@@ -148,9 +148,25 @@ float AIHelpers::checkKickSuccess(const Player& p, const AbsVector3& v, float sc
 	if(score < 0.0f)
 		return score;
 	if(!MatchHelpers::goodKickingPosition(p, v))
-		return score * 0.1f;
+		return score * 0.2f;
 	else
 		return score;
+}
+
+float AIHelpers::getPassForwardCoefficient(const Player& p, const Player& tp)
+{
+	AbsVector3 tovec = MatchEntity::vectorFromTo(p, tp);
+	if(!tovec.v.null()) {
+		tovec.v.normalize();
+		if(!MatchHelpers::attacksUp(p))
+			tovec.v.y = -tovec.v.y;
+		float val = (tovec.v.y + 1.0) * 0.5;
+		assert(val >= 0.0f);
+		return val;
+	}
+	else {
+		return 0.0f;
+	}
 }
 
 

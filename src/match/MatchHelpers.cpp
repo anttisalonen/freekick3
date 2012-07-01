@@ -345,3 +345,14 @@ bool MatchHelpers::goodKickingPosition(const Player& p, const AbsVector3& v)
 	return pt.dot(pb) >= 0.0f;
 }
 
+float MatchHelpers::distanceToOwnGoal(const Player& p)
+{
+	return (p.getPosition().v - ownGoalPosition(p).v).length();
+}
+
+float MatchHelpers::distanceToOppositeGoal(const Player& p)
+{
+	return (p.getPosition().v - oppositeGoalPosition(p).v).length();
+}
+
+

@@ -62,8 +62,8 @@ SimulationStrength::SimulationStrength(const StatefulTeam& t)
 {
 	float press = t.getTactics().Pressure;
 	float mLongBalls = t.getTactics().LongBalls;
-	float wings = 0.25f + t.getTactics().AttackWings * 0.5f;
-	float variance = 1.0f - t.getTactics().Organized;
+	float wings = 0.5f;
+	float variance = 0.5f;
 
 	press += (rand() % 2000 - 1000) * 0.001f * variance;
 	mLongBalls += (rand() % 2000 - 1000) * 0.001f * variance;
