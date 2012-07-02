@@ -103,7 +103,7 @@ bool MatchSDLGUI::play()
 	while(1) {
 		double newTime = Clock::getTime();
 		double frameTime = mFixedFrameTime ? mFixedFrameTime : newTime - prevTime;
-		if(mFixedFrameTime && mRandomise) {
+		if(!mPaused && mFixedFrameTime && mRandomise) {
 			double add = rand() / (double)RAND_MAX;
 			add -= 0.5f;
 			add *= 0.01f * mFixedFrameTime;
