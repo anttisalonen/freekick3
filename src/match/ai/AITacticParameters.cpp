@@ -15,7 +15,7 @@ AITacticParameters::AITacticParameters(const Soccer::StatefulTeam& tt)
 	 * tries to score from afar, or perfects the shot position. Setting
 	 * this too high (> 0.2) may lead to excessive
 	 * trying-to-kick-the-ball-through-opponents. */
-	ShootRiskCoefficient       = Common::clamp(0.1f, t.ShootClose * 0.1f, 0.1f);
+	ShootRiskCoefficient       = Common::clamp(0.0f, t.ShootClose * 0.1f, 0.1f);
 	ClearActionCoefficient     = Common::clamp(0.3f, (1.0f - t.Pressure) * 0.5f + 0.25f, 0.7f);
 	FetchBallActionCoefficient = 0.5f + Common::clamp(0.1f, t.Pressure * 0.5f, 0.9f);
 	GuardActionCoefficient     = Common::clamp(0.1f, t.Pressure, 0.9f);
