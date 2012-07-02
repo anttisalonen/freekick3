@@ -12,14 +12,15 @@ AIKickBallState::AIKickBallState(Player* p, AIPlayController* m)
 boost::shared_ptr<PlayerAction> AIKickBallState::actOnBall(double time)
 {
 	std::vector<boost::shared_ptr<AIAction>> actions;
-	actions.push_back(boost::shared_ptr<AIAction>(new AILongPassAction(mPlayer)));
 	actions.push_back(boost::shared_ptr<AIAction>(new AIPassAction(mPlayer)));
 	actions.push_back(boost::shared_ptr<AIAction>(new AIShootAction(mPlayer)));
-	actions.push_back(boost::shared_ptr<AIAction>(new AIClearAction(mPlayer)));
-	actions.push_back(boost::shared_ptr<AIAction>(new AITackleAction(mPlayer)));
-
-	if(mPlayer->getMatch()->getPlayState() == PlayState::InPlay && !mPlayer->isGoalkeeper()) {
-		actions.push_back(boost::shared_ptr<AIAction>(new AIDribbleAction(mPlayer)));
+	actions.push_back(boost::shared_ptr<AIAction>(new AILongPassAction(mPlayer)));
+	if(mPlayer->getMatch()->getPlayState() == PlayState::InPlay) {
+		actions.push_back(boost::shared_ptr<AIAction>(new AIClearAction(mPlayer)));
+		actions.push_back(boost::shared_ptr<AIAction>(new AITackleAction(mPlayer)));
+		if(!mPlayer->isGoalkeeper()) {
+			actions.push_back(boost::shared_ptr<AIAction>(new AIDribbleAction(mPlayer)));
+		}
 	}
 
 	AIActionChooser actionchooser(actions, true);
