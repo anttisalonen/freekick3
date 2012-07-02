@@ -6,7 +6,7 @@
 #include "match/Team.h"
 
 Player::Player(Match* match, Team* team, const Soccer::Player& p,
-		ShirtNumber sn, const PlayerTactics& t)
+		ShirtNumber sn, const Soccer::PlayerTactics& t)
 	: MatchEntity(match, match->convertRelativeToAbsoluteVector(team->getPausePosition())),
 	Soccer::Player(p),
 	mTeam(team),
@@ -19,17 +19,18 @@ Player::Player(Match* match, Team* team, const Soccer::Player& p,
 	mAIController = new PlayerAIController(this);
 	setAIControlled();
 
-	if(mPlayerPosition == Soccer::PlayerPosition::Goalkeeper) {
+	if(mShirtNumber == 1) {
 		setHomePosition(RelVector3(0, -0.95f * (mTeam->isFirst() ? 1 : -1), 0));
 	}
 	else {
-		if(mPlayerPosition == Soccer::PlayerPosition::Forward) {
+		if(mShirtNumber >= 10) {
 			setHomePosition(RelVector3(mTactics.WidthPosition < 0 ? -0.1f : 0.1f,
 						0.20f * (mTeam->isFirst() ? -1 : 1), 0));
 		}
 		else {
-			int hgt = mPlayerPosition == Soccer::PlayerPosition::Midfielder ? 1 : 0;
-			setHomePosition(RelVector3(mTactics.WidthPosition,
+			int hgt = mShirtNumber > 5 ? 1 : 0;
+			float widthpos = ((mShirtNumber - 2) % 4 - 1.5f) * 0.5f;
+			setHomePosition(RelVector3(widthpos,
 						(mTeam->isFirst() ? 1 : -1) * -0.7f + hgt * 0.3f * (mTeam->isFirst() ? 1 : -1),
 						0));
 		}
@@ -138,12 +139,12 @@ void Player::update(float time)
 	mTackledTimer.check();
 }
 
-void Player::setPlayerTactics(const PlayerTactics& t)
+void Player::setPlayerTactics(const Soccer::PlayerTactics& t)
 {
 	mTactics = t;
 }
 
-const PlayerTactics& Player::getTactics() const
+const Soccer::PlayerTactics& Player::getTactics() const
 {
 	return mTactics;
 }
@@ -151,6 +152,7 @@ const PlayerTactics& Player::getTactics() const
 void Player::matchHalfChanged(MatchHalf m)
 {
 	if(m == MatchHalf::HalfTimePauseEnd) {
+		mHomePosition.v.x = -mHomePosition.v.x;
 		mHomePosition.v.y = -mHomePosition.v.y;
 	}
 
@@ -186,4 +188,15 @@ bool Player::isAirborne() const
 {
 	return mPosition.v.z > 0.05f;
 }
+
+Soccer::PlayerPosition Player::getPlayerPosition() const
+{
+	return mTactics.Position;
+}
+
+bool Player::isGoalkeeper() const
+{
+	return getPlayerPosition() == Soccer::PlayerPosition::Goalkeeper;
+}
+
 

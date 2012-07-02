@@ -79,7 +79,7 @@ SimulationStrength::SimulationStrength(const StatefulTeam& t)
 		if(it == t.getTactics().mTactics.end())
 			continue;
 
-		if(p->getPlayerPosition() == PlayerPosition::Goalkeeper) {
+		if(it->second.Position == PlayerPosition::Goalkeeper) {
 			mCenterDefense += p->getSkills().GoalKeeping;
 			mLeftDefense   += p->getSkills().GoalKeeping;
 			mRightDefense  += p->getSkills().GoalKeeping;
@@ -88,16 +88,16 @@ SimulationStrength::SimulationStrength(const StatefulTeam& t)
 			float generalplayerskill = (p->getSkills().Passing +
 					p->getSkills().BallControl + p->getSkills().RunSpeed) / 3.0f;
 			float def = 0.0f, get = 0.0f, use = 0.0f;
-			if(p->getPlayerPosition() == PlayerPosition::Defender) {
+			if(it->second.Position == PlayerPosition::Defender) {
 				def += p->getSkills().Tackling * generalplayerskill;
 				get += p->getSkills().Passing * 0.5 * generalplayerskill;
 			}
-			else if(p->getPlayerPosition() == PlayerPosition::Midfielder) {
+			else if(it->second.Position == PlayerPosition::Midfielder) {
 				def += p->getSkills().Tackling * 0.25 * generalplayerskill;
 				get += p->getSkills().Passing * generalplayerskill;
 				use += p->getSkills().ShotPower * 0.25 * generalplayerskill;
 			}
-			else if(p->getPlayerPosition() == PlayerPosition::Forward) {
+			else if(it->second.Position == PlayerPosition::Forward) {
 				get += p->getSkills().Passing * 0.5 * generalplayerskill;
 				use += p->getSkills().ShotPower * generalplayerskill;
 			}

@@ -23,7 +23,7 @@ typedef int ShirtNumber;
 class Player : public MatchEntity, public Soccer::Player {
 	public:
 		Player(Match* match, Team* team, const Soccer::Player& p,
-				ShirtNumber sn, const PlayerTactics& t);
+				ShirtNumber sn, const Soccer::PlayerTactics& t);
 		~Player();
 		boost::shared_ptr<PlayerAction> act(double time);
 		int getShirtNumber() const;
@@ -39,8 +39,8 @@ class Player : public MatchEntity, public Soccer::Player {
 		void ballKicked();
 		bool canKickBall() const;
 		void update(float time) override;
-		void setPlayerTactics(const PlayerTactics& t);
-		const PlayerTactics& getTactics() const;
+		void setPlayerTactics(const Soccer::PlayerTactics& t);
+		const Soccer::PlayerTactics& getTactics() const;
 		const PlayerAIController* getAIController() const;
 		void matchHalfChanged(MatchHalf m);
 		void setTackling();
@@ -48,13 +48,15 @@ class Player : public MatchEntity, public Soccer::Player {
 		bool standing() const;
 		bool tackling() const;
 		bool isAirborne() const;
+		Soccer::PlayerPosition getPlayerPosition() const;
+		bool isGoalkeeper() const;
 	private:
 		Team* mTeam;
 		PlayerController* mController;
 		PlayerAIController* mAIController;
 		RelVector3 mHomePosition;
 		Countdown mBallKickedTimer;
-		PlayerTactics mTactics;
+		Soccer::PlayerTactics mTactics;
 		ShirtNumber mShirtNumber;
 		Countdown mTacklingTimer;
 		Countdown mTackledTimer;

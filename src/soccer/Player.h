@@ -39,27 +39,18 @@ struct PlayerSkills {
 	}
 };
 
-enum class PlayerPosition {
-	Goalkeeper,
-	Defender,
-	Midfielder,
-	Forward
-};
-
 class Player {
 	public:
-		Player(int id, const char* name, PlayerPosition pos,
+		Player(int id, const char* name,
 				const PlayerSkills& skills);
 		virtual ~Player() { }
 		bool isGoalkeeper() const;
 		const PlayerSkills& getSkills() const;
-		PlayerPosition getPlayerPosition() const;
 		const std::string& getName() const;
 		int getId() const;
 	protected:
 		int mId;
 		std::string mName;
-		PlayerPosition mPlayerPosition;
 		PlayerSkills mSkills;
 
 	private:
@@ -70,7 +61,6 @@ class Player {
 		{
 			ar & mId;
 			ar & mName;
-			ar & mPlayerPosition;
 			ar & mSkills;
 		}
 };

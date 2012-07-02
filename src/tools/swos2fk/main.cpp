@@ -723,33 +723,13 @@ int FreekickWriter::write()
 		std::vector<boost::shared_ptr<Soccer::Player>> players;
 
 		for(auto& sp : st.players) {
-			Soccer::PlayerPosition plpos;
-			switch(sp.field_position) {
-				case 0:
-					plpos = Soccer::PlayerPosition::Goalkeeper; break;
-
-				case 1: // right back
-				case 2: // left back
-				case 3: // defender
-					plpos = Soccer::PlayerPosition::Defender; break;
-
-				case 4: // right wing
-				case 5: // left wing
-				case 6: // midfielder
-					plpos = Soccer::PlayerPosition::Midfielder; break;
-
-				case 7: // attacker
-				default:
-					plpos = Soccer::PlayerPosition::Forward; break;
-			}
-
 			Soccer::PlayerSkills plskills;
 			plskills = convertSkill(sp);
 
 			boost::shared_ptr<Soccer::Player> pl(new Soccer::Player(sp.id,
 						mScramble ? scramble(players.size(),
 							sp.player_name).c_str() : sp.player_name,
-						plpos, plskills));
+						plskills));
 			players.push_back(pl);
 			playerdb.insert(std::make_pair(pl->getId(), pl));
 		}

@@ -23,7 +23,6 @@ static float getPlayerSkill(const TiXmlElement* skillselem, const char* skillnam
 boost::shared_ptr<Player> DataExchange::parsePlayer(const TiXmlElement* pelem)
 {
 	PlayerSkills sk;
-	PlayerPosition position;
 	int id;
 
 	if(pelem->QueryIntAttribute("id", &id) != TIXML_SUCCESS)
@@ -31,25 +30,12 @@ boost::shared_ptr<Player> DataExchange::parsePlayer(const TiXmlElement* pelem)
 
 	const TiXmlElement* skillselem = pelem->FirstChildElement("Skills");
 	const TiXmlElement* nameelem = pelem->FirstChildElement("Name");
-	const TiXmlElement* poselem = pelem->FirstChildElement("Position");
-	if(!skillselem || !nameelem || !poselem)
-		throw std::runtime_error("Error parsing player skill/name/position");
+	if(!skillselem || !nameelem)
+		throw std::runtime_error("Error parsing player skill/name");
 
-	const char* pos = poselem->GetText();
 	const char* name = nameelem->GetText();
-	if(!pos || !name)
-		throw std::runtime_error("Error parsing player position/name");
-
-	if(!strcmp(pos, "goalkeeper"))
-		position = PlayerPosition::Goalkeeper;
-	else if(!strcmp(pos, "defender"))
-		position = PlayerPosition::Defender;
-	else if(!strcmp(pos, "midfielder"))
-		position = PlayerPosition::Midfielder;
-	else if(!strcmp(pos, "forward"))
-		position = PlayerPosition::Forward;
-	else
-		throw std::runtime_error("Error parsing player position");
+	if(!name)
+		throw std::runtime_error("Error parsing player name");
 
 	sk.ShotPower = getPlayerSkill(skillselem, "ShotPower");
 	sk.RunSpeed = getPlayerSkill(skillselem, "RunSpeed");
@@ -58,7 +44,7 @@ boost::shared_ptr<Player> DataExchange::parsePlayer(const TiXmlElement* pelem)
 	sk.Tackling = getPlayerSkill(skillselem, "Tackling");
 	sk.Heading = getPlayerSkill(skillselem, "Heading");
 	sk.GoalKeeping = getPlayerSkill(skillselem, "GoalKeeping");
-	return boost::shared_ptr<Player>(new Player(id, name, position, sk));
+	return boost::shared_ptr<Player>(new Player(id, name, sk));
 }
 
 boost::shared_ptr<Team> DataExchange::parseTeam(const TiXmlElement* teamelem)
@@ -160,6 +146,8 @@ TeamTactics DataExchange::parseTactics(const TiXmlElement* elem)
 		float widthposition;
 		float radius;
 		int playerid;
+		int ppos;
+		int offensive;
 
 		if(pelem->QueryIntAttribute("id", &playerid) != TIXML_SUCCESS)
 			throw std::runtime_error("Error parsing Tactics player ID");
@@ -167,7 +155,11 @@ TeamTactics DataExchange::parseTactics(const TiXmlElement* elem)
 			throw std::runtime_error("Error parsing Tactics width position");
 		if(pelem->QueryFloatAttribute("radius", &radius) != TIXML_SUCCESS)
 			throw std::runtime_error("Error parsing Tactics radius");
-		pt.insert(std::make_pair(playerid, PlayerTactics(widthposition, radius)));
+		if(pelem->QueryIntAttribute("position", &ppos) != TIXML_SUCCESS)
+			throw std::runtime_error("Error parsing Tactics position");
+		if(pelem->QueryIntAttribute("offensive", &offensive) != TIXML_SUCCESS)
+			throw std::runtime_error("Error parsing Tactics offensive");
+		pt.insert(std::make_pair(playerid, PlayerTactics(widthposition, radius, PlayerPosition(ppos), offensive != 0)));
 	}
 	if(pt.size() != 11) {
 		throw std::runtime_error("Error parsing Tactics (expecting 11 player tactics)");
@@ -357,6 +349,8 @@ TiXmlElement* DataExchange::createTeamTacticsElement(const TeamTactics& t)
 		playerelem->SetAttribute("id", p.first);
 		playerelem->SetDoubleAttribute("widthposition", p.second.WidthPosition);
 		playerelem->SetDoubleAttribute("radius", p.second.Radius);
+		playerelem->SetAttribute("position", int(p.second.Position));
+		playerelem->SetAttribute("offensive", p.second.Offensive);
 		playerselem->LinkEndChild(playerelem);
 	}
 	teamelem->LinkEndChild(playerselem);
@@ -373,26 +367,6 @@ TiXmlElement* DataExchange::createPlayerElement(const Player& p)
 	TiXmlElement* nameelem = new TiXmlElement("Name");
 	nameelem->LinkEndChild(new TiXmlText(p.getName()));
 	playerelem->LinkEndChild(nameelem);
-
-	TiXmlElement* poselem = new TiXmlElement("Position");
-	switch(p.getPlayerPosition()) {
-		case PlayerPosition::Goalkeeper:
-			poselem->LinkEndChild(new TiXmlText("goalkeeper"));
-			break;
-
-		case PlayerPosition::Defender:
-			poselem->LinkEndChild(new TiXmlText("defender"));
-			break;
-
-		case PlayerPosition::Midfielder:
-			poselem->LinkEndChild(new TiXmlText("midfielder"));
-			break;
-
-		case PlayerPosition::Forward:
-			poselem->LinkEndChild(new TiXmlText("forward"));
-			break;
-	}
-	playerelem->LinkEndChild(poselem);
 
 	TiXmlElement* skillselem = new TiXmlElement("Skills");
 	TiXmlElement* skill1elem = new TiXmlElement("ShotPower");
