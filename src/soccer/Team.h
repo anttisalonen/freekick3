@@ -32,8 +32,6 @@ class TeamTactics {
 		float ShootClose;  // far shots vs. close shots (weighing shooting)
 
 	private:
-		friend class AITactics;
-
 		friend class boost::serialization::access;
 		template<class Archive>
 		void serialize(Archive& ar, const unsigned int version)
