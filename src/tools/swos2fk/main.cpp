@@ -577,11 +577,11 @@ Soccer::PlayerSkills FreekickWriter::convertSkill(const s_player& pl)
 	plskills.GoalKeeping = (rand() % 400 + 400) * 0.001f * std::min(49, pl.value + 1) / 49.0f;
 	switch(pl.field_position) {
 		case 0: // gk
-			plskills.ShotPower   *= 1.0f;
-			plskills.Passing     *= 1.0f;
-			plskills.BallControl *= 0.8f;
-			plskills.Tackling    *= 0.5f;
-			plskills.Heading     *= 0.5f;
+			plskills.ShotPower   *= 0.5f;
+			plskills.Passing     *= 0.5f;
+			plskills.BallControl *= 0.5f;
+			plskills.Tackling    *= 0.2f;
+			plskills.Heading     *= 0.2f;
 			plskills.RunSpeed    *= 0.5f;
 			plskills.GoalKeeping *= 1.0f;
 			break;
