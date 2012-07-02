@@ -73,7 +73,7 @@ boost::shared_ptr<PlayerAction> PlayerAIController::actOffPlay(double time)
 							mPlayer->getMatch()->convertRelativeToAbsoluteVector(mPlayer->getHomePosition()));
 			}
 			else {
-				return boost::shared_ptr<PlayerAction>(new IdlePA());
+				return mPlayState->actOnRestart(time);
 			}
 		}
 	}
