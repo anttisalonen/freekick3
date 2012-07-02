@@ -69,7 +69,7 @@ class Match : public Soccer::Match {
 		bool grabBall(Player* p);
 		double getTime() const;
 	private:
-		void applyPlayerAction(const boost::shared_ptr<PlayerAction> a,
+		void applyPlayerAction(PlayerAction* a,
 				const boost::shared_ptr<Player> p, double time);
 		void updateReferee(double time);
 		void updateTime(double time);

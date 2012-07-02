@@ -99,7 +99,14 @@ void Match::update(double time)
 		t->act(time);
 		for(auto& p : t->getPlayers()) {
 			boost::shared_ptr<PlayerAction> a(p->act(time));
-			applyPlayerAction(a, p, time);
+			applyPlayerAction(a.get(), p, time);
+			if(p->tackling() && MatchHelpers::canKickBall(*p)) {
+				if(!p->getVelocity().v.null()) {
+					KickBallPA pa(AbsVector3(p->getVelocity().v.normalized() * 0.3f),
+							nullptr, false);
+					applyPlayerAction(&pa, p, time);
+				}
+			}
 			p->update(time);
 			for(auto& p2 : mTeams[j]->getPlayers()) {
 				if(p2->tackling() && p->standing() && !p->isAirborne()) {
@@ -114,8 +121,8 @@ void Match::update(double time)
 	}
 
 	const Player* collided = mBall->checkPlayerCollisions();
-	if(collided) {
-		mReferee.ballTouched(*collided);
+	if(collided && mReferee.canKickBall(*collided)) {
+		mReferee.ballKicked(*collided);
 	}
 
 	updateReferee(time);
@@ -158,7 +165,7 @@ bool Match::matchOver() const
 	return mMatchHalf == MatchHalf::Finished;
 }
 
-void Match::applyPlayerAction(const boost::shared_ptr<PlayerAction> a, const boost::shared_ptr<Player> p, double time)
+void Match::applyPlayerAction(PlayerAction* a, const boost::shared_ptr<Player> p, double time)
 {
 	a->applyPlayerAction(*this, *p.get(), time);
 }
@@ -249,14 +256,23 @@ bool playing(PlayState h)
 
 int Match::kickBall(Player* p, const AbsVector3& v)
 {
-	if(MatchHelpers::canKickBall(*p) && mReferee.ballKicked(*p, v)) {
+	if(MatchHelpers::canKickBall(*p) && mReferee.canKickBall(*p)) {
 		int failpoints = 0;
-		if(!(mBall->getVelocity().v.length() / 80.0f < p->getSkills().BallControl))
+
+		if(!(mBall->getVelocity().v.length() / 80.0f < p->getSkills().BallControl)) {
 			failpoints++;
-		{
-			if(!MatchHelpers::goodKickingPosition(*p, v)) {
-				failpoints += 2;
+			if(MatchEntity::distanceBetween(*mBall, *p) < MAX_KICK_DISTANCE * 0.5f) {
+				failpoints++;
 			}
+		}
+
+		if(!MatchHelpers::goodKickingPosition(*p, v)) {
+			failpoints += 2;
+		}
+
+		p->ballKicked();
+		if(failpoints == 4) {
+			return -1;
 		}
 
 		if(failpoints == 0)
@@ -264,12 +280,13 @@ int Match::kickBall(Player* p, const AbsVector3& v)
 		else
 			mBall->addVelocity(AbsVector3(v.v.normalized() * (5.0f / failpoints)));
 		mBall->kicked(p);
-		p->ballKicked();
+		mReferee.ballKicked(*p);
 		for(auto t : mTeams)
 			t->ballKicked(p);
 		return failpoints;
 	}
 	else {
+		p->ballKicked();
 		return -1;
 	}
 }

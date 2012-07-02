@@ -109,7 +109,7 @@ void Player::ballKicked()
 
 bool Player::canKickBall() const
 {
-	return standing() && !mBallKickedTimer.running();
+	return !mTackledTimer.running() && !mBallKickedTimer.running();
 }
 
 void Player::update(float time)

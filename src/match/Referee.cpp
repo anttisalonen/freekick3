@@ -82,7 +82,7 @@ bool Referee::allPlayersOnOwnSideAndReady() const
 	return true;
 }
 
-bool Referee::ballKicked(const Player& p, const AbsVector3& vel)
+bool Referee::canKickBall(const Player& p) const
 {
 	switch(mMatch->getMatchHalf()) {
 		case MatchHalf::NotStarted:
@@ -94,24 +94,28 @@ bool Referee::ballKicked(const Player& p, const AbsVector3& vel)
 		case MatchHalf::SecondHalf:
 			switch(mMatch->getPlayState()) {
 				case PlayState::InPlay:
-					ballTouched(p);
 					return true;
+
 				default:
-					if(p.getTeam()->isFirst() == mFirstTeamInControl) {
-						mMatch->setPlayState(PlayState::InPlay);
-						mWaitForResumeClock.rewind();
-						ballTouched(p);
-						return true;
-					}
-					else {
-						return false;
-					}
+					return p.getTeam()->isFirst() == mFirstTeamInControl;
 			}
 
 		case MatchHalf::Finished:
 			return true;
 	}
 	return false;
+}
+
+void Referee::ballKicked(const Player& p)
+{
+	if(playing(mMatch->getMatchHalf())) {
+		ballTouched(p);
+
+		if(!playing(mMatch->getPlayState()) && p.getTeam()->isFirst() == mFirstTeamInControl) {
+				mMatch->setPlayState(PlayState::InPlay);
+				mWaitForResumeClock.rewind();
+		}
+	}
 }
 
 boost::shared_ptr<RefereeAction> Referee::setOutOfPlay()
