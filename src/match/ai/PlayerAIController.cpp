@@ -23,7 +23,7 @@ boost::shared_ptr<PlayerAction> PlayerAIController::act(double time)
 		case MatchHalf::NotStarted:
 		case MatchHalf::HalfTimePauseEnd:
 			if(mPlayer->getShirtNumber() >= 10 && MatchHelpers::myTeamInControl(*mPlayer))
-				return AIHelpers::createMoveActionTo(*mPlayer, AbsVector3(mPlayer->getHomePosition().v.x < 0.0f ?
+				return AIHelpers::createMoveActionTo(*mPlayer, AbsVector3(mPlayer->getShirtNumber() == 10 ?
 							-1.0f : 2.0f, 0, 0));
 			else
 				return AIHelpers::createMoveActionTo(*mPlayer,
@@ -66,7 +66,7 @@ boost::shared_ptr<PlayerAction> PlayerAIController::actOffPlay(double time)
 		else {
 			if(mPlayer->getMatch()->getPlayState() == PlayState::OutKickoff) {
 				if(mPlayer->getShirtNumber() >= 10)
-					return AIHelpers::createMoveActionTo(*mPlayer, AbsVector3(mPlayer->getHomePosition().v.x < 0.0f ?
+					return AIHelpers::createMoveActionTo(*mPlayer, AbsVector3(mPlayer->getShirtNumber() == 10 ?
 								-1.0f : 2.0f, 0, 0));
 				else
 					return AIHelpers::createMoveActionTo(*mPlayer,
