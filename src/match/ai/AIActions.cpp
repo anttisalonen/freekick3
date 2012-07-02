@@ -97,7 +97,7 @@ AIShootAction::AIShootAction(const Player* p)
 
 	AbsVector3 vec(MatchHelpers::oppositePenaltySpotPosition(*p));
 	vec.v -= p->getPosition().v;
-	if(vec.v.length() > 40.0f) {
+	if(vec.v.length() > 32.0f) {
 		return;
 	}
 
@@ -107,7 +107,7 @@ AIShootAction::AIShootAction(const Player* p)
 		return;
 	}
 
-	float defscore = std::max(0.0f, 1.0f - (vec.v.length() - 5.0f) * 0.01f);
+	float defscore = std::max(0.0f, 1.0f - (vec.v.length() - 10.0f) * 0.02f);
 	float maxscore = -1.0f;
 	const float maxOppDist = 2.0f;
 	const float riskcoeff = mPlayer->getTeam()->getAITacticParameters().ShootRiskCoefficient;
@@ -115,8 +115,8 @@ AIShootAction::AIShootAction(const Player* p)
 	std::vector<AbsVector3> shoottargets;
 
 	shoottargets.push_back(shoottarget);
-	shoottargets.push_back(AbsVector3(shoottarget.v + Vector3(GOAL_WIDTH_2 * 0.95f, 0, 0)));
-	shoottargets.push_back(AbsVector3(shoottarget.v + Vector3(-GOAL_WIDTH_2 * 0.95f, 0, 0)));
+	shoottargets.push_back(AbsVector3(shoottarget.v + Vector3(GOAL_WIDTH_2 * 0.75f, 0, 0)));
+	shoottargets.push_back(AbsVector3(shoottarget.v + Vector3(-GOAL_WIDTH_2 * 0.75f, 0, 0)));
 
 	for(auto thistgt : shoottargets) {
 		float thisscore = defscore;
@@ -206,13 +206,14 @@ AIDribbleAction::AIDribbleAction(const Player* p)
 	float bestscore = -1.0f;
 	AbsVector3 bestvec;
 	std::vector<AbsVector3> tgtvectors;
-	const float dribblelen = 4.0f;
+	static const float dribblelen = 6.0f;
 	for(int i = 0; i < 12; i++) {
 		AbsVector3 vec;
 		vec.v.x = dribblelen * sin(i * 2 * PI / 12.0f);
 		vec.v.y = dribblelen * cos(i * 2 * PI / 12.0f);
 		tgtvectors.push_back(vec);
 	}
+
 	for(auto vec : tgtvectors) {
 		if(!MatchHelpers::onPitch(*p->getMatch(), AbsVector3(p->getPosition().v + vec.v.normalized() * 9.0f)))
 			continue;
@@ -221,26 +222,35 @@ AIDribbleAction::AIDribbleAction(const Player* p)
 			float dist = Common::Math::pointToLineDistance(p->getPosition().v,
 					p->getPosition().v + vec.v * 2.0f,
 					op->getPosition().v);
-			if(dist < 12.0) {
-				thisscore -= (12.0 - dist) / 12.0;
+			static const float maxdist = dribblelen;
+			if(dist < maxdist) {
+				thisscore -= (maxdist - dist) / maxdist;
 				if(thisscore <= 0.0) {
 					break;
 				}
 			}
 		}
-		if(MatchHelpers::attacksUp(*p))
-			thisscore = thisscore * ((vec.v.y + dribblelen) / (2.0f * dribblelen));
-		else
-			thisscore = thisscore * ((vec.v.y - dribblelen) / (2.0f * dribblelen));
+		if(MatchHelpers::distanceToOppositeGoal(*p) < 40.0f) {
+			if(MatchHelpers::attacksUp(*p))
+				thisscore = thisscore * ((vec.v.y + dribblelen) / (2.0f * dribblelen));
+			else
+				thisscore = thisscore * ((vec.v.y - dribblelen) / (2.0f * dribblelen));
+		}
 
 		thisscore = AIHelpers::checkKickSuccess(*mPlayer, vec, thisscore);
 
 		if(thisscore > bestscore) {
 			bestscore = thisscore;
-			bestvec = AbsVector3(vec.v.normalized() * 0.3f);
+			bestvec = AbsVector3(vec.v.normalized() * dribblelen * 0.05f);
 		}
 	}
 	mScore = bestscore;
+
+	float oppdist = MatchEntity::distanceBetween(*MatchHelpers::nearestOppositePlayerToBall(*p->getTeam()),
+			*p->getMatch()->getBall());
+
+	mScore *= 1.0f - AIHelpers::scaledCoefficient(oppdist, 4.0f);
+
 	mScore *= mPlayer->getTeam()->getAITacticParameters().DribbleActionCoefficient;
 	mScore *= mPlayer->getSkills().BallControl;
 	mAction = boost::shared_ptr<PlayerAction>(new KickBallPA(bestvec));
@@ -266,7 +276,7 @@ AIPassAction::AIPassAction(const Player* p)
 			continue;
 		}
 		double dist = MatchEntity::distanceBetween(*p, *sp);
-		if(dist < 5.0)
+		if(dist < 5.0 && mPlayer->getMatch()->getPlayState() != PlayState::OutKickoff)
 			continue;
 		if(dist > 35.0)
 			continue;
@@ -286,8 +296,9 @@ AIPassAction::AIPassAction(const Player* p)
 						op->getPosition().v);
 				float angToMe = p->getPosition().v.dot(op->getPosition().v);
 				if(angToMe > 0.0f && dist < maxOppDist) {
-					float decr = (maxOppDist - dist) / maxOppDist;
-					thisscore -= riskcoeff * decr;
+					float decr = riskcoeff * (maxOppDist - dist) / maxOppDist;
+					decr *= 1.0f + AIHelpers::scaledCoefficient(MatchHelpers::distanceToOwnGoal(*sp), 30.0f);
+					thisscore -= decr;
 				}
 			}
 			thistgt = AIHelpers::getPassKickVector(*mPlayer, *sp);
@@ -325,7 +336,7 @@ AILongPassAction::AILongPassAction(const Player* p)
 			continue;
 		}
 		double dist = MatchEntity::distanceBetween(*p, *sp);
-		if(dist < 25.0)
+		if(dist < 35.0)
 			continue;
 
 		double thisscore = (AIHelpers::getPassForwardCoefficient(*p, *sp) +
@@ -366,7 +377,7 @@ AIFetchBallAction::AIFetchBallAction(const Player* p)
 	AbsVector3 tgtpos = p->getMatch()->getBall()->getPosition();
 	mScore = AIHelpers::checkTacticArea(*p, mScore, tgtpos);
 	mScore *= mPlayer->getTeam()->getAITacticParameters().FetchBallActionCoefficient;
-	mAction = AIHelpers::createMoveActionTo(*p, tgtpos);
+	mAction = AIHelpers::createMoveActionToBall(*p);
 }
 
 const char* AIFetchBallAction::mActionName = "Fetch";

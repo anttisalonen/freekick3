@@ -34,11 +34,15 @@ boost::shared_ptr<PlayerAction> AIHelpers::createMoveActionToBall(const Player& 
 {
 	const Ball* b = p.getMatch()->getBall();
 	const AbsVector3& vel = b->getVelocity();
-	if(vel.v.length() < 10.0f) {
+	if(vel.v.length() < 8.0f || MatchEntity::distanceBetween(p, *b) < 2.0f) {
 		return createMoveActionTo(p, b->getPosition());
 	}
 	else {
 		AbsVector3 tgt(b->getPosition().v + vel.v * 1.0f);
+		if(MatchHelpers::attacksUp(p))
+			tgt.v.y -= 0.5f;
+		else
+			tgt.v.y += 0.5f;
 		if(MatchHelpers::onPitch(*p.getMatch(), tgt))
 			return createMoveActionTo(p, tgt);
 		else
@@ -68,7 +72,7 @@ AbsVector3 AIHelpers::getPositionByFunc(const Player& p, std::function<float (co
 {
 	float best = 0.001f;
 	AbsVector3 sp(p.getPosition());
-	const int range = 60;
+	const int range = 100;
 	const int step = 5;
 	int minx = int(p.getMatch()->getPitchWidth()  * -0.5f + 1);
 	int maxx = int(p.getMatch()->getPitchWidth()  *  0.5f - 1);
@@ -82,15 +86,13 @@ AbsVector3 AIHelpers::getPositionByFunc(const Player& p, std::function<float (co
 				i <= std::min(maxx, (int)(p.getPosition().v.x + range));
 				i += step) {
 			AbsVector3 thispos(AbsVector3(i, j, 0));
-			if(MatchHelpers::nearestOwnPlayerTo(p, thispos)) {
-				float thisvalue = func(thispos);
+			float thisvalue = func(thispos);
+			if(thisvalue > best) {
+				thisvalue = AIHelpers::checkTacticArea(p, thisvalue, thispos);
 				if(thisvalue > best) {
-					thisvalue = AIHelpers::checkTacticArea(p, thisvalue, thispos);
-					if(thisvalue > best) {
-						best = thisvalue;
-						sp.v.x = i;
-						sp.v.y = j;
-					}
+					best = thisvalue;
+					sp.v.x = i;
+					sp.v.y = j;
 				}
 			}
 		}
@@ -107,7 +109,7 @@ AbsVector3 AIHelpers::getPassKickVector(const Player& from, const Player& to)
 AbsVector3 AIHelpers::getPassKickVector(const Player& from, const AbsVector3& pos, const AbsVector3& vel)
 {
 	AbsVector3 tgt = AbsVector3(pos.v + vel.v * 1.0f - from.getPosition().v);
-	float powercoeff = std::max(0.3, 1.6 * tgt.v.length() / from.getMaximumShotPower());
+	float powercoeff = std::max(0.3, 1.3 * tgt.v.length() / from.getMaximumShotPower());
 	tgt.v.normalize();
 	tgt.v *= powercoeff;
 	return tgt;
@@ -148,7 +150,7 @@ float AIHelpers::checkKickSuccess(const Player& p, const AbsVector3& v, float sc
 	if(score < 0.0f)
 		return score;
 	if(!MatchHelpers::goodKickingPosition(p, v))
-		return score * 0.2f;
+		return score * 0.02f;
 	else
 		return score;
 }
