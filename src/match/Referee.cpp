@@ -88,7 +88,7 @@ bool Referee::canKickBall(const Player& p) const
 		case MatchHalf::NotStarted:
 		case MatchHalf::HalfTimePauseBegin:
 		case MatchHalf::HalfTimePauseEnd:
-			return false;
+			return true;
 
 		case MatchHalf::FirstHalf:
 		case MatchHalf::SecondHalf:
@@ -97,7 +97,7 @@ bool Referee::canKickBall(const Player& p) const
 					return true;
 
 				default:
-					return p.getTeam()->isFirst() == mFirstTeamInControl;
+					return MatchHelpers::playersPositionedForRestart(*p.getMatch(), p);
 			}
 
 		case MatchHalf::Finished:

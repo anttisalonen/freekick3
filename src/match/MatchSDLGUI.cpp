@@ -665,14 +665,14 @@ boost::shared_ptr<PlayerAction> MatchSDLGUI::act(double time)
 			mMouseAim = false;
 		}
 	}
-	if(mMatch->getPlayState() == PlayState::OutKickoff && !MatchHelpers::allowedToKick(*mPlayer)) {
+	if(mMatch->getPlayState() == PlayState::OutKickoff && !MatchHelpers::myTeamInControl(*mPlayer)) {
 		// opponent kickoff
 		return AIHelpers::createMoveActionTo(*mPlayer,
 				mPlayer->getMatch()->convertRelativeToAbsoluteVector(mPlayer->getHomePosition()));
 	}
 	if(!playing(mMatch->getPlayState())) {
 		// restart
-		if(MatchHelpers::allowedToKick(*mPlayer)) {
+		if(MatchHelpers::myTeamInControl(*mPlayer)) {
 			bool nearest = MatchHelpers::nearestOwnPlayerTo(*mPlayer,
 					mPlayer->getMatch()->getBall()->getPosition());
 			if(nearest && toBall.v.length() > MAX_KICK_DISTANCE) {

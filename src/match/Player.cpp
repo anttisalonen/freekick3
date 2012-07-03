@@ -24,7 +24,7 @@ Player::Player(Match* match, Team* team, const Soccer::Player& p,
 	}
 	else {
 		if(mShirtNumber >= 10) {
-			setHomePosition(RelVector3(mTactics.WidthPosition < 0 ? -0.1f : 0.1f,
+			setHomePosition(RelVector3(mShirtNumber == 10 ? -0.1f : 0.1f,
 						0.20f * (mTeam->isFirst() ? -1 : 1), 0));
 		}
 		else {

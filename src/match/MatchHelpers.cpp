@@ -27,7 +27,7 @@ bool MatchHelpers::allowedToKick(const Player& p)
 	const Match* m = p.getMatch();
 	assert(m);
 	return !playing(m->getMatchHalf()) || playing(m->getPlayState()) ||
-		myTeamInControl(p);
+		(myTeamInControl(p) && m->getReferee()->canKickBall(p));
 }
 
 Player* MatchHelpers::nearestOwnPlayerToPlayer(const Team& t, const Player& p)
