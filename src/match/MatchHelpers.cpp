@@ -326,8 +326,8 @@ bool MatchHelpers::canGrabBall(const Player& p)
 			inOwnPenaltyArea(p) &&
 			onPitch(p)) {
 		float distToBall = MatchEntity::distanceBetween(p, *b);
-		float maxDist = p.standing() ? 1.5f : 1.0f;
-		maxDist *= p.getSkills().GoalKeeping;
+		float maxDist = p.standing() ? 0.5f : 0.0f;
+		maxDist += p.getSkills().GoalKeeping;
 		float ballHeight = b->getPosition().v.z;
 		float maxBallHeight = p.isAirborne() ? p.getPosition().v.z + 2.0f : p.standing() ? 2.0f : 0.5f;
 		float minBallHeight = p.isAirborne() ? p.getPosition().v.z : 0.0f;
