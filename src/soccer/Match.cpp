@@ -24,11 +24,16 @@ MatchResult Match::play(bool display) const
 		DataExchange::createMatchDataFile(*this, matchfilenamebuf);
 		std::cout << "Created temporary file " << matchfilenamebuf << "\n";
 		int teamnum = 0;
-		if(mTeam1->getController().HumanControlled && !mTeam2->getController().HumanControlled)
+		int plnum = 0;
+		if(mTeam1->getController().HumanControlled && !mTeam2->getController().HumanControlled) {
 			teamnum = 1;
-		else if(!mTeam1->getController().HumanControlled && mTeam2->getController().HumanControlled)
+			plnum = mTeam1->getController().PlayerShirtNumber;
+		}
+		else if(!mTeam1->getController().HumanControlled && mTeam2->getController().HumanControlled) {
 			teamnum = 2;
-		playMatch(matchfilenamebuf, teamnum, 0);
+			plnum = mTeam2->getController().PlayerShirtNumber;
+		}
+		playMatch(matchfilenamebuf, teamnum, plnum);
 		boost::shared_ptr<Match> match = DataExchange::parseMatchDataFile(matchfilenamebuf);
 		unlink(matchfilenamebuf);
 		return match->getResult();

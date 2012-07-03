@@ -96,5 +96,21 @@ const PlayerDatabase& Menu::getPlayerDatabase() const
 	return mPlayers;
 }
 
+void Menu::setButtonHumanColor(boost::shared_ptr<Button> b)
+{
+	static Common::Color c1(128, 128, 255);
+	static Common::Color c2(204, 204, 255);
+	b->setColor1(c1);
+	b->setColor2(c2);
+}
+
+void Menu::setButtonComputerColor(boost::shared_ptr<Button> b)
+{
+	static Common::Color c1(255, 128, 128);
+	static Common::Color c2(255, 204, 204);
+	b->setColor1(c1);
+	b->setColor2(c2);
+}
+
 }
 

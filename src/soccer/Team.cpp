@@ -147,6 +147,11 @@ const TeamController& StatefulTeam::getController() const
 	return mController;
 }
 
+TeamController& StatefulTeam::getController()
+{
+	return mController;
+}
+
 const TeamTactics& StatefulTeam::getTactics() const
 {
 	return mTactics;

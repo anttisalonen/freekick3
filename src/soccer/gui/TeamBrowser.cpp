@@ -5,6 +5,7 @@
 #include "soccer/Match.h"
 
 #include "soccer/gui/TeamBrowser.h"
+#include "soccer/gui/Menu.h"
 
 namespace Soccer {
 
@@ -205,12 +206,10 @@ void TeamBrowser::setTeamButtonColor(boost::shared_ptr<Button> button) const
 		}
 		else {
 			if(it2->second == TeamSelection::Computer) {
-				button->setColor1(Common::Color(255, 128, 128));
-				button->setColor2(Common::Color(255, 204, 204));
+				Menu::setButtonComputerColor(button);
 			}
 			else {
-				button->setColor1(Common::Color(128, 128, 255));
-				button->setColor2(Common::Color(204, 204, 255));
+				Menu::setButtonHumanColor(button);
 			}
 		}
 	}

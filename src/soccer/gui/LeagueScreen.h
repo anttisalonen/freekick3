@@ -8,14 +8,16 @@
 #include "soccer/League.h"
 
 #include "soccer/gui/Screen.h"
+#include "soccer/gui/TeamTacticsScreen.h"
 
 namespace Soccer {
 
-class LeagueScreen : public Screen {
+class LeagueScreen : public Screen, public TeamTacticsScreenOwner {
 	public:
 		LeagueScreen(boost::shared_ptr<ScreenManager> sm, boost::shared_ptr<StatefulLeague> l);
 		void buttonPressed(boost::shared_ptr<Button> button);
 		const std::string& getName() const;
+		void TeamTacticsScreenFinished(int playernum);
 
 	private:
 		enum class LabelType {
@@ -23,7 +25,7 @@ class LeagueScreen : public Screen {
 			Result,
 		};
 
-		MatchResult playMatch(bool display, const Match& m);
+		MatchResult playMatch(bool display, Match& m);
 		void drawTable();
 		void drawInfo();
 		void addText(LabelType t, const char* text, float x, float y,

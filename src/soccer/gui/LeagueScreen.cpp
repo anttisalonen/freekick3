@@ -156,8 +156,16 @@ bool LeagueScreen::playNextMatch(bool display)
 	if(allRoundMatchesPlayed()) {
 		updateRoundMatches();
 	}
-	bool done = mLeague->nextMatch([&](const Match& m) { return playMatch(display, m); });
-	return done;
+
+	if(display) {
+		const boost::shared_ptr<Match> m = mLeague->getNextMatch();
+		mScreenManager->addScreen(boost::shared_ptr<Screen>(new TeamTacticsScreen(mScreenManager, *m, *this)));
+		return false;
+	}
+	else {
+		bool done = mLeague->nextMatch([&](Match& m) { return playMatch(display, m); });
+		return done;
+	}
 }
 
 void LeagueScreen::updateScreenElements()
@@ -207,11 +215,10 @@ void LeagueScreen::buttonPressed(boost::shared_ptr<Button> button)
 	}
 	else if(buttonText == "Match") {
 		playNextMatch(true);
-		updateScreenElements();
 	}
 }
 
-MatchResult LeagueScreen::playMatch(bool display, const Match& m)
+MatchResult LeagueScreen::playMatch(bool display, Match& m)
 {
 	const MatchResult& r = m.play(display);
 	return r;
@@ -244,6 +251,19 @@ void LeagueScreen::saveLeague() const
 	out.push(ofs);
 	boost::archive::binary_oarchive oa(out);
 	oa << mLeague;
+}
+
+void LeagueScreen::TeamTacticsScreenFinished(int playernum)
+{
+	mLeague->nextMatch([&](Match& m) {
+		if(m.getTeam(0)->getController().HumanControlled)
+			m.getTeam(0)->getController().PlayerShirtNumber = playernum;
+		if(m.getTeam(1)->getController().HumanControlled)
+			m.getTeam(1)->getController().PlayerShirtNumber = playernum;
+		return playMatch(true, m);
+	});
+	mScreenManager->dropScreen();
+	updateScreenElements();
 }
 
 }
