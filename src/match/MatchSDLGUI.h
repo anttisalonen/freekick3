@@ -132,6 +132,7 @@ class MatchSDLGUI : public MatchGUI, public PlayerController {
 		bool mTackling;
 		bool mRandomise;
 		bool mDisableGUI;
+		bool mCamFollowsPlayer;
 };
 
 #endif

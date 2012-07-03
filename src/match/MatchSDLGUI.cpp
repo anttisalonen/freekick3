@@ -50,7 +50,8 @@ MatchSDLGUI::MatchSDLGUI(boost::shared_ptr<Match> match, bool observer, int team
 	mFixedFrameTime(0.0f),
 	mTackling(false),
 	mRandomise(randomise),
-	mDisableGUI(disablegui)
+	mDisableGUI(disablegui),
+	mCamFollowsPlayer(true)
 {
 	if(ticksPerSec) {
 		mFixedFrameTime = 1.0f / ticksPerSec;
@@ -305,7 +306,11 @@ void MatchSDLGUI::startFrame()
 {
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 	if(!mFreeCamera) {
-		if(mMatch->getPlayState() == PlayState::InPlay ||
+		if(mControlledPlayerIndex != -1 && mCamFollowsPlayer) {
+			mCamera.x = mPlayer->getPosition().v.x;
+			mCamera.y = mPlayer->getPosition().v.y;
+		}
+		else if(mMatch->getPlayState() == PlayState::InPlay ||
 				MatchHelpers::distanceToPitch(*mMatch, mMatch->getBall()->getPosition()) < MAX_KICK_DISTANCE) {
 			mCamera.x = mMatch->getBall()->getPosition().v.x;
 			mCamera.y = mMatch->getBall()->getPosition().v.y;
@@ -483,6 +488,12 @@ bool MatchSDLGUI::handleInput(float frameTime)
 						mScaleLevelVelocity = 1.0f; break;
 
 					case SDLK_c:
+						if(mControlledPlayerIndex != -1) {
+							mCamFollowsPlayer = !mCamFollowsPlayer;
+						}
+						break;
+
+					case SDLK_f:
 						if(mPlayerControlVelocity.null())
 							mFreeCamera = !mFreeCamera;
 						break;
