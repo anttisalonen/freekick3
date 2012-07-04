@@ -141,6 +141,7 @@ class StatefulTeam : public Team {
 		const TeamController& getController() const;
 		TeamController& getController();
 		const TeamTactics& getTactics() const;
+		void setTactics(const TeamTactics& t);
 
 	private:
 		TeamController mController;

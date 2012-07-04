@@ -15,7 +15,8 @@ struct PlayerSkillValue {
 
 class AITactics {
 	public:
-		static TeamTactics createTeamTactics(const Team& team);
+		static TeamTactics createTeamTactics(const Team& team, unsigned int def = 0,
+				unsigned int mid = 0, unsigned int forw = 0);
 		static PlayerSkillValue calculatePlayerSkill(const Player& p);
 
 };

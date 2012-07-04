@@ -35,7 +35,7 @@ PlayerSkillValue AITactics::calculatePlayerSkill(const Player& p)
 	return ps;
 }
 
-TeamTactics AITactics::createTeamTactics(const Team& team)
+TeamTactics AITactics::createTeamTactics(const Team& team, unsigned int def, unsigned int mid, unsigned int forw)
 {
 	TeamTactics tt;
 	
@@ -59,20 +59,33 @@ TeamTactics AITactics::createTeamTactics(const Team& team)
 	std::vector<boost::shared_ptr<Player>> defenders, midfielders, forwards;
 	skillvalues.erase(skillvalues.begin());
 
-	int defslots = 5;
-	int mfslots = 5;
-	int fwslots = 3;
+	int defslots;
+	int mfslots;
+	int fwslots;
+	bool freespace;
+	if(def + mid + forw == 10) {
+		defslots = def;
+		mfslots = mid;
+		fwslots = forw;
+		freespace = false;
+	}
+	else {
+		defslots = 5;
+		mfslots = 5;
+		fwslots = 3;
+		freespace = true;
+	}
 
 	for(int i = 0; i < 10; i++) {
-		if(defenders.size() == 5) {
+		if(freespace && defenders.size() == 5) {
 			mfslots = 4 - midfielders.size();
 			fwslots = 2 - forwards.size();
 		}
-		if(midfielders.size() == 5) {
+		if(freespace && midfielders.size() == 5) {
 			defslots = 4 - defenders.size();
 			fwslots = 2 - forwards.size();
 		}
-		if(forwards.size() == 3) {
+		if(freespace && forwards.size() == 3) {
 			defslots = 4 - defenders.size();
 			mfslots = 4 - midfielders.size();
 		}

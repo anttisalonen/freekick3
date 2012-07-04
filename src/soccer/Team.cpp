@@ -157,6 +157,11 @@ const TeamTactics& StatefulTeam::getTactics() const
 	return mTactics;
 }
 
+void StatefulTeam::setTactics(const TeamTactics& t)
+{
+	mTactics = t;
+}
+
 StatefulTeam::StatefulTeam()
 {
 }
