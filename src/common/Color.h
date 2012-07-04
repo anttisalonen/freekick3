@@ -25,6 +25,7 @@ struct Color {
 	static const Color Blue;
 	static const Color Black;
 	static const Color White;
+	static const Color Yellow;
 
 	friend class boost::serialization::access;
 	template<class Archive>
