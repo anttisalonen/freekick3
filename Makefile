@@ -41,7 +41,8 @@ SOCCERBIN     = $(BINDIR)/$(SOCCERBINNAME)
 SOCCERSRCDIR  = src/soccer
 SOCCERSRCFILES = League.cpp \
 		 ai/AITactics.cpp \
-		 gui/Button.cpp gui/Screen.cpp gui/ScreenManager.cpp \
+		 gui/Widget.cpp gui/Button.cpp gui/Image.cpp \
+		 gui/Screen.cpp gui/ScreenManager.cpp \
 		 gui/MatchResultScreen.cpp gui/MainMenuScreen.cpp gui/TeamBrowser.cpp \
 		 gui/FriendlyScreen.cpp gui/PresetLeagueScreen.cpp \
 		 gui/LoadGameScreen.cpp \

@@ -15,17 +15,28 @@ TeamTacticsScreen::TeamTacticsScreen(boost::shared_ptr<ScreenManager> sm, Match&
 	mHumanTeam(-1)
 {
 	addButton("Back",   Common::Rectangle(0.01f, 0.90f, 0.23f, 0.06f));
-	mHomeButton = addButton("Home",  Common::Rectangle(0.51f, 0.90f, 0.23f, 0.06f));
-	mAwayButton = addButton("Away",  Common::Rectangle(0.51f, 0.90f, 0.23f, 0.06f));
-	mHomeButton->hide();
-	mHomeLabel = addButton(m.getTeam(0)->getName().c_str(), Common::Rectangle(0.40f, 0.05f, 0.23f, 0.06f));
-	mAwayLabel = addButton(m.getTeam(1)->getName().c_str(), Common::Rectangle(0.40f, 0.05f, 0.23f, 0.06f));
-	mAwayLabel->hide();
+	mToggleButtons[0] = addButton("Home",  Common::Rectangle(0.51f, 0.90f, 0.23f, 0.06f));
+	mToggleButtons[1] = addButton("Away",  Common::Rectangle(0.51f, 0.90f, 0.23f, 0.06f));
+	mToggleButtons[0]->hide();
+	mTeamLabels[0] = addButton(m.getTeam(0)->getName().c_str(), Common::Rectangle(0.40f, 0.05f, 0.23f, 0.06f));
+	mTeamLabels[1] = addButton(m.getTeam(1)->getName().c_str(), Common::Rectangle(0.40f, 0.05f, 0.23f, 0.06f));
+	mTeamLabels[1]->hide();
+
 	addButton("Match",  Common::Rectangle(0.76f, 0.90f, 0.23f, 0.06f));
+
+	Common::Rectangle pitchrect(0.61f, 0.12f, 0.35f, 0.58f);
+	addImage("share/pitch.png", pitchrect);
 
 	for(int i = 0; i < 2; i++) {
 		float x = 0.05f;
 		float y = 0.15f;
+		const float namewidth = 0.20f;
+		const float nameheight = 0.03f;
+
+		int teamd = 0;
+		int teamm = 0;
+		int teamf = 0;
+
 		if(m.getTeam(i)->getController().HumanControlled) {
 			if(mHumanTeam != -1) {
 				// both teams are human-controlled - don't allow choosing anything.
@@ -42,24 +53,148 @@ TeamTacticsScreen::TeamTacticsScreen(boost::shared_ptr<ScreenManager> sm, Match&
 			plnum++;
 			auto pl = m.getTeam(i)->getPlayerById(p.first);
 			assert(pl);
-			boost::shared_ptr<Button> b = addButton(pl->getName().c_str(), Common::Rectangle(x, y, 0.20f, 0.03f));
+			boost::shared_ptr<Button> b = addButton(pl->getName().c_str(), Common::Rectangle(x, y, namewidth, nameheight));
 			b->setCenteredText(TextAlignment::MiddleLeft);
-			mPlrlabels[i].insert(std::make_pair(b, plnum));
+			mPlayers[i].insert(std::make_pair(b, plnum));
+
+			Common::Color col = Common::Color::White;
+			int skill = Player::getSkillIndex(*pl);
+			if(skill < 0)
+				col = Common::Color::Yellow;
+			mSkillLabels[i].push_back(addLabel(std::to_string(abs(skill / 100)).c_str(),
+							x + namewidth + 0.01f, y + nameheight * 0.5f,
+							TextAlignment::MiddleLeft,
+							0.5f, col));
+
+			float pitchx = pitchrect.x + (-p.second.WidthPosition * 1.15f + 1.0f) * 0.5f * pitchrect.w;
+			float pitchy = pitchrect.y + (int)(p.second.Position) * 0.22f * pitchrect.h;
+
+			// give text some more space
+			if((fabs(p.second.WidthPosition) > 0.35f) == (p.second.Position != PlayerPosition::Forward &&
+						p.second.Position != PlayerPosition::Goalkeeper))
+				pitchy += 0.05f;
+
+			mPlayerLabels[i].push_back(addLabel(Player::getShorterName(*pl).c_str(), pitchx, pitchy,
+						TextAlignment::Centered, 0.5f, Common::Color::White));
+
 			y += 0.04f;
+
+			if(p.second.Position == PlayerPosition::Defender) {
+				teamd++;
+			}
+			else if(p.second.Position == PlayerPosition::Midfielder) {
+				teamm++;
+			}
+			else if(p.second.Position == PlayerPosition::Forward) {
+				teamf++;
+			}
+		}
+
+		y += 0.04f;
+
+		// substitutes
+		for(auto p : m.getTeam(i)->getPlayers()) {
+			auto it = m.getTeam(i)->getTactics().mTactics.find(p->getId());
+			if(it == m.getTeam(i)->getTactics().mTactics.end()) {
+				boost::shared_ptr<Button> b = addButton(p->getName().c_str(),
+						Common::Rectangle(x, y, namewidth, nameheight));
+				b->setCenteredText(TextAlignment::MiddleLeft);
+				mPlayers[i].insert(std::make_pair(b, -1));
+
+				Common::Color col = Common::Color::White;
+				int skill = Player::getSkillIndex(*p);
+				if(skill < 0)
+					col = Common::Color::Yellow;
+				mSkillLabels[i].push_back(addLabel(std::to_string(abs(skill / 100)).c_str(),
+								x + namewidth + 0.01f, y + nameheight * 0.5f,
+								TextAlignment::MiddleLeft,
+								0.5f, col));
+
+				y += 0.04f;
+
+				/* TODO: handle case with more substitutes, by adding some scrolling thingy */
+				if(y >= 0.90f - 0.04f)
+					break;
+			}
+		}
+
+		int defs[] = {4, 5, 3};
+		int midfs[] = {4, 5, 3};
+		int forws[] = {2, 1, 3};
+
+		int formbutton = 0;
+
+		for(auto def : defs) {
+			for(auto midf : midfs) {
+				for(auto forw : forws) {
+					if(formbutton < 9 && def + midf + forw == 10) {
+						std::stringstream ss;
+						ss << def << "-" << midf << "-" << forw;
+						if(teamd == def && teamm && midf && teamf == forw) {
+							assert(mFormationNumbers[i].empty());
+							mFormationNumbers[i] = ss.str();
+						}
+						addFormationButton(i, formbutton, ss.str());
+						formbutton++;
+					}
+				}
+			}
+		}
+
+		if(mFormationNumbers[i].empty() && formbutton < 9) {
+			std::stringstream ss;
+			ss << teamd << "-" << teamm << "-" << teamf;
+			addFormationButton(i, formbutton, ss.str());
 		}
 	}
 
 	setupPlrLabels();
 	if(mHumanTeam == 1) {
-		buttonPressed(mAwayButton);
+		buttonPressed(mToggleButtons[1]);
 	}
+}
+
+void TeamTacticsScreen::addFormationButton(int i, int formbutton, const std::string& str)
+{
+	const float formx = 0.51f;
+	const float formy = 0.71f;
+
+	Common::Rectangle rect(formx + (formbutton % 3) * 0.16f,
+			formy + formbutton / 3 * 0.06f,
+			0.15f, 0.05f);
+	mFormationButtons[i].push_back(addButton(str.c_str(), rect));
 }
 
 void TeamTacticsScreen::setupPlrLabels()
 {
 	for(int i = 0; i < 2; i++) {
-		for(auto l : mPlrlabels[i]) {
-			if((mHomeButton->hidden()) == (i == 0))
+		for(auto l : mFormationButtons[i]) {
+			if((mToggleButtons[0]->hidden()) == (i == 0)) {
+				l->show();
+				if(mFormationNumbers[i] == l->getText()) {
+					Menu::setButtonSelectedColor(l);
+				}
+				else {
+					Menu::setButtonDefaultColor(l);
+				}
+			}
+			else
+				l->hide();
+		}
+		for(auto l : mPlayerLabels[i]) {
+			if((mToggleButtons[0]->hidden()) == (i == 0))
+				l->show();
+			else
+				l->hide();
+		}
+		for(auto l : mSkillLabels[i]) {
+			if((mToggleButtons[0]->hidden()) == (i == 0))
+				l->show();
+			else
+				l->hide();
+		}
+		for(auto l : mPlayers[i]) {
+			if((mToggleButtons[0]->hidden()) == (i == 0))
 				l.first->show();
 			else
 				l.first->hide();
@@ -84,17 +219,17 @@ void TeamTacticsScreen::buttonPressed(boost::shared_ptr<Button> button)
 		mScreenManager->dropScreen();
 	}
 	else if(buttonText == "Home") {
-		mHomeButton->hide();
-		mAwayButton->show();
-		mHomeLabel->show();
-		mAwayLabel->hide();
+		mToggleButtons[0]->hide();
+		mToggleButtons[1]->show();
+		mTeamLabels[0]->show();
+		mTeamLabels[1]->hide();
 		setupPlrLabels();
 	}
 	else if(buttonText == "Away") {
-		mHomeButton->show();
-		mAwayButton->hide();
-		mHomeLabel->hide();
-		mAwayLabel->show();
+		mToggleButtons[0]->show();
+		mToggleButtons[1]->hide();
+		mTeamLabels[0]->hide();
+		mTeamLabels[1]->show();
 		setupPlrLabels();
 	}
 	else if(buttonText == "Match") {
@@ -102,8 +237,8 @@ void TeamTacticsScreen::buttonPressed(boost::shared_ptr<Button> button)
 	}
 	else {
 		if(mHumanTeam != -1) {
-			auto it = mPlrlabels[mHumanTeam].find(button);
-			if(it != mPlrlabels[mHumanTeam].end()) {
+			auto it = mPlayers[mHumanTeam].find(button);
+			if(it != mPlayers[mHumanTeam].end() && it->second != -1) {
 				if(mChosenplnum != 0 && mChosenplnum == it->second)
 					mChosenplnum = 0;
 				else

@@ -171,10 +171,7 @@ void MatchSDLGUI::drawEnvironment()
 	{
 		const Player* playerincontrol = mMatch->getReferee()->getPlayerInControl();
 		if(playerincontrol) {
-			std::string plname = playerincontrol->getName();
-			size_t spacepos = plname.find_first_of(' ');
-			if(spacepos != plname.npos && spacepos < plname.size() + 1)
-				plname.assign(plname, spacepos + 1, 30);
+			std::string plname = Soccer::Player::getShorterName(*playerincontrol);
 			char plbuf[128];
 			snprintf(plbuf, 127, "%d %s", playerincontrol->getShirtNumber(),
 					plname.c_str());

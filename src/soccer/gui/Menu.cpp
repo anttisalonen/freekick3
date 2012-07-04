@@ -112,5 +112,19 @@ void Menu::setButtonComputerColor(boost::shared_ptr<Button> b)
 	b->setColor2(c2);
 }
 
+void Menu::setButtonSelectedColor(boost::shared_ptr<Button> b)
+{
+	static Common::Color c1(255, 128, 128);
+	static Common::Color c2(255, 204, 204);
+	b->setColor1(c1);
+	b->setColor2(c2);
+}
+
+void Menu::setButtonDefaultColor(boost::shared_ptr<Button> b)
+{
+	b->setColor1(Button::DefaultColor1);
+	b->setColor2(Button::DefaultColor2);
+}
+
 }
 

@@ -48,6 +48,9 @@ class Player {
 		const PlayerSkills& getSkills() const;
 		const std::string& getName() const;
 		int getId() const;
+
+		static std::string getShorterName(const Player& p);
+		static int getSkillIndex(const Player& p);
 	protected:
 		int mId;
 		std::string mName;

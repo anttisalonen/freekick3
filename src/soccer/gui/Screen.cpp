@@ -108,5 +108,32 @@ void Screen::setButtonTextSize(boost::shared_ptr<Button> b)
 	b->setTextHeight(tw);
 }
 
+boost::shared_ptr<Image> Screen::addImage(const char* filepath, const Common::Rectangle& dim)
+{
+	boost::shared_ptr<Image> i(new Image(filepath,
+					Rectangle(dim.x * mScreenManager->getScreenWidth(),
+						dim.y * mScreenManager->getScreenHeight(),
+						dim.w * mScreenManager->getScreenWidth(),
+						dim.h * mScreenManager->getScreenHeight())));
+	mImages.push_back(i);
+	return i;
+}
+
+bool Screen::removeImage(boost::shared_ptr<Image> i)
+{
+	for(auto it = mImages.begin(); it != mImages.end(); ++it) {
+		if(*it == i) {
+			mImages.erase(it);
+			return true;
+		}
+	}
+	return false;
+}
+
+const std::vector<boost::shared_ptr<Image>>& Screen::getImages() const
+{
+	return mImages;
+}
+
 }
 

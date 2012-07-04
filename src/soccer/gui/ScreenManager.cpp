@@ -10,6 +10,7 @@
 #include "soccer/gui/ScreenManager.h"
 #include "soccer/gui/Screen.h"
 #include "soccer/gui/Menu.h"
+#include "soccer/gui/Image.h"
 
 namespace Soccer {
 
@@ -83,9 +84,32 @@ void ScreenManager::drawScreen()
 	glVertex3f(screenWidth, 0.0f, 0.0f);
 	glEnd();
 
-	// draw buttons
+	// draw widgets
 	boost::shared_ptr<Screen> currentScreen = getCurrentScreen();
 	if(currentScreen) {
+		// maybe it would be better to move all this drawing stuff to
+		// an abstract Widget::draw, but I want to keep all the gl
+		// calls in one place.
+		for(auto i : currentScreen->getImages()) {
+			if(i->hidden())
+				continue;
+
+			const Rectangle& r = i->getRectangle();
+			glColor3f(1.0f, 1.0f, 1.0f);
+			glEnable(GL_TEXTURE_2D);
+			glBindTexture(GL_TEXTURE_2D, i->getTexture()->getTexture());
+			glBegin(GL_QUADS);
+			glTexCoord2f(0.0f, 1.0f);
+			glVertex3f(r.x, screenHeight - r.y, 0.5f);
+			glTexCoord2f(0.0f, 0.0f);
+			glVertex3f(r.x + r.w, screenHeight - r.y, 0.5f);
+			glTexCoord2f(1.0f, 0.0f);
+			glVertex3f(r.x + r.w, screenHeight - r.y - r.h, 0.5f);
+			glTexCoord2f(1.0f, 1.0f);
+			glVertex3f(r.x, screenHeight - r.y - r.h, 0.5f);
+			glEnd();
+		}
+
 		for(auto b : currentScreen->getButtons()) {
 			if(b->hidden())
 				continue;
@@ -98,10 +122,10 @@ void ScreenManager::drawScreen()
 				const Color& c2 = b->getColor2();
 				glColor3ub(c1.r, c1.g, c1.b);
 				glVertex3f(r.x, screenHeight - r.y, 1.0f);
-				glVertex3f(r.x + r.w, screenHeight - r.y, 0.0f);
+				glVertex3f(r.x + r.w, screenHeight - r.y, 1.0f);
 				glColor3ub(c2.r, c2.g, c2.b);
-				glVertex3f(r.x + r.w, screenHeight - r.y - r.h, 0.0f);
-				glVertex3f(r.x, screenHeight - r.y - r.h, 0.0f);
+				glVertex3f(r.x + r.w, screenHeight - r.y - r.h, 1.0f);
+				glVertex3f(r.x, screenHeight - r.y - r.h, 1.0f);
 				glEnd();
 			}
 

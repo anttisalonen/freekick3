@@ -9,6 +9,8 @@
 #include <SDL_ttf.h>
 #include <GL/gl.h>
 
+#include "soccer/gui/Widget.h"
+
 #include "common/Color.h"
 #include "common/Texture.h"
 #include "common/Rectangle.h"
@@ -27,19 +29,11 @@ enum class TextAlignment {
 	BottomRight
 };
 
-class Button {
+class Button : public Widget {
 	public:
 		Button(const char* text, TTF_Font* font, const Common::Rectangle& dim);
-		bool clicked(int x, int y) const;
 		const std::string& getText() const;
-		const Common::Rectangle& getRectangle() const;
 		const Common::Texture* getTextTexture() const;
-		bool hidden() const;
-		void hide();
-		void show();
-		bool active() const;
-		void activate();
-		void deactivate();
 		bool isTransparent() const;
 		void setTransparent(bool t);
 		TextAlignment centeredText() const;
@@ -60,10 +54,7 @@ class Button {
 
 	private:
 		std::string mText;
-		Common::Rectangle mRectangle;
 		boost::shared_ptr<Common::Texture> mTextTexture;
-		bool mHidden;
-		bool mActive;
 		bool mTransparent;
 		TextAlignment mCenteredText;
 		Common::Color mColor1;
