@@ -13,7 +13,8 @@ Referee::Referee()
 	mFirstTeamInControl(true),
 	mOutOfPlayClock(1.0f),
 	mWaitForResumeClock(0.1f),
-	mPlayerInControl(nullptr)
+	mPlayerInControl(nullptr),
+	mFouledTeam(0)
 {
 }
 
@@ -41,10 +42,16 @@ boost::shared_ptr<RefereeAction> Referee::act(double time)
 			if(!mOutOfPlayClock.running()) {
 				if(mMatch->getPlayState() == PlayState::InPlay) {
 					if(!mWaitForResumeClock.running()) {
+						if(mFouledTeam != 0) {
+							mOutOfPlayClock.rewind();
+							boost::shared_ptr<RefereeAction> act = setFoulRestart();
+							return act;
+						}
 						if(!MatchHelpers::onPitch(*mMatch->getBall())) {
 							boost::shared_ptr<RefereeAction> act = setOutOfPlay();
 							if(act) {
 								mOutOfPlayClock.rewind();
+								mFouledTeam = 0;
 								return act;
 							}
 						}
@@ -68,6 +75,7 @@ boost::shared_ptr<RefereeAction> Referee::act(double time)
 		case MatchHalf::Finished:
 			break;
 	}
+	mFouledTeam = 0;
 	return boost::shared_ptr<RefereeAction>(new IdleRA());
 }
 
@@ -182,6 +190,28 @@ boost::shared_ptr<RefereeAction> Referee::setOutOfPlay()
 	return boost::shared_ptr<RefereeAction>();
 }
 
+boost::shared_ptr<RefereeAction> Referee::setFoulRestart()
+{
+	assert(mFouledTeam != 0);
+	mFirstTeamInControl = mFouledTeam == 2;
+	mFouledTeam = 0;
+
+	mRestartPosition = mMatch->getBall()->getPosition();
+	mRestartPosition.v.z = 0.0f;
+	mPlayerInControl = nullptr;
+
+	int pen = MatchHelpers::inPenaltyArea(*mMatch, mRestartPosition);
+	if(pen) {
+		if((pen == 1 && mFirstTeamInControl) || (pen == -1 && !mFirstTeamInControl)) {
+			bool up = (pen == 1) == MatchHelpers::attacksUp(*mMatch->getTeam(0));
+			mRestartPosition.v.x = 0.0f;
+			mRestartPosition.v.y = (up ? 1.0f : -1.0f) * (mMatch->getPitchHeight() * 0.5f - 11.00f);
+			return boost::shared_ptr<RefereeAction>(new ChangePlayStateRA(PlayState::OutPenaltykick));
+		}
+	}
+	return boost::shared_ptr<RefereeAction>(new ChangePlayStateRA(PlayState::OutDirectFreekick));
+}
+
 bool Referee::isFirstTeamInControl() const
 {
 	return mFirstTeamInControl;
@@ -211,4 +241,16 @@ void Referee::ballTouched(const Player& p)
 	mFirstTeamInControl = p.getTeam()->isFirst();
 	mPlayerInControl = &p;
 }
+
+void Referee::playerTackled(const Player& tackled, const Player& tacklee)
+{
+	if((mFirstTeamInControl == tackled.getTeam()->isFirst()) ||
+			MatchEntity::distanceBetween(tacklee, *mMatch->getBall()) > 5.0f) {
+		if(tackled.getTeam()->isFirst())
+			mFouledTeam = 2;
+		else
+			mFouledTeam = 1;
+	}
+}
+
 

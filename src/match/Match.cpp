@@ -114,6 +114,7 @@ void Match::update(double time)
 					if(dist < TACKLE_DISTANCE) {
 						std::cout << "Tackled player\n";
 						p->setTackled();
+						mReferee.playerTackled(*p, *p2);
 					}
 				}
 			}

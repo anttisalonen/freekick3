@@ -308,7 +308,8 @@ void MatchSDLGUI::startFrame()
 			mCamera.y = mPlayer->getPosition().v.y;
 		}
 		else if(mMatch->getPlayState() == PlayState::InPlay ||
-				MatchHelpers::distanceToPitch(*mMatch, mMatch->getBall()->getPosition()) < MAX_KICK_DISTANCE) {
+				(MatchHelpers::distanceToPitch(*mMatch, mMatch->getBall()->getPosition()) < MAX_KICK_DISTANCE &&
+				 mMatch->getPlayState() != PlayState::OutDirectFreekick)) {
 			mCamera.x = mMatch->getBall()->getPosition().v.x;
 			mCamera.y = mMatch->getBall()->getPosition().v.y;
 		}

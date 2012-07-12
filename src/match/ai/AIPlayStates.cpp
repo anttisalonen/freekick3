@@ -60,12 +60,27 @@ boost::shared_ptr<PlayerAction> AIPlayController::actOnRestart(double time)
 		return mCurrentState->actOffBall(time);
 	}
 	else {
+		if(mPlayer->getMatch()->getPlayState() == PlayState::OutPenaltykick &&
+					mPlayer->isGoalkeeper()) {
+			return AIHelpers::createMoveActionTo(*mPlayer,
+					MatchHelpers::ownGoalPosition(*mPlayer));
+		}
+
+		// NOTE: max limit of disttooppgoal must not exceed half of the pitch width.
+		// In that case a player may stay outside the pitch and the match would hang.
 		AbsVector3 dir = MatchEntity::vectorFromTo(*mPlayer->getMatch()->getBall(),
 				*mPlayer);
 		float disttooppgoal = (mPlayer->getPosition().v - MatchHelpers::oppositeGoalPosition(*mPlayer).v).length();
-		if(dir.v.length() < 9.5f || disttooppgoal < 30.0f) {
-			// NOTE: max limit of disttooppgoal must not exceed half of the pitch width.
-			// In that case a player may stay outside the pitch and the match would hang.
+		float disttogoalline = mPlayer->getPosition().v.y - MatchHelpers::ownGoalPosition(*mPlayer).v.y;
+		if(dir.v.length() < 9.5f || disttooppgoal < 30.0f ||
+				(mPlayer->getMatch()->getPlayState() == PlayState::OutPenaltykick &&
+				 disttogoalline < 17.0f)) {
+			if(dir.v.null() || mPlayer->getMatch()->getPlayState() == PlayState::OutPenaltykick) {
+				dir = mPlayer->getMatch()->getBall()->getPosition();
+				dir.v *= -1.0f;
+			}
+			dir.v.normalize();
+
 			return AIHelpers::createMoveActionTo(*mPlayer,
 					AbsVector3(mPlayer->getPosition().v + dir.v));
 		}

@@ -24,16 +24,19 @@ class Referee {
 		void ballGrabbed(const Player& p);
 		void matchHalfChanged(MatchHalf m);
 		const Player* getPlayerInControl() const;
+		void playerTackled(const Player& tackled, const Player& tacklee);
 	private:
 		bool allPlayersOnOwnSideAndReady() const;
 		void ballTouched(const Player& p);
 		boost::shared_ptr<RefereeAction> setOutOfPlay();
+		boost::shared_ptr<RefereeAction> setFoulRestart();
 		Match* mMatch;
 		bool mFirstTeamInControl;
 		AbsVector3 mRestartPosition;
 		Countdown mOutOfPlayClock;
 		Countdown mWaitForResumeClock;
 		const Player* mPlayerInControl;
+		int mFouledTeam;
 };
 
 #endif
