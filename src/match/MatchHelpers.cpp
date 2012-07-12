@@ -256,9 +256,11 @@ bool MatchHelpers::playersPositionedForRestart(const Match& m, const Player& res
 // -1 if in lower, 1 if in upper penalty area.
 int MatchHelpers::inPenaltyArea(const Player& p)
 {
-	const AbsVector3& v = p.getPosition();
-	const Match& m = *p.getMatch();
+	return inPenaltyArea(*p.getMatch(), p.getPosition());
+}
 
+int MatchHelpers::inPenaltyArea(const Match& m, const AbsVector3& v)
+{
 	bool in_x = fabs(v.v.x) < 20.15f;
 	float yp = v.v.y;
 

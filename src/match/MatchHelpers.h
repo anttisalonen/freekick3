@@ -38,6 +38,7 @@ class MatchHelpers {
 		static bool onOwnSideAndReady(const Player& p);
 		static bool onOwnSide(const Player& p);
 		static int inPenaltyArea(const Player& p);
+		static int inPenaltyArea(const Match& m, const AbsVector3& v);
 		static bool inOwnPenaltyArea(const Player& p);
 		static bool inOpposingPenaltyArea(const Player& p);
 		static bool isOpposingPlayer(const Player& p1, const Player& p2);
