@@ -202,8 +202,9 @@ boost::shared_ptr<RefereeAction> Referee::setFoulRestart()
 
 	int pen = MatchHelpers::inPenaltyArea(*mMatch, mRestartPosition);
 	if(pen) {
-		if((pen == 1 && mFirstTeamInControl) || (pen == -1 && !mFirstTeamInControl)) {
-			bool up = (pen == 1) == MatchHelpers::attacksUp(*mMatch->getTeam(0));
+		if((MatchHelpers::attacksUp(*mMatch->getTeam(0)) == mFirstTeamInControl && pen ==  1) ||
+		   (MatchHelpers::attacksUp(*mMatch->getTeam(0)) != mFirstTeamInControl && pen == -1)) {
+			bool up = pen == 1;
 			mRestartPosition.v.x = 0.0f;
 			mRestartPosition.v.y = (up ? 1.0f : -1.0f) * (mMatch->getPitchHeight() * 0.5f - 11.00f);
 			return boost::shared_ptr<RefereeAction>(new ChangePlayStateRA(PlayState::OutPenaltykick));
