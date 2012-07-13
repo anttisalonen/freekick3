@@ -128,7 +128,7 @@ void Referee::ballKicked(const Player& p)
 			}
 		}
 		else {
-			if(&p == mRestartedPlayer) {
+			if(&p == mRestartedPlayer && !mOutOfPlayClock.running() && !mWaitForResumeClock.running()) {
 				mRestartPosition = p.getMatch()->getBall()->getPosition();
 				mRestartPosition.v.z = 0.0f;
 				mFirstTeamInControl = !p.getTeam()->isFirst();
