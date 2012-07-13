@@ -37,6 +37,7 @@ class Referee {
 		Countdown mWaitForResumeClock;
 		const Player* mPlayerInControl;
 		int mFouledTeam;
+		AbsVector3 mFoulPosition;
 };
 
 #endif

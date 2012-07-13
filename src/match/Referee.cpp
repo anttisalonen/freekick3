@@ -196,7 +196,7 @@ boost::shared_ptr<RefereeAction> Referee::setFoulRestart()
 	mFirstTeamInControl = mFouledTeam == 2;
 	mFouledTeam = 0;
 
-	mRestartPosition = mMatch->getBall()->getPosition();
+	mRestartPosition = mFoulPosition;
 	mRestartPosition.v.z = 0.0f;
 	mPlayerInControl = nullptr;
 
@@ -245,11 +245,13 @@ void Referee::ballTouched(const Player& p)
 void Referee::playerTackled(const Player& tackled, const Player& tacklee)
 {
 	if((mFirstTeamInControl == tackled.getTeam()->isFirst()) ||
-			MatchEntity::distanceBetween(tacklee, *mMatch->getBall()) > 5.0f) {
+			MatchEntity::distanceBetween(tacklee, *mMatch->getBall()) > MAX_KICK_DISTANCE) {
 		if(tackled.getTeam()->isFirst())
 			mFouledTeam = 2;
 		else
 			mFouledTeam = 1;
+
+		mFoulPosition = tackled.getPosition();
 	}
 }
 
