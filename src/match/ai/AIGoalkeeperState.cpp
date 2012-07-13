@@ -38,8 +38,12 @@ boost::shared_ptr<PlayerAction> AIGoalkeeperState::actOnBall(double time)
 
 boost::shared_ptr<PlayerAction> AIGoalkeeperState::actNearBall(double time)
 {
-	if((MatchHelpers::ownGoalPosition(*mPlayer).v - mPlayer->getMatch()->getBall()->getPosition().v).length() < 5.0f &&
-			mPlayer->getMatch()->getBall()->getVelocity().v.length() < 5.0f) {
+	float balltogoaldist = (MatchHelpers::ownGoalPosition(*mPlayer).v - mPlayer->getMatch()->getBall()->getPosition().v).length();
+	float ballvel = mPlayer->getMatch()->getBall()->getVelocity().v.length();
+	float balltooppdist = (MatchHelpers::nearestOppositePlayerToBall(*mPlayer->getTeam())->getPosition().v -
+			MatchHelpers::ownGoalPosition(*mPlayer).v).length();
+	if((balltogoaldist < 5.0f &&
+			ballvel < 5.0f) || (balltogoaldist < 8.0f && ballvel < 3.0f && balltooppdist > 5.0f)) {
 		return AIHelpers::createMoveActionToBall(*mPlayer);
 	}
 	else if(MatchEntity::distanceBetween(*mPlayer, *mPlayer->getMatch()->getBall()) < 0.1f) {

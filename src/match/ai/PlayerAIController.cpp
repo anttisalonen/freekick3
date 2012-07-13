@@ -59,7 +59,9 @@ boost::shared_ptr<PlayerAction> PlayerAIController::actOffPlay(double time)
 				mPlayer->getMatch()->getBall()->getPosition());
 		bool shouldkickball =
 			mPlayer->getMatch()->getPlayState() == PlayState::OutKickoff ?
-			mPlayer->getShirtNumber() == 10 : nearest;
+			mPlayer->getShirtNumber() == 10 :
+			mPlayer->getMatch()->getPlayState() == PlayState::OutGoalkick ?
+			mPlayer->isGoalkeeper() : nearest;
 		if(shouldkickball) {
 			return doRestart(time);
 		}

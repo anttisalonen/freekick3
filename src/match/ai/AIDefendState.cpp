@@ -20,13 +20,19 @@ boost::shared_ptr<PlayerAction> AIDefendState::actOffBall(double time)
 
 		case Soccer::PlayerPosition::Defender:
 			{
+				if(MatchHelpers::myTeamInControl(*mPlayer) && mPlayer->getMatch()->getPlayState() != PlayState::InPlay) {
+					return mPlayController->switchState(boost::shared_ptr<AIState>(new AIMidfielderState(mPlayer, mPlayController)), time);
+				}
+
 				std::vector<boost::shared_ptr<AIAction>> actions;
-				actions.push_back(boost::shared_ptr<AIAction>(new AIFetchBallAction(mPlayer)));
+				if(MatchHelpers::myTeamInControl(*mPlayer) || mPlayer->getMatch()->getPlayState() == PlayState::InPlay) {
+					actions.push_back(boost::shared_ptr<AIAction>(new AIFetchBallAction(mPlayer)));
+				}
 				actions.push_back(boost::shared_ptr<AIAction>(new AIBlockAction(mPlayer)));
 				actions.push_back(boost::shared_ptr<AIAction>(new AIGuardAction(mPlayer)));
 				actions.push_back(boost::shared_ptr<AIAction>(new AIBlockPassAction(mPlayer)));
-				actions.push_back(boost::shared_ptr<AIAction>(new AIGuardAreaAction(mPlayer)));
 				actions.push_back(boost::shared_ptr<AIAction>(new AITackleAction(mPlayer)));
+				actions.push_back(boost::shared_ptr<AIAction>(new AIGuardAreaAction(mPlayer)));
 				AIActionChooser actionchooser(actions, false);
 
 				boost::shared_ptr<AIAction> best = actionchooser.getBestAction();

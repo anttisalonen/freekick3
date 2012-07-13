@@ -14,6 +14,9 @@ boost::shared_ptr<PlayerAction> AIOffensiveState::actOffBall(double time)
 			!MatchHelpers::myTeamInControl(*mPlayer)) {
 		return mPlayController->switchState(boost::shared_ptr<AIState>(new AIDefendState(mPlayer, mPlayController)), time);
 	}
+	else if(!MatchHelpers::myTeamInControl(*mPlayer) && mPlayer->getMatch()->getPlayState() != PlayState::InPlay) {
+		return boost::shared_ptr<PlayerAction>(new IdlePA());
+	}
 	else {
 		mDescription = std::string("Supporting");
 		return AIHelpers::createMoveActionTo(*mPlayer,

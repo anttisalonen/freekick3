@@ -10,6 +10,13 @@ AIMidfielderState::AIMidfielderState(Player* p, AIPlayController* m)
 
 boost::shared_ptr<PlayerAction> AIMidfielderState::actOffBall(double time)
 {
+	if(mPlayer->getPlayerPosition() == Soccer::PlayerPosition::Defender &&
+			!MatchHelpers::myTeamInControl(*mPlayer)) {
+		return mPlayController->switchState(boost::shared_ptr<AIState>(new AIDefendState(mPlayer, mPlayController)), time);
+	}
+	if(!MatchHelpers::myTeamInControl(*mPlayer) && mPlayer->getMatch()->getPlayState() != PlayState::InPlay) {
+		return boost::shared_ptr<PlayerAction>(new IdlePA());
+	}
 	AbsVector3 v = AIHelpers::getPassPosition(*mPlayer);
 	std::stringstream ss;
 	char buf[128];

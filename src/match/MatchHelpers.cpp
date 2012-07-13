@@ -196,11 +196,30 @@ bool MatchHelpers::playerPositionedForRestart(const Player& restarter, const Pla
 		case PlayState::OutCornerkick:
 		case PlayState::OutIndirectFreekick:
 		case PlayState::OutDirectFreekick:
-		case PlayState::OutPenaltykick:
 		case PlayState::OutDroppedball:
 			/* TODO: move this magic constant */
 			return !isOpposingPlayer(restarter, p) ||
 				MatchEntity::distanceBetween(*p.getMatch()->getBall(), p) > 9.15f;
+
+		case PlayState::OutPenaltykick:
+			{
+				bool nearball = MatchEntity::distanceBetween(*p.getMatch()->getBall(), p) < 9.15f;
+				bool inpenaltyarea = (isOpposingPlayer(restarter, p) && inOwnPenaltyArea(p)) ||
+					(!isOpposingPlayer(restarter, p) && inOpposingPenaltyArea(p));
+				bool isrestarter = &p == &restarter;
+				bool isgoalie = isOpposingPlayer(restarter, p) && p.isGoalkeeper();
+				bool nearowngoalline = p.getPosition().v.y - MatchHelpers::ownGoalPosition(p).v.y < 0.5f;
+				
+				if(isrestarter) {
+					return nearball;
+				}
+				else if(isgoalie) {
+					return nearowngoalline; 
+				}
+				else {
+					return !nearball && !inpenaltyarea;
+				}
+			}
 
 		case PlayState::OutGoalkick:
 			return !isOpposingPlayer(restarter, p) ||
