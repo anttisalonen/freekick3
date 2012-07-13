@@ -281,7 +281,7 @@ int Match::kickBall(Player* p, const AbsVector3& v)
 		if(failpoints == 0)
 			mBall->setVelocity(v);
 		else
-			mBall->addVelocity(AbsVector3(v.v.normalized() * (5.0f / failpoints)));
+			mBall->addVelocity(AbsVector3(v.v * (1.0f / (failpoints + 3))));
 		mBall->kicked(p);
 		mReferee.ballKicked(*p);
 		for(auto t : mTeams)
