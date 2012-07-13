@@ -138,6 +138,10 @@ boost::shared_ptr<PlayerAction> PlayerAIController::doRestart(double time)
 				break;
 			}
 
+		case PlayState::OutKickoff:
+			shoulddiff.v.x = -1.0f;
+			break;
+
 		case PlayState::InPlay:
 		default:
 			break;
