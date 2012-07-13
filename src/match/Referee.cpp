@@ -133,6 +133,7 @@ void Referee::ballKicked(const Player& p)
 				mRestartPosition.v.z = 0.0f;
 				mFirstTeamInControl = !p.getTeam()->isFirst();
 				mPlayerInControl = nullptr;
+				mOutOfPlayClock.rewind();
 				mMatch->setPlayState(PlayState::OutIndirectFreekick);
 			}
 			mRestartedPlayer = nullptr;
