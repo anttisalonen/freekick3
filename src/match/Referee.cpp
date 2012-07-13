@@ -120,11 +120,13 @@ void Referee::ballKicked(const Player& p)
 	if(playing(mMatch->getMatchHalf())) {
 		ballTouched(p);
 
+		std::cout << "Ball kicked by " << p.getName() << "\n";
 		if(!playing(mMatch->getPlayState())) {
 			if(p.getTeam()->isFirst() == mFirstTeamInControl) {
 				mMatch->setPlayState(PlayState::InPlay);
 				mWaitForResumeClock.rewind();
 				mRestartedPlayer = &p;
+				std::cout << "Restart by " << p.getName() << "\n";
 			}
 		}
 		else {
@@ -133,6 +135,7 @@ void Referee::ballKicked(const Player& p)
 				mRestartPosition.v.z = 0.0f;
 				mFirstTeamInControl = !p.getTeam()->isFirst();
 				mPlayerInControl = nullptr;
+				std::cout << "Double touch by " << p.getName() << " - restart position: " << mRestartPosition.v << " by " << mFirstTeamInControl << "\n";
 				mOutOfPlayClock.rewind();
 				mMatch->setPlayState(PlayState::OutIndirectFreekick);
 			}
