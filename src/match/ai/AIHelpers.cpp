@@ -38,7 +38,7 @@ boost::shared_ptr<PlayerAction> AIHelpers::createMoveActionToBall(const Player& 
 		return createMoveActionTo(p, b->getPosition());
 	}
 	else {
-		AbsVector3 tgt(b->getPosition().v + vel.v * 1.0f);
+		AbsVector3 tgt(b->getPosition().v + vel.v * 0.5f);
 		if(MatchHelpers::attacksUp(p))
 			tgt.v.y -= 0.5f;
 		else
