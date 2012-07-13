@@ -31,7 +31,7 @@ Player::Player(Match* match, Team* team, const Soccer::Player& p,
 			int hgt = mShirtNumber > 5 ? 1 : 0;
 			float widthpos = ((mShirtNumber - 2) % 4 - 1.5f) * 0.5f;
 			setHomePosition(RelVector3(widthpos,
-						(mTeam->isFirst() ? 1 : -1) * -0.7f + hgt * 0.3f * (mTeam->isFirst() ? 1 : -1),
+						(mTeam->isFirst() ? 1 : -1) * (-0.7f + hgt * 0.4f),
 						0));
 		}
 	}
