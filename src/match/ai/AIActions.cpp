@@ -287,7 +287,7 @@ AIPassAction::AIPassAction(const Player* p)
 		if(sp->isGoalkeeper())
 			thisscore *= 0.2f;
 
-		thisscore -= AIHelpers::scaledCoefficient(MatchHelpers::distanceToOwnGoal(*sp), 20.0f);
+		thisscore -= AIHelpers::scaledCoefficient(MatchHelpers::distanceToOwnGoal(*sp), 30.0f);
 
 		if(thisscore > mScore) {
 			for(auto op : MatchHelpers::getOpposingPlayers(*sp)) {
