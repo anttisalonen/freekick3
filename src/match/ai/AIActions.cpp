@@ -269,13 +269,12 @@ AIPassAction::AIPassAction(const Player* p)
 				nullptr, true));
 
 	const float riskcoeff = mPlayer->getTeam()->getAITacticParameters().PassRiskCoefficient;
-	const float maxOppDist = mPlayer->getTeam()->getAITacticParameters().PassMaxOppDist;
 
 	for(auto sp : MatchHelpers::getOwnPlayers(*p)) {
 		if(sp.get() == p) {
 			continue;
 		}
-		double dist = MatchEntity::distanceBetween(*p, *sp);
+		float dist = MatchEntity::distanceBetween(*p, *sp);
 		if(dist < 5.0 && mPlayer->getMatch()->getPlayState() != PlayState::OutKickoff)
 			continue;
 		if(dist > 35.0)
@@ -287,17 +286,17 @@ AIPassAction::AIPassAction(const Player* p)
 		if(sp->isGoalkeeper())
 			thisscore *= 0.2f;
 
-		thisscore -= AIHelpers::scaledCoefficient(MatchHelpers::distanceToOwnGoal(*sp), 30.0f);
-
 		if(thisscore > mScore) {
 			for(auto op : MatchHelpers::getOpposingPlayers(*sp)) {
-				float dist = Common::Math::pointToLineDistance(p->getPosition().v,
+				float oppdist = Common::Math::pointToLineDistance(p->getPosition().v,
 						sp->getPosition().v,
 						op->getPosition().v);
 				float angToMe = p->getPosition().v.dot(op->getPosition().v);
-				if(angToMe > 0.0f && dist < maxOppDist) {
-					float decr = riskcoeff * (maxOppDist - dist) / maxOppDist;
-					decr *= 1.0f + AIHelpers::scaledCoefficient(MatchHelpers::distanceToOwnGoal(*sp), 30.0f);
+				float maxoppdist = Common::clamp(4.0f, dist * 0.3f, 10.0f);
+
+				if(angToMe > 0.0f && oppdist < maxoppdist) {
+					float decr = riskcoeff * (maxoppdist - oppdist) / maxoppdist;
+					decr *= 1.0f + 2.0f * AIHelpers::scaledCoefficient(MatchHelpers::distanceToOwnGoal(*sp), 50.0f);
 					thisscore -= decr;
 				}
 			}
@@ -337,6 +336,9 @@ AILongPassAction::AILongPassAction(const Player* p)
 		}
 		double dist = MatchEntity::distanceBetween(*p, *sp);
 		if(dist < 35.0)
+			continue;
+
+		if(MatchHelpers::distanceToOwnGoal(*sp) < 40.0f)
 			continue;
 
 		double thisscore = (AIHelpers::getPassForwardCoefficient(*p, *sp) +

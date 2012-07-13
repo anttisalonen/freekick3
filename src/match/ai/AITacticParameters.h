@@ -6,7 +6,6 @@
 struct AITacticParameters {
 	AITacticParameters(const Soccer::StatefulTeam& tt);
 	float PassActionCoefficient;
-	float PassMaxOppDist;
 	float PassRiskCoefficient;
 	float LongPassActionCoefficient;
 	float DribbleActionCoefficient;

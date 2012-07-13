@@ -108,7 +108,7 @@ AbsVector3 AIHelpers::getPassKickVector(const Player& from, const Player& to)
 
 AbsVector3 AIHelpers::getPassKickVector(const Player& from, const AbsVector3& pos, const AbsVector3& vel)
 {
-	AbsVector3 tgt = AbsVector3(pos.v + vel.v * 1.0f - from.getPosition().v);
+	AbsVector3 tgt = AbsVector3(pos.v + vel.v * 0.5f - from.getPosition().v);
 	float powercoeff = std::max(0.3, 1.3 * tgt.v.length() / from.getMaximumShotPower());
 	tgt.v.normalize();
 	tgt.v *= powercoeff;
@@ -147,12 +147,23 @@ float AIHelpers::scaledCoefficient(float dist, float maximum)
 
 float AIHelpers::checkKickSuccess(const Player& p, const AbsVector3& v, float score)
 {
-	if(score < 0.0f)
+	if(score < 0.0f) {
 		return score;
-	if(!MatchHelpers::goodKickingPosition(p, v))
-		return score * 0.02f;
-	else
+	}
+	if(!MatchHelpers::goodKickingPosition(p, v)) {
+		if(!playing(p.getMatch()->getPlayState())) {
+			return -1.0f;
+		}
+		else {
+			const Player* opp = MatchHelpers::nearestOppositePlayerToBall(*p.getTeam());
+			float dist = MatchEntity::distanceBetween(*opp, p);
+			float coeff = scaledCoefficient(dist, 5.0f);
+			return score * coeff;
+		}
+	}
+	else {
 		return score;
+	}
 }
 
 float AIHelpers::getPassForwardCoefficient(const Player& p, const Player& tp)

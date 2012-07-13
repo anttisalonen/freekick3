@@ -6,7 +6,6 @@ AITacticParameters::AITacticParameters(const Soccer::StatefulTeam& tt)
 {
 	const Soccer::TeamTactics& t = tt.getTactics();
 	PassActionCoefficient      = Common::clamp(0.1f, t.FastPassing * (1.0f - t.LongBalls), 0.9f);
-	PassMaxOppDist             = 4.0f;
 	PassRiskCoefficient        = Common::clamp(0.3f, t.Pressure * 0.5f + 0.25f, 0.7f);
 	LongPassActionCoefficient  = Common::clamp(0.1f, t.FastPassing * t.LongBalls, 0.9f);
 	DribbleActionCoefficient   = Common::clamp(0.1f, (1.0f - t.FastPassing) * t.Pressure, 0.9f);
