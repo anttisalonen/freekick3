@@ -21,6 +21,7 @@ class Countdown {
 		bool check();
 		bool running() const;
 		float timeLeft() const;
+		void clear();
 	private:
 		float mFrom;
 		float mNow;

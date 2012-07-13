@@ -91,4 +91,9 @@ float Countdown::timeLeft() const
 	return std::max(0.0f, mNow);
 }
 
+void Countdown::clear()
+{
+	mNow = 0.0f;
+	mChecked = true;
+}
 
