@@ -139,7 +139,7 @@ void Ball::kicked(Player* p)
 {
 	if(mGrabbed && mGrabber != p)
 		return;
-	mCollisionFreePoint = mPosition;
+	mCollisionFreePoint = p->getPosition();
 	mGrabbed = false;
 	mGrabber = nullptr;
 }
