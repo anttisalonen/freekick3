@@ -14,7 +14,8 @@ Referee::Referee()
 	mOutOfPlayClock(1.0f),
 	mWaitForResumeClock(0.1f),
 	mPlayerInControl(nullptr),
-	mFouledTeam(0)
+	mFouledTeam(0),
+	mRestartedPlayer(nullptr)
 {
 }
 
@@ -119,9 +120,22 @@ void Referee::ballKicked(const Player& p)
 	if(playing(mMatch->getMatchHalf())) {
 		ballTouched(p);
 
-		if(!playing(mMatch->getPlayState()) && p.getTeam()->isFirst() == mFirstTeamInControl) {
+		if(!playing(mMatch->getPlayState())) {
+			if(p.getTeam()->isFirst() == mFirstTeamInControl) {
 				mMatch->setPlayState(PlayState::InPlay);
 				mWaitForResumeClock.rewind();
+				mRestartedPlayer = &p;
+			}
+		}
+		else {
+			if(&p == mRestartedPlayer) {
+				mRestartPosition = p.getMatch()->getBall()->getPosition();
+				mRestartPosition.v.z = 0.0f;
+				mFirstTeamInControl = !p.getTeam()->isFirst();
+				mPlayerInControl = nullptr;
+				mMatch->setPlayState(PlayState::OutIndirectFreekick);
+			}
+			mRestartedPlayer = nullptr;
 		}
 	}
 }

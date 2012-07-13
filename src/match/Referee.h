@@ -38,6 +38,7 @@ class Referee {
 		const Player* mPlayerInControl;
 		int mFouledTeam;
 		AbsVector3 mFoulPosition;
+		const Player* mRestartedPlayer;
 };
 
 #endif
