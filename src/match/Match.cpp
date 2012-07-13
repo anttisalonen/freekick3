@@ -259,6 +259,7 @@ int Match::kickBall(Player* p, const AbsVector3& v)
 {
 	if(MatchHelpers::canKickBall(*p) && mReferee.canKickBall(*p)) {
 		int failpoints = 0;
+		p->ballKicked();
 
 		if(playing(getPlayState())) {
 			if(!(mBall->getVelocity().v.length() / 80.0f < p->getSkills().BallControl)) {
@@ -272,7 +273,6 @@ int Match::kickBall(Player* p, const AbsVector3& v)
 				failpoints += 2;
 			}
 
-			p->ballKicked();
 			if(failpoints == 4) {
 				return -1;
 			}
