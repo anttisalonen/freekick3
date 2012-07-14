@@ -130,8 +130,8 @@ void Player::update(float time)
 		mVelocity.v.y = planevel.y;
 	}
 	if(!isAirborne()) {
-		mPosition.v.z = 0.0f;
-		mVelocity.v.z = 0.0f;
+		mVelocity.v.z = std::max(0.0f, mVelocity.v.z);
+		mPosition.v.z = std::max(0.0f, mPosition.v.z);
 	}
 	else {
 		mVelocity.v.z -= 9.81f * time;

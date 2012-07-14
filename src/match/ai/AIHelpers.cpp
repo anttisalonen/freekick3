@@ -26,7 +26,7 @@ boost::shared_ptr<PlayerAction> AIHelpers::createMoveActionTo(const Player& p,
 				return boost::shared_ptr<PlayerAction>(new IdlePA());
 			}
 		}
-		if(pos.v.z > 1.7f && pos.v.z < 2.5f && !p.isAirborne()) {
+		if(pos.v.z > 1.7f && pos.v.z < 2.5f && !p.isAirborne() && v.v.length() < 1.5f) {
 			v.v.normalize();
 			v.v.z += 1.0f;
 			return boost::shared_ptr<PlayerAction>(new JumpToPA(v));

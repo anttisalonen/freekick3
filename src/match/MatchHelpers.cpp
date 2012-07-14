@@ -134,7 +134,7 @@ bool MatchHelpers::canKickBall(const Player& p)
 	float planediff = (v2 - v1).length();
 
 	return p.canKickBall() && allowedToKick(p) &&
-		((zdiff >= 0.0f && zdiff <= 1.0f) || ballInHeadingHeight(p)) &&
+		((zdiff >= -0.3f && zdiff <= 0.7f) || ballInHeadingHeight(p)) &&
 		planediff <= MAX_KICK_DISTANCE;
 }
 

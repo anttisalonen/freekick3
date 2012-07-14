@@ -24,14 +24,17 @@ boost::shared_ptr<PlayerAction> AIPlayController::act(double time)
 		}
 	}
 	else {
-		bool nearest = mPlayer->getTeam()->getPlayerNearestToBall() == mPlayer;
+		bool nearest = MatchHelpers::nearestOwnPlayerToBall(*mPlayer->getTeam()) == mPlayer;
 		bool cankick = MatchHelpers::canKickBall(*mPlayer);
-		if(cankick)
+		if(cankick) {
 			return mCurrentState->actOnBall(time);
-		else if(nearest)
+		}
+		else if(nearest) {
 			return mCurrentState->actNearBall(time);
-		else
+		}
+		else {
 			return mCurrentState->actOffBall(time);
+		}
 	}
 }
 
@@ -89,7 +92,11 @@ boost::shared_ptr<PlayerAction> AIPlayController::actOnRestart(double time)
 		}
 	}
 
-	if(!MatchHelpers::playerPositionedForRestart(*restarter, *mPlayer)) {
+	// if we're blocking the game, move away from the ball
+	if(!MatchHelpers::playerPositionedForRestart(*restarter, *mPlayer) ||
+			(mPlayer->getMatch()->getBall()->grabbed() &&
+			 !MatchHelpers::myTeamInControl(*mPlayer) &&
+			 MatchHelpers::inOpposingPenaltyArea(*mPlayer))) {
 		AbsVector3 dir = MatchEntity::vectorFromTo(*mPlayer->getMatch()->getBall(),
 				*mPlayer);
 
