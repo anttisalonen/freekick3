@@ -20,8 +20,9 @@ class MatchHelpers {
 		static bool canKickBall(const Player& p);
 		static Player* nearestOwnPlayerToPlayer(const Team& t, const Player& p);
 		static Player* nearestOwnPlayerToBall(const Team& t);
+		static Player* nearestOwnFieldPlayerToBall(const Team& t);
 		static Player* nearestOppositePlayerToBall(const Team& t);
-		static Player* nearestOwnPlayerTo(const Team& t, const AbsVector3& v);
+		static Player* nearestOwnPlayerTo(const Team& t, const AbsVector3& v, bool goalkeepers = true);
 		static bool nearestOwnPlayerTo(const Player& p, const AbsVector3& v);
 		static bool myTeamInControl(const Player& p);
 		static const std::vector<boost::shared_ptr<Player>>& getOpposingPlayers(const Player& p);

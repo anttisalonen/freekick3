@@ -35,17 +35,24 @@ Player* MatchHelpers::nearestOwnPlayerToPlayer(const Team& t, const Player& p)
 	return nearestOwnPlayerTo(t, p.getPosition());
 }
 
+Player* MatchHelpers::nearestOwnFieldPlayerToBall(const Team& t)
+{
+	return nearestOwnPlayerTo(t, t.getMatch()->getBall()->getPosition(), false);
+}
+
 Player* MatchHelpers::nearestOwnPlayerToBall(const Team& t)
 {
 	return nearestOwnPlayerTo(t, t.getMatch()->getBall()->getPosition());
 }
 
-Player* MatchHelpers::nearestOwnPlayerTo(const Team& t, const AbsVector3& v)
+Player* MatchHelpers::nearestOwnPlayerTo(const Team& t, const AbsVector3& v, bool goalkeepers)
 {
 	Player* np = nullptr;
 	float smallest_dist = 1000000.0f;
 	for(const auto& tp : t.getPlayers()) {
 		if(!tp->standing())
+			continue;
+		if(tp->isGoalkeeper() && !goalkeepers)
 			continue;
 		float this_dist = (v.v - tp->getPosition().v).length();
 		if(this_dist < smallest_dist) {

@@ -95,7 +95,7 @@ Player* Team::getPlayerNearestToBall() const
 void Team::updatePlayerNearestToBall()
 {
 	if(mPlayers.size())
-		mPlayerNearestToBall = MatchHelpers::nearestOwnPlayerToBall(*this);
+		mPlayerNearestToBall = MatchHelpers::nearestOwnFieldPlayerToBall(*this);
 }
 
 void Team::getSupportPositionCoordinates(const AbsVector3& pos, unsigned int& i, unsigned int& j) const
