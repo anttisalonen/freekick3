@@ -112,12 +112,23 @@ AbsVector3 MatchHelpers::oppositeGoalPosition(const Team& t)
 	}
 }
 
-bool MatchHelpers::canKickBall(const Player& p)
+bool MatchHelpers::ballInHeadingHeight(const Player& p)
 {
 	float zdiff = p.getMatch()->getBall()->getPosition().v.z - p.getPosition().v.z;
+	return zdiff >= 1.7f && zdiff <= 1.9f;
+}
+
+bool MatchHelpers::canKickBall(const Player& p)
+{
+	Vector3 v1 = p.getPosition().v;
+	Vector3 v2 = p.getMatch()->getBall()->getPosition().v;
+	float zdiff = v2.z - v1.z;
+	v1.z = v2.z = 0.0f;
+	float planediff = (v2 - v1).length();
+
 	return p.canKickBall() && allowedToKick(p) &&
-		zdiff >= 0.0f && zdiff <= 1.0f &&
-		MatchEntity::distanceBetween(p, *p.getMatch()->getBall()) <= MAX_KICK_DISTANCE;
+		((zdiff >= 0.0f && zdiff <= 1.0f) || ballInHeadingHeight(p)) &&
+		planediff <= MAX_KICK_DISTANCE;
 }
 
 bool MatchHelpers::myTeamInControl(const Player& p)

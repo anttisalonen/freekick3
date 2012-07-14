@@ -16,6 +16,7 @@ class MatchHelpers {
 		static AbsVector3 oppositeGoalPosition(const Player& p);
 		static AbsVector3 oppositeGoalPosition(const Team& t);
 		static AbsVector3 oppositePenaltySpotPosition(const Player& p);
+		static bool ballInHeadingHeight(const Player& p);
 		static bool canKickBall(const Player& p);
 		static Player* nearestOwnPlayerToPlayer(const Team& t, const Player& p);
 		static Player* nearestOwnPlayerToBall(const Team& t);

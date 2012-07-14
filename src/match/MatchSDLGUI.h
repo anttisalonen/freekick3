@@ -130,6 +130,7 @@ class MatchSDLGUI : public MatchGUI, public PlayerController {
 		int mDebugDisplay;
 		float mFixedFrameTime;
 		bool mTackling;
+		bool mHeading;
 		bool mRandomise;
 		bool mDisableGUI;
 		bool mCamFollowsPlayer;

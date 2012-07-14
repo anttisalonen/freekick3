@@ -88,6 +88,11 @@ double Player::getMaximumShotPower() const
 	return 30.0f + 20.0f * mSkills.ShotPower;
 }
 
+double Player::getMaximumHeadingPower() const
+{
+	return 10.0f + 20.0f * mSkills.Heading;
+}
+
 void Player::setController(PlayerController* c)
 {
 	mController = c;
@@ -116,12 +121,17 @@ bool Player::canKickBall() const
 void Player::update(float time)
 {
 	MatchEntity::update(time);
-	if(mVelocity.v.length() > getRunSpeed()) {
-		mVelocity.v.normalize();
-		mVelocity.v *= getRunSpeed();
+	Vector3 planevel(mVelocity.v);
+	planevel.z = 0.0f;
+	if(planevel.length() > getRunSpeed()) {
+		planevel.normalize();
+		planevel *= getRunSpeed();
+		mVelocity.v.x = planevel.x;
+		mVelocity.v.y = planevel.y;
 	}
 	if(!isAirborne()) {
 		mPosition.v.z = 0.0f;
+		mVelocity.v.z = 0.0f;
 	}
 	else {
 		mVelocity.v.z -= 9.81f * time;

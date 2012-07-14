@@ -49,8 +49,8 @@ const AbsVector3& MatchEntity::getVelocity() const
 
 void MatchEntity::update(float time)
 {
-	mPosition.v += mVelocity.v * time;
 	mVelocity.v += mAcceleration.v * time;
+	mPosition.v += mVelocity.v * time;
 	mAcceleration = AbsVector3();
 }
 

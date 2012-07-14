@@ -10,7 +10,8 @@
 
 void IdlePA::applyPlayerAction(Match& match, Player& p, double time)
 {
-	p.setVelocity(AbsVector3());
+	AbsVector3 v = p.getVelocity();
+	p.setVelocity(AbsVector3(0.0f, 0.0f, v.v.z));
 	return;
 }
 
@@ -58,10 +59,19 @@ void KickBallPA::applyPlayerAction(Match& match, Player& p, double time)
 	}
 	if(mDiff.v.length() > 1.0f)
 		mDiff.v.normalize();
+
 	AbsVector3 v(mDiff);
-	v.v *= p.getMaximumShotPower();
+	if(!MatchHelpers::ballInHeadingHeight(p)) {
+		v.v *= p.getMaximumShotPower();
+	}
+	else {
+		v.v *= p.getMaximumHeadingPower();
+		std::cout << "Header!\n";
+	}
+
 	int failpoints = match.kickBall(&p, v);
-	p.setVelocity(AbsVector3());
+	AbsVector3 vel = p.getVelocity();
+	p.setVelocity(AbsVector3(0.0f, 0.0f, vel.v.z));
 
 	if(failpoints == 0) {
 		match.getTeam(0)->setPlayerReceivingPass(nullptr);
@@ -118,12 +128,14 @@ JumpToPA::JumpToPA(const AbsVector3& v)
 
 void JumpToPA::applyPlayerAction(Match& match, Player& p, double time)
 {
+	if(!time)
+		return;
 	if(!p.standing() || p.isAirborne() || mDiff.v.z < 0.01f)
 		return;
 	if(mDiff.v.length() < 0.1f)
 		return;
 	AbsVector3 v(mDiff.v.normalized());
-	v.v *= 80.0f;
+	v.v *= 3.0f / time;
 	p.setAcceleration(v.v);
 }
 
