@@ -258,14 +258,14 @@ void MatchSDLGUI::drawPlayers()
 			const AbsVector3& v(pl->getPosition());
 
 			drawSprite(*mPlayerShadowTexture,
-					Rectangle((-mCamera.x + v.v.x - 0.8f + v.v.z * 1.5f) * mScaleLevel + screenWidth * 0.5f,
-						(-mCamera.y + v.v.y - 0.8f + v.v.z * 1.7f) * mScaleLevel + screenHeight * 0.5f,
+					Rectangle((-mCamera.x + v.v.x - 0.8f + v.v.z * 0.3f) * mScaleLevel + screenWidth * 0.5f,
+						(-mCamera.y + v.v.y - 0.8f - v.v.z * 0.4f) * mScaleLevel + screenHeight * 0.5f,
 						mScaleLevel * 2.0f, mScaleLevel * 2.0f),
 					Rectangle(1, 1, -1, -1), playerShadowHeight);
 
 			drawSprite(*playerTexture(pl),
 					Rectangle((-mCamera.x + v.v.x - 0.8f) * mScaleLevel + screenWidth * 0.5f,
-						(-mCamera.y + v.v.y + v.v.z * 2.0f) * mScaleLevel + screenHeight * 0.5f,
+						(-mCamera.y + v.v.y + v.v.z * 0.6f) * mScaleLevel + screenHeight * 0.5f,
 						mScaleLevel * 2.0f, mScaleLevel * 2.0f),
 					Rectangle(1, 1, -1, -1), playerHeight);
 
