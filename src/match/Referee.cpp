@@ -31,6 +31,9 @@ boost::shared_ptr<RefereeAction> Referee::act(double time)
 		case MatchHalf::HalfTimePauseEnd:
 			if(allPlayersOnOwnSideAndReady()) {
 				mFirstTeamInControl = mMatch->getMatchHalf() == MatchHalf::NotStarted;
+#ifdef DEBUG_CONTROLLING_TEAM
+				std::cout << __LINE__ << ": First team in control: " << mFirstTeamInControl << " - match half\n";
+#endif
 				if(mFirstTeamInControl)
 					return boost::shared_ptr<RefereeAction>(new ChangeMatchHalfRA(MatchHalf::FirstHalf));
 				else
@@ -134,6 +137,9 @@ void Referee::ballKicked(const Player& p)
 				mRestartPosition = p.getMatch()->getBall()->getPosition();
 				mRestartPosition.v.z = 0.0f;
 				mFirstTeamInControl = !p.getTeam()->isFirst();
+#ifdef DEBUG_CONTROLLING_TEAM
+				std::cout << __LINE__ << ": First team in control: " << mFirstTeamInControl << " - indirect free kick\n";
+#endif
 				mPlayerInControl = nullptr;
 				std::cout << "Double touch by " << p.getName() << " - restart position: " << mRestartPosition.v << " by " << mFirstTeamInControl << "\n";
 				mOutOfPlayClock.rewind();
@@ -155,6 +161,9 @@ boost::shared_ptr<RefereeAction> Referee::setOutOfPlay()
 			mRestartPosition.v.x = -mRestartPosition.v.x;
 		mRestartPosition.v.z = 0.0f;
 		mFirstTeamInControl = !mFirstTeamInControl;
+#ifdef DEBUG_CONTROLLING_TEAM
+		std::cout << __LINE__ << ": First team in control: " << mFirstTeamInControl << " - throwin\n";
+#endif
 		mPlayerInControl = nullptr;
 		return boost::shared_ptr<RefereeAction>(new ChangePlayStateRA(PlayState::OutThrowin));
 	}
@@ -174,6 +183,9 @@ boost::shared_ptr<RefereeAction> Referee::setOutOfPlay()
 			}
 			mMatch->addGoal(firstscores);
 			mFirstTeamInControl = !firstscores;
+#ifdef DEBUG_CONTROLLING_TEAM
+			std::cout << __LINE__ << ": First team in control: " << mFirstTeamInControl << " - goal\n";
+#endif
 			mPlayerInControl = nullptr;
 			return boost::shared_ptr<RefereeAction>(new ChangePlayStateRA(PlayState::OutKickoff));
 		}
@@ -187,6 +199,9 @@ boost::shared_ptr<RefereeAction> Referee::setOutOfPlay()
 			mRestartPosition.v.y = Common::signum(bp.v.y) * mMatch->getPitchHeight() * 0.5f;
 			mRestartPosition.v.z = 0.0f;
 			mFirstTeamInControl = !mFirstTeamInControl;
+#ifdef DEBUG_CONTROLLING_TEAM
+			std::cout << __LINE__ << ": First team in control: " << mFirstTeamInControl << " - corner kick\n";
+#endif
 			mPlayerInControl = nullptr;
 			return boost::shared_ptr<RefereeAction>(new ChangePlayStateRA(PlayState::OutCornerkick));
 		}
@@ -201,6 +216,9 @@ boost::shared_ptr<RefereeAction> Referee::setOutOfPlay()
 			}
 			mRestartPosition.v.z = 0.0f;
 			mFirstTeamInControl = !mFirstTeamInControl;
+#ifdef DEBUG_CONTROLLING_TEAM
+			std::cout << __LINE__ << ": First team in control: " << mFirstTeamInControl << " - goal kick\n";
+#endif
 			mPlayerInControl = nullptr;
 			return boost::shared_ptr<RefereeAction>(new ChangePlayStateRA(PlayState::OutGoalkick));
 		}
@@ -212,6 +230,9 @@ boost::shared_ptr<RefereeAction> Referee::setFoulRestart()
 {
 	assert(mFouledTeam != 0);
 	mFirstTeamInControl = mFouledTeam == 2;
+#ifdef DEBUG_CONTROLLING_TEAM
+	std::cout << __LINE__ << ": First team in control: " << mFirstTeamInControl << " - foul\n";
+#endif
 	mFouledTeam = 0;
 
 	mRestartPosition = mFoulPosition;
@@ -238,8 +259,7 @@ bool Referee::isFirstTeamInControl() const
 
 void Referee::ballGrabbed(const Player& p)
 {
-	mFirstTeamInControl = p.getTeam()->isFirst();
-	mPlayerInControl = &p;
+	ballTouched(p);
 }
 
 void Referee::matchHalfChanged(MatchHalf m)
@@ -247,6 +267,9 @@ void Referee::matchHalfChanged(MatchHalf m)
 	mPlayerInControl = nullptr;
 	if(m == MatchHalf::HalfTimePauseEnd) {
 		mFirstTeamInControl = false;
+#ifdef DEBUG_CONTROLLING_TEAM
+		std::cout << __LINE__ << ": First team in control: " << mFirstTeamInControl << " - match half\n";
+#endif
 	}
 }
 
@@ -258,6 +281,9 @@ const Player* Referee::getPlayerInControl() const
 void Referee::ballTouched(const Player& p)
 {
 	mFirstTeamInControl = p.getTeam()->isFirst();
+#ifdef DEBUG_CONTROLLING_TEAM
+	std::cout << __LINE__ << ": First team in control: " << mFirstTeamInControl << " - ball touched\n";
+#endif
 	mPlayerInControl = &p;
 }
 
