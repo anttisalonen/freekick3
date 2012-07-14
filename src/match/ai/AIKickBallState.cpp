@@ -39,7 +39,7 @@ boost::shared_ptr<PlayerAction> AIKickBallState::actOnBall(double time)
 
 	boost::shared_ptr<AIAction> best = actionchooser.getBestAction();
 	mDescription = std::string("Kicking ") + std::to_string(best->getScore()) + " - " + best->getName();
-	std::cout << mDescription << "\n";
+	std::cout << "Kicking - " << mDescription << "\n";
 	return best->getAction();
 }
 

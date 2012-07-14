@@ -9,6 +9,7 @@ AIGoalkeeperState::AIGoalkeeperState(Player* p, AIPlayController* m)
 	: AIState(p, m),
 	mHoldBallTimer(1.0f)
 {
+	mDescription = "Goalkeeper";
 	setPivotPoint();
 }
 
@@ -67,7 +68,7 @@ boost::shared_ptr<PlayerAction> AIGoalkeeperState::actOffBall(double time)
 {
 	const Ball* ball = mPlayer->getMatch()->getBall();
 	AbsVector3 ballpos = ball->getPosition();
-	Vector3 futureballpos = ballpos.v + ball->getVelocity().v * 1.0f;
+	Vector3 futureballpos = ballpos.v + ball->getVelocity().v * 0.5f;
 	Vector3 goalmiddlepoint = MatchHelpers::ownGoalPosition(*mPlayer).v;
 	static const float gkdisttogoal = 1.0f;
 	if(MatchHelpers::attacksUp(*mPlayer))

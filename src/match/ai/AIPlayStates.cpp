@@ -64,6 +64,7 @@ boost::shared_ptr<PlayerAction> AIPlayController::actOnRestart(double time)
 		restarter = MatchHelpers::nearestOppositePlayerToBall(*mPlayer->getTeam());
 	}
 
+	// goalkeeper stays on the goal line for the penalty kick
 	if(!MatchHelpers::myTeamInControl(*mPlayer) &&
 			mPlayer->getMatch()->getPlayState() == PlayState::OutPenaltykick &&
 			mPlayer->isGoalkeeper()) {
@@ -71,6 +72,7 @@ boost::shared_ptr<PlayerAction> AIPlayController::actOnRestart(double time)
 				MatchHelpers::ownGoalPosition(*mPlayer));
 	}
 
+	// players with shirt numbers 8-11 build a wall
 	if(!MatchHelpers::myTeamInControl(*mPlayer) &&
 			mPlayer->getMatch()->getPlayState() == PlayState::OutDirectFreekick &&
 			!mPlayer->isGoalkeeper() && mPlayer->getShirtNumber() >= 8) {
