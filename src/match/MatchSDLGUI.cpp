@@ -34,7 +34,7 @@ MatchSDLGUI::MatchSDLGUI(boost::shared_ptr<Match> match, bool observer, int team
 		int ticksPerSec, bool debug, bool randomise, bool disablegui)
 	: MatchGUI(match),
 	PlayerController(mMatch->getPlayer(0, 9)),
-	mScaleLevel(15.0f),
+	mScaleLevel(11.0f),
 	mScaleLevelVelocity(0.0f),
 	mFreeCamera(false),
 	mPlayerKickPower(0.0f),
