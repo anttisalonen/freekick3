@@ -782,7 +782,9 @@ void MatchSDLGUI::setPlayerController(double frameTime)
 	mPlayerSwitchTimer.doCountdown(frameTime);
 	mPlayerSwitchTimer.check();
 	if(playing(mMatch->getMatchHalf())) {
-		if(mPlayer->isAIControlled() && playing(mMatch->getPlayState())) {
+		if(mPlayer->isAIControlled() &&
+				(playing(mMatch->getPlayState()) ||
+				mMatch->getPlayState() == PlayState::OutKickoff)) {
 			mPlayer->setController(this);
 			mPlayerKickPower = 0.0f;
 			printf("Now controlling\n");
