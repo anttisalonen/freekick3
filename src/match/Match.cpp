@@ -279,10 +279,24 @@ int Match::kickBall(Player* p, const AbsVector3& v)
 			}
 		}
 
+		AbsVector3 ballvel(v);
+
+		if(getPlayState() == PlayState::OutThrowin) {
+			AbsVector3 pos = mBall->getPosition();
+			pos.v.z = 1.8f;
+			mBall->setPosition(pos);
+			ballvel.v.z += ballvel.v.length() * 0.5f;
+
+			if(ballvel.v.length() > 20.0f) {
+				ballvel.v.normalize();
+				ballvel.v *= 20.0f;
+			}
+		}
+
 		if(failpoints == 0)
-			mBall->setVelocity(v);
+			mBall->setVelocity(ballvel);
 		else
-			mBall->addVelocity(AbsVector3(v.v * (1.0f / (failpoints + 3))));
+			mBall->addVelocity(AbsVector3(ballvel.v * (1.0f / (failpoints + 3))));
 		mBall->kicked(p);
 		mReferee.ballKicked(*p);
 		for(auto t : mTeams)
