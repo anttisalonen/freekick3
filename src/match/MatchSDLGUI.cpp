@@ -708,12 +708,9 @@ boost::shared_ptr<PlayerAction> MatchSDLGUI::act(double time)
 			}
 		}
 		else {
-			// if blocking restart, run towards center of pitch
-			const Player* restarter =
-				MatchHelpers::nearestOppositePlayerToBall(*mPlayer->getTeam());
-			assert(restarter);
-			if(!MatchHelpers::playerPositionedForRestart(*restarter, *mPlayer))
-				return AIHelpers::createMoveActionTo(*mPlayer, AbsVector3(0, 0, 0));
+			// if blocking restart, turn over to AI
+			mPlayer->setAIControlled();
+			return boost::shared_ptr<PlayerAction>(new IdlePA());
 		}
 	}
 
@@ -785,7 +782,7 @@ void MatchSDLGUI::setPlayerController(double frameTime)
 	mPlayerSwitchTimer.doCountdown(frameTime);
 	mPlayerSwitchTimer.check();
 	if(playing(mMatch->getMatchHalf())) {
-		if(mPlayer->isAIControlled()) {
+		if(mPlayer->isAIControlled() && playing(mMatch->getPlayState())) {
 			mPlayer->setController(this);
 			mPlayerKickPower = 0.0f;
 			printf("Now controlling\n");
