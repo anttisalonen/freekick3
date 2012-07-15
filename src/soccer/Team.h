@@ -37,6 +37,7 @@ class TeamTactics {
 		void serialize(Archive& ar, const unsigned int version)
 		{
 			ar & mTactics;
+			ar & Pressure;
 			ar & LongBalls;
 			ar & FastPassing;
 			ar & ShootClose;
