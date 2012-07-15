@@ -51,6 +51,7 @@ class Player {
 
 		static std::string getShorterName(const Player& p);
 		static int getSkillIndex(const Player& p);
+		static std::string getTopSkillsString(const Player& p);
 	protected:
 		int mId;
 		std::string mName;

@@ -28,6 +28,8 @@ class TeamTacticsScreen : public Screen {
 		void setupTeamDisplay(int i);
 		void setupPlrLabels();
 		void addFormationButton(int i, int formbutton, const std::string& str);
+		void addPlayerLabels(const boost::shared_ptr<Player> pl, int i, float x,
+				float y, float namewidth, float nameheight);
 		static const std::string ScreenName;
 		Match& mMatch;
 		TeamTacticsScreenOwner& mTtso;
@@ -35,13 +37,15 @@ class TeamTacticsScreen : public Screen {
 		bool mShowHome;
 		int mHumanTeam;
 		Common::Rectangle mPitchRect;
-		std::map<boost::shared_ptr<Button>, int> mPlayers[2];
+		std::vector<boost::shared_ptr<Button>> mPlayers[2];
 		boost::shared_ptr<Button> mToggleButtons[2];
 		boost::shared_ptr<Button> mTeamLabels[2];
 		std::vector<boost::shared_ptr<Button>> mPlayerLabels[2];
 		std::vector<boost::shared_ptr<Button>> mFormationButtons[2];
 		std::string mFormationNumbers[2];
 		std::vector<boost::shared_ptr<Button>> mSkillLabels[2];
+		std::map<boost::shared_ptr<Button>, int> mPlayerControllerButtons[2];
+		std::vector<boost::shared_ptr<Button>> mTop3Labels[2];
 };
 
 }

@@ -53,4 +53,25 @@ int Player::getSkillIndex(const Player& p)
 		return std::min(1000, int(fieldskill * 1.5f));
 }
 
+std::string Player::getTopSkillsString(const Player& p)
+{
+	std::string ret;
+
+	std::map<float, char> skills;
+
+	const PlayerSkills& sk = p.getSkills();
+	skills.insert(std::make_pair(sk.Passing, 'P'));
+	skills.insert(std::make_pair(sk.RunSpeed, 'S'));
+	skills.insert(std::make_pair(sk.BallControl, 'C'));
+	skills.insert(std::make_pair(sk.Heading, 'H'));
+	skills.insert(std::make_pair(sk.ShotPower, 'V'));
+	skills.insert(std::make_pair(sk.Tackling, 'T'));
+
+	int i = 0;
+	for(std::map<float, char>::reverse_iterator it = skills.rbegin(); i < 3; i++, it++) {
+		ret += it->second;
+	}
+	return ret;
+}
+
 }

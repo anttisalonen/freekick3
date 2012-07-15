@@ -29,6 +29,10 @@ TeamTacticsScreen::TeamTacticsScreen(boost::shared_ptr<ScreenManager> sm, Match&
 
 	for(int i = 0; i < 2; i++) {
 		setupTeamDisplay(i);
+		if(mMatch.getTeam(i)->getController().HumanControlled)
+			Menu::setButtonHumanColor(mTeamLabels[i]);
+		else
+			Menu::setButtonComputerColor(mTeamLabels[i]);
 	}
 
 	if(mHumanTeam == 1) {
@@ -48,9 +52,14 @@ void TeamTacticsScreen::setupTeamDisplay(int i)
 	int teamf = 0;
 
 	for(auto p : mPlayers[i]) {
-		removeButton(p.first);
+		removeButton(p);
 	}
 	mPlayers[i].clear();
+
+	for(auto p : mPlayerControllerButtons[i]) {
+		removeButton(p.first);
+	}
+	mPlayerControllerButtons[i].clear();
 
 	for(auto b : mPlayerLabels[i]) {
 		removeButton(b);
@@ -69,6 +78,11 @@ void TeamTacticsScreen::setupTeamDisplay(int i)
 	}
 	mSkillLabels[i].clear();
 
+	for(auto b : mTop3Labels[i]) {
+		removeButton(b);
+	}
+	mTop3Labels[i].clear();
+
 	if(mMatch.getTeam(i)->getController().HumanControlled) {
 		if(mHumanTeam != -1 && mHumanTeam != i) {
 			// both teams are human-controlled - don't allow choosing anything.
@@ -85,29 +99,30 @@ void TeamTacticsScreen::setupTeamDisplay(int i)
 		plnum++;
 		auto pl = mMatch.getTeam(i)->getPlayerById(p.first);
 		assert(pl);
-		boost::shared_ptr<Button> b = addButton(pl->getName().c_str(), Common::Rectangle(x, y, namewidth, nameheight));
-		b->setCenteredText(TextAlignment::MiddleLeft);
-		mPlayers[i].insert(std::make_pair(b, plnum));
 
-		Common::Color col = Common::Color::White;
-		int skill = Player::getSkillIndex(*pl);
-		if(skill < 0)
-			col = Common::Color::Yellow;
-		mSkillLabels[i].push_back(addLabel(std::to_string(abs(skill / 100)).c_str(),
-					x + namewidth + 0.01f, y + nameheight * 0.5f,
-					TextAlignment::MiddleLeft,
-					0.5f, col));
+		// player skill labels
+		addPlayerLabels(pl, i, x, y, namewidth, nameheight);
 
-		float pitchx = mPitchRect.x + (-p.second.WidthPosition * 1.15f + 1.0f) * 0.5f * mPitchRect.w;
-		float pitchy = mPitchRect.y + (int)(p.second.Position) * 0.22f * mPitchRect.h;
+		// player controller button
+		{
+			boost::shared_ptr<Button> b = addButton("C", Common::Rectangle(x + namewidth + 0.07f, y, nameheight, nameheight));
+			b->setCenteredText(TextAlignment::Centered);
+			mPlayerControllerButtons[i].insert(std::make_pair(b, plnum));
+		}
 
-		// give text some more space
-		if((fabs(p.second.WidthPosition) > 0.35f) == (p.second.Position != PlayerPosition::Forward &&
-					p.second.Position != PlayerPosition::Goalkeeper))
-			pitchy += 0.05f;
+		// player label on the pitch
+		{
+			float pitchx = mPitchRect.x + (-p.second.WidthPosition * 1.15f + 1.0f) * 0.5f * mPitchRect.w;
+			float pitchy = mPitchRect.y + (int)(p.second.Position) * 0.22f * mPitchRect.h;
 
-		mPlayerLabels[i].push_back(addLabel(Player::getShorterName(*pl).c_str(), pitchx, pitchy,
-					TextAlignment::Centered, 0.5f, Common::Color::White));
+			// give text some more space
+			if((fabs(p.second.WidthPosition) > 0.35f) == (p.second.Position != PlayerPosition::Forward &&
+						p.second.Position != PlayerPosition::Goalkeeper))
+				pitchy += 0.05f;
+
+			mPlayerLabels[i].push_back(addLabel(Player::getShorterName(*pl).c_str(), pitchx, pitchy,
+						TextAlignment::Centered, 0.5f, Common::Color::White));
+		}
 
 		y += 0.04f;
 
@@ -128,19 +143,7 @@ void TeamTacticsScreen::setupTeamDisplay(int i)
 	for(auto p : mMatch.getTeam(i)->getPlayers()) {
 		auto it = mMatch.getTeam(i)->getTactics().mTactics.find(p->getId());
 		if(it == mMatch.getTeam(i)->getTactics().mTactics.end()) {
-			boost::shared_ptr<Button> b = addButton(p->getName().c_str(),
-					Common::Rectangle(x, y, namewidth, nameheight));
-			b->setCenteredText(TextAlignment::MiddleLeft);
-			mPlayers[i].insert(std::make_pair(b, -1));
-
-			Common::Color col = Common::Color::White;
-			int skill = Player::getSkillIndex(*p);
-			if(skill < 0)
-				col = Common::Color::Yellow;
-			mSkillLabels[i].push_back(addLabel(std::to_string(abs(skill / 100)).c_str(),
-						x + namewidth + 0.01f, y + nameheight * 0.5f,
-						TextAlignment::MiddleLeft,
-						0.5f, col));
+			addPlayerLabels(p, i, x, y, namewidth, nameheight);
 
 			y += 0.04f;
 
@@ -182,6 +185,41 @@ void TeamTacticsScreen::setupTeamDisplay(int i)
 	setupPlrLabels();
 }
 
+void TeamTacticsScreen::addPlayerLabels(const boost::shared_ptr<Player> pl, int i, float x,
+		float y, float namewidth, float nameheight)
+{
+	// player name button
+	{
+		boost::shared_ptr<Button> b = addButton(pl->getName().c_str(), Common::Rectangle(x, y, namewidth, nameheight));
+		b->setCenteredText(TextAlignment::MiddleLeft);
+		mPlayers[i].push_back(b);
+	}
+
+	bool gk = false;
+	// player skill index label
+	{
+		Common::Color col = Common::Color::White;
+		int skill = Player::getSkillIndex(*pl);
+		if(skill < 0) {
+			col = Common::Color::Yellow;
+			gk = true;
+		}
+		mSkillLabels[i].push_back(addLabel(std::to_string(abs(skill / 100)).c_str(),
+					x + namewidth + 0.01f, y + nameheight * 0.5f,
+					TextAlignment::MiddleLeft,
+					0.5f, col));
+	}
+
+	// top three skills label
+	if(!gk) {
+		const std::string top = Player::getTopSkillsString(*pl);
+		mTop3Labels[i].push_back(addLabel(top.c_str(),
+					x + namewidth + 0.025f, y + nameheight * 0.5f,
+					TextAlignment::MiddleLeft,
+					0.5f, Common::Color::White));
+	}
+}
+
 void TeamTacticsScreen::addFormationButton(int i, int formbutton, const std::string& str)
 {
 	const float formx = 0.51f;
@@ -221,20 +259,31 @@ void TeamTacticsScreen::setupPlrLabels()
 			else
 				l->hide();
 		}
+		for(auto l : mTop3Labels[i]) {
+			if((mToggleButtons[0]->hidden()) == (i == 0))
+				l->show();
+			else
+				l->hide();
+		}
 		for(auto l : mPlayers[i]) {
+			if((mToggleButtons[0]->hidden()) == (i == 0))
+				l->show();
+			else
+				l->hide();
+		}
+		for(auto l : mPlayerControllerButtons[i]) {
 			if((mToggleButtons[0]->hidden()) == (i == 0))
 				l.first->show();
 			else
 				l.first->hide();
 
-			if(mHumanTeam == i) {
-				if(l.second == mChosenplnum || mChosenplnum == 0)
-					Menu::setButtonHumanColor(l.first);
-				else
-					Menu::setButtonComputerColor(l.first);
+			if(mHumanTeam == i && (l.second == mChosenplnum || mChosenplnum == 0)) {
+				Menu::setButtonHumanColor(l.first);
+				l.first->setText("H");
 			}
 			else {
 				Menu::setButtonComputerColor(l.first);
+				l.first->setText("C");
 			}
 		}
 	}
@@ -265,10 +314,10 @@ void TeamTacticsScreen::buttonPressed(boost::shared_ptr<Button> button)
 	}
 	else {
 		if(mHumanTeam != -1) {
-			// check if player name clicked
+			// check if player controller button clicked
 			{
-				auto it = mPlayers[mHumanTeam].find(button);
-				if(it != mPlayers[mHumanTeam].end() && it->second != -1) {
+				auto it = mPlayerControllerButtons[mHumanTeam].find(button);
+				if(it != mPlayerControllerButtons[mHumanTeam].end() && it->second != -1) {
 					if(mChosenplnum != 0 && mChosenplnum == it->second)
 						mChosenplnum = 0;
 					else

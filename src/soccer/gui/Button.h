@@ -33,6 +33,7 @@ class Button : public Widget {
 	public:
 		Button(const char* text, TTF_Font* font, const Common::Rectangle& dim);
 		const std::string& getText() const;
+		void setText(const std::string& t);
 		const Common::Texture* getTextTexture() const;
 		bool isTransparent() const;
 		void setTransparent(bool t);
@@ -53,7 +54,9 @@ class Button : public Widget {
 		static Common::Color DefaultColor2;
 
 	private:
+		void setTexture();
 		std::string mText;
+		TTF_Font* mFont;
 		boost::shared_ptr<Common::Texture> mTextTexture;
 		bool mTransparent;
 		TextAlignment mCenteredText;

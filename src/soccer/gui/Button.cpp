@@ -14,6 +14,7 @@ Color Button::DefaultColor2 = Color(191, 128, 115);
 Button::Button(const char* text, TTF_Font* font, const Rectangle& dim)
 	: Widget(dim),
 	mText(std::string(text)),
+	mFont(font),
 	mTransparent(false),
 	mCenteredText(TextAlignment::Centered),
 	mColor1(DefaultColor1),
@@ -22,9 +23,14 @@ Button::Button(const char* text, TTF_Font* font, const Rectangle& dim)
 	mTextWidth(0.5f),
 	mTextHeight(0.5f)
 {
+	setTexture();
+}
+
+void Button::setTexture()
+{
 	SDL_Surface* textsurface;
 	SDL_Color color = {255, 255, 255};
-	textsurface = TTF_RenderUTF8_Blended(font, text, color);
+	textsurface = TTF_RenderUTF8_Blended(mFont, mText.c_str(), color);
 
 	if(!textsurface) {
 		fprintf(stderr, "Could not render text: %s\n",
@@ -40,6 +46,14 @@ Button::Button(const char* text, TTF_Font* font, const Rectangle& dim)
 const std::string& Button::getText() const
 {
 	return mText;
+}
+
+void Button::setText(const std::string& t)
+{
+	if(t != mText) {
+		mText = t;
+		setTexture();
+	}
 }
 
 const Common::Texture* Button::getTextTexture() const
