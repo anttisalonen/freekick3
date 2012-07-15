@@ -38,7 +38,7 @@ PlayerSkillValue AITactics::calculatePlayerSkill(const Player& p)
 TeamTactics AITactics::createTeamTactics(const Team& team, unsigned int def, unsigned int mid, unsigned int forw)
 {
 	TeamTactics tt;
-	
+
 	typedef std::pair<boost::shared_ptr<Player>, PlayerSkillValue> Item;
 
 	std::vector<Item> skillvalues;
@@ -147,29 +147,21 @@ TeamTactics AITactics::createTeamTactics(const Team& team, unsigned int def, uns
 	/* TODO: add logic to separate wing players from central players. */
 	unsigned int pos = 0;
 	for(auto p : defenders) {
-		PlayerTactics t(0.0f, 0.40f, PlayerPosition::Defender, false);
-		if(pos == 0 || pos == defenders.size() - 1)
-			t.Radius = 0.55f;
-
-		t.WidthPosition = (pos + 1) / ((float)(defenders.size() + 1.0f)) * 2.0f - 1.0f;
+		PlayerTactics t = createPlayerTactics(PlayerPosition::Defender, pos, defenders.size(), false);
 		tt.mTactics.insert(std::make_pair(p->getId(), t));
 		pos++;
 	}
 
 	pos = 0;
 	for(auto p : midfielders) {
-		PlayerTactics t(0.0f, 0.40f, PlayerPosition::Midfielder, false);
-
-		t.WidthPosition = (pos + 1) / ((float)(midfielders.size() + 1.0f)) * 2.0f - 1.0f;
+		PlayerTactics t = createPlayerTactics(PlayerPosition::Midfielder, pos, midfielders.size(), false);
 		tt.mTactics.insert(std::make_pair(p->getId(), t));
 		pos++;
 	}
 
 	pos = 0;
 	for(auto p : forwards) {
-		PlayerTactics t(0.0f, 0.55f, PlayerPosition::Forward, false);
-
-		t.WidthPosition = (pos + 1) / ((float)(forwards.size() + 1.0f)) * 2.0f - 1.0f;
+		PlayerTactics t = createPlayerTactics(PlayerPosition::Forward, pos, forwards.size(), false);
 		tt.mTactics.insert(std::make_pair(p->getId(), t));
 		pos++;
 	}
@@ -245,6 +237,118 @@ TeamTactics AITactics::createTeamTactics(const Team& team, unsigned int def, uns
 #endif
 
 	return tt;
+}
+
+TeamTactics AITactics::updateTeamTactics(const TeamTactics& t, unsigned int def,
+		unsigned int mid, unsigned int forw)
+{
+	TeamTactics tt(t);
+
+	tt.mTactics.clear();
+
+	assert(def + mid + forw == 10);
+	assert(t.mTactics.size() == 11);
+
+	unsigned int goalkeepers = 0;
+	unsigned int defenders = 0;
+	unsigned int midfielders = 0;
+	unsigned int forwards = 0;
+
+	for(auto p : t.mTactics) {
+		PlayerPosition postoadd = p.second.Position;
+		unsigned int num = 0;
+		unsigned int total = 0;
+		bool already_retried = false;
+
+		switch(postoadd) {
+retry:
+			already_retried = true;
+			case PlayerPosition::Goalkeeper:
+				if(goalkeepers < 1) {
+					num = goalkeepers++;
+					total = 1;
+					break;
+				}
+				// FALL THROUGH
+
+			case PlayerPosition::Defender:
+				if(defenders != def) {
+					num = defenders++;
+					postoadd = PlayerPosition::Defender;
+					total = def;
+					break;
+				}
+				// FALL THROUGH
+
+			case PlayerPosition::Midfielder:
+				if(midfielders != mid) {
+					num = midfielders++;
+					postoadd = PlayerPosition::Midfielder;
+					total = mid;
+					break;
+				}
+				// FALL THROUGH
+
+			case PlayerPosition::Forward:
+				if(forwards != forw) {
+					num = forwards++;
+					postoadd = PlayerPosition::Forward;
+					total = forw;
+					break;
+				}
+				else {
+					if(already_retried) {
+						assert(0);
+						throw std::runtime_error("updateTeamTactics: could not find player position!");
+					}
+					goto retry;
+				}
+		}
+
+		tt.mTactics.insert(std::make_pair(p.first, createPlayerTactics(postoadd,
+						num, total, p.second.Offensive)));
+	}
+
+	assert(tt.mTactics.size() == 11);
+
+	return tt;
+}
+
+PlayerTactics AITactics::createPlayerTactics(Soccer::PlayerPosition pos,
+		unsigned int num, unsigned int howmany, bool offensive)
+{
+	switch(pos) {
+		case PlayerPosition::Goalkeeper:
+			return PlayerTactics(0.0f, 0.40f, PlayerPosition::Goalkeeper, false);
+
+		case PlayerPosition::Defender:
+			{
+				PlayerTactics t(0.0f, 0.40f, PlayerPosition::Defender, offensive);
+				if(num == 0 || num == howmany - 1)
+					t.Radius = 0.55f;
+
+				t.WidthPosition = (num + 1) / ((float)(howmany + 1.0f)) * 2.0f - 1.0f;
+				return t;
+			}
+
+		case PlayerPosition::Midfielder:
+			{
+				PlayerTactics t(0.0f, 0.40f, PlayerPosition::Midfielder, offensive);
+
+				t.WidthPosition = (num + 1) / ((float)(howmany + 1.0f)) * 2.0f - 1.0f;
+				return t;
+			}
+
+		case PlayerPosition::Forward:
+			{
+				PlayerTactics t(0.0f, 0.55f, PlayerPosition::Forward, offensive);
+
+				t.WidthPosition = (num + 1) / ((float)(howmany + 1.0f)) * 2.0f - 1.0f;
+				return t;
+			}
+	}
+	assert(0);
+	throw std::runtime_error("Error in createPlayerTactics: player position not handled\n");
 }
 
 }

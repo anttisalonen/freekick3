@@ -335,7 +335,9 @@ void TeamTacticsScreen::buttonPressed(boost::shared_ptr<Button> button)
 						(*it)->getText() != mFormationNumbers[mHumanTeam]) {
 					unsigned int def, mid, forw;
 					if(sscanf((*it)->getText().c_str(), "%u-%u-%u", &def, &mid, &forw) == 3) {
-						mMatch.getTeam(mHumanTeam)->setTactics(AITactics::createTeamTactics(*mMatch.getTeam(mHumanTeam),
+						assert(def + mid + forw == 10);
+						mMatch.getTeam(mHumanTeam)->setTactics(
+								AITactics::updateTeamTactics(mMatch.getTeam(mHumanTeam)->getTactics(),
 									def, mid, forw));
 						setupTeamDisplay(mHumanTeam);
 					}
