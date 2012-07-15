@@ -298,6 +298,9 @@ AIPassAction::AIPassAction(const Player* p)
 				float angToMe = p->getPosition().v.dot(op->getPosition().v);
 				float maxoppdist = Common::clamp(4.0f, dist * 0.3f, 10.0f);
 
+				if(p->isGoalkeeper())
+					maxoppdist *= 2.0f;
+
 				if(angToMe > 0.0f && oppdist < maxoppdist) {
 					float decr = riskcoeff * (maxoppdist - oppdist) / maxoppdist;
 					decr *= 1.0f + 8.0f * AIHelpers::scaledCoefficient(MatchHelpers::distanceToOwnGoal(*sp), 50.0f);
@@ -377,10 +380,13 @@ AIFetchBallAction::AIFetchBallAction(const Player* p)
 	float maxdist = 20.0f;
 	float dist = MatchEntity::distanceBetween(*p,
 			*p->getMatch()->getBall());
-	mScore = std::max(0.01f, (maxdist - dist) / maxdist);
 	AbsVector3 tgtpos = p->getMatch()->getBall()->getPosition();
+	float disttoowngoal = (MatchHelpers::ownGoalPosition(*p).v - tgtpos.v).length();
+
+	mScore = std::max(0.01f, (maxdist - dist) / maxdist);
+	mScore *= AIHelpers::scaledCoefficient(disttoowngoal, 30.0f);
 	mScore = AIHelpers::checkTacticArea(*p, mScore, tgtpos);
-	mScore *= mPlayer->getTeam()->getAITacticParameters().FetchBallActionCoefficient;
+	mScore *= sqrt(mPlayer->getTeam()->getAITacticParameters().FetchBallActionCoefficient);
 	mAction = AIHelpers::createMoveActionToBall(*p);
 }
 

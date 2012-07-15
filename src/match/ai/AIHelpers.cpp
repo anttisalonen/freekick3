@@ -80,7 +80,7 @@ AbsVector3 AIHelpers::getPositionByFunc(const Player& p, std::function<float (co
 	float best = 0.001f;
 	AbsVector3 sp(p.getPosition());
 	const int range = 100;
-	const int step = 5;
+	const int step = 3;
 	int minx = int(p.getMatch()->getPitchWidth()  * -0.5f + 1);
 	int maxx = int(p.getMatch()->getPitchWidth()  *  0.5f - 1);
 	int miny = int(p.getMatch()->getPitchHeight() * -0.5f + 1);

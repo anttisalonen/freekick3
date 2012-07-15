@@ -14,6 +14,26 @@ boost::shared_ptr<PlayerAction> AIMidfielderState::actOffBall(double time)
 			!MatchHelpers::myTeamInControl(*mPlayer)) {
 		return mPlayController->switchState(boost::shared_ptr<AIState>(new AIDefendState(mPlayer, mPlayController)), time);
 	}
+
+	if(MatchHelpers::myTeamInControl(*mPlayer) &&
+			(mPlayer->getPlayerPosition() == Soccer::PlayerPosition::Midfielder ||
+			 mPlayer->getPlayerPosition() == Soccer::PlayerPosition::Forward) &&
+			(mPlayer->getMatch()->getPlayState() == PlayState::OutDirectFreekick ||
+			 mPlayer->getMatch()->getPlayState() == PlayState::OutPenaltykick ||
+			 mPlayer->getMatch()->getPlayState() == PlayState::OutCornerkick ||
+			 mPlayer->getTactics().Offensive)) {
+		return mPlayController->switchState(boost::shared_ptr<AIState>(new AIOffensiveState(mPlayer, mPlayController)), time);
+	}
+
+	if(!MatchHelpers::myTeamInControl(*mPlayer) &&
+			mPlayer->getPlayerPosition() == Soccer::PlayerPosition::Midfielder &&
+			(mPlayer->getMatch()->getPlayState() == PlayState::OutDirectFreekick ||
+			 mPlayer->getMatch()->getPlayState() == PlayState::OutPenaltykick ||
+			 mPlayer->getMatch()->getPlayState() == PlayState::OutCornerkick) &&
+			 !mPlayer->getTactics().Offensive) {
+		return mPlayController->switchState(boost::shared_ptr<AIState>(new AIDefendState(mPlayer, mPlayController)), time);
+	}
+
 	if(!MatchHelpers::myTeamInControl(*mPlayer) && mPlayer->getMatch()->getPlayState() != PlayState::InPlay) {
 		return boost::shared_ptr<PlayerAction>(new IdlePA());
 	}

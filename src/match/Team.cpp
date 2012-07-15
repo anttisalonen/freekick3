@@ -168,20 +168,13 @@ float Team::calculateShotScoreAt(const AbsVector3& pos) const
 	assert(pos.v.x < mMatch->getPitchWidth());
 	assert(pos.v.y > -mMatch->getPitchHeight());
 	assert(pos.v.y < mMatch->getPitchHeight());
-	if(pts > 0) {
-		float distToBall = (pos.v - mMatch->getBall()->getPosition().v).length();
-		// corresponds rather directly to how defensive the team plays
-		const float optimumDist = 30.0f;
-		float coefficient = AIHelpers::scaledDistanceFrom(distToBall, optimumDist);
-		if(distToBall > optimumDist || distToGoal > 30.0f)
-			pts *= coefficient;
-	}
 
 	if(pts > 0) {
 		for(auto op : MatchHelpers::getOpposingPlayers(*this)) {
 			float distToPl = (pos.v - op->getPosition().v).length();
-			if(distToPl < 8.0f) {
-				pts -= (8.0 - distToPl) / 16.0f;
+			const float maxDistToOpp = 8.0f;
+			if(distToPl < maxDistToOpp) {
+				pts *= (maxDistToOpp - distToPl) / (maxDistToOpp * 2.0f);
 				// std::cout << "Distance to player: " << distToPl << "; ";
 				if(pts < 0)
 					break;
@@ -202,9 +195,12 @@ float Team::calculatePassScoreAt(const std::vector<boost::shared_ptr<Player>>& o
 	float pts = 0.0f;
 
 	for(auto op : offensivePlayers) {
+		if((pos.v.y > op->getPosition().v.y) == MatchHelpers::attacksUp(*this))
+			continue;
+
 		float distToPl = (pos.v - op->getPosition().v).length();
 		const float optimumDist = 20.0f;
-		pts += AIHelpers::scaledDistanceFrom(distToPl, optimumDist);
+		pts = std::max(pts, AIHelpers::scaledDistanceFrom(distToPl, optimumDist));
 	}
 	pts = Common::clamp(0.0f, pts, 1.0f);
 	//printf("Pts: %3.3f - ", pts);
@@ -212,8 +208,9 @@ float Team::calculatePassScoreAt(const std::vector<boost::shared_ptr<Player>>& o
 	if(pts > 0.0f) {
 		for(auto op : MatchHelpers::getOpposingPlayers(*this)) {
 			float distToPl = (pos.v - op->getPosition().v).length();
-			if(distToPl < 6.0f) {
-				pts -= (6.0f - distToPl) / 12.0f;
+			const float maxDistToOpp = 10.0f;
+			if(distToPl < maxDistToOpp) {
+				pts *= (maxDistToOpp - distToPl) / maxDistToOpp;
 				// std::cout << "Distance to player: " << distToPl << "; ";
 				if(pts < 0.0f)
 					break;
@@ -224,12 +221,6 @@ float Team::calculatePassScoreAt(const std::vector<boost::shared_ptr<Player>>& o
 	// std::cout << "Total pass points: " << pts << "\n";
 	//printf("Pts: %3.3f - ", pts);
 
-	if(pts > 0.0) {
-		float distToGoal = (pos.v - MatchHelpers::oppositeGoalPosition(*this).v).length();
-		const float maxDistToGoal = 30.0f;
-		if(distToGoal < maxDistToGoal)
-			pts *= distToGoal / maxDistToGoal;
-	}
 	//printf("Pts: %3.3f\n", pts);
 	return pts;
 }

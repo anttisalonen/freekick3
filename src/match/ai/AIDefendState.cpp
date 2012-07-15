@@ -18,9 +18,15 @@ boost::shared_ptr<PlayerAction> AIDefendState::actOffBall(double time)
 		case Soccer::PlayerPosition::Goalkeeper:
 			return mPlayController->switchState(boost::shared_ptr<AIState>(new AIGoalkeeperState(mPlayer, mPlayController)), time);
 
+		case Soccer::PlayerPosition::Midfielder:
 		case Soccer::PlayerPosition::Defender:
 			{
-				if(MatchHelpers::myTeamInControl(*mPlayer) && mPlayer->getMatch()->getPlayState() != PlayState::InPlay) {
+				if(MatchHelpers::myTeamInControl(*mPlayer) &&
+						(mPlayer->getMatch()->getPlayState() == PlayState::OutDirectFreekick ||
+						 mPlayer->getMatch()->getPlayState() == PlayState::OutPenaltykick ||
+						 mPlayer->getMatch()->getPlayState() == PlayState::OutCornerkick ||
+						 mPlayer->getPlayerPosition() == Soccer::PlayerPosition::Midfielder ||
+						 mPlayer->getTactics().Offensive)) {
 					return mPlayController->switchState(boost::shared_ptr<AIState>(new AIMidfielderState(mPlayer, mPlayController)), time);
 				}
 
@@ -39,9 +45,6 @@ boost::shared_ptr<PlayerAction> AIDefendState::actOffBall(double time)
 				mDescription = std::string("Defending - ") + best->getDescription();
 				return best->getAction();
 			}
-
-		case Soccer::PlayerPosition::Midfielder:
-			return mPlayController->switchState(boost::shared_ptr<AIState>(new AIMidfielderState(mPlayer, mPlayController)), time);
 
 		case Soccer::PlayerPosition::Forward:
 			return mPlayController->switchState(boost::shared_ptr<AIState>(new AIOffensiveState(mPlayer, mPlayController)), time);
