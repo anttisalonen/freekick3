@@ -141,6 +141,7 @@ class StatefulTeam : public Team {
 		StatefulTeam(const Team& t, TeamController c, const TeamTactics& tt);
 		const TeamController& getController() const;
 		TeamController& getController();
+		TeamTactics& getTactics();
 		const TeamTactics& getTactics() const;
 		void setTactics(const TeamTactics& t);
 

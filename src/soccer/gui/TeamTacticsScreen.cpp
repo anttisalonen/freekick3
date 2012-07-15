@@ -52,7 +52,7 @@ void TeamTacticsScreen::setupTeamDisplay(int i)
 	int teamf = 0;
 
 	for(auto p : mPlayers[i]) {
-		removeButton(p);
+		removeButton(p.first);
 	}
 	mPlayers[i].clear();
 
@@ -192,7 +192,7 @@ void TeamTacticsScreen::addPlayerLabels(const boost::shared_ptr<Player> pl, int 
 	{
 		boost::shared_ptr<Button> b = addButton(pl->getName().c_str(), Common::Rectangle(x, y, namewidth, nameheight));
 		b->setCenteredText(TextAlignment::MiddleLeft);
-		mPlayers[i].push_back(b);
+		mPlayers[i].insert(std::make_pair(b, pl->getId()));
 	}
 
 	bool gk = false;
@@ -267,9 +267,9 @@ void TeamTacticsScreen::setupPlrLabels()
 		}
 		for(auto l : mPlayers[i]) {
 			if((mToggleButtons[0]->hidden()) == (i == 0))
-				l->show();
+				l.first->show();
 			else
-				l->hide();
+				l.first->hide();
 		}
 		for(auto l : mPlayerControllerButtons[i]) {
 			if((mToggleButtons[0]->hidden()) == (i == 0))
@@ -300,6 +300,10 @@ void TeamTacticsScreen::buttonPressed(boost::shared_ptr<Button> button)
 		mToggleButtons[1]->show();
 		mTeamLabels[0]->show();
 		mTeamLabels[1]->hide();
+		if(mSelectedPlayer.first) {
+			Menu::setButtonDefaultColor(mSelectedPlayer.first);
+			mSelectedPlayer.first = boost::shared_ptr<Button>();
+		}
 		setupPlrLabels();
 	}
 	else if(buttonText == "Away") {
@@ -307,6 +311,10 @@ void TeamTacticsScreen::buttonPressed(boost::shared_ptr<Button> button)
 		mToggleButtons[1]->hide();
 		mTeamLabels[0]->hide();
 		mTeamLabels[1]->show();
+		if(mSelectedPlayer.first) {
+			Menu::setButtonDefaultColor(mSelectedPlayer.first);
+			mSelectedPlayer.first = boost::shared_ptr<Button>();
+		}
 		setupPlrLabels();
 	}
 	else if(buttonText == "Match") {
@@ -314,6 +322,47 @@ void TeamTacticsScreen::buttonPressed(boost::shared_ptr<Button> button)
 	}
 	else {
 		if(mHumanTeam != -1) {
+			// check if player name button clicked
+			{
+				auto it = mPlayers[mHumanTeam].find(button);
+				if(it != mPlayers[mHumanTeam].end()) {
+					if(!mSelectedPlayer.first) {
+						mSelectedPlayer.first = it->first;
+						mSelectedPlayer.second = it->second;
+						Menu::setButtonComputerColor(mSelectedPlayer.first);
+					}
+					else if(mSelectedPlayer.first == it->first) {
+						Menu::setButtonDefaultColor(mSelectedPlayer.first);
+						mSelectedPlayer.first = boost::shared_ptr<Button>();
+					}
+					else {
+						// switch players
+						auto pl1 = mMatch.getTeam(mHumanTeam)->getTactics().mTactics.find(mSelectedPlayer.second);
+						auto pl2 = mMatch.getTeam(mHumanTeam)->getTactics().mTactics.find(it->second);
+						if(pl1 != mMatch.getTeam(mHumanTeam)->getTactics().mTactics.end() &&
+						   pl2 != mMatch.getTeam(mHumanTeam)->getTactics().mTactics.end()) {
+							// both in lineup
+							std::swap(pl1->second, pl2->second);
+						}
+						else if((pl1 == mMatch.getTeam(mHumanTeam)->getTactics().mTactics.end()) !=
+							(pl2 == mMatch.getTeam(mHumanTeam)->getTactics().mTactics.end())) {
+							// only one in lineup
+							auto& value = pl1 == mMatch.getTeam(mHumanTeam)->getTactics().mTactics.end() ?
+								pl2->second : pl1->second;
+							auto key = pl1 == mMatch.getTeam(mHumanTeam)->getTactics().mTactics.end() ?
+								mSelectedPlayer.second : it->second;
+							mMatch.getTeam(mHumanTeam)->getTactics().mTactics.erase(mSelectedPlayer.second);
+							mMatch.getTeam(mHumanTeam)->getTactics().mTactics.erase(it->second);
+							mMatch.getTeam(mHumanTeam)->getTactics().mTactics.insert(std::make_pair(key, value));
+							assert(mMatch.getTeam(mHumanTeam)->getTactics().mTactics.size() == 11);
+						}
+						Menu::setButtonDefaultColor(mSelectedPlayer.first);
+						mSelectedPlayer.first = boost::shared_ptr<Button>();
+						setupTeamDisplay(mHumanTeam);
+					}
+				}
+			}
+
 			// check if player controller button clicked
 			{
 				auto it = mPlayerControllerButtons[mHumanTeam].find(button);

@@ -37,7 +37,7 @@ class TeamTacticsScreen : public Screen {
 		bool mShowHome;
 		int mHumanTeam;
 		Common::Rectangle mPitchRect;
-		std::vector<boost::shared_ptr<Button>> mPlayers[2];
+		std::map<boost::shared_ptr<Button>, int> mPlayers[2];
 		boost::shared_ptr<Button> mToggleButtons[2];
 		boost::shared_ptr<Button> mTeamLabels[2];
 		std::vector<boost::shared_ptr<Button>> mPlayerLabels[2];
@@ -46,6 +46,7 @@ class TeamTacticsScreen : public Screen {
 		std::vector<boost::shared_ptr<Button>> mSkillLabels[2];
 		std::map<boost::shared_ptr<Button>, int> mPlayerControllerButtons[2];
 		std::vector<boost::shared_ptr<Button>> mTop3Labels[2];
+		std::pair<boost::shared_ptr<Button>, int> mSelectedPlayer;
 };
 
 }
