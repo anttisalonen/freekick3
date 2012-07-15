@@ -25,6 +25,11 @@ const Rectangle& Widget::getRectangle() const
 	return mRectangle;
 }
 
+void Widget::setRectangle(const Common::Rectangle& r)
+{
+	mRectangle = r;
+}
+
 bool Widget::hidden() const
 {
 	return mHidden;

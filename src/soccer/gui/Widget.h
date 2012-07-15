@@ -20,6 +20,7 @@ class Widget {
 		Widget(const Common::Rectangle& dim);
 		bool clicked(int x, int y) const;
 		const Common::Rectangle& getRectangle() const;
+		void setRectangle(const Common::Rectangle& r);
 		bool hidden() const;
 		void hide();
 		void show();
