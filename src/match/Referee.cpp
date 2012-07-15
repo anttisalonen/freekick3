@@ -69,6 +69,8 @@ boost::shared_ptr<RefereeAction> Referee::act(double time)
 			else {
 				mOutOfPlayClock.doCountdown(time);
 				if(mOutOfPlayClock.check()) {
+					if(mMatch->getBall()->grabbed())
+						mMatch->getBall()->drop();
 					mMatch->getBall()->setPosition(mRestartPosition);
 					mMatch->getBall()->setVelocity(AbsVector3());
 				}

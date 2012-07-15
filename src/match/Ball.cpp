@@ -175,6 +175,12 @@ void Ball::grab(Player* p)
 	mPosition.v.z = 0.10f;
 }
 
+void Ball::drop()
+{
+	mGrabbed = false;
+	mGrabber = nullptr;
+}
+
 const Player* Ball::getGrabber() const
 {
 	return mGrabber;

@@ -14,6 +14,7 @@ class Ball : public MatchEntity {
 		void kicked(Player* p);
 		bool grabbed() const;
 		void grab(Player* p);
+		void drop();
 		const Player* getGrabber() const;
 		const Player* checkPlayerCollisions();
 	private:

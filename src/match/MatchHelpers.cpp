@@ -363,7 +363,7 @@ bool MatchHelpers::canGrabBall(const Player& p)
 	if(p.isGoalkeeper() && !b->grabbed() &&
 			!myTeamInControl(p) &&
 			inOwnPenaltyArea(p) &&
-			onPitch(p)) {
+			onPitch(p) && playing(p.getMatch()->getPlayState())) {
 		float distToBall = MatchEntity::distanceBetween(p, *b);
 		float maxDist = p.standing() ? 0.5f : 0.0f;
 		maxDist += sqrt(p.getSkills().GoalKeeping);
