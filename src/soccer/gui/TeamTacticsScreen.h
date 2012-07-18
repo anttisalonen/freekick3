@@ -47,6 +47,8 @@ class TeamTacticsScreen : public Screen {
 		std::map<boost::shared_ptr<Button>, int> mPlayerControllerButtons[2];
 		std::vector<boost::shared_ptr<Button>> mTop3Labels[2];
 		std::pair<boost::shared_ptr<Button>, int> mSelectedPlayer;
+
+		std::vector<boost::shared_ptr<Slider>> mTacticsSliders[2];
 };
 
 }

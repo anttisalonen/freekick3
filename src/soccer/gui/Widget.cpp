@@ -15,7 +15,7 @@ Widget::Widget(const Rectangle& dim)
 {
 }
 
-bool Widget::clicked(int x, int y) const
+bool Widget::clicked(int x, int y)
 {
 	return mActive && !mHidden && mRectangle.pointWithin(x, y);
 }

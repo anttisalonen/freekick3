@@ -38,6 +38,7 @@ class ScreenManager {
 
 	private:
 		bool recordMouseButton(bool up, int x, int y);
+		bool recordMouseMovement(bool pressed, int x, int y);
 		boost::shared_ptr<Screen> getCurrentScreen() const;
 		const Menu& mMenu;
 		std::vector<boost::shared_ptr<Screen>> mScreens;

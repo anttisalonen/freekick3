@@ -21,6 +21,7 @@ class Image : public Widget {
 	public:
 		Image(const char* filepath, const Common::Rectangle& dim);
 		const boost::shared_ptr<Common::Texture> getTexture() const;
+		virtual void draw(int screenWidth, int screenHeight);
 
 	private:
 		boost::shared_ptr<Common::Texture> mTexture;

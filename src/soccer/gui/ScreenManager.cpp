@@ -87,119 +87,32 @@ void ScreenManager::drawScreen()
 	// draw widgets
 	boost::shared_ptr<Screen> currentScreen = getCurrentScreen();
 	if(currentScreen) {
-		// maybe it would be better to move all this drawing stuff to
-		// an abstract Widget::draw, but I want to keep all the gl
-		// calls in one place.
 		for(auto i : currentScreen->getImages()) {
 			if(i->hidden())
 				continue;
 
-			const Rectangle& r = i->getRectangle();
-			glColor3f(1.0f, 1.0f, 1.0f);
-			glEnable(GL_TEXTURE_2D);
-			glBindTexture(GL_TEXTURE_2D, i->getTexture()->getTexture());
-			glBegin(GL_QUADS);
-			glTexCoord2f(0.0f, 1.0f);
-			glVertex3f(r.x, screenHeight - r.y, 0.5f);
-			glTexCoord2f(0.0f, 0.0f);
-			glVertex3f(r.x + r.w, screenHeight - r.y, 0.5f);
-			glTexCoord2f(1.0f, 0.0f);
-			glVertex3f(r.x + r.w, screenHeight - r.y - r.h, 0.5f);
-			glTexCoord2f(1.0f, 1.0f);
-			glVertex3f(r.x, screenHeight - r.y - r.h, 0.5f);
-			glEnd();
+			i->draw(screenWidth, screenHeight);
 		}
 
 		for(auto b : currentScreen->getButtons()) {
 			if(b->hidden())
 				continue;
 
-			const Rectangle& r = b->getRectangle();
-			if(!b->isTransparent()) {
-				glDisable(GL_TEXTURE_2D);
-				glBegin(GL_QUADS);
-				const Color& c1 = b->getColor1();
-				const Color& c2 = b->getColor2();
-				glColor3ub(c1.r, c1.g, c1.b);
-				glVertex3f(r.x, screenHeight - r.y, 1.0f);
-				glVertex3f(r.x + r.w, screenHeight - r.y, 1.0f);
-				glColor3ub(c2.r, c2.g, c2.b);
-				glVertex3f(r.x + r.w, screenHeight - r.y - r.h, 1.0f);
-				glVertex3f(r.x, screenHeight - r.y - r.h, 1.0f);
-				glEnd();
-			}
+			b->draw(screenWidth, screenHeight);
+		}
 
-			float tw2 = 0.5f * b->getTextTexture()->getWidth() * b->getTextWidth();
-			float th2 = 0.5f * b->getTextTexture()->getHeight() * b->getTextHeight();
+		for(auto b : currentScreen->getSliders()) {
+			if(b->hidden())
+				continue;
 
-			const Common::Color& textcolor = b->getTextColor();
-			glColor3ub(textcolor.r, textcolor.g, textcolor.b);
-			glEnable(GL_TEXTURE_2D);
-			glBindTexture(GL_TEXTURE_2D, b->getTextTexture()->getTexture());
-			glBegin(GL_QUADS);
-
-			glTexCoord2f(0.0f, 0.0f);
-
-			Rectangle textbox(r.x, r.y,
-					2.0f * tw2, 2.0f * th2);
-
-			switch(b->centeredText()) {
-				case TextAlignment::TopLeft:
-					break;
-
-				case TextAlignment::TopMiddle:
-					textbox.x += r.w * 0.5f - tw2;
-					break;
-
-				case TextAlignment::TopRight:
-					textbox.x += r.w - 2.0f * tw2;
-					break;
-
-				case TextAlignment::MiddleLeft:
-					textbox.y += r.h * 0.5f - th2;
-					break;
-
-				case TextAlignment::Centered:
-					textbox.x += r.w * 0.5f - tw2;
-					textbox.y += r.h * 0.5f - th2;
-					break;
-
-				case TextAlignment::MiddleRight:
-					textbox.x += r.w - 2.0f * tw2;
-					textbox.y += r.h * 0.5f - th2;
-					break;
-
-				case TextAlignment::BottomLeft:
-					textbox.y += r.h - 2.0f * th2;
-					break;
-
-				case TextAlignment::BottomMiddle:
-					textbox.x += r.w * 0.5f - tw2;
-					textbox.y += r.h - 2.0f * th2;
-					break;
-
-				case TextAlignment::BottomRight:
-					textbox.x += r.w - 2.0f * tw2;
-					textbox.y += r.h - 2.0f * th2;
-					break;
-			}
-
-			textbox.y = screenHeight - textbox.y;
-			glVertex3f(textbox.x,             textbox.y, 1.1f);
-			glTexCoord2f(1.0f, 0.0f);
-			glVertex3f(textbox.x + textbox.w, textbox.y, 1.1f);
-			glTexCoord2f(1.0f, 1.0f);
-			glVertex3f(textbox.x + textbox.w, textbox.y - textbox.h, 1.1f);
-			glTexCoord2f(0.0f, 1.0f);
-			glVertex3f(textbox.x,             textbox.y - textbox.h, 1.1f);
-
-			glEnd();
+			b->draw(screenWidth, screenHeight);
 		}
 	}
 
 	SDL_GL_SwapBuffers();
 }
 
+// return true if the screen should be redrawn.
 bool ScreenManager::handleEvents()
 {
 	SDL_Event ev;
@@ -214,6 +127,10 @@ bool ScreenManager::handleEvents()
 		case SDL_MOUSEBUTTONUP:
 			if(ev.button.button == SDL_BUTTON_LEFT)
 				return recordMouseButton(ev.type == SDL_MOUSEBUTTONUP, ev.button.x, ev.button.y);
+			return false;
+
+		case SDL_MOUSEMOTION:
+			return recordMouseMovement(ev.motion.state & SDL_BUTTON(1), ev.motion.x, ev.motion.y);
 
 		case SDL_KEYDOWN:
 			if(ev.key.keysym.sym == SDLK_ESCAPE)
@@ -259,6 +176,34 @@ bool ScreenManager::recordMouseButton(bool up, int x, int y)
 			break;
 		}
 	}
+
+	for(auto b : currentScreen->getSliders()) {
+		if(!b->hidden() && b->clicked(x, y)) {
+			return true;
+		}
+	}
+
+	return false;
+}
+
+bool ScreenManager::recordMouseMovement(bool pressed, int x, int y)
+{
+	if(!pressed) {
+		return false;
+	}
+
+	boost::shared_ptr<Screen> currentScreen = getCurrentScreen();
+	if(!currentScreen) {
+		return true;
+	}
+
+	for(auto b : currentScreen->getSliders()) {
+		if(!b->hidden()) {
+			if(b->clicked(x, y))
+				return true;
+		}
+	}
+
 	return false;
 }
 

@@ -32,6 +32,31 @@ bool Screen::removeButton(boost::shared_ptr<Button> b)
 	return false;
 }
 
+bool Screen::removeSlider(boost::shared_ptr<Slider> b)
+{
+	for(auto it = mSliders.begin(); it != mSliders.end(); ++it) {
+		if(*it == b) {
+			mSliders.erase(it);
+			return true;
+		}
+	}
+	return false;
+}
+
+boost::shared_ptr<Slider> Screen::addSlider(const char* text, const Common::Rectangle& dim,
+		float value)
+{
+	boost::shared_ptr<Slider> b(new Slider(text, mScreenManager->getFont(),
+					Rectangle(dim.x * mScreenManager->getScreenWidth(),
+						dim.y * mScreenManager->getScreenHeight(),
+						dim.w * mScreenManager->getScreenWidth(),
+						dim.h * mScreenManager->getScreenHeight()),
+					value));
+	setButtonTextSize(b);
+	mSliders.push_back(b);
+	return b;
+}
+
 boost::shared_ptr<Button> Screen::addLabel(const char* text, float x, float y, TextAlignment centered,
 		float fsize, Common::Color col)
 {
@@ -90,9 +115,14 @@ boost::shared_ptr<Button> Screen::addLabel(const char* text, float x, float y, T
 	return b;
 }
 
-const std::vector<boost::shared_ptr<Button>>& Screen::getButtons() const
+std::vector<boost::shared_ptr<Button>>& Screen::getButtons()
 {
 	return mButtons;
+}
+
+std::vector<boost::shared_ptr<Slider>>& Screen::getSliders()
+{
+	return mSliders;
 }
 
 void Screen::setButtonTextSize(boost::shared_ptr<Button> b)
@@ -130,7 +160,7 @@ bool Screen::removeImage(boost::shared_ptr<Image> i)
 	return false;
 }
 
-const std::vector<boost::shared_ptr<Image>>& Screen::getImages() const
+std::vector<boost::shared_ptr<Image>>& Screen::getImages()
 {
 	return mImages;
 }

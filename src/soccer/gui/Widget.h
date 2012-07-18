@@ -18,7 +18,7 @@ namespace Soccer {
 class Widget {
 	public:
 		Widget(const Common::Rectangle& dim);
-		bool clicked(int x, int y) const;
+		virtual bool clicked(int x, int y);
 		const Common::Rectangle& getRectangle() const;
 		void setRectangle(const Common::Rectangle& r);
 		bool hidden() const;
@@ -27,6 +27,7 @@ class Widget {
 		bool active() const;
 		void activate();
 		void deactivate();
+		virtual void draw(int screenWidth, int screenHeight) = 0;
 
 	protected:
 		Common::Rectangle mRectangle;

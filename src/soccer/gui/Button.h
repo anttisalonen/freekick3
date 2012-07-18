@@ -49,6 +49,7 @@ class Button : public Widget {
 		float getTextHeight() const;
 		void setTextColor(const Common::Color& c);
 		const Common::Color& getTextColor() const;
+		virtual void draw(int screenWidth, int screenHeight);
 
 		static Common::Color DefaultColor1;
 		static Common::Color DefaultColor2;

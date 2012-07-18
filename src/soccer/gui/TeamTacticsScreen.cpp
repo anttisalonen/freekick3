@@ -61,6 +61,11 @@ void TeamTacticsScreen::setupTeamDisplay(int i)
 	}
 	mPlayerControllerButtons[i].clear();
 
+	for(auto p : mTacticsSliders[i]) {
+		removeSlider(p);
+	}
+	mTacticsSliders[i].clear();
+
 	for(auto b : mPlayerLabels[i]) {
 		removeButton(b);
 	}
@@ -182,6 +187,34 @@ void TeamTacticsScreen::setupTeamDisplay(int i)
 		addFormationButton(i, formbutton, ss.str());
 	}
 
+	const float sliderX = 0.40f;
+	float sliderY = 0.22f;
+	const float sliderW = 0.20f;
+	const float sliderH = 0.05f;
+
+	mTacticsSliders[i].push_back(addSlider("-      Pressure      +",
+				Common::Rectangle(sliderX, sliderY, sliderW, sliderH),
+				mMatch.getTeam(i)->getTactics().Pressure));
+
+	sliderY += sliderH * 1.05f;
+	mTacticsSliders[i].push_back(addSlider("-     Long balls     +",
+				Common::Rectangle(sliderX, sliderY, sliderW, sliderH),
+				mMatch.getTeam(i)->getTactics().LongBalls));
+
+	sliderY += sliderH * 1.05f;
+	mTacticsSliders[i].push_back(addSlider("-    Fast passing    +",
+				Common::Rectangle(sliderX, sliderY, sliderW, sliderH),
+				mMatch.getTeam(i)->getTactics().FastPassing));
+
+	sliderY += sliderH * 1.05f;
+	mTacticsSliders[i].push_back(addSlider("-    Close shots    +",
+				Common::Rectangle(sliderX, sliderY, sliderW, sliderH),
+				mMatch.getTeam(i)->getTactics().ShootClose));
+
+	for(auto s : mTacticsSliders[i]) {
+		s->setColor1(Common::Color(112, 95, 64));
+	}
+
 	setupPlrLabels();
 }
 
@@ -286,6 +319,16 @@ void TeamTacticsScreen::setupPlrLabels()
 				l.first->setText("C");
 			}
 		}
+		for(auto l : mTacticsSliders[i]) {
+			if((mToggleButtons[0]->hidden()) == (i == 0))
+				l->show();
+			else
+				l->hide();
+			if(i == mHumanTeam)
+				l->activate();
+			else
+				l->deactivate();
+		}
 	}
 }
 
@@ -318,6 +361,13 @@ void TeamTacticsScreen::buttonPressed(boost::shared_ptr<Button> button)
 		setupPlrLabels();
 	}
 	else if(buttonText == "Match") {
+		if(mHumanTeam != -1) {
+			assert(mTacticsSliders[mHumanTeam].size() == 4);
+			mMatch.getTeam(mHumanTeam)->getTactics().Pressure    = mTacticsSliders[mHumanTeam][0]->getValue();
+			mMatch.getTeam(mHumanTeam)->getTactics().LongBalls   = mTacticsSliders[mHumanTeam][1]->getValue();
+			mMatch.getTeam(mHumanTeam)->getTactics().FastPassing = mTacticsSliders[mHumanTeam][2]->getValue();
+			mMatch.getTeam(mHumanTeam)->getTactics().ShootClose  = mTacticsSliders[mHumanTeam][3]->getValue();
+		}
 		mTtso.TeamTacticsScreenFinished(mChosenplnum);
 	}
 	else {
