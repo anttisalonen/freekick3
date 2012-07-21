@@ -160,7 +160,7 @@ bool LeagueScreen::playNextMatch(bool display)
 	const boost::shared_ptr<Match> m = mLeague->getNextMatch();
 	if(display) {
 		mScreenManager->addScreen(boost::shared_ptr<Screen>(new TeamTacticsScreen(mScreenManager, *m,
-						[&](Match& m) {
+						[&](Match& m) -> void {
 							RunningMatch rm = RunningMatch(m);
 							MatchResult r;
 							while(!rm.matchFinished(&r)) {
@@ -175,8 +175,20 @@ bool LeagueScreen::playNextMatch(bool display)
 		return false;
 	}
 	else {
-		MatchResult r = m->play(false);
-		return mLeague->matchPlayed(r);
+		if(m->getTeam(0)->getController().HumanControlled ||
+				m->getTeam(1)->getController().HumanControlled) {
+			mScreenManager->addScreen(boost::shared_ptr<Screen>(new TeamTacticsScreen(mScreenManager, *m,
+							[&](Match& m) -> void {
+							MatchResult r = m.play(false);
+							mLeague->matchPlayed(r);
+							updateScreenElements();
+							})));
+			return false;
+		}
+		else {
+			MatchResult r = m->play(false);
+			return mLeague->matchPlayed(r);
+		}
 	}
 }
 
