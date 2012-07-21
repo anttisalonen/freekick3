@@ -79,6 +79,7 @@ void KickBallPA::applyPlayerAction(Match& match, Player& p, double time)
 		if(mPassTarget && mPassTarget->getTeam() == p.getTeam()) {
 			p.getTeam()->setPlayerReceivingPass(mPassTarget);
 		}
+		match.setGoalScorer(&p);
 	}
 }
 

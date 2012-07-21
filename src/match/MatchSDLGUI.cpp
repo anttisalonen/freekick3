@@ -210,6 +210,38 @@ void MatchSDLGUI::drawEnvironment()
 		drawText(screenWidth / 2, screenHeight / 2, FontConfig("Paused", Color(255, 255, 255), 2.0f),
 				true, true);
 	}
+	else if((mMatch->getPlayState() == PlayState::OutKickoff &&
+				playing(mMatch->getMatchHalf()) &&
+					(mMatch->getScore(true) + mMatch->getScore(false) != 0)) ||
+		(!playing(mMatch->getMatchHalf()) && mMatch->getMatchHalf() != MatchHalf::NotStarted)) {
+		char header[255];
+		snprintf(header, 255, "%s %d - %d %s", mMatch->getTeam(0)->getName().c_str(),
+				mMatch->getScore(true), mMatch->getScore(false),
+				mMatch->getTeam(1)->getName().c_str());
+		header[254] = 0;
+
+		std::vector<std::string> scorers[2];
+		unsigned int i = 0;
+		for(auto side : mMatch->getGoalInfos()) {
+			assert(i < 2);
+			scorers[i].push_back(mMatch->getTeam(i)->getName() + std::string(" ") + std::to_string(mMatch->getScore(i == 0)));
+			for(auto goalinfo : side) {
+				scorers[i].push_back(goalinfo.getShortScorerName() + std::string(" ") + goalinfo.getScoreTime());
+			}
+			i++;
+		}
+
+		int x = screenWidth * 0.3f;
+		for(auto slist : scorers) {
+			int y = screenHeight * 0.5f;
+			for(auto s : slist) {
+				drawText(x, y, FontConfig(s.c_str(), Color(255, 255, 255), 2.0f),
+						true, true);
+				y -= 40;
+			}
+			x = screenWidth * 0.7f;
+		}
+	}
 }
 
 const boost::shared_ptr<Texture> MatchSDLGUI::playerTexture(const Player* p)

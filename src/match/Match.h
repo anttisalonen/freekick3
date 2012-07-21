@@ -4,6 +4,7 @@
 #include <iostream>
 #include <vector>
 #include <map>
+#include <array>
 
 #include "soccer/Match.h"
 
@@ -41,6 +42,19 @@ enum class PlayState {
 std::ostream& operator<<(std::ostream& out, const PlayState& m);
 bool playing(PlayState h);
 
+class GoalInfo {
+	public:
+		GoalInfo(const Match& m, bool pen, bool own);
+		const std::string& getScorerName() const;
+		const std::string& getShortScorerName() const;
+		const std::string& getScoreTime() const;
+
+	private:
+		std::string mScorerName;
+		std::string mShortScorerName;
+		std::string mScoreTime;
+};
+
 class Match : public Soccer::Match {
 	public:
 		Match(const Soccer::Match& m, double matchtime);
@@ -68,6 +82,9 @@ class Match : public Soccer::Match {
 		int getScore(bool first) const;
 		bool grabBall(Player* p);
 		double getTime() const;
+		void setGoalScorer(const Player* p);
+		const Player* getGoalScorer() const;
+		const std::array<std::vector<GoalInfo>, 2>& getGoalInfos() const;
 	private:
 		void applyPlayerAction(PlayerAction* a,
 				const boost::shared_ptr<Player> p, double time);
@@ -83,6 +100,8 @@ class Match : public Soccer::Match {
 		PlayState mPlayState;
 		Pitch mPitch;
 		int mScore[2];
+		std::array<std::vector<GoalInfo>, 2> mGoalInfos;
+		const Player* mGoalScorer;
 };
 
 #endif

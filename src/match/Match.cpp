@@ -15,7 +15,8 @@ Match::Match(const Soccer::Match& m, double matchtime)
 	mTimeAccelerationConstant(90.0f / matchtime),
 	mMatchHalf(MatchHalf::NotStarted),
 	mPlayState(PlayState::OutKickoff),
-	mPitch(Pitch(68.0f, 105.0f))
+	mPitch(Pitch(68.0f, 105.0f)),
+	mGoalScorer(nullptr)
 {
 	static const unsigned int numPlayers = 11;
 	assert(matchtime);
@@ -324,6 +325,8 @@ double Match::getAirViscosityFactor() const
 void Match::addGoal(bool forFirst)
 {
 	mScore[forFirst ? 0 : 1]++;
+	/* TODO: set penalty flag correctly */
+	mGoalInfos[forFirst ? 0 : 1].push_back(GoalInfo(*this, false, mGoalScorer->getTeam()->isFirst() != forFirst));
 }
 
 int Match::getScore(bool first) const
@@ -359,6 +362,77 @@ void Match::updateTime(double time)
 double Match::getTime() const
 {
 	return mTime;
+}
+
+void Match::setGoalScorer(const Player* p)
+{
+	mGoalScorer = p;
+}
+
+const Player* Match::getGoalScorer() const
+{
+	if(!mGoalScorer)
+		throw std::runtime_error("Match::getGoalScorer() called without a goal scorer");
+	return mGoalScorer;
+}
+
+const std::array<std::vector<GoalInfo>, 2>& Match::getGoalInfos() const
+{
+	return mGoalInfos;
+}
+
+GoalInfo::GoalInfo(const Match& m, bool pen, bool own)
+{
+	const Player* scorer = m.getGoalScorer();
+	mScorerName = scorer->getName();
+	mShortScorerName = Soccer::Player::getShorterName(*scorer);
+
+	if(own) {
+		mScorerName += " (og)";
+		mShortScorerName += " (og)";
+	}
+
+	if(pen) {
+		mScorerName += "(pen.)";
+		mShortScorerName += "(pen.)";
+	}
+
+	int min = m.getTime();
+
+	switch(m.getMatchHalf()) {
+		case MatchHalf::SecondHalf:
+			if(min > 45) {
+				mScoreTime = std::string("90 + ") + std::to_string(min - 45);
+			}
+			else {
+				mScoreTime = std::to_string(min + 45);
+			}
+			break;
+
+		default:
+			if(min > 45) {
+				mScoreTime = std::string("45 + ") + std::to_string(min - 45);
+			}
+			else {
+				mScoreTime = std::to_string(min);
+			}
+			break;
+	}
+}
+
+const std::string& GoalInfo::getScorerName() const
+{
+	return mScorerName;
+}
+
+const std::string& GoalInfo::getShortScorerName() const
+{
+	return mShortScorerName;
+}
+
+const std::string& GoalInfo::getScoreTime() const
+{
+	return mScoreTime;
 }
 
 
