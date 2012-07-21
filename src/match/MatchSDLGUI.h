@@ -78,6 +78,7 @@ class MatchSDLGUI : public MatchGUI, public PlayerController {
 		boost::shared_ptr<PlayerAction> act(double time);
 	private:
 		void drawEnvironment();
+		void drawTexts();
 		void drawPlayers();
 		void drawBall();
 		void startFrame();

@@ -126,6 +126,7 @@ bool MatchSDLGUI::play()
 			drawEnvironment();
 			drawBall();
 			drawPlayers();
+			drawTexts();
 			finishFrame();
 		}
 
@@ -153,6 +154,34 @@ void MatchSDLGUI::drawEnvironment()
 			Rectangle(0, 0, 20, 20), pitchHeight);
 	drawPitchLines();
 	drawGoals();
+
+	if(mDebugDisplay > 1) {
+		const Team* t = mMatch->getTeam(mDebugDisplay == 2 ? 0 : 1);
+		for(int j = -pheight * 0.5f + 8; j < pheight * 0.5 - 8; j += 8) {
+			for(int i = -pwidth * 0.5f + 8; i < pwidth * 0.5 - 8; i += 8) {
+				float score1 = t->getShotScoreAt(AbsVector3(i, j, 0));
+				float score2 = t->getPassScoreAt(AbsVector3(i, j, 0));
+				glDisable(GL_TEXTURE_2D);
+				glPointSize(5.0f);
+				glBegin(GL_POINTS);
+				glColor3f(score1, 0.0f, 0.0f);
+				glVertex3f((-mCamera.x + i) * mScaleLevel + screenWidth * 0.5f - 3.0f,
+						(-mCamera.y + j) * mScaleLevel + screenHeight * 0.5f,
+						textHeight);
+				glColor3f(0.0f, 0.0f, score2);
+				glVertex3f((-mCamera.x + i) * mScaleLevel + screenWidth * 0.5f + 3.0f,
+						(-mCamera.y + j) * mScaleLevel + screenHeight * 0.5f,
+						textHeight);
+				glEnd();
+				glColor3f(1.0f, 1.0f, 1.0f);
+				glEnable(GL_TEXTURE_2D);
+			}
+		}
+	}
+}
+
+void MatchSDLGUI::drawTexts()
+{
 	char resultbuf[256];
 	snprintf(resultbuf, 255, "%s %d - %d %s", mMatch->getTeam(0)->getName().c_str(),
 			mMatch->getScore(true), mMatch->getScore(false),
@@ -179,30 +208,6 @@ void MatchSDLGUI::drawEnvironment()
 			plbuf[127] = '\0';
 
 			drawText(10, screenHeight - 50, FontConfig(plbuf, Color(255, 255, 255), 1.0f), true, false);
-		}
-	}
-
-	if(mDebugDisplay > 1) {
-		const Team* t = mMatch->getTeam(mDebugDisplay == 2 ? 0 : 1);
-		for(int j = -pheight * 0.5f + 8; j < pheight * 0.5 - 8; j += 8) {
-			for(int i = -pwidth * 0.5f + 8; i < pwidth * 0.5 - 8; i += 8) {
-				float score1 = t->getShotScoreAt(AbsVector3(i, j, 0));
-				float score2 = t->getPassScoreAt(AbsVector3(i, j, 0));
-				glDisable(GL_TEXTURE_2D);
-				glPointSize(5.0f);
-				glBegin(GL_POINTS);
-				glColor3f(score1, 0.0f, 0.0f);
-				glVertex3f((-mCamera.x + i) * mScaleLevel + screenWidth * 0.5f - 3.0f,
-						(-mCamera.y + j) * mScaleLevel + screenHeight * 0.5f,
-						textHeight);
-				glColor3f(0.0f, 0.0f, score2);
-				glVertex3f((-mCamera.x + i) * mScaleLevel + screenWidth * 0.5f + 3.0f,
-						(-mCamera.y + j) * mScaleLevel + screenHeight * 0.5f,
-						textHeight);
-				glEnd();
-				glColor3f(1.0f, 1.0f, 1.0f);
-				glEnable(GL_TEXTURE_2D);
-			}
 		}
 	}
 
