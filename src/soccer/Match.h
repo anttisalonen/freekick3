@@ -51,16 +51,26 @@ class SimulationStrength {
 		float mLongBalls;
 };
 
+class RunningMatch {
+	public:
+		RunningMatch(const Match& m);
+		bool matchFinished(MatchResult* r);
+	private:
+		void startMatch(int teamnum, int playernum);
+		pid_t mChildPid;
+		char matchfilenamebuf[L_tmpnam];
+};
+
 class Match {
 	public:
 		Match(const boost::shared_ptr<StatefulTeam> t1, const boost::shared_ptr<StatefulTeam> t2);
 		MatchResult play(bool display) const;
+		RunningMatch startMatch(bool display) const;
 		const MatchResult& getResult() const;
 		void setResult(const MatchResult& m);
 		const boost::shared_ptr<StatefulTeam> getTeam(int i) const;
 
 	private:
-		static void playMatch(const char* datafile, int teamnum, int playernum);
 		MatchResult simulateMatchResult() const;
 
 		const boost::shared_ptr<StatefulTeam> mTeam1;

@@ -37,12 +37,11 @@ void StatefulLeague::setNextMatch()
 	mNextMatchId++;
 }
 
-bool StatefulLeague::nextMatch(std::function<MatchResult (Match& v)> func)
+bool StatefulLeague::matchPlayed(const MatchResult& res)
 {
 	if(!mNextMatch)
 		return true;
 
-	MatchResult res = func(*mNextMatch);
 	if(!res.Played) {
 		return false;
 	}

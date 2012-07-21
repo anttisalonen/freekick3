@@ -157,14 +157,26 @@ bool LeagueScreen::playNextMatch(bool display)
 		updateRoundMatches();
 	}
 
+	const boost::shared_ptr<Match> m = mLeague->getNextMatch();
 	if(display) {
-		const boost::shared_ptr<Match> m = mLeague->getNextMatch();
-		mScreenManager->addScreen(boost::shared_ptr<Screen>(new TeamTacticsScreen(mScreenManager, *m, *this)));
+		mScreenManager->addScreen(boost::shared_ptr<Screen>(new TeamTacticsScreen(mScreenManager, *m,
+						[&](Match& m) {
+							RunningMatch rm = RunningMatch(m);
+							MatchResult r;
+							while(!rm.matchFinished(&r)) {
+								sleep(1);
+								mScreenManager->drawScreen();
+							}
+							if(r.Played) {
+								mLeague->matchPlayed(r);
+							}
+							updateScreenElements();
+						})));
 		return false;
 	}
 	else {
-		bool done = mLeague->nextMatch([&](Match& m) { return playMatch(display, m); });
-		return done;
+		MatchResult r = m->play(false);
+		return mLeague->matchPlayed(r);
 	}
 }
 
@@ -218,12 +230,6 @@ void LeagueScreen::buttonPressed(boost::shared_ptr<Button> button)
 	}
 }
 
-MatchResult LeagueScreen::playMatch(bool display, Match& m)
-{
-	const MatchResult& r = m.play(display);
-	return r;
-}
-
 const std::string LeagueScreen::ScreenName = std::string("League Screen");
 
 const std::string& LeagueScreen::getName() const
@@ -251,19 +257,6 @@ void LeagueScreen::saveLeague() const
 	out.push(ofs);
 	boost::archive::binary_oarchive oa(out);
 	oa << mLeague;
-}
-
-void LeagueScreen::TeamTacticsScreenFinished(int playernum)
-{
-	mLeague->nextMatch([&](Match& m) {
-		if(m.getTeam(0)->getController().HumanControlled)
-			m.getTeam(0)->getController().PlayerShirtNumber = playernum;
-		if(m.getTeam(1)->getController().HumanControlled)
-			m.getTeam(1)->getController().PlayerShirtNumber = playernum;
-		return playMatch(true, m);
-	});
-	mScreenManager->dropScreen();
-	updateScreenElements();
 }
 
 }

@@ -119,10 +119,10 @@ class Schedule {
 class StatefulLeague {
 	public:
 		StatefulLeague(std::vector<boost::shared_ptr<StatefulTeam>>& teams);
-		bool nextMatch(std::function<MatchResult (Match& v)> func);
 		const Schedule& getSchedule() const;
 		const std::map<boost::shared_ptr<StatefulTeam>, LeagueEntry>& getEntries() const;
 		const boost::shared_ptr<Match> getNextMatch() const;
+		bool matchPlayed(const MatchResult& res);
 		const Round* getCurrentRound() const;
 
 	private:

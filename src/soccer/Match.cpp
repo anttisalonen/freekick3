@@ -19,24 +19,12 @@ Match::Match(const boost::shared_ptr<StatefulTeam> t1, const boost::shared_ptr<S
 MatchResult Match::play(bool display) const
 {
 	if(display) {
-		char matchfilenamebuf[L_tmpnam];
-		tmpnam(matchfilenamebuf);
-		DataExchange::createMatchDataFile(*this, matchfilenamebuf);
-		std::cout << "Created temporary file " << matchfilenamebuf << "\n";
-		int teamnum = 0;
-		int plnum = 0;
-		if(mTeam1->getController().HumanControlled && !mTeam2->getController().HumanControlled) {
-			teamnum = 1;
-			plnum = mTeam1->getController().PlayerShirtNumber;
+		RunningMatch rm = RunningMatch(*this);
+		MatchResult r;
+		while(!rm.matchFinished(&r)) {
+			sleep(1);
 		}
-		else if(!mTeam1->getController().HumanControlled && mTeam2->getController().HumanControlled) {
-			teamnum = 2;
-			plnum = mTeam2->getController().PlayerShirtNumber;
-		}
-		playMatch(matchfilenamebuf, teamnum, plnum);
-		boost::shared_ptr<Match> match = DataExchange::parseMatchDataFile(matchfilenamebuf);
-		unlink(matchfilenamebuf);
-		return match->getResult();
+		return r;
 	}
 	else {
 		return simulateMatchResult();
@@ -280,14 +268,54 @@ MatchResult SimulationStrength::simulateAgainst(const SimulationStrength& t2)
 	return MatchResult(homegoals, awaygoals);
 }
 
-void Match::playMatch(const char* datafile, int teamnum, int playernum)
+const MatchResult& Match::getResult() const
+{
+	return mResult;
+}
+
+void Match::setResult(const MatchResult& m)
+{
+	mResult = m;
+}
+
+const boost::shared_ptr<StatefulTeam> Match::getTeam(int i) const
+{
+	if(i == 0)
+		return mTeam1;
+	else
+		return mTeam2;
+}
+
+Match::Match()
+{
+}
+
+RunningMatch::RunningMatch(const Match& m)
+{
+	tmpnam(matchfilenamebuf);
+	DataExchange::createMatchDataFile(m, matchfilenamebuf);
+	std::cout << "Created temporary file " << matchfilenamebuf << "\n";
+	int teamnum = 0;
+	int plnum = 0;
+	if(m.getTeam(0)->getController().HumanControlled && !m.getTeam(1)->getController().HumanControlled) {
+		teamnum = 1;
+		plnum = m.getTeam(0)->getController().PlayerShirtNumber;
+	}
+	else if(!m.getTeam(0)->getController().HumanControlled && m.getTeam(1)->getController().HumanControlled) {
+		teamnum = 2;
+		plnum = m.getTeam(1)->getController().PlayerShirtNumber;
+	}
+	startMatch(teamnum, plnum);
+}
+
+void RunningMatch::startMatch(int teamnum, int playernum)
 {
 	pid_t fret = fork();
 	if(fret == 0) {
 		/* child */
 		std::vector<const char*> args;
 		args.push_back("freekick3-match");
-		args.push_back(datafile);
+		args.push_back(matchfilenamebuf);
 		if(teamnum == 0) {
 			args.push_back("-o");
 		}
@@ -330,37 +358,31 @@ void Match::playMatch(const char* datafile, int teamnum, int playernum)
 	}
 	else if(fret != -1) {
 		/* parent */
-		while(1) {
-			pid_t waited = wait(NULL);
-			if(waited == fret)
-				break;
-		}
+		mChildPid = fret;
+		return;
 	}
 	else {
 		perror("fork");
+		throw std::runtime_error("fork() failed");
 	}
 }
 
-const MatchResult& Match::getResult() const
+bool RunningMatch::matchFinished(MatchResult* r)
 {
-	return mResult;
-}
-
-void Match::setResult(const MatchResult& m)
-{
-	mResult = m;
-}
-
-const boost::shared_ptr<StatefulTeam> Match::getTeam(int i) const
-{
-	if(i == 0)
-		return mTeam1;
-	else
-		return mTeam2;
-}
-
-Match::Match()
-{
+	assert(r);
+	pid_t waited = waitpid(mChildPid, NULL, WNOHANG);
+	if(waited == -1) {
+		perror("waitpid");
+	}
+	if(waited == mChildPid) {
+		boost::shared_ptr<Match> match = DataExchange::parseMatchDataFile(matchfilenamebuf);
+		unlink(matchfilenamebuf);
+		*r = match->getResult();
+		return true;
+	}
+	else {
+		return false;
+	}
 }
 
 }

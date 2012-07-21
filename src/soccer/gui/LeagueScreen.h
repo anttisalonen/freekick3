@@ -12,12 +12,11 @@
 
 namespace Soccer {
 
-class LeagueScreen : public Screen, public TeamTacticsScreenOwner {
+class LeagueScreen : public Screen {
 	public:
 		LeagueScreen(boost::shared_ptr<ScreenManager> sm, boost::shared_ptr<StatefulLeague> l);
 		void buttonPressed(boost::shared_ptr<Button> button);
 		const std::string& getName() const;
-		void TeamTacticsScreenFinished(int playernum);
 
 	private:
 		enum class LabelType {
@@ -25,7 +24,6 @@ class LeagueScreen : public Screen, public TeamTacticsScreenOwner {
 			Result,
 		};
 
-		MatchResult playMatch(bool display, Match& m);
 		void drawTable();
 		void drawInfo();
 		void addText(LabelType t, const char* text, float x, float y,

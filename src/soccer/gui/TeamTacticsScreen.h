@@ -11,16 +11,10 @@
 
 namespace Soccer {
 
-class TeamTacticsScreenOwner {
-	public:
-		~TeamTacticsScreenOwner() { }
-		virtual void TeamTacticsScreenFinished(int playernum) = 0;
-};
-
 class TeamTacticsScreen : public Screen {
 	public:
 		TeamTacticsScreen(boost::shared_ptr<ScreenManager> sm, Match& m,
-				TeamTacticsScreenOwner& ttso);
+				std::function<void (Match& m)> cont);
 		void buttonPressed(boost::shared_ptr<Button> button);
 		const std::string& getName() const;
 
@@ -30,9 +24,9 @@ class TeamTacticsScreen : public Screen {
 		void addFormationButton(int i, int formbutton, const std::string& str);
 		void addPlayerLabels(const boost::shared_ptr<Player> pl, int i, float x,
 				float y, float namewidth, float nameheight);
+		void setTeamTactics();
 		static const std::string ScreenName;
 		Match& mMatch;
-		TeamTacticsScreenOwner& mTtso;
 		int mChosenplnum;
 		bool mShowHome;
 		int mHumanTeam;
@@ -49,6 +43,8 @@ class TeamTacticsScreen : public Screen {
 		std::pair<boost::shared_ptr<Button>, int> mSelectedPlayer;
 
 		std::vector<boost::shared_ptr<Slider>> mTacticsSliders[2];
+
+		std::function<void (Match& m)> mCont;
 };
 
 }

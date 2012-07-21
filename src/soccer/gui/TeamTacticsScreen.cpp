@@ -6,14 +6,14 @@
 namespace Soccer {
 
 TeamTacticsScreen::TeamTacticsScreen(boost::shared_ptr<ScreenManager> sm, Match& m,
-			TeamTacticsScreenOwner& ttso)
+			std::function<void (Match& m)> cont)
 	: Screen(sm),
 	mMatch(m),
-	mTtso(ttso),
 	mChosenplnum(0),
 	mShowHome(true),
 	mHumanTeam(-1),
-	mPitchRect(0.61f, 0.12f, 0.35f, 0.58f)
+	mPitchRect(0.61f, 0.12f, 0.35f, 0.58f),
+	mCont(cont)
 {
 	addButton("Back",   Common::Rectangle(0.01f, 0.90f, 0.23f, 0.06f));
 	mToggleButtons[0] = addButton("Home",  Common::Rectangle(0.51f, 0.90f, 0.23f, 0.06f));
@@ -336,6 +336,7 @@ void TeamTacticsScreen::buttonPressed(boost::shared_ptr<Button> button)
 {
 	const std::string& buttonText = button->getText();
 	if(buttonText == "Back") {
+		setTeamTactics();
 		mScreenManager->dropScreen();
 	}
 	else if(buttonText == "Home") {
@@ -361,14 +362,9 @@ void TeamTacticsScreen::buttonPressed(boost::shared_ptr<Button> button)
 		setupPlrLabels();
 	}
 	else if(buttonText == "Match") {
-		if(mHumanTeam != -1) {
-			assert(mTacticsSliders[mHumanTeam].size() == 4);
-			mMatch.getTeam(mHumanTeam)->getTactics().Pressure    = mTacticsSliders[mHumanTeam][0]->getValue();
-			mMatch.getTeam(mHumanTeam)->getTactics().LongBalls   = mTacticsSliders[mHumanTeam][1]->getValue();
-			mMatch.getTeam(mHumanTeam)->getTactics().FastPassing = mTacticsSliders[mHumanTeam][2]->getValue();
-			mMatch.getTeam(mHumanTeam)->getTactics().ShootClose  = mTacticsSliders[mHumanTeam][3]->getValue();
-		}
-		mTtso.TeamTacticsScreenFinished(mChosenplnum);
+		setTeamTactics();
+		mCont(mMatch);
+		mScreenManager->dropScreen();
 	}
 	else {
 		if(mHumanTeam != -1) {
@@ -452,6 +448,18 @@ const std::string TeamTacticsScreen::ScreenName = std::string("Team Tactics Scre
 const std::string& TeamTacticsScreen::getName() const
 {
 	return ScreenName;
+}
+
+void TeamTacticsScreen::setTeamTactics()
+{
+	if(mHumanTeam != -1) {
+		assert(mTacticsSliders[mHumanTeam].size() == 4);
+		mMatch.getTeam(mHumanTeam)->getTactics().Pressure    = mTacticsSliders[mHumanTeam][0]->getValue();
+		mMatch.getTeam(mHumanTeam)->getTactics().LongBalls   = mTacticsSliders[mHumanTeam][1]->getValue();
+		mMatch.getTeam(mHumanTeam)->getTactics().FastPassing = mTacticsSliders[mHumanTeam][2]->getValue();
+		mMatch.getTeam(mHumanTeam)->getTactics().ShootClose  = mTacticsSliders[mHumanTeam][3]->getValue();
+		mMatch.getTeam(mHumanTeam)->getController().PlayerShirtNumber = mChosenplnum;
+	}
 }
 
 }
