@@ -527,8 +527,10 @@ bool MatchSDLGUI::handleInput(float frameTime)
 						break;
 
 					case SDLK_f:
-						if(mPlayerControlVelocity.null())
-							mFreeCamera = !mFreeCamera;
+						if(SDL_GetModState() & KMOD_CTRL) {
+							if(mPlayerControlVelocity.null())
+								mFreeCamera = !mFreeCamera;
+						}
 						break;
 
 					case SDLK_w:
