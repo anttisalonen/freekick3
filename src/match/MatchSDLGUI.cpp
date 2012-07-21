@@ -341,9 +341,10 @@ void MatchSDLGUI::startFrame()
 			mCamera.x = mPlayer->getPosition().v.x;
 			mCamera.y = mPlayer->getPosition().v.y;
 		}
-		else if(mMatch->getPlayState() == PlayState::InPlay ||
-				(MatchHelpers::distanceToPitch(*mMatch, mMatch->getBall()->getPosition()) < MAX_KICK_DISTANCE &&
-				 mMatch->getPlayState() != PlayState::OutDirectFreekick)) {
+		else if((mMatch->getPlayState() == PlayState::InPlay ||
+					(MatchHelpers::distanceToPitch(*mMatch, mMatch->getBall()->getPosition()) < MAX_KICK_DISTANCE &&
+					 mMatch->getPlayState() != PlayState::OutDirectFreekick)) ||
+				(mControlledPlayerIndex != -1 && !mCamFollowsPlayer)) {
 			mCamera.x = mMatch->getBall()->getPosition().v.x;
 			mCamera.y = mMatch->getBall()->getPosition().v.y;
 		}
