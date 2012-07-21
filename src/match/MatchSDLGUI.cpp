@@ -735,17 +735,17 @@ boost::shared_ptr<PlayerAction> MatchSDLGUI::act(double time)
 	}
 	if(!playing(mMatch->getPlayState())) {
 		// restart
+		// if blocking restart, turn over to AI
+		if(MatchHelpers::playerBlockingRestart(*mPlayer)) {
+			mPlayer->setAIControlled();
+			return boost::shared_ptr<PlayerAction>(new IdlePA());
+		}
 		if(MatchHelpers::myTeamInControl(*mPlayer)) {
 			bool nearest = MatchHelpers::nearestOwnPlayerTo(*mPlayer,
 					mPlayer->getMatch()->getBall()->getPosition());
 			if(nearest && toBall.v.length() > MAX_KICK_DISTANCE) {
 				return AIHelpers::createMoveActionToBall(*mPlayer);
 			}
-		}
-		else {
-			// if blocking restart, turn over to AI
-			mPlayer->setAIControlled();
-			return boost::shared_ptr<PlayerAction>(new IdlePA());
 		}
 	}
 
@@ -819,7 +819,7 @@ void MatchSDLGUI::setPlayerController(double frameTime)
 	if(playing(mMatch->getMatchHalf())) {
 		if(mPlayer->isAIControlled() &&
 				(playing(mMatch->getPlayState()) ||
-				mMatch->getPlayState() == PlayState::OutKickoff)) {
+				!MatchHelpers::playerBlockingRestart(*mPlayer))) {
 			mPlayer->setController(this);
 			mPlayerKickPower = 0.0f;
 			printf("Now controlling\n");

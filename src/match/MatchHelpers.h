@@ -48,6 +48,7 @@ class MatchHelpers {
 		static bool goodKickingPosition(const Player& p, const AbsVector3& v);
 		static float distanceToOwnGoal(const Player& p);
 		static float distanceToOppositeGoal(const Player& p);
+		static bool playerBlockingRestart(const Player& p);
 };
 
 #endif

@@ -56,14 +56,6 @@ const std::string& AIPlayController::getDescription() const
 
 boost::shared_ptr<PlayerAction> AIPlayController::actOnRestart(double time)
 {
-	const Player* restarter;
-	if(MatchHelpers::myTeamInControl(*mPlayer)) {
-		restarter = MatchHelpers::nearestOwnPlayerToBall(*mPlayer->getTeam());
-	}
-	else {
-		restarter = MatchHelpers::nearestOppositePlayerToBall(*mPlayer->getTeam());
-	}
-
 	// goalkeeper stays on the goal line for the penalty kick
 	if(!MatchHelpers::myTeamInControl(*mPlayer) &&
 			mPlayer->getMatch()->getPlayState() == PlayState::OutPenaltykick &&
@@ -95,10 +87,7 @@ boost::shared_ptr<PlayerAction> AIPlayController::actOnRestart(double time)
 	}
 
 	// if we're blocking the game, move away from the ball
-	if(!MatchHelpers::playerPositionedForRestart(*restarter, *mPlayer) ||
-			(mPlayer->getMatch()->getBall()->grabbed() &&
-			 !MatchHelpers::myTeamInControl(*mPlayer) &&
-			 MatchHelpers::inOpposingPenaltyArea(*mPlayer))) {
+	if(MatchHelpers::playerBlockingRestart(*mPlayer)) {
 		AbsVector3 dir = MatchEntity::vectorFromTo(*mPlayer->getMatch()->getBall(),
 				*mPlayer);
 

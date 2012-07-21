@@ -395,4 +395,20 @@ float MatchHelpers::distanceToOppositeGoal(const Player& p)
 	return (p.getPosition().v - oppositeGoalPosition(p).v).length();
 }
 
+bool MatchHelpers::playerBlockingRestart(const Player& p)
+{
+	const Player* restarter;
+	if(myTeamInControl(p)) {
+		restarter = nearestOwnPlayerToBall(*p.getTeam());
+	}
+	else {
+		restarter = nearestOppositePlayerToBall(*p.getTeam());
+	}
+
+	return &p != restarter && (!playerPositionedForRestart(*restarter, p) ||
+		(p.getMatch()->getBall()->grabbed() &&
+		 !myTeamInControl(p) &&
+		 inOpposingPenaltyArea(p)));
+}
+
 
