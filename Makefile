@@ -45,7 +45,7 @@ SOCCERSRCFILES = League.cpp \
 		 gui/Screen.cpp gui/ScreenManager.cpp \
 		 gui/MatchResultScreen.cpp gui/MainMenuScreen.cpp gui/TeamBrowser.cpp \
 		 gui/FriendlyScreen.cpp gui/PresetLeagueScreen.cpp \
-		 gui/LoadGameScreen.cpp \
+		 gui/LoadGameScreen.cpp gui/UsageScreen.cpp \
 		 gui/LeagueScreen.cpp gui/TeamTacticsScreen.cpp \
 		 gui/Menu.cpp main.cpp
 SOCCERSRCS = $(addprefix $(SOCCERSRCDIR)/, $(SOCCERSRCFILES))
