@@ -29,15 +29,25 @@ void TeamBrowser::addSelectionButton(const char* text, int i, int maxnum)
 		return;
 
 	if(maxnum < 10) {
-		boost::shared_ptr<Button> b(addButton(text, Common::Rectangle(0.35f, 0.05f + i * 0.08, 0.25, 0.05f)));
+		boost::shared_ptr<Button> b(addButton(text, Common::Rectangle(0.35f, 0.05f + i * 0.08f, 0.25f, 0.05f)));
+		mCurrentButtons.push_back(b);
+	}
+	else if(maxnum < 30) {
+		boost::shared_ptr<Button> b(addButton(text, Common::Rectangle(0.05f + (i % 3) * 0.30f,
+						0.05f + (i / 3) * 0.08f, 0.25f, 0.05f)));
+		mCurrentButtons.push_back(b);
+	}
+	else if(maxnum < 50) {
+		boost::shared_ptr<Button> b(addButton(text, Common::Rectangle(0.05f + (i % 3) * 0.30f,
+						0.05f + (i / 3) * 0.05f, 0.25f, 0.04f)));
 		mCurrentButtons.push_back(b);
 	}
 	else {
-		if(i > 30)
+		if(i > 71)
 			return;
 
 		boost::shared_ptr<Button> b(addButton(text, Common::Rectangle(0.05f + (i % 3) * 0.30f,
-						0.05f + (i / 3) * 0.08, 0.25, 0.05f)));
+						0.05f + (i / 3) * 0.035f, 0.25f, 0.03f)));
 		mCurrentButtons.push_back(b);
 	}
 }
