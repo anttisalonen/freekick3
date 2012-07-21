@@ -170,6 +170,7 @@ bool LeagueScreen::playNextMatch(bool display)
 							if(r.Played) {
 								mLeague->matchPlayed(r);
 							}
+							mScreenManager->dropScreen();
 							updateScreenElements();
 						})));
 		return false;
@@ -181,6 +182,7 @@ bool LeagueScreen::playNextMatch(bool display)
 							[&](Match& m) -> void {
 							MatchResult r = m.play(false);
 							mLeague->matchPlayed(r);
+							mScreenManager->dropScreen();
 							updateScreenElements();
 							})));
 			return false;

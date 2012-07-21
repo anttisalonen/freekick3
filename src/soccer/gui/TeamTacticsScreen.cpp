@@ -364,7 +364,6 @@ void TeamTacticsScreen::buttonPressed(boost::shared_ptr<Button> button)
 	else if(buttonText == "Match") {
 		setTeamTactics();
 		mCont(mMatch);
-		mScreenManager->dropScreen();
 	}
 	else {
 		if(mHumanTeam != -1) {

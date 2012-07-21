@@ -4,6 +4,7 @@
 
 #include "soccer/gui/FriendlyScreen.h"
 #include "soccer/gui/MatchResultScreen.h"
+#include "soccer/gui/TeamTacticsScreen.h"
 
 namespace Soccer {
 
@@ -40,13 +41,23 @@ void FriendlyScreen::clickedDone()
 		thisteamnum++;
 	}
 
-	Match m(boost::shared_ptr<StatefulTeam>(new StatefulTeam(*teams[0], TeamController(teamnum == 1, 0),
+	mMatch = boost::shared_ptr<Match>(new Match(boost::shared_ptr<StatefulTeam>(new StatefulTeam(*teams[0], TeamController(teamnum == 1, 0),
 					AITactics::createTeamTactics(*teams[0]))),
-				boost::shared_ptr<StatefulTeam>(new StatefulTeam(*teams[1], TeamController(teamnum == 2, 0),
-						AITactics::createTeamTactics(*teams[1]))));
-	MatchResult res = m.play(true);
-	m.setResult(res);
-	mScreenManager->addScreen(boost::shared_ptr<Screen>(new MatchResultScreen(mScreenManager, m)));
+			boost::shared_ptr<StatefulTeam>(new StatefulTeam(*teams[1], TeamController(teamnum == 2, 0),
+					AITactics::createTeamTactics(*teams[1])))));
+
+	mScreenManager->addScreen(boost::shared_ptr<Screen>(new TeamTacticsScreen(mScreenManager, *mMatch,
+					[&](Match& m) -> void {
+					RunningMatch rm = RunningMatch(m);
+					MatchResult r;
+					while(!rm.matchFinished(&r)) {
+						sleep(1);
+						mScreenManager->drawScreen();
+					}
+					m.setResult(r);
+					mScreenManager->dropScreen();
+					mScreenManager->addScreen(boost::shared_ptr<Screen>(new MatchResultScreen(mScreenManager, m)));
+					})));
 
 	return;
 }

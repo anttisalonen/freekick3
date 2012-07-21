@@ -20,6 +20,7 @@ class FriendlyScreen : public TeamBrowser {
 
 	private:
 		static const std::string ScreenName;
+		boost::shared_ptr<Match> mMatch;
 };
 
 }
