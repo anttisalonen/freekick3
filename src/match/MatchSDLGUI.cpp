@@ -571,9 +571,11 @@ bool MatchSDLGUI::handleInput(float frameTime)
 						break;
 
 					case SDLK_v:
-						mDebugDisplay++;
-						if(mDebugDisplay > 3)
-							mDebugDisplay = 0;
+						if(SDL_GetModState() & KMOD_CTRL) {
+							mDebugDisplay++;
+							if(mDebugDisplay > 3)
+								mDebugDisplay = 0;
+						}
 						break;
 
 					case SDLK_SPACE:
