@@ -31,7 +31,7 @@ boost::shared_ptr<PlayerAction> AIDefendState::actOffBall(double time)
 				}
 
 				std::vector<boost::shared_ptr<AIAction>> actions;
-				if(MatchHelpers::myTeamInControl(*mPlayer) || mPlayer->getMatch()->getPlayState() == PlayState::InPlay) {
+				if(mPlayer->getMatch()->getPlayState() == PlayState::InPlay) {
 					actions.push_back(boost::shared_ptr<AIAction>(new AIFetchBallAction(mPlayer)));
 				}
 				actions.push_back(boost::shared_ptr<AIAction>(new AIBlockAction(mPlayer)));
