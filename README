@@ -1,0 +1,54 @@
+Freekick 3
+==========
+
+Freekick 3 is an open source soccer game.
+
+License
+=======
+
+The Freekick 3 source code is licensed under GPLv3+. See LICENSE for more
+details.
+
+For the artwork licenses, see the file licenses. Unless otherwise noted,
+the artwork is licensed under Creative Commons Attribution-ShareAlike 3.0
+(cc-by-sa-3.0) license. See http://creativecommons.org/licenses/by-sa/3.0/
+for more details. For the license on DejaVu Sans font, see
+http://dejavu-fonts.org/wiki/License.
+
+Installation
+============
+
+- make sure you have the dependencies. These include the Boost C++
+libraries, SDL, SDL_image and SDL_ttf, OpenGL and tinyxml. You need the
+headers in addition to the libraries.
+- get the source using git (git clone
+git://github.com/anttisalonen/freekick3.git).
+- change to the cloned directory.
+- to compile, run make.
+- to run, use bin/freekick3 (there's no make install yet).
+
+Playing
+=======
+
+Use mouse to control the kick direction and keyboard (w/a/s/d) to control
+the run direction. See the in-game help for more information.
+
+Teams
+=====
+
+Freekick 3 includes some made up teams. If you want to use more realistic
+teams, you can use the utility swos2fk (compiled using make) to convert
+Sensible World of Soccer teams (PC format) to Freekick 3 teams. Usage:
+
+  $ mkdir ~/.freekick/share/teams
+  $ bin/swos2fk ~/.freekick3/share/teams/ path/to/swos/PC/Data/TEAM.*
+
+This will create the Freekick 3 teams in directory ~/.freekick3/share/teams.
+
+Contact
+=======
+
+For any bug reports, feedback or questions: <ajsalonen at gmail dot com>
+
+Antti Salonen
+

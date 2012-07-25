@@ -1,0 +1,29 @@
+Smaller tasks:
+Display the players by the correct Z coordinate
+Player home positions for the kickoff should correspond to lineup
+Do not allow backwards kicking on kickoff by the player
+Collect statistics
+ - Restarts: goal kicks, corner kicks, throwins, direct free kicks, indirect free kicks, penalty kicks, offsides
+ - Goals, goal attempts, goal attempts on target
+ - Passes, passes completed, ball possession
+ - Fouls, substitutions, yellow cards, red cards
+Goalkeeper kits
+Display match statistics during match on key press
+Team tactics screen: Ability to set and see offensive flag on players
+Offsides
+Tactics AI should consider opponent and opponent's tactics
+Goalkeeper dives
+
+Larger tasks:
+Match weather
+Injuries
+Yellow and red cards
+Displaying the referee
+Substitutions
+Cups
+Seasons
+Career mode
+Replay ability
+International teams
+Coach mode
+Sound effects
