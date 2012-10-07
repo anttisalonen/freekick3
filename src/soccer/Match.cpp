@@ -10,9 +10,27 @@
 
 namespace Soccer {
 
-Match::Match(const boost::shared_ptr<StatefulTeam> t1, const boost::shared_ptr<StatefulTeam> t2)
+MatchRules::MatchRules()
+	: ExtraTimeOnTie(false),
+	PenaltiesOnTie(false)
+{
+}
+
+bool MatchResult::homeWon() const
+{
+	return Played && (HomeGoals > AwayGoals || HomePenalties > AwayPenalties);
+}
+
+bool MatchResult::awayWon() const
+{
+	return Played && (HomeGoals < AwayGoals || HomePenalties < AwayPenalties);
+}
+
+Match::Match(const boost::shared_ptr<StatefulTeam> t1, const boost::shared_ptr<StatefulTeam> t2,
+		const MatchRules& r)
 	: mTeam1(t1),
-	mTeam2(t2)
+	mTeam2(t2),
+	mRules(r)
 {
 }
 
@@ -35,7 +53,7 @@ MatchResult Match::simulateMatchResult() const
 {
 	SimulationStrength s1(*mTeam1);
 	SimulationStrength s2(*mTeam2);
-	return s1.simulateAgainst(s2);
+	return s1.simulateAgainst(s2, mRules);
 }
 
 SimulationStrength::SimulationStrength(const StatefulTeam& t)
@@ -153,7 +171,7 @@ int SimulationStrength::pickOne(const std::vector<float>& values)
 	return values.size() - 1;
 }
 
-MatchResult SimulationStrength::simulateAgainst(const SimulationStrength& t2)
+MatchResult SimulationStrength::simulateAgainst(const SimulationStrength& t2, const MatchRules& r)
 {
 	const int steps = 9;
 	int homegoals = 0, awaygoals = 0;
@@ -163,109 +181,136 @@ MatchResult SimulationStrength::simulateAgainst(const SimulationStrength& t2)
 	float centerTry = (mCenterTry + t2.mCenterTry) / totalTry;
 	float leftTry = (mLeftTry + t2.mRightTry)      / totalTry;
 	float rightTry = (mRightTry + t2.mLeftTry)     / totalTry;
-	float totalLongBalls = Common::clamp(0.0f, (mLongBalls + t2.mLongBalls) / 2.0f, 1.0f);
 	std::vector<float> tries;
 	tries.push_back(leftTry);
 	tries.push_back(centerTry);
 	tries.push_back(rightTry);
 
 	for(int i = 0; i < steps; i++) {
-#ifdef DEBUG_SIMULATION
-		printf("Step %d ", i + 1);
-#endif
-		int trynum = pickOne(tries);
-		float t1get, t2get;
-		float t1def, t1att, t2def, t2att;
-		if(trynum == 0) {
-			t1get = mLeftGet;
-			t1def = mLeftDefense;
-			t1att = mLeftUse;
-			t2get = t2.mRightGet;
-			t2def = t2.mRightDefense;
-			t2att = t2.mRightUse;
-#ifdef DEBUG_SIMULATION
-			printf("left ");
-#endif
-		}
-		else if(trynum == 1) {
-			t1get = mCenterGet;
-			t1def = mCenterDefense;
-			t1att = mCenterUse;
-			t2get = t2.mCenterGet;
-			t2def = t2.mCenterDefense;
-			t2att = t2.mCenterUse;
-#ifdef DEBUG_SIMULATION
-			printf("center ");
-#endif
-		}
-		else {
-			t1get = mRightGet;
-			t1def = mRightDefense;
-			t1att = mRightUse;
-			t2get = t2.mLeftGet;
-			t2def = t2.mLeftDefense;
-			t2att = t2.mLeftUse;
-#ifdef DEBUG_SIMULATION
-			printf("right ");
-#endif
-		}
+		simulateStep(t2, homegoals, awaygoals, tries);
+	}
 
-		int holdnum;
-		if(t1get && !t2get) {
-			holdnum = 0;
-		}
-		else if(t2get && !t1get) {
-			holdnum = 1;
-		}
-		else {
-			float t1hold = t1get / (t1get + t2get);
-			float difftomiddle = t1hold - ((t1get + t2get) / 2.0f);
-			t1hold -= difftomiddle * totalLongBalls;
-			std::vector<float> holding;
-			holding.push_back(t1get - difftomiddle * totalLongBalls);
-			holding.push_back(t2get + difftomiddle * totalLongBalls);
-			holdnum = pickOne(holding);
-		}
-		float att, def;
-		bool homescorer;
-		if(holdnum == 0) {
-#ifdef DEBUG_SIMULATION
-			printf("home ");
-#endif
-			att = t1att;
-			def = t2def;
-			homescorer = true;
-		}
-		else {
-#ifdef DEBUG_SIMULATION
-			printf("away ");
-#endif
-			att = t2att;
-			def = t1def;
-			homescorer = false;
-		}
-		std::vector<float> scoring;
-		scoring.push_back(att);
-		scoring.push_back(def);
-		int scorenum = pickOne(scoring);
-		if(scorenum == 0) {
-			if(homescorer) {
-				homegoals++;
-			}
-			else {
-				awaygoals++;
-			}
-#ifdef DEBUG_SIMULATION
-			printf("scores! %d-%d\n", homegoals, awaygoals);
-#endif
-		}
-		else {
-#ifdef DEBUG_SIMULATION
-			printf("blocked\n");
-#endif
+	if(homegoals == awaygoals && r.ExtraTimeOnTie) {
+		for(int i = 0; i < 3; i++) {
+			simulateStep(t2, homegoals, awaygoals, tries);
 		}
 	}
-	return MatchResult(homegoals, awaygoals);
+
+	if(homegoals == awaygoals && r.PenaltiesOnTie) {
+		int homepen = rand() % 3 + 3;
+		int awaypen = rand() % 3 + 3;
+		if(homepen == awaypen) {
+			int h = rand() % 2;
+			if(h)
+				homepen++;
+			else
+				awaypen++;
+		}
+		return MatchResult(homegoals, awaygoals, homepen, awaypen);
+	} else {
+		return MatchResult(homegoals, awaygoals);
+	}
+
+}
+
+void SimulationStrength::simulateStep(const SimulationStrength& t2, int& homegoals, int& awaygoals, const std::vector<float>& tries)
+{
+#ifdef DEBUG_SIMULATION
+	printf("Step ");
+#endif
+
+	int trynum = pickOne(tries);
+	float t1get, t2get;
+	float t1def, t1att, t2def, t2att;
+	if(trynum == 0) {
+		t1get = mLeftGet;
+		t1def = mLeftDefense;
+		t1att = mLeftUse;
+		t2get = t2.mRightGet;
+		t2def = t2.mRightDefense;
+		t2att = t2.mRightUse;
+#ifdef DEBUG_SIMULATION
+		printf("left ");
+#endif
+	}
+	else if(trynum == 1) {
+		t1get = mCenterGet;
+		t1def = mCenterDefense;
+		t1att = mCenterUse;
+		t2get = t2.mCenterGet;
+		t2def = t2.mCenterDefense;
+		t2att = t2.mCenterUse;
+#ifdef DEBUG_SIMULATION
+		printf("center ");
+#endif
+	}
+	else {
+		t1get = mRightGet;
+		t1def = mRightDefense;
+		t1att = mRightUse;
+		t2get = t2.mLeftGet;
+		t2def = t2.mLeftDefense;
+		t2att = t2.mLeftUse;
+#ifdef DEBUG_SIMULATION
+		printf("right ");
+#endif
+	}
+
+	int holdnum;
+	if(t1get && !t2get) {
+		holdnum = 0;
+	}
+	else if(t2get && !t1get) {
+		holdnum = 1;
+	}
+	else {
+		float t1hold = t1get / (t1get + t2get);
+		float difftomiddle = t1hold - ((t1get + t2get) / 2.0f);
+		float totalLongBalls = Common::clamp(0.0f, (mLongBalls + t2.mLongBalls) / 2.0f, 1.0f);
+		t1hold -= difftomiddle * totalLongBalls;
+		std::vector<float> holding;
+		holding.push_back(t1get - difftomiddle * totalLongBalls);
+		holding.push_back(t2get + difftomiddle * totalLongBalls);
+		holdnum = pickOne(holding);
+	}
+	float att, def;
+	bool homescorer;
+	if(holdnum == 0) {
+#ifdef DEBUG_SIMULATION
+		printf("home ");
+#endif
+		att = t1att;
+		def = t2def;
+		homescorer = true;
+	}
+	else {
+#ifdef DEBUG_SIMULATION
+		printf("away ");
+#endif
+		att = t2att;
+		def = t1def;
+		homescorer = false;
+	}
+	std::vector<float> scoring;
+	scoring.push_back(att);
+	scoring.push_back(def);
+	int scorenum = pickOne(scoring);
+	if(scorenum == 0) {
+		if(homescorer) {
+			homegoals++;
+		}
+		else {
+			awaygoals++;
+		}
+#ifdef DEBUG_SIMULATION
+		printf("scores! %d-%d\n", homegoals, awaygoals);
+#endif
+	}
+	else {
+#ifdef DEBUG_SIMULATION
+		printf("blocked\n");
+#endif
+	}
 }
 
 const MatchResult& Match::getResult() const
@@ -286,7 +331,13 @@ const boost::shared_ptr<StatefulTeam> Match::getTeam(int i) const
 		return mTeam2;
 }
 
+const MatchRules& Match::getRules() const
+{
+	return mRules;
+}
+
 Match::Match()
+	: mRules(false, false)
 {
 }
 

@@ -17,6 +17,13 @@ enum class TeamSelection {
 	Computer
 };
 
+enum class TeamBrowserLevel {
+	Continents,
+	Countries,
+	Leagues,
+	Teams
+};
+
 class TeamBrowser : public Screen {
 	public:
 		TeamBrowser(boost::shared_ptr<ScreenManager> sm);
@@ -30,7 +37,11 @@ class TeamBrowser : public Screen {
 		virtual bool canClickDone() = 0;
 		virtual void clickedDone() = 0;
 		std::map<boost::shared_ptr<Team>, TeamSelection> mSelectedTeams;
-		int getCurrentLevel() const;
+		TeamBrowserLevel getCurrentLevel() const;
+		void setCurrentLevel(TeamBrowserLevel t);
+		void toggleTeamOwnership(boost::shared_ptr<Team> p);
+		std::vector<boost::shared_ptr<StatefulTeam>> createStatefulTeams() const;
+		void addTeamButtons(const std::vector<boost::shared_ptr<Team>>& teams);
 
 	private:
 		void clearCurrentButtons();
@@ -51,7 +62,7 @@ class TeamBrowser : public Screen {
 		boost::shared_ptr<Continent> mCurrentContinent;
 		boost::shared_ptr<LeagueSystem> mCurrentCountry;
 		boost::shared_ptr<League> mCurrentLeague;
-		int mCurrentLevel;
+		TeamBrowserLevel mCurrentLevel;
 };
 
 }

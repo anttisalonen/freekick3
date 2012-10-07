@@ -14,7 +14,7 @@ TeamBrowser::TeamBrowser(boost::shared_ptr<ScreenManager> sm)
 	mCurrentContinent(boost::shared_ptr<Continent>()),
 	mCurrentCountry(boost::shared_ptr<LeagueSystem>()),
 	mCurrentLeague(boost::shared_ptr<League>()),
-	mCurrentLevel(0)
+	mCurrentLevel(TeamBrowserLevel::Continents)
 {
 	addButton("Back", Common::Rectangle(0.02f, 0.90f, 0.25f, 0.06f));
 	mPlayButton = addButton("Play", Common::Rectangle(0.73f, 0.90f, 0.25f, 0.06f));
@@ -64,7 +64,7 @@ void TeamBrowser::addContinentButtons()
 		addSelectionButton(tname.c_str(), i, maxnum);
 		i++;
 	}
-	mCurrentLevel = 0;
+	mCurrentLevel = TeamBrowserLevel::Continents;
 }
 
 void TeamBrowser::addCountryButtons(boost::shared_ptr<Continent> c)
@@ -79,7 +79,7 @@ void TeamBrowser::addCountryButtons(boost::shared_ptr<Continent> c)
 		addSelectionButton(tname.c_str(), i, maxnum);
 		i++;
 	}
-	mCurrentLevel = 1;
+	mCurrentLevel = TeamBrowserLevel::Countries;
 	mCurrentContinent = c;
 }
 
@@ -89,33 +89,42 @@ void TeamBrowser::addLeagueButtons(boost::shared_ptr<LeagueSystem> c)
 	mLeagueButtons.clear();
 	int maxnum = c->getContainer().size();
 	int i = 0;
+	/* NOTE: the ordering is alphabetical */
 	for(auto league : c->getContainer()) {
 		const std::string& tname = league.second->getName();
 		mLeagueButtons.insert(std::make_pair(tname, league.second));
 		addSelectionButton(tname.c_str(), i, maxnum);
 		i++;
 	}
-	mCurrentLevel = 2;
+	mCurrentLevel = TeamBrowserLevel::Leagues;
 	mCurrentCountry = c;
 }
 
-void TeamBrowser::addTeamButtons(boost::shared_ptr<League> l)
+void TeamBrowser::addTeamButtons(const std::vector<boost::shared_ptr<Team>>& teams)
 {
 	clearCurrentButtons();
 	mTeamButtons.clear();
-	int maxnum = l->getContainer().size();
+	int maxnum = teams.size();
 	int i = 0;
-	for(auto team : l->getContainer()) {
-		const std::string& tname = team.second->getName();
-		mTeamButtons.insert(std::make_pair(tname, team.second));
+	for(auto team : teams) {
+		const std::string& tname = team->getName();
+		mTeamButtons.insert(std::make_pair(tname, team));
 		addSelectionButton(tname.c_str(), i, maxnum);
 		i++;
 	}
 	for(auto b : mCurrentButtons) {
 		setTeamButtonColor(b);
 	}
+	mCurrentLevel = TeamBrowserLevel::Teams;
+}
 
-	mCurrentLevel = 3;
+void TeamBrowser::addTeamButtons(boost::shared_ptr<League> l)
+{
+	std::vector<boost::shared_ptr<Team>> teams;
+	for(auto team : l->getContainer()) {
+		teams.push_back(team.second);
+	}
+	addTeamButtons(teams);
 	mCurrentLeague = l;
 }
 
@@ -131,20 +140,20 @@ void TeamBrowser::buttonPressed(boost::shared_ptr<Button> button)
 	const std::string& buttonText = button->getText();
 	if(buttonText == "Back") {
 		switch(mCurrentLevel) {
-			case 0:
+			case TeamBrowserLevel::Continents:
 			default:
 				mScreenManager->dropScreen();
 				return;
 
-			case 1:
+			case TeamBrowserLevel::Countries:
 				addContinentButtons();
 				return;
 
-			case 2:
+			case TeamBrowserLevel::Leagues:
 				addCountryButtons(mCurrentContinent);
 				return;
 
-			case 3:
+			case TeamBrowserLevel::Teams:
 				addLeagueButtons(mCurrentCountry);
 				return;
 		}
@@ -155,11 +164,11 @@ void TeamBrowser::buttonPressed(boost::shared_ptr<Button> button)
 	}
 	else {
 		switch(mCurrentLevel) {
-			case 0:
+			case TeamBrowserLevel::Continents:
 				{
-					// continent
 					auto it = mContinentButtons.find(buttonText);
 					if(it != mContinentButtons.end()) {
+						mCurrentContinent = it->second;
 						if(enteringContinent(it->second)) {
 							addCountryButtons(it->second);
 						}
@@ -167,11 +176,11 @@ void TeamBrowser::buttonPressed(boost::shared_ptr<Button> button)
 				}
 				break;
 
-			case 1:
+			case TeamBrowserLevel::Countries:
 				{
-					// country
 					auto it = mCountryButtons.find(buttonText);
 					if(it != mCountryButtons.end()) {
+						mCurrentCountry = it->second;
 						if(enteringCountry(it->second)) {
 							addLeagueButtons(it->second);
 						}
@@ -179,11 +188,11 @@ void TeamBrowser::buttonPressed(boost::shared_ptr<Button> button)
 				}
 				break;
 
-			case 2:
+			case TeamBrowserLevel::Leagues:
 				{
-					// league
 					auto it = mLeagueButtons.find(buttonText);
 					if(it != mLeagueButtons.end()) {
+						mCurrentLeague = it->second;
 						if(enteringLeague(it->second)) {
 							addTeamButtons(it->second);
 						}
@@ -191,8 +200,7 @@ void TeamBrowser::buttonPressed(boost::shared_ptr<Button> button)
 				}
 				break;
 
-			case 3:
-				// team
+			case TeamBrowserLevel::Teams:
 				teamClicked(button);
 				break;
 
@@ -240,9 +248,14 @@ void TeamBrowser::teamClicked(boost::shared_ptr<Button> button)
 	}
 }
 
-int TeamBrowser::getCurrentLevel() const
+TeamBrowserLevel TeamBrowser::getCurrentLevel() const
 {
 	return mCurrentLevel;
+}
+
+void TeamBrowser::setCurrentLevel(TeamBrowserLevel t)
+{
+	mCurrentLevel = t;
 }
 
 bool TeamBrowser::enteringLeague(boost::shared_ptr<League> p)
@@ -276,6 +289,32 @@ bool TeamBrowser::clickingOnTeam(boost::shared_ptr<Team> p)
 		}
 	}
 	return true;
+}
+
+void TeamBrowser::toggleTeamOwnership(boost::shared_ptr<Team> p)
+{
+	auto it2 = mSelectedTeams.find(p);
+	if(it2 != mSelectedTeams.end()) {
+		if(it2->second == TeamSelection::Computer) {
+			it2->second = TeamSelection::Human;
+		}
+		else {
+			it2->second = TeamSelection::Computer;
+		}
+	}
+}
+
+std::vector<boost::shared_ptr<StatefulTeam>> TeamBrowser::createStatefulTeams() const
+{
+	std::vector<boost::shared_ptr<StatefulTeam>> teams;
+
+	for(auto t : mSelectedTeams) {
+		teams.push_back(boost::shared_ptr<StatefulTeam>(new StatefulTeam(*t.first,
+						TeamController(t.second == TeamSelection::Human,
+							0), AITactics::createTeamTactics(*t.first))));
+	}
+
+	return teams;
 }
 
 

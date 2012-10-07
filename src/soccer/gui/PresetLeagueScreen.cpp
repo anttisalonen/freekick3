@@ -27,18 +27,14 @@ bool PresetLeagueScreen::enteringLeague(boost::shared_ptr<League> p)
 
 bool PresetLeagueScreen::canClickDone()
 {
-	return getCurrentLevel() == 3;
+	return getCurrentLevel() == TeamBrowserLevel::Teams;
 }
 
 void PresetLeagueScreen::clickedDone()
 {
 	std::vector<boost::shared_ptr<StatefulTeam>> teams;
 
-	for(auto t : mSelectedTeams) {
-		teams.push_back(boost::shared_ptr<StatefulTeam>(new StatefulTeam(*t.first,
-						TeamController(t.second == TeamSelection::Human,
-							0), AITactics::createTeamTactics(*t.first))));
-	}
+	teams = createStatefulTeams();
 
 	boost::shared_ptr<StatefulLeague> league(new StatefulLeague(teams));
 	mScreenManager->addScreen(boost::shared_ptr<Screen>(new LeagueScreen(mScreenManager, league)));
@@ -53,15 +49,7 @@ const std::string& PresetLeagueScreen::getName() const
 
 bool PresetLeagueScreen::clickingOnTeam(boost::shared_ptr<Team> p)
 {
-	auto it2 = mSelectedTeams.find(p);
-	if(it2 != mSelectedTeams.end()) {
-		if(it2->second == TeamSelection::Computer) {
-			it2->second = TeamSelection::Human;
-		}
-		else {
-			it2->second = TeamSelection::Computer;
-		}
-	}
+	toggleTeamOwnership(p);
 	return true;
 }
 

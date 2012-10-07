@@ -8,6 +8,7 @@
 
 namespace Soccer {
 
+/* named std::map from string to pointer to T */
 template<class T>
 class Container {
 	public:

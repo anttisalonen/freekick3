@@ -7,46 +7,23 @@
 
 #include "soccer/League.h"
 
-#include "soccer/gui/Screen.h"
+#include "soccer/gui/CompetitionScreen.h"
 #include "soccer/gui/TeamTacticsScreen.h"
 
 namespace Soccer {
 
-class LeagueScreen : public Screen {
+class LeagueScreen : public CompetitionScreen {
 	public:
 		LeagueScreen(boost::shared_ptr<ScreenManager> sm, boost::shared_ptr<StatefulLeague> l);
-		void buttonPressed(boost::shared_ptr<Button> button);
-		const std::string& getName() const;
+		virtual void drawTable() override;
 
 	private:
-		enum class LabelType {
-			Table,
-			Result,
-		};
-
-		void drawTable();
-		void drawInfo();
-		void addText(LabelType t, const char* text, float x, float y,
+		void addTableText(const char* text, float x, float y,
 				TextAlignment align = TextAlignment::MiddleLeft,
 				Common::Color col = Common::Color::White);
-		bool allRoundMatchesPlayed() const;
-		void updateRoundMatches();
-		bool playNextMatch(bool display);
-		void addMatchLabels(const Match& m, float xp, float yp);
-		void updateScreenElements();
-		bool shouldShowSkipButton() const;
-		void saveLeague() const;
 
-		static const std::string ScreenName;
-		boost::shared_ptr<StatefulLeague> mLeague;
-		const float mTextSize;
-		boost::shared_ptr<Button> mSkipButton;
-		boost::shared_ptr<Button> mResultButton;
-		boost::shared_ptr<Button> mMatchButton;
 		std::vector<boost::shared_ptr<Button>> mTableLabels;
-		std::vector<boost::shared_ptr<Button>> mResultLabels;
-		std::vector<boost::shared_ptr<Match>> mRoundMatches;
-		Common::Color mMyTeamColor;
+		boost::shared_ptr<StatefulLeague> mLeague;
 };
 
 }

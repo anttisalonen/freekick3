@@ -1,6 +1,7 @@
 #include "soccer/gui/MainMenuScreen.h"
 #include "soccer/gui/FriendlyScreen.h"
 #include "soccer/gui/PresetLeagueScreen.h"
+#include "soccer/gui/PresetCupScreen.h"
 #include "soccer/gui/LoadGameScreen.h"
 #include "soccer/gui/UsageScreen.h"
 
@@ -12,8 +13,9 @@ MainMenuScreen::MainMenuScreen(boost::shared_ptr<ScreenManager> sm)
 	: Screen(sm)
 {
 	addLabel("Freekick 3", 0.5f, 0.25f, TextAlignment::Centered, 3.0f, Color(255, 255, 255));
-	addButton("Friendly",      Rectangle(0.35f, 0.45f, 0.30f, 0.07f));
-	addButton("Preset League", Rectangle(0.35f, 0.55f, 0.30f, 0.07f));
+	addButton("Friendly",      Rectangle(0.35f, 0.35f, 0.30f, 0.07f));
+	addButton("Preset League", Rectangle(0.35f, 0.45f, 0.30f, 0.07f));
+	addButton("Preset Cup",    Rectangle(0.35f, 0.55f, 0.30f, 0.07f));
 	addButton("Load Game",     Rectangle(0.35f, 0.65f, 0.30f, 0.07f));
 	addButton("Usage",         Rectangle(0.35f, 0.75f, 0.30f, 0.07f));
 	addButton("Quit",          Rectangle(0.35f, 0.85f, 0.30f, 0.07f));
@@ -30,6 +32,9 @@ void MainMenuScreen::buttonPressed(boost::shared_ptr<Button> button)
 	}
 	else if(buttonText == "Preset League") {
 		mScreenManager->addScreen(boost::shared_ptr<Screen>(new PresetLeagueScreen(mScreenManager)));
+	}
+	else if(buttonText == "Preset Cup") {
+		mScreenManager->addScreen(boost::shared_ptr<Screen>(new PresetCupScreen(mScreenManager)));
 	}
 	else if(buttonText == "Load Game") {
 		mScreenManager->addScreen(boost::shared_ptr<Screen>(new LoadGameScreen(mScreenManager)));

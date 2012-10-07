@@ -6,6 +6,7 @@
 
 #include "common/Serialization.h"
 
+#include "soccer/Competition.h"
 #include "soccer/Match.h"
 
 
@@ -42,97 +43,15 @@ struct LeagueEntry {
 	}
 };
 
-class Round {
-	public:
-		Round() { }
-		void addMatch(boost::shared_ptr<Match> m)
-		{
-			mMatches.push_back(m);
-		}
-		const std::vector<boost::shared_ptr<Match>>& getMatches() const
-		{
-			return mMatches;
-		}
-		const boost::shared_ptr<Match> getMatch(unsigned int rn) const
-		{
-			if(rn >= mMatches.size())
-				return boost::shared_ptr<Match>();
-			else
-				return mMatches[rn];
-		}
-
-		boost::shared_ptr<Match> getMatch(unsigned int rn)
-		{
-			if(rn >= mMatches.size())
-				return boost::shared_ptr<Match>();
-			else
-				return mMatches[rn];
-		}
-
-
-	private:
-		std::vector<boost::shared_ptr<Match>> mMatches;
-
-		friend class boost::serialization::access;
-		template<class Archive>
-		void serialize(Archive& ar, const unsigned int version)
-		{
-			ar & mMatches;
-		}
-};
-
-class Schedule {
-	public:
-		Schedule() { }
-		void addRound(const Round& r)
-		{
-			mRounds.push_back(r);
-		}
-
-		const Round* getRound(unsigned int rn) const
-		{
-			if(rn >= mRounds.size())
-				return nullptr;
-			else
-				return &mRounds[rn];
-		}
-
-		Round* getRound(unsigned int rn)
-		{
-			if(rn >= mRounds.size())
-				return nullptr;
-			else
-				return &mRounds[rn];
-		}
-
-	private:
-		std::vector<Round> mRounds;
-
-		friend class boost::serialization::access;
-		template<class Archive>
-		void serialize(Archive& ar, const unsigned int version)
-		{
-			ar & mRounds;
-		}
-};
-
-class StatefulLeague {
+class StatefulLeague : public StatefulCompetition {
 	public:
 		StatefulLeague(std::vector<boost::shared_ptr<StatefulTeam>>& teams);
-		const Schedule& getSchedule() const;
 		const std::map<boost::shared_ptr<StatefulTeam>, LeagueEntry>& getEntries() const;
-		const boost::shared_ptr<Match> getNextMatch() const;
-		bool matchPlayed(const MatchResult& res);
-		const Round* getCurrentRound() const;
+		bool matchPlayed(const MatchResult& res) override;
 
 	private:
 		void setRoundRobin(std::vector<boost::shared_ptr<StatefulTeam>>& teams);
-		void setNextMatch();
 		std::map<boost::shared_ptr<StatefulTeam>, LeagueEntry> mEntries;
-		Schedule mSchedule;
-		boost::shared_ptr<Match> mNextMatch;
-		int mThisRound;
-		int mNextMatchId;
 		const int mPointsPerWin;
 		const int mNumCycles;
 
@@ -141,11 +60,9 @@ class StatefulLeague {
 		template<class Archive>
 		void serialize(Archive& ar, const unsigned int version)
 		{
+			ar.template register_type<StatefulCompetition>();
+			ar & boost::serialization::base_object<StatefulCompetition>(*this);
 			ar & mEntries;
-			ar & mSchedule;
-			ar & mNextMatch;
-			ar & mThisRound;
-			ar & mNextMatchId;
 			ar & const_cast<int&>(mPointsPerWin);
 			ar & const_cast<int&>(mNumCycles);
 		}

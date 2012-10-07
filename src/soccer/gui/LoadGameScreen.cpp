@@ -50,6 +50,7 @@ void LoadGameScreen::buttonPressed(boost::shared_ptr<Button> button)
 		boost::archive::binary_iarchive ia(in);
 
 		boost::shared_ptr<StatefulLeague> league;
+		ia.template register_type<StatefulLeague>();
 		ia >> league;
 
 		mScreenManager->dropScreen();

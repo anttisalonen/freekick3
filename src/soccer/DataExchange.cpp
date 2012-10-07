@@ -255,8 +255,20 @@ boost::shared_ptr<Match> DataExchange::parseMatchDataFile(const char* fn)
 		throw std::runtime_error(ss.str());
 	}
 
+	const TiXmlElement* matchruleselem = handle.FirstChild("Match").FirstChild("MatchRules").ToElement();
+	if(!matchruleselem)
+		throw std::runtime_error(ss.str());
+
+	int et, pen;
+	if(matchruleselem->QueryIntAttribute("et", &et) != TIXML_SUCCESS)
+		throw std::runtime_error(ss.str());
+
+	if(matchruleselem->QueryIntAttribute("pen", &pen) != TIXML_SUCCESS)
+		throw std::runtime_error(ss.str());
+
 	boost::shared_ptr<Match> m(new Match(boost::shared_ptr<StatefulTeam>(new StatefulTeam(*teams[0], tcs[0], tt[0])),
-				boost::shared_ptr<StatefulTeam>(new StatefulTeam(*teams[1], tcs[1], tt[1]))));
+				boost::shared_ptr<StatefulTeam>(new StatefulTeam(*teams[1], tcs[1], tt[1])),
+				MatchRules(et, pen)));
 	m->setResult(mres);
 	return m;
 }
@@ -438,6 +450,13 @@ void DataExchange::createMatchDataFile(const Match& m, const char* fn)
 		controllerselem->LinkEndChild(cont1elem);
 		controllerselem->LinkEndChild(cont2elem);
 		matchelem->LinkEndChild(controllerselem);
+	}
+
+	{
+		TiXmlElement* ruleselem = new TiXmlElement("MatchRules");
+		ruleselem->SetAttribute("et", m.getRules().ExtraTimeOnTie ? "1" : "0");
+		ruleselem->SetAttribute("pen", m.getRules().PenaltiesOnTie ? "1" : "0");
+		matchelem->LinkEndChild(ruleselem);
 	}
 
 	doc.LinkEndChild(decl);

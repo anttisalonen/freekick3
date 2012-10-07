@@ -4,37 +4,12 @@
 namespace Soccer {
 
 StatefulLeague::StatefulLeague(std::vector<boost::shared_ptr<StatefulTeam>>& teams)
-	: mNextMatch(boost::shared_ptr<Match>()),
-	mThisRound(0),
-	mNextMatchId(0),
+	: StatefulCompetition(),
 	mPointsPerWin(3),
 	mNumCycles(2)
 {
 	setRoundRobin(teams);
 	setNextMatch();
-}
-
-void StatefulLeague::setNextMatch()
-{
-	Round* r;
-
-	r = mSchedule.getRound(mThisRound);
-	if(!r) {
-		mNextMatch = boost::shared_ptr<Match>();
-		return;
-	}
-
-	mNextMatch = r->getMatch(mNextMatchId);
-	if(!mNextMatch) {
-		mThisRound++;
-		mNextMatchId = 0;
-		r = mSchedule.getRound(mThisRound);
-		if(!r)
-			return;
-		mNextMatch = r->getMatch(mNextMatchId);
-	}
-
-	mNextMatchId++;
 }
 
 bool StatefulLeague::matchPlayed(const MatchResult& res)
@@ -76,13 +51,7 @@ bool StatefulLeague::matchPlayed(const MatchResult& res)
 	}
 
 	setNextMatch();
-	printf("Round: %d - Match: %d\n", mThisRound + 1, mNextMatchId + 1);
 	return mNextMatch == boost::shared_ptr<Match>();
-}
-
-const Schedule& StatefulLeague::getSchedule() const
-{
-	return mSchedule;
 }
 
 const std::map<boost::shared_ptr<StatefulTeam>, LeagueEntry>& StatefulLeague::getEntries() const
@@ -119,7 +88,7 @@ void StatefulLeague::setRoundRobin(std::vector<boost::shared_ptr<StatefulTeam>>&
 					ind2 = other;
 				}
 
-				r.addMatch(boost::shared_ptr<Match>(new Match(teams[ind1], teams[ind2])));
+				r.addMatch(boost::shared_ptr<Match>(new Match(teams[ind1], teams[ind2], MatchRules(false, false))));
 				printf("%5d-%-5d ", teams[ind1]->getId(), teams[ind2]->getId());
 			}
 		}
@@ -129,20 +98,11 @@ void StatefulLeague::setRoundRobin(std::vector<boost::shared_ptr<StatefulTeam>>&
 	}
 }
 
-const boost::shared_ptr<Match> StatefulLeague::getNextMatch() const
-{
-	return mNextMatch;
-}
-
-const Round* StatefulLeague::getCurrentRound() const
-{
-	return mSchedule.getRound(mThisRound);
-}
-
 StatefulLeague::StatefulLeague()
 	: mPointsPerWin(3),
 	mNumCycles(2)
 {
 }
+
 
 }

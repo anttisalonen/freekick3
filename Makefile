@@ -39,14 +39,15 @@ LIBSOCCERLIB = $(LIBSOCCERSRCDIR)/libsoccer.a
 SOCCERBINNAME = freekick3
 SOCCERBIN     = $(BINDIR)/$(SOCCERBINNAME)
 SOCCERSRCDIR  = src/soccer
-SOCCERSRCFILES = League.cpp \
+SOCCERSRCFILES = Competition.cpp League.cpp Cup.cpp \
 		 ai/AITactics.cpp \
 		 gui/Widget.cpp gui/Button.cpp gui/Image.cpp gui/Slider.cpp \
 		 gui/Screen.cpp gui/ScreenManager.cpp \
 		 gui/MatchResultScreen.cpp gui/MainMenuScreen.cpp gui/TeamBrowser.cpp \
-		 gui/FriendlyScreen.cpp gui/PresetLeagueScreen.cpp \
+		 gui/FriendlyScreen.cpp gui/PresetLeagueScreen.cpp gui/PresetCupScreen.cpp \
 		 gui/LoadGameScreen.cpp gui/UsageScreen.cpp \
-		 gui/LeagueScreen.cpp gui/TeamTacticsScreen.cpp \
+		 gui/CompetitionScreen.cpp gui/LeagueScreen.cpp gui/CupScreen.cpp \
+		 gui/TeamTacticsScreen.cpp \
 		 gui/Menu.cpp main.cpp
 SOCCERSRCS = $(addprefix $(SOCCERSRCDIR)/, $(SOCCERSRCFILES))
 SOCCEROBJS = $(SOCCERSRCS:.cpp=.o)

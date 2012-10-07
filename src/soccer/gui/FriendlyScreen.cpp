@@ -44,7 +44,8 @@ void FriendlyScreen::clickedDone()
 	mMatch = boost::shared_ptr<Match>(new Match(boost::shared_ptr<StatefulTeam>(new StatefulTeam(*teams[0], TeamController(teamnum == 1, 0),
 					AITactics::createTeamTactics(*teams[0]))),
 			boost::shared_ptr<StatefulTeam>(new StatefulTeam(*teams[1], TeamController(teamnum == 2, 0),
-					AITactics::createTeamTactics(*teams[1])))));
+					AITactics::createTeamTactics(*teams[1]))),
+			MatchRules(false, false)));
 
 	mScreenManager->addScreen(boost::shared_ptr<Screen>(new TeamTacticsScreen(mScreenManager, *mMatch,
 					[&](Match& m) -> void {
