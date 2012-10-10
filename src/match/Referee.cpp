@@ -8,6 +8,8 @@
 #include "match/Referee.h"
 #include "match/RefereeActions.h"
 
+#define DEBUG_CONTROLLING_TEAM
+
 Referee::Referee()
 	: mMatch(nullptr),
 	mFirstTeamInControl(true),
@@ -29,20 +31,32 @@ boost::shared_ptr<RefereeAction> Referee::act(double time)
 	switch(mMatch->getMatchHalf()) {
 		case MatchHalf::NotStarted:
 		case MatchHalf::HalfTimePauseEnd:
+		case MatchHalf::FullTimePauseEnd:
 			if(allPlayersOnOwnSideAndReady()) {
-				mFirstTeamInControl = mMatch->getMatchHalf() == MatchHalf::NotStarted;
+				mFirstTeamInControl = mMatch->getMatchHalf() == MatchHalf::NotStarted ||
+					mMatch->getMatchHalf() == MatchHalf::FullTimePauseEnd;
 #ifdef DEBUG_CONTROLLING_TEAM
 				std::cout << __LINE__ << ": First team in control: " << mFirstTeamInControl << " - match half\n";
 #endif
-				if(mFirstTeamInControl)
-					return boost::shared_ptr<RefereeAction>(new ChangeMatchHalfRA(MatchHalf::FirstHalf));
-				else
-					return boost::shared_ptr<RefereeAction>(new ChangeMatchHalfRA(MatchHalf::SecondHalf));
+				if(mFirstTeamInControl) {
+					if(mMatch->getMatchHalf() == MatchHalf::NotStarted)
+						return boost::shared_ptr<RefereeAction>(new ChangeMatchHalfRA(MatchHalf::FirstHalf));
+					else
+						return boost::shared_ptr<RefereeAction>(new ChangeMatchHalfRA(MatchHalf::ExtraTimeFirstHalf));
+				}
+				else {
+					if(mMatch->getMatchHalf() == MatchHalf::HalfTimePauseEnd)
+						return boost::shared_ptr<RefereeAction>(new ChangeMatchHalfRA(MatchHalf::SecondHalf));
+					else
+						return boost::shared_ptr<RefereeAction>(new ChangeMatchHalfRA(MatchHalf::ExtraTimeSecondHalf));
+				}
 			}
 			break;
 
 		case MatchHalf::FirstHalf:
 		case MatchHalf::SecondHalf:
+		case MatchHalf::ExtraTimeFirstHalf:
+		case MatchHalf::ExtraTimeSecondHalf:
 			if(!mOutOfPlayClock.running()) {
 				if(mMatch->getPlayState() == PlayState::InPlay) {
 					if(!mWaitForResumeClock.running()) {
@@ -77,7 +91,12 @@ boost::shared_ptr<RefereeAction> Referee::act(double time)
 			}
 			break;
 
+		case MatchHalf::PenaltyShootout:
+			assert(0); /* TODO */
+			break;
+
 		case MatchHalf::HalfTimePauseBegin:
+		case MatchHalf::FullTimePauseBegin:
 		case MatchHalf::Finished:
 			break;
 	}
@@ -89,8 +108,9 @@ bool Referee::allPlayersOnOwnSideAndReady() const
 {
 	for(int i = 0; i < 2; i++) {
 		for(auto& p : mMatch->getTeam(i)->getPlayers()) {
-			if(!MatchHelpers::onOwnSideAndReady(*p))
+			if(!MatchHelpers::onOwnSideAndReady(*p)) {
 				return false;
+			}
 		}
 	}
 	return true;
@@ -102,10 +122,16 @@ bool Referee::canKickBall(const Player& p) const
 		case MatchHalf::NotStarted:
 		case MatchHalf::HalfTimePauseBegin:
 		case MatchHalf::HalfTimePauseEnd:
+		case MatchHalf::FullTimePauseBegin:
+		case MatchHalf::FullTimePauseEnd:
+		case MatchHalf::Finished:
 			return true;
 
 		case MatchHalf::FirstHalf:
 		case MatchHalf::SecondHalf:
+		case MatchHalf::ExtraTimeFirstHalf:
+		case MatchHalf::ExtraTimeSecondHalf:
+		case MatchHalf::PenaltyShootout:
 			switch(mMatch->getPlayState()) {
 				case PlayState::InPlay:
 					return true;
@@ -113,9 +139,6 @@ bool Referee::canKickBall(const Player& p) const
 				default:
 					return MatchHelpers::playersPositionedForRestart(*p.getMatch(), p);
 			}
-
-		case MatchHalf::Finished:
-			return true;
 	}
 	return false;
 }
@@ -152,6 +175,11 @@ void Referee::ballKicked(const Player& p)
 	}
 }
 
+bool Referee::firstTeamAttacksUp() const
+{
+	return MatchHelpers::attacksUp(*mMatch->getTeam(0));
+}
+
 boost::shared_ptr<RefereeAction> Referee::setOutOfPlay()
 {
 	RelVector3 bp(mMatch->convertAbsoluteToRelativeVector(mMatch->getBall()->getPosition()));
@@ -178,10 +206,10 @@ boost::shared_ptr<RefereeAction> Referee::setOutOfPlay()
 			mRestartPosition.v.z = 0.0f;
 			bool firstscores;
 			if(bp.v.y > 1.0f) {
-				firstscores = mMatch->getMatchHalf() == MatchHalf::FirstHalf;
+				firstscores = firstTeamAttacksUp();
 			}
 			else {
-				firstscores = mMatch->getMatchHalf() != MatchHalf::FirstHalf;
+				firstscores = !firstTeamAttacksUp();
 			}
 			mMatch->addGoal(firstscores);
 			mFirstTeamInControl = !firstscores;
@@ -191,8 +219,8 @@ boost::shared_ptr<RefereeAction> Referee::setOutOfPlay()
 			mPlayerInControl = nullptr;
 			return boost::shared_ptr<RefereeAction>(new ChangePlayStateRA(PlayState::OutKickoff));
 		}
-		if((((bp.v.y < 0.0f) == mFirstTeamInControl) && (mMatch->getMatchHalf() == MatchHalf::FirstHalf)) ||
-		   (((bp.v.y < 0.0f) != mFirstTeamInControl) && (mMatch->getMatchHalf() == MatchHalf::SecondHalf))) {
+		if((((bp.v.y < 0.0f) == mFirstTeamInControl) && firstTeamAttacksUp()) ||
+		   (((bp.v.y < 0.0f) != mFirstTeamInControl) && !firstTeamAttacksUp())) {
 			if(bp.v.x == 0.0f)
 				bp.v.x = 1.0f;
 			if(bp.v.y == 0.0f)
@@ -267,10 +295,15 @@ void Referee::ballGrabbed(const Player& p)
 void Referee::matchHalfChanged(MatchHalf m)
 {
 	mPlayerInControl = nullptr;
-	if(m == MatchHalf::HalfTimePauseEnd) {
+	if(m == MatchHalf::HalfTimePauseEnd || m == MatchHalf::ExtraTimeSecondHalf) {
 		mFirstTeamInControl = false;
 #ifdef DEBUG_CONTROLLING_TEAM
 		std::cout << __LINE__ << ": First team in control: " << mFirstTeamInControl << " - match half\n";
+#endif
+	} else if(m == MatchHalf::FullTimePauseEnd) {
+		mFirstTeamInControl = true;
+#ifdef DEBUG_CONTROLLING_TEAM
+		std::cout << __LINE__ << ": First team in control: " << mFirstTeamInControl << " - extra time\n";
 #endif
 	}
 }

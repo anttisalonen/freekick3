@@ -9,14 +9,16 @@
 
 #define TACKLE_DISTANCE 1.0f
 
-Match::Match(const Soccer::Match& m, double matchtime)
+Match::Match(const Soccer::Match& m, double matchtime, bool extratime, bool penalties)
 	: Soccer::Match(m),
 	mTime(0),
 	mTimeAccelerationConstant(90.0f / matchtime),
 	mMatchHalf(MatchHalf::NotStarted),
 	mPlayState(PlayState::OutKickoff),
 	mPitch(Pitch(68.0f, 105.0f)),
-	mGoalScorer(nullptr)
+	mGoalScorer(nullptr),
+	mExtraTime(extratime),
+	mPenalties(penalties)
 {
 	static const unsigned int numPlayers = 11;
 	assert(matchtime);
@@ -147,8 +149,13 @@ void Match::setMatchHalf(MatchHalf h)
 	for(int i = 0; i < 2; i++)
 		mTeams[i]->matchHalfChanged(mMatchHalf);
 	mReferee.matchHalfChanged(mMatchHalf);
-	if(mMatchHalf == MatchHalf::HalfTimePauseEnd)
-		mBall->setPosition(AbsVector3(0, 0, 0));
+	if(mMatchHalf == MatchHalf::HalfTimePauseEnd ||
+			mMatchHalf == MatchHalf::FullTimePauseEnd ||
+			mMatchHalf == MatchHalf::ExtraTimeSecondHalf) {
+		std::cout << "reset ball position\n";
+		mBall->setPosition(AbsVector3(0, 0, 0.4));
+		mBall->setVelocity(AbsVector3(0, 0, 0));
+	}
 }
 
 void Match::setPlayState(PlayState h)
@@ -212,6 +219,16 @@ std::ostream& operator<<(std::ostream& out, const MatchHalf& m)
 			str = "Half time pause (end)"; break;
 		case MatchHalf::SecondHalf:
 			str = "Second half"; break;
+		case MatchHalf::FullTimePauseBegin:
+			str = "Full time pause (begin)"; break;
+		case MatchHalf::FullTimePauseEnd:
+			str = "Full time pause (end)"; break;
+		case MatchHalf::ExtraTimeFirstHalf:
+			str = "ET First half"; break;
+		case MatchHalf::ExtraTimeSecondHalf:
+			str = "ET Second half"; break;
+		case MatchHalf::PenaltyShootout:
+			str = "Penalty shootout"; break;
 		case MatchHalf::Finished:
 			str = "Finished"; break;
 	}
@@ -221,7 +238,9 @@ std::ostream& operator<<(std::ostream& out, const MatchHalf& m)
 
 bool playing(MatchHalf h)
 {
-	return h == MatchHalf::FirstHalf || h == MatchHalf::SecondHalf;
+	return h == MatchHalf::FirstHalf || h == MatchHalf::SecondHalf ||
+		h == MatchHalf::ExtraTimeFirstHalf || h == MatchHalf::ExtraTimeSecondHalf ||
+		h == MatchHalf::PenaltyShootout;
 }
 
 std::ostream& operator<<(std::ostream& out, const PlayState& m)
@@ -351,10 +370,39 @@ void Match::updateTime(double time)
 {
 	if(playing(mMatchHalf) && playing(mPlayState) && !mBall->grabbed()) {
 		mTime += time * mTimeAccelerationConstant;
-		if(mTime >= 45.0f && (fabs(mBall->getPosition().v.y) < 20.0f || mTime > 50.5f)) {
-			setMatchHalf(mMatchHalf == MatchHalf::FirstHalf ?
-					MatchHalf::HalfTimePauseBegin : MatchHalf::Finished);
-			mTime = 0.0f;
+		if(mMatchHalf == MatchHalf::FirstHalf ||
+				mMatchHalf == MatchHalf::SecondHalf) {
+			if(mTime >= 45.0f && (fabs(mBall->getPosition().v.y) < 20.0f || mTime > 50.5f)) {
+				if(mMatchHalf == MatchHalf::FirstHalf) {
+					setMatchHalf(MatchHalf::HalfTimePauseBegin);
+				} else {
+					// Second half is finished
+					if((mScore[0] == mScore[1]) && (mExtraTime || mPenalties)) {
+						if(mExtraTime) {
+							setMatchHalf(MatchHalf::FullTimePauseBegin);
+						} else {
+							setMatchHalf(MatchHalf::PenaltyShootout);
+						}
+					} else {
+						setMatchHalf(MatchHalf::Finished);
+					}
+				}
+				mTime = 0.0f;
+			}
+		} else if(mMatchHalf == MatchHalf::ExtraTimeFirstHalf ||
+				mMatchHalf == MatchHalf::ExtraTimeSecondHalf) {
+			if(mTime >= 15.0f && (fabs(mBall->getPosition().v.y) < 25.0f || mTime > 16.5f)) {
+				if(mMatchHalf == MatchHalf::ExtraTimeFirstHalf) {
+					setMatchHalf(MatchHalf::ExtraTimeSecondHalf);
+				} else {
+					if((mScore[0] == mScore[1]) && mPenalties) {
+						setMatchHalf(MatchHalf::PenaltyShootout);
+					} else {
+						setMatchHalf(MatchHalf::Finished);
+					}
+				}
+				mTime = 0.0f;
+			}
 		}
 	}
 }
@@ -406,6 +454,24 @@ GoalInfo::GoalInfo(const Match& m, bool pen, bool own)
 			}
 			else {
 				mScoreTime = std::to_string(min + 45);
+			}
+			break;
+
+		case MatchHalf::ExtraTimeFirstHalf:
+			if(min > 15) {
+				mScoreTime = std::string("105 + ") + std::to_string(min - 15);
+			}
+			else {
+				mScoreTime = std::to_string(min + 90);
+			}
+			break;
+
+		case MatchHalf::ExtraTimeSecondHalf:
+			if(min > 15) {
+				mScoreTime = std::string("120 + ") + std::to_string(min - 15);
+			}
+			else {
+				mScoreTime = std::to_string(min + 105);
 			}
 			break;
 

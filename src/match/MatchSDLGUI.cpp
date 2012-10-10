@@ -189,14 +189,22 @@ void MatchSDLGUI::drawTexts()
 	resultbuf[255] = 0;
 	drawText(90, screenHeight - 30, FontConfig(resultbuf, Color(255, 255, 255), 1.5f), true, false);
 
-	char timebuf[128];
-	int min = int(mMatch->getTime());
-	if(mMatch->getMatchHalf() >= MatchHalf::HalfTimePauseBegin)
-		min += 45;
-	if(mMatch->getMatchHalf() >= MatchHalf::Finished)
-		min += 45;
-	sprintf(timebuf, "%d min.", min);
-	drawText(10, screenHeight - 30, FontConfig(timebuf, Color(255, 255, 255), 1.5f), true, false);
+	if(mMatch->getMatchHalf() != MatchHalf::Finished) {
+		char timebuf[128];
+		int min = int(mMatch->getTime());
+
+		if(mMatch->getMatchHalf() >= MatchHalf::HalfTimePauseBegin) {
+			min += 45;
+			if(mMatch->getMatchHalf() >= MatchHalf::FullTimePauseBegin) {
+				min += 45;
+				if(mMatch->getMatchHalf() >= MatchHalf::ExtraTimeSecondHalf) {
+					min += 15;
+				}
+			}
+		}
+		sprintf(timebuf, "%d min.", min);
+		drawText(10, screenHeight - 30, FontConfig(timebuf, Color(255, 255, 255), 1.5f), true, false);
+	}
 
 	{
 		const Player* playerincontrol = mMatch->getReferee()->getPlayerInControl();

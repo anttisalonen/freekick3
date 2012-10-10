@@ -161,7 +161,8 @@ const Soccer::PlayerTactics& Player::getTactics() const
 
 void Player::matchHalfChanged(MatchHalf m)
 {
-	if(m == MatchHalf::HalfTimePauseEnd) {
+	if(m == MatchHalf::HalfTimePauseEnd || m == MatchHalf::FullTimePauseEnd ||
+			m == MatchHalf::ExtraTimeSecondHalf) {
 		mHomePosition.v.x = -mHomePosition.v.x;
 		mHomePosition.v.y = -mHomePosition.v.y;
 	}

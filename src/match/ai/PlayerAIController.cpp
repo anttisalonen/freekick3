@@ -22,6 +22,7 @@ boost::shared_ptr<PlayerAction> PlayerAIController::act(double time)
 	switch(mPlayer->getMatch()->getMatchHalf()) {
 		case MatchHalf::NotStarted:
 		case MatchHalf::HalfTimePauseEnd:
+		case MatchHalf::FullTimePauseEnd:
 			if(mPlayer->getShirtNumber() >= 10 && MatchHelpers::myTeamInControl(*mPlayer))
 				return AIHelpers::createMoveActionTo(*mPlayer, AbsVector3(mPlayer->getShirtNumber() == 10 ?
 							-1.0f : 2.0f, 0, 0));
@@ -30,12 +31,16 @@ boost::shared_ptr<PlayerAction> PlayerAIController::act(double time)
 						mPlayer->getMatch()->convertRelativeToAbsoluteVector(mPlayer->getHomePosition()));
 
 		case MatchHalf::HalfTimePauseBegin:
+		case MatchHalf::FullTimePauseBegin:
 		case MatchHalf::Finished:
 			return AIHelpers::createMoveActionTo(*mPlayer,
 					mPlayer->getMatch()->convertRelativeToAbsoluteVector(mPlayer->getTeam()->getPausePosition()));
 
 		case MatchHalf::FirstHalf:
 		case MatchHalf::SecondHalf:
+		case MatchHalf::ExtraTimeFirstHalf:
+		case MatchHalf::ExtraTimeSecondHalf:
+		case MatchHalf::PenaltyShootout:
 			switch(mPlayer->getMatch()->getPlayState()) {
 				case PlayState::InPlay:
 					return mPlayState->act(time);

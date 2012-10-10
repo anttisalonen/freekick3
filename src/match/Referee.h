@@ -25,9 +25,12 @@ class Referee {
 		void matchHalfChanged(MatchHalf m);
 		const Player* getPlayerInControl() const;
 		void playerTackled(const Player& tackled, const Player& tacklee);
+
 	private:
 		bool allPlayersOnOwnSideAndReady() const;
 		void ballTouched(const Player& p);
+		bool firstTeamAttacksUp() const;
+
 		boost::shared_ptr<RefereeAction> setOutOfPlay();
 		boost::shared_ptr<RefereeAction> setFoulRestart();
 		Match* mMatch;

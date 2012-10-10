@@ -21,6 +21,11 @@ enum class MatchHalf {
 	HalfTimePauseBegin,
 	HalfTimePauseEnd,
 	SecondHalf,
+	FullTimePauseBegin,
+	FullTimePauseEnd,
+	ExtraTimeFirstHalf,
+	ExtraTimeSecondHalf,
+	PenaltyShootout,
 	Finished
 };
 
@@ -57,7 +62,7 @@ class GoalInfo {
 
 class Match : public Soccer::Match {
 	public:
-		Match(const Soccer::Match& m, double matchtime);
+		Match(const Soccer::Match& m, double matchtime, bool extratime, bool penalties);
 		Team* getTeam(unsigned int team);
 		const Team* getTeam(unsigned int team) const;
 		const Player* getPlayer(unsigned int team, unsigned int idx) const;
@@ -85,6 +90,7 @@ class Match : public Soccer::Match {
 		void setGoalScorer(const Player* p);
 		const Player* getGoalScorer() const;
 		const std::array<std::vector<GoalInfo>, 2>& getGoalInfos() const;
+
 	private:
 		void applyPlayerAction(PlayerAction* a,
 				const boost::shared_ptr<Player> p, double time);
@@ -102,6 +108,8 @@ class Match : public Soccer::Match {
 		int mScore[2];
 		std::array<std::vector<GoalInfo>, 2> mGoalInfos;
 		const Player* mGoalScorer;
+		bool mExtraTime;
+		bool mPenalties;
 };
 
 #endif

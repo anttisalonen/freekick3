@@ -10,15 +10,17 @@
 
 void usage(const char* p)
 {
-	printf("Usage: %s <path to match data file> [-o] [-t team] [-p player] [-f FPS [-s seed]] [-d] [-m sec] [-x]\n\n"
+	printf("Usage: %s <path to match data file> [-o] [-t team] [-p player] [-f FPS [-s seed]] [-d] [-m sec] [-x] [-E] [-P]\n\n"
 			"\t-o\tobserver mode\n"
 			"\t-t team\tteam number (1 or 2)\n"
 			"\t-p num\tplayer number (1-11)\n"
 			"\t-f FPS\tfixed frame rate\n"
 			"\t-d\tdebug mode\n"
 			"\t-m sec\tmatch time in seconds (default: 180)\n"
-			"\t-x\ndisable GUI\n"
+			"\t-x\tdisable GUI\n"
 			"\t-s seed\tmake fixed frame rate non-deterministic with seed (-1: use time)\n"
+			"\t-E\textra time on tie\n"
+			"\t-P\tpenalties on tie\n"
 			"\n",
 			p);
 }
@@ -39,6 +41,8 @@ int main(int argc, char** argv)
 	bool disableGUI = false;
 	bool useseed = false;
 	int seed = 0;
+	bool extratime = false;
+	bool penalties = false;
 
 	for(int i = 2; i < argc; i++) {
 		if(!strcmp(argv[i], "-o")) {
@@ -87,16 +91,24 @@ int main(int argc, char** argv)
 			if(seed == -1) {
 				seed = time(NULL);
 			}
+		} else if(!strcmp(argv[i], "-E")) {
+			extratime = true;
+		} else if(!strcmp(argv[i], "-P")) {
+			penalties = true;
+		} else if(!strcmp(argv[i], "-h") || !strcmp(argv[i], "--help")) {
+			usage(argv[0]);
+			exit(0);
 		}
 		else {
 			printf("Unknown option: \"%s\"\n", argv[i]);
+			usage(argv[0]);
 			exit(1);
 		}
 	}
 
 	try {
 		boost::shared_ptr<Soccer::Match> matchdata = Soccer::DataExchange::parseMatchDataFile(argv[1]);
-		boost::shared_ptr<Match> match(new Match(*matchdata, seconds));
+		boost::shared_ptr<Match> match(new Match(*matchdata, seconds, extratime, penalties));
 		boost::shared_ptr<MatchGUI> gui;
 		gui = boost::shared_ptr<MatchGUI>(new MatchSDLGUI(match, observer, teamnum, playernum,
 					ticksPerSec, debug, useseed, disableGUI));

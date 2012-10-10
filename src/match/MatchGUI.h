@@ -27,8 +27,9 @@ MatchGUI::MatchGUI(boost::shared_ptr<Match> match)
 bool MatchGUI::progressMatch(double frameTime)
 {
 	if(!playing(mMatch->getMatchHalf()) &&
-			mMatch->getMatchHalf() != MatchHalf::NotStarted &&
-			mMatch->getMatchHalf() != MatchHalf::HalfTimePauseEnd &&
+			(mMatch->getMatchHalf() == MatchHalf::HalfTimePauseBegin ||
+			mMatch->getMatchHalf() == MatchHalf::FullTimePauseBegin ||
+			mMatch->matchOver()) &&
 			MatchHelpers::playersOnPause(*mMatch)) {
 		mHalfTimeTimer.doCountdown(frameTime);
 		if(mHalfTimeTimer.checkAndRewind()) {
@@ -36,7 +37,11 @@ bool MatchGUI::progressMatch(double frameTime)
 				return false;
 			}
 			else {
-				mMatch->setMatchHalf(MatchHalf::HalfTimePauseEnd);
+				if(mMatch->getMatchHalf() == MatchHalf::HalfTimePauseBegin) {
+					mMatch->setMatchHalf(MatchHalf::HalfTimePauseEnd);
+				} else {
+					mMatch->setMatchHalf(MatchHalf::FullTimePauseEnd);
+				}
 			}
 		}
 	}

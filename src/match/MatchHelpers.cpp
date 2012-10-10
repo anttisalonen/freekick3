@@ -167,12 +167,14 @@ const std::vector<boost::shared_ptr<Player>>& MatchHelpers::getTeamPlayers(const
 
 bool MatchHelpers::attacksUp(const Player& p)
 {
-	return p.getTeam()->isFirst() == (p.getMatch()->getMatchHalf() <= MatchHalf::FirstHalf);
+	return attacksUp(*p.getTeam());
 }
 
 bool MatchHelpers::attacksUp(const Team& t)
 {
-	return t.isFirst() == (t.getMatch()->getMatchHalf() <= MatchHalf::FirstHalf);
+	return t.isFirst() == (t.getMatch()->getMatchHalf() <= MatchHalf::FirstHalf ||
+		(t.getMatch()->getMatchHalf() <= MatchHalf::ExtraTimeFirstHalf &&
+		t.getMatch()->getMatchHalf() >= MatchHalf::FullTimePauseEnd));
 }
 
 const Team* MatchHelpers::getOpposingTeam(const Player& p)
