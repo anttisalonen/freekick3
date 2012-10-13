@@ -84,7 +84,7 @@ class RunningMatch {
 		RunningMatch(const Match& m);
 		bool matchFinished(MatchResult* r);
 	private:
-		void startMatch(int teamnum, int playernum);
+		void startMatch(int teamnum, int playernum, bool et, bool penalties);
 		pid_t mChildPid;
 		char matchfilenamebuf[L_tmpnam];
 };

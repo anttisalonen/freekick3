@@ -356,10 +356,10 @@ RunningMatch::RunningMatch(const Match& m)
 		teamnum = 2;
 		plnum = m.getTeam(1)->getController().PlayerShirtNumber;
 	}
-	startMatch(teamnum, plnum);
+	startMatch(teamnum, plnum, m.getRules().ExtraTimeOnTie, m.getRules().PenaltiesOnTie);
 }
 
-void RunningMatch::startMatch(int teamnum, int playernum)
+void RunningMatch::startMatch(int teamnum, int playernum, bool et, bool penalties)
 {
 	pid_t fret = fork();
 	if(fret == 0) {
@@ -377,6 +377,12 @@ void RunningMatch::startMatch(int teamnum, int playernum)
 				args.push_back("-p");
 				args.push_back(std::to_string(playernum).c_str());
 			}
+		}
+		if(et) {
+			args.push_back("-E");
+		}
+		if(penalties) {
+			args.push_back("-P");
 		}
 
 		std::cout << "Running command: ";

@@ -201,17 +201,20 @@ boost::shared_ptr<Match> DataExchange::parseMatchDataFile(const char* fn)
 
 	MatchResult mres;
 	int played;
+
 	if(matchreselem->QueryIntAttribute("played", &played) != TIXML_SUCCESS)
 		throw std::runtime_error(ss.str());
-
 	mres.Played = played;
-	if(played) {
-		const TiXmlElement* homeelem = matchreselem->FirstChildElement("Home");
-		const TiXmlElement* awayelem = matchreselem->FirstChildElement("Away");
-		if(!homeelem || !awayelem)
+
+	if(mres.Played) {
+		if(matchreselem->QueryIntAttribute("home", &mres.HomeGoals) != TIXML_SUCCESS)
 			throw std::runtime_error(ss.str());
-		mres.HomeGoals = atoi(homeelem->GetText());
-		mres.AwayGoals = atoi(awayelem->GetText());
+		if(matchreselem->QueryIntAttribute("away", &mres.AwayGoals) != TIXML_SUCCESS)
+			throw std::runtime_error(ss.str());
+		if(matchreselem->QueryIntAttribute("homePenalties", &mres.HomePenalties) != TIXML_SUCCESS)
+			throw std::runtime_error(ss.str());
+		if(matchreselem->QueryIntAttribute("awayPenalties", &mres.AwayPenalties) != TIXML_SUCCESS)
+			throw std::runtime_error(ss.str());
 	}
 
 	TiXmlElement* controllerelem = handle.FirstChild("Match").FirstChild("Controllers").FirstChild("Controller").ToElement();
@@ -429,12 +432,10 @@ void DataExchange::createMatchDataFile(const Match& m, const char* fn)
 
 	TiXmlElement* matchresultelem = new TiXmlElement("MatchResult");
 	matchresultelem->SetAttribute("played", m.getResult().Played ? "1" : "0");
-	TiXmlElement* homereselem = new TiXmlElement("Home");
-	TiXmlElement* awayreselem = new TiXmlElement("Away");
-	homereselem->LinkEndChild(new TiXmlText(std::to_string(m.getResult().HomeGoals)));
-	awayreselem->LinkEndChild(new TiXmlText(std::to_string(m.getResult().AwayGoals)));
-	matchresultelem->LinkEndChild(homereselem);
-	matchresultelem->LinkEndChild(awayreselem);
+	matchresultelem->SetAttribute("home", m.getResult().HomeGoals);
+	matchresultelem->SetAttribute("away", m.getResult().AwayGoals);
+	matchresultelem->SetAttribute("homePenalties", m.getResult().HomePenalties);
+	matchresultelem->SetAttribute("awayPenalties", m.getResult().AwayPenalties);
 	matchelem->LinkEndChild(matchresultelem);
 
 	{
