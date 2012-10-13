@@ -62,25 +62,37 @@ boost::shared_ptr<PlayerAction> PlayerAIController::actOffPlay(double time)
 	if(MatchHelpers::myTeamInControl(*mPlayer)) {
 		bool nearest = MatchHelpers::nearestOwnPlayerTo(*mPlayer,
 				mPlayer->getMatch()->getBall()->getPosition());
-		bool shouldkickball =
-			mPlayer->getMatch()->getPlayState() == PlayState::OutKickoff ?
-			mPlayer->getShirtNumber() == 10 :
-			mPlayer->getMatch()->getPlayState() == PlayState::OutGoalkick ?
-			mPlayer->isGoalkeeper() : nearest;
+		bool shouldkickball;
+
+		if(mPlayer->getMatch()->getMatchHalf() == MatchHalf::PenaltyShootout) {
+			unsigned int r = mPlayer->getMatch()->getPenaltyShootout().getRoundNumber();
+			int shirtnum = 11 - (r % 10);
+			shouldkickball = mPlayer->getShirtNumber() == shirtnum;
+		} else {
+			shouldkickball = mPlayer->getMatch()->getPlayState() == PlayState::OutKickoff ?
+				mPlayer->getShirtNumber() == 10 :
+				mPlayer->getMatch()->getPlayState() == PlayState::OutGoalkick ?
+				mPlayer->isGoalkeeper() : nearest;
+		}
+
 		if(shouldkickball) {
 			return doRestart(time);
 		}
 		else {
-			if(mPlayer->getMatch()->getPlayState() == PlayState::OutKickoff) {
-				if(mPlayer->getShirtNumber() >= 10)
-					return AIHelpers::createMoveActionTo(*mPlayer, AbsVector3(mPlayer->getShirtNumber() == 10 ?
-								-1.0f : 2.0f, 0, 0));
-				else
-					return AIHelpers::createMoveActionTo(*mPlayer,
-							mPlayer->getMatch()->convertRelativeToAbsoluteVector(mPlayer->getHomePosition()));
-			}
-			else {
-				return mPlayState->actOnRestart(time);
+			if(mPlayer->getMatch()->getMatchHalf() == MatchHalf::PenaltyShootout) {
+				return AIHelpers::createMoveActionTo(*mPlayer, AbsVector3(0, 0, 0));
+			} else {
+				if(mPlayer->getMatch()->getPlayState() == PlayState::OutKickoff) {
+					if(mPlayer->getShirtNumber() >= 10)
+						return AIHelpers::createMoveActionTo(*mPlayer, AbsVector3(mPlayer->getShirtNumber() == 10 ?
+									-1.0f : 2.0f, 0, 0));
+					else
+						return AIHelpers::createMoveActionTo(*mPlayer,
+								mPlayer->getMatch()->convertRelativeToAbsoluteVector(mPlayer->getHomePosition()));
+				}
+				else {
+					return mPlayState->actOnRestart(time);
+				}
 			}
 		}
 	}
@@ -88,8 +100,13 @@ boost::shared_ptr<PlayerAction> PlayerAIController::actOffPlay(double time)
 		if(mPlayer->getMatch()->getPlayState() == PlayState::OutKickoff) {
 			return AIHelpers::createMoveActionTo(*mPlayer,
 					mPlayer->getMatch()->convertRelativeToAbsoluteVector(mPlayer->getHomePosition()));
-		}
-		else {
+		} else if(mPlayer->getMatch()->getMatchHalf() == MatchHalf::PenaltyShootout) {
+			if(mPlayer->isGoalkeeper()) {
+				return mPlayState->actOnRestart(time);
+			} else {
+				return AIHelpers::createMoveActionTo(*mPlayer, AbsVector3(0, 0, 0));
+			}
+		} else {
 			return mPlayState->actOnRestart(time);
 		}
 	}

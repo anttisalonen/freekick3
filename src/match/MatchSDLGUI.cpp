@@ -71,7 +71,9 @@ MatchSDLGUI::MatchSDLGUI(boost::shared_ptr<Match> match, bool observer, int team
 
 	setPlayer(mMatch->getPlayer(mControlledTeamIndex, mControlledPlayerIndex == -1 ?
 				9 : mControlledPlayerIndex));
-	setPlayerController(0.0f);
+	if(!mObserver) {
+		setPlayerController(0.0f);
+	}
 
 	if(debug) {
 		if(mObserver) {
@@ -136,7 +138,9 @@ bool MatchSDLGUI::play()
 		}
 	}
 	if(mMatch->matchOver()) {
-		Soccer::MatchResult mres(mMatch->getScore(1), mMatch->getScore(0));
+		Soccer::MatchResult mres(mMatch->getScore(1), mMatch->getScore(0),
+				mMatch->getPenaltyShootout().getScore(true),
+				mMatch->getPenaltyShootout().getScore(false));
 		mMatch->setResult(mres);
 		return true;
 	}
@@ -182,14 +186,20 @@ void MatchSDLGUI::drawEnvironment()
 
 void MatchSDLGUI::drawTexts()
 {
-	char resultbuf[256];
-	snprintf(resultbuf, 255, "%s %d - %d %s", mMatch->getTeam(0)->getName().c_str(),
-			mMatch->getScore(true), mMatch->getScore(false),
-			mMatch->getTeam(1)->getName().c_str());
-	resultbuf[255] = 0;
-	drawText(90, screenHeight - 30, FontConfig(resultbuf, Color(255, 255, 255), 1.5f), true, false);
+	bool penaltyshootout = mMatch->getPenaltyShootout().getScore(true) ||
+		mMatch->getPenaltyShootout().getScore(false) ||
+		mMatch->getMatchHalf() == MatchHalf::PenaltyShootout;
 
-	if(mMatch->getMatchHalf() != MatchHalf::Finished) {
+	std::stringstream result;
+	result << mMatch->getTeam(0)->getName() << " " << mMatch->getScore(true) <<
+		" - " << mMatch->getScore(false) << " " << mMatch->getTeam(1)->getName();
+	if(penaltyshootout) {
+		result << " (" << mMatch->getPenaltyShootout().getScore(true) <<
+			" - " << mMatch->getPenaltyShootout().getScore(false) << ")";
+	}
+	drawText(90, screenHeight - 30, FontConfig(result.str().c_str(), Color(255, 255, 255), 1.5f), true, false);
+
+	if(mMatch->getMatchHalf() != MatchHalf::Finished && mMatch->getMatchHalf() != MatchHalf::PenaltyShootout) {
 		char timebuf[128];
 		int min = int(mMatch->getTime());
 
@@ -227,24 +237,30 @@ void MatchSDLGUI::drawTexts()
 				playing(mMatch->getMatchHalf()) &&
 					(mMatch->getScore(true) + mMatch->getScore(false) != 0)) ||
 		(!playing(mMatch->getMatchHalf()) && mMatch->getMatchHalf() != MatchHalf::NotStarted)) {
-		char header[255];
-		snprintf(header, 255, "%s %d - %d %s", mMatch->getTeam(0)->getName().c_str(),
-				mMatch->getScore(true), mMatch->getScore(false),
-				mMatch->getTeam(1)->getName().c_str());
-		header[254] = 0;
-
 		std::vector<std::string> scorers[2];
 		unsigned int i = 0;
 		for(auto side : mMatch->getGoalInfos()) {
 			assert(i < 2);
-			scorers[i].push_back(mMatch->getTeam(i)->getName() + std::string(" ") + std::to_string(mMatch->getScore(i == 0)));
+			std::stringstream ss;
+			if(i == 0) {
+				ss << mMatch->getTeam(i)->getName() << " " << mMatch->getScore(i == 0);
+				if(penaltyshootout) {
+					ss << " (" << mMatch->getPenaltyShootout().getScore(i == 0) << ")";
+				}
+			} else {
+				if(penaltyshootout) {
+					ss << "(" << mMatch->getPenaltyShootout().getScore(i == 0) << ") ";
+				}
+				ss << mMatch->getScore(i == 0) << " " << mMatch->getTeam(i)->getName();
+			}
+			scorers[i].push_back(ss.str());
 			for(auto goalinfo : side) {
 				scorers[i].push_back(goalinfo.getShortScorerName() + std::string(" ") + goalinfo.getScoreTime());
 			}
 			i++;
 		}
 
-		int x = screenWidth * 0.3f;
+		int x = screenWidth * 0.35f;
 		for(auto slist : scorers) {
 			int y = screenHeight * 0.5f;
 			for(auto s : slist) {

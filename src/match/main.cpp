@@ -43,6 +43,7 @@ int main(int argc, char** argv)
 	int seed = 0;
 	bool extratime = false;
 	bool penalties = false;
+	bool onlypenalties = false;
 
 	for(int i = 2; i < argc; i++) {
 		if(!strcmp(argv[i], "-o")) {
@@ -76,9 +77,12 @@ int main(int argc, char** argv)
 		else if(!strcmp(argv[i], "-m")) {
 			if(++i >= argc) { printf("-m requires a numeric argument.\n"); exit(1); }
 			seconds = atof(argv[i]);
-			if(seconds <= 0.0) {
-				printf("-m argument must be greater than 0.\n");
+			if(seconds < 0.0) {
+				printf("-m argument must be greater than or equal to 0.\n");
 				exit(1);
+			} else if(seconds == 0.0f) {
+				seconds = 1.0f;
+				onlypenalties = true;
 			}
 		}
 		else if(!strcmp(argv[i], "-x")) {
@@ -109,6 +113,8 @@ int main(int argc, char** argv)
 	try {
 		boost::shared_ptr<Soccer::Match> matchdata = Soccer::DataExchange::parseMatchDataFile(argv[1]);
 		boost::shared_ptr<Match> match(new Match(*matchdata, seconds, extratime, penalties));
+		if(onlypenalties)
+			match->setMatchHalf(MatchHalf::PenaltyShootout);
 		boost::shared_ptr<MatchGUI> gui;
 		gui = boost::shared_ptr<MatchGUI>(new MatchSDLGUI(match, observer, teamnum, playernum,
 					ticksPerSec, debug, useseed, disableGUI));

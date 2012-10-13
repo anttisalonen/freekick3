@@ -8,13 +8,22 @@
 #include "match/Referee.h"
 #include "match/RefereeActions.h"
 
-#define DEBUG_CONTROLLING_TEAM
+// #define DEBUG_CONTROLLING_TEAM
+
+enum class BallOutStatus {
+	Throwin,
+	Goal,
+	CornerKick,
+	GoalKick,
+	OnPitch,
+};
 
 Referee::Referee()
 	: mMatch(nullptr),
 	mFirstTeamInControl(true),
 	mOutOfPlayClock(1.0f),
 	mWaitForResumeClock(0.1f),
+	mWaitForPenaltyShot(2.0f),
 	mPlayerInControl(nullptr),
 	mFouledTeam(0),
 	mRestartedPlayer(nullptr)
@@ -69,7 +78,6 @@ boost::shared_ptr<RefereeAction> Referee::act(double time)
 							boost::shared_ptr<RefereeAction> act = setOutOfPlay();
 							if(act) {
 								mOutOfPlayClock.rewind();
-								mFouledTeam = 0;
 								return act;
 							}
 						}
@@ -92,7 +100,37 @@ boost::shared_ptr<RefereeAction> Referee::act(double time)
 			break;
 
 		case MatchHalf::PenaltyShootout:
-			assert(0); /* TODO */
+			if(!mOutOfPlayClock.running()) {
+				if(mMatch->getPlayState() == PlayState::InPlay) {
+					if(mMatch->getMatchHalf() == MatchHalf::PenaltyShootout) {
+						if(!mWaitForPenaltyShot.running()) {
+							mWaitForPenaltyShot.rewind();
+						} else {
+							mWaitForPenaltyShot.doCountdown(time);
+							if(mWaitForPenaltyShot.check() ||
+									mMatch->getBall()->grabbed() ||
+									!MatchHelpers::onPitch(*mMatch->getBall())) {
+								mRestartPosition.v.x = 0.0f;
+								mRestartPosition.v.y = 1.0f * (mMatch->getPitchHeight() * 0.5f - 11.00f);
+								mOutOfPlayClock.rewind();
+								addPenaltyShootoutResult();
+								mFirstTeamInControl = mMatch->getPenaltyShootout().firstTeamKicksNext();
+								return boost::shared_ptr<RefereeAction>(new ChangePlayStateRA(PlayState::OutPenaltykick));
+							}
+						}
+					}
+				}
+			}
+			else {
+				mOutOfPlayClock.doCountdown(time);
+				if(mOutOfPlayClock.check()) {
+					if(mMatch->getBall()->grabbed())
+						mMatch->getBall()->drop();
+					mMatch->getBall()->setPosition(mRestartPosition);
+					mMatch->getBall()->setVelocity(AbsVector3());
+					mWaitForPenaltyShot.rewind();
+				}
+			}
 			break;
 
 		case MatchHalf::HalfTimePauseBegin:
@@ -131,10 +169,23 @@ bool Referee::canKickBall(const Player& p) const
 		case MatchHalf::SecondHalf:
 		case MatchHalf::ExtraTimeFirstHalf:
 		case MatchHalf::ExtraTimeSecondHalf:
-		case MatchHalf::PenaltyShootout:
 			switch(mMatch->getPlayState()) {
 				case PlayState::InPlay:
 					return true;
+
+				default:
+					return MatchHelpers::playersPositionedForRestart(*p.getMatch(), p);
+			}
+
+		case MatchHalf::PenaltyShootout:
+			switch(mMatch->getPlayState()) {
+				case PlayState::InPlay:
+					{
+						bool isgoalie = p.isGoalkeeper();
+						bool isdefending = p.getTeam()->isFirst() != mMatch->getPenaltyShootout().firstTeamKicksNext();
+						bool alreadykicked = mWaitForPenaltyShot.running();
+						return (isgoalie && isdefending && alreadykicked) || (!isdefending && !alreadykicked);
+					}
 
 				default:
 					return MatchHelpers::playersPositionedForRestart(*p.getMatch(), p);
@@ -180,27 +231,70 @@ bool Referee::firstTeamAttacksUp() const
 	return MatchHelpers::attacksUp(*mMatch->getTeam(0));
 }
 
-boost::shared_ptr<RefereeAction> Referee::setOutOfPlay()
+BallOutStatus Referee::getBallOutStatus() const
 {
 	RelVector3 bp(mMatch->convertAbsoluteToRelativeVector(mMatch->getBall()->getPosition()));
 	RelVector3 br(mMatch->convertAbsoluteToRelativeVector(AbsVector3(BALL_RADIUS, BALL_RADIUS, BALL_RADIUS)));
 	if(fabs(bp.v.x + br.v.x) > 1.0f) {
-		mRestartPosition = mMatch->getBall()->getPosition();
-		mRestartPosition.v.x = mMatch->getPitchWidth() * 0.5f;
-		if(bp.v.x < 0.0f)
-			mRestartPosition.v.x = -mRestartPosition.v.x;
-		mRestartPosition.v.z = 0.0f;
-		mFirstTeamInControl = !mFirstTeamInControl;
-#ifdef DEBUG_CONTROLLING_TEAM
-		std::cout << __LINE__ << ": First team in control: " << mFirstTeamInControl << " - throwin\n";
-#endif
-		mPlayerInControl = nullptr;
-		return boost::shared_ptr<RefereeAction>(new ChangePlayStateRA(PlayState::OutThrowin));
+		return BallOutStatus::Throwin;
 	}
 	if(fabs(bp.v.y + br.v.y) > 1.0f) {
 		if(fabs(mMatch->getBall()->getPosition().v.x) < GOAL_WIDTH_2 &&
 				mMatch->getBall()->getPosition().v.z < GOAL_HEIGHT) {
-			// goal
+			return BallOutStatus::Goal;
+		}
+		if((((bp.v.y < 0.0f) == mFirstTeamInControl) && firstTeamAttacksUp()) ||
+		   (((bp.v.y < 0.0f) != mFirstTeamInControl) && !firstTeamAttacksUp())) {
+			return BallOutStatus::CornerKick;
+		}
+		else {
+			return BallOutStatus::GoalKick;
+		}
+	}
+	return BallOutStatus::OnPitch;
+}
+
+void Referee::addPenaltyShootoutResult()
+{
+	BallOutStatus bst = getBallOutStatus();
+	if(mMatch->getMatchHalf() == MatchHalf::PenaltyShootout) {
+		switch(bst) {
+			case BallOutStatus::Goal:
+				mMatch->addPenaltyShootoutShot(true);
+				std::cout << "Penalty shoot out goal!\n";
+				break;
+
+			case BallOutStatus::Throwin:
+			case BallOutStatus::CornerKick:
+			case BallOutStatus::GoalKick:
+			case BallOutStatus::OnPitch:
+				mMatch->addPenaltyShootoutShot(false);
+				std::cout << "Penalty shoot out miss!\n";
+				break;
+		}
+	}
+}
+
+boost::shared_ptr<RefereeAction> Referee::setOutOfPlay()
+{
+	BallOutStatus bst = getBallOutStatus();
+	RelVector3 bp(mMatch->convertAbsoluteToRelativeVector(mMatch->getBall()->getPosition()));
+
+	switch(bst) {
+		case BallOutStatus::Throwin:
+			mRestartPosition = mMatch->getBall()->getPosition();
+			mRestartPosition.v.x = mMatch->getPitchWidth() * 0.5f;
+			if(bp.v.x < 0.0f)
+				mRestartPosition.v.x = -mRestartPosition.v.x;
+			mRestartPosition.v.z = 0.0f;
+			mFirstTeamInControl = !mFirstTeamInControl;
+#ifdef DEBUG_CONTROLLING_TEAM
+			std::cout << __LINE__ << ": First team in control: " << mFirstTeamInControl << " - throwin\n";
+#endif
+			mPlayerInControl = nullptr;
+			return boost::shared_ptr<RefereeAction>(new ChangePlayStateRA(PlayState::OutThrowin));
+
+		case BallOutStatus::Goal:
 			mRestartPosition.v.x = 0.0f;
 			mRestartPosition.v.y = 0.0f;
 			mRestartPosition.v.z = 0.0f;
@@ -218,9 +312,8 @@ boost::shared_ptr<RefereeAction> Referee::setOutOfPlay()
 #endif
 			mPlayerInControl = nullptr;
 			return boost::shared_ptr<RefereeAction>(new ChangePlayStateRA(PlayState::OutKickoff));
-		}
-		if((((bp.v.y < 0.0f) == mFirstTeamInControl) && firstTeamAttacksUp()) ||
-		   (((bp.v.y < 0.0f) != mFirstTeamInControl) && !firstTeamAttacksUp())) {
+
+		case BallOutStatus::CornerKick:
 			if(bp.v.x == 0.0f)
 				bp.v.x = 1.0f;
 			if(bp.v.y == 0.0f)
@@ -234,8 +327,8 @@ boost::shared_ptr<RefereeAction> Referee::setOutOfPlay()
 #endif
 			mPlayerInControl = nullptr;
 			return boost::shared_ptr<RefereeAction>(new ChangePlayStateRA(PlayState::OutCornerkick));
-		}
-		else {
+
+		case BallOutStatus::GoalKick:
 			mRestartPosition.v.x = 9.16f;
 			if(bp.v.x < 0) {
 				mRestartPosition.v.x = -mRestartPosition.v.x;
@@ -251,8 +344,11 @@ boost::shared_ptr<RefereeAction> Referee::setOutOfPlay()
 #endif
 			mPlayerInControl = nullptr;
 			return boost::shared_ptr<RefereeAction>(new ChangePlayStateRA(PlayState::OutGoalkick));
-		}
+
+		case BallOutStatus::OnPitch:
+			break;
 	}
+
 	return boost::shared_ptr<RefereeAction>();
 }
 
@@ -305,6 +401,11 @@ void Referee::matchHalfChanged(MatchHalf m)
 #ifdef DEBUG_CONTROLLING_TEAM
 		std::cout << __LINE__ << ": First team in control: " << mFirstTeamInControl << " - extra time\n";
 #endif
+	} else if(m == MatchHalf::PenaltyShootout) {
+		mRestartPosition.v.x = 0.0f;
+		mRestartPosition.v.y = 1.0f * (mMatch->getPitchHeight() * 0.5f - 11.00f);
+		mMatch->setPlayState(PlayState::OutPenaltykick);
+		mOutOfPlayClock.rewind();
 	}
 }
 

@@ -172,9 +172,14 @@ bool MatchHelpers::attacksUp(const Player& p)
 
 bool MatchHelpers::attacksUp(const Team& t)
 {
-	return t.isFirst() == (t.getMatch()->getMatchHalf() <= MatchHalf::FirstHalf ||
-		(t.getMatch()->getMatchHalf() <= MatchHalf::ExtraTimeFirstHalf &&
-		t.getMatch()->getMatchHalf() >= MatchHalf::FullTimePauseEnd));
+	auto mh = t.getMatch()->getMatchHalf();
+	if(mh == MatchHalf::PenaltyShootout) {
+		return t.isFirst() == t.getMatch()->getPenaltyShootout().firstTeamKicksNext();
+	}
+
+	return t.isFirst() == (mh <= MatchHalf::FirstHalf ||
+		(mh <= MatchHalf::ExtraTimeFirstHalf &&
+		mh >= MatchHalf::FullTimePauseEnd));
 }
 
 const Team* MatchHelpers::getOpposingTeam(const Player& p)
@@ -228,8 +233,8 @@ bool MatchHelpers::playerPositionedForRestart(const Player& restarter, const Pla
 					(!isOpposingPlayer(restarter, p) && inOpposingPenaltyArea(p));
 				bool isrestarter = &p == &restarter;
 				bool isgoalie = isOpposingPlayer(restarter, p) && p.isGoalkeeper();
-				bool nearowngoalline = p.getPosition().v.y - MatchHelpers::ownGoalPosition(p).v.y < 0.5f;
-				
+				bool nearowngoalline = fabs(p.getPosition().v.y - MatchHelpers::ownGoalPosition(p).v.y) < 0.5f;
+
 				if(isrestarter) {
 					return nearball;
 				}

@@ -129,6 +129,12 @@ void Match::update(double time)
 		mReferee.ballKicked(*collided);
 	}
 
+	if(mMatchHalf == MatchHalf::PenaltyShootout) {
+		if(mPenaltyShootout.isFinished()) {
+			setMatchHalf(MatchHalf::Finished);
+		}
+	}
+
 	updateReferee(time);
 	updateTime(time);
 }
@@ -369,7 +375,9 @@ bool Match::grabBall(Player* p)
 void Match::updateTime(double time)
 {
 	if(playing(mMatchHalf) && playing(mPlayState) && !mBall->grabbed()) {
-		mTime += time * mTimeAccelerationConstant;
+		if(mMatchHalf != MatchHalf::PenaltyShootout) {
+			mTime += time * mTimeAccelerationConstant;
+		}
 		if(mMatchHalf == MatchHalf::FirstHalf ||
 				mMatchHalf == MatchHalf::SecondHalf) {
 			if(mTime >= 45.0f && (fabs(mBall->getPosition().v.y) < 20.0f || mTime > 50.5f)) {
@@ -428,6 +436,17 @@ const std::array<std::vector<GoalInfo>, 2>& Match::getGoalInfos() const
 {
 	return mGoalInfos;
 }
+
+const PenaltyShootout& Match::getPenaltyShootout() const
+{
+	return mPenaltyShootout;
+}
+
+void Match::addPenaltyShootoutShot(bool goal)
+{
+	mPenaltyShootout.addShot(goal);
+}
+
 
 GoalInfo::GoalInfo(const Match& m, bool pen, bool own)
 {
@@ -499,6 +518,71 @@ const std::string& GoalInfo::getShortScorerName() const
 const std::string& GoalInfo::getScoreTime() const
 {
 	return mScoreTime;
+}
+
+PenaltyShootout::PenaltyShootout()
+	: mFirstNext(true),
+	mFinished(false),
+	mRoundNumber(0)
+{
+	mGoals[0] = mGoals[1] = 0;
+}
+
+void PenaltyShootout::addShot(bool goal)
+{
+	static const unsigned int TotalRounds = 5;
+	if(mFinished)
+		return;
+
+	if(goal)
+		mGoals[mFirstNext ? 0 : 1]++;
+
+	mFirstNext = !mFirstNext;
+	if(mFirstNext)
+		mRoundNumber++;
+
+	// update finished flag
+	std::cout << "Penalty shootout status: round " << mRoundNumber << ", "
+		<< mGoals[0] << "-" << mGoals[1] << " - first next: " << mFirstNext << "\n";
+	if(mGoals[0] != mGoals[1]) {
+		if(mRoundNumber >= TotalRounds) {
+			if(mFirstNext) {
+				mFinished = true;
+			}
+		} else {
+			unsigned int kicksLeft = TotalRounds - mRoundNumber;
+			unsigned int losingTeamGoals  = mGoals[0] < mGoals[1] ? mGoals[0] : mGoals[1];
+			unsigned int winningTeamGoals = mGoals[0] > mGoals[1] ? mGoals[0] : mGoals[1];
+
+			if(losingTeamGoals == mGoals[0] && !mFirstNext) {
+				kicksLeft--;
+			}
+
+			if(losingTeamGoals + kicksLeft < winningTeamGoals) {
+				mFinished = true;
+			}
+		}
+	}
+}
+
+bool PenaltyShootout::firstTeamKicksNext() const
+{
+	return mFirstNext;
+}
+
+int PenaltyShootout::getScore(bool first) const
+{
+	return mGoals[first ? 0 : 1];
+}
+
+unsigned int PenaltyShootout::getRoundNumber() const
+{
+	return mRoundNumber;
+}
+
+bool PenaltyShootout::isFinished() const
+{
+	return mFinished;
 }
 
 

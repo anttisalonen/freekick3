@@ -60,6 +60,22 @@ class GoalInfo {
 		std::string mScoreTime;
 };
 
+class PenaltyShootout {
+	public:
+		PenaltyShootout();
+		void addShot(bool goal);
+		bool firstTeamKicksNext() const;
+		unsigned int getRoundNumber() const; // starts at 0
+		int getScore(bool first) const;
+		bool isFinished() const;
+
+	private:
+		bool mFirstNext;
+		unsigned int mGoals[2];
+		bool mFinished;
+		unsigned int mRoundNumber;
+};
+
 class Match : public Soccer::Match {
 	public:
 		Match(const Soccer::Match& m, double matchtime, bool extratime, bool penalties);
@@ -90,6 +106,8 @@ class Match : public Soccer::Match {
 		void setGoalScorer(const Player* p);
 		const Player* getGoalScorer() const;
 		const std::array<std::vector<GoalInfo>, 2>& getGoalInfos() const;
+		const PenaltyShootout& getPenaltyShootout() const;
+		void addPenaltyShootoutShot(bool goal);
 
 	private:
 		void applyPlayerAction(PlayerAction* a,
@@ -110,6 +128,7 @@ class Match : public Soccer::Match {
 		const Player* mGoalScorer;
 		bool mExtraTime;
 		bool mPenalties;
+		PenaltyShootout mPenaltyShootout;
 };
 
 #endif

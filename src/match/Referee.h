@@ -13,6 +13,8 @@ class Player;
 
 enum class MatchHalf;
 
+enum class BallOutStatus;
+
 class Referee {
 	public:
 		Referee();
@@ -30,14 +32,17 @@ class Referee {
 		bool allPlayersOnOwnSideAndReady() const;
 		void ballTouched(const Player& p);
 		bool firstTeamAttacksUp() const;
-
+		BallOutStatus getBallOutStatus() const;
+		void addPenaltyShootoutResult();
 		boost::shared_ptr<RefereeAction> setOutOfPlay();
 		boost::shared_ptr<RefereeAction> setFoulRestart();
+
 		Match* mMatch;
 		bool mFirstTeamInControl;
 		AbsVector3 mRestartPosition;
 		Countdown mOutOfPlayClock;
 		Countdown mWaitForResumeClock;
+		Countdown mWaitForPenaltyShot;
 		const Player* mPlayerInControl;
 		int mFouledTeam;
 		AbsVector3 mFoulPosition;
