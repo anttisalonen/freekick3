@@ -243,7 +243,7 @@ void MatchSDLGUI::drawTexts()
 			assert(i < 2);
 			std::stringstream ss;
 			if(i == 0) {
-				ss << mMatch->getTeam(i)->getName() << " " << mMatch->getScore(i == 0);
+				ss << mMatch->getTeam(i)->getName() << "   " << mMatch->getScore(i == 0);
 				if(penaltyshootout) {
 					ss << " (" << mMatch->getPenaltyShootout().getScore(i == 0) << ")";
 				}
@@ -251,7 +251,7 @@ void MatchSDLGUI::drawTexts()
 				if(penaltyshootout) {
 					ss << "(" << mMatch->getPenaltyShootout().getScore(i == 0) << ") ";
 				}
-				ss << mMatch->getScore(i == 0) << " " << mMatch->getTeam(i)->getName();
+				ss << mMatch->getScore(i == 0) << "   " << mMatch->getTeam(i)->getName();
 			}
 			scorers[i].push_back(ss.str());
 			for(auto goalinfo : side) {
