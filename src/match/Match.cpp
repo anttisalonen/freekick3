@@ -158,7 +158,6 @@ void Match::setMatchHalf(MatchHalf h)
 	if(mMatchHalf == MatchHalf::HalfTimePauseEnd ||
 			mMatchHalf == MatchHalf::FullTimePauseEnd ||
 			mMatchHalf == MatchHalf::ExtraTimeSecondHalf) {
-		std::cout << "reset ball position\n";
 		mBall->setPosition(AbsVector3(0, 0, 0.4));
 		mBall->setVelocity(AbsVector3(0, 0, 0));
 	}
