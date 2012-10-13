@@ -532,7 +532,7 @@ AITackleAction::AITackleAction(const Player* p)
 						p->getMatch()->getBall()->getPosition().v).length();
 				if(distToOwnGoal > 10.0f && distToOwnGoal < 80.0f) {
 					mScore = 1.0f - (oppdist / maxOppDist);
-					mScore *= mPlayer->getTeam()->getAITacticParameters().TackleActionCoefficient;
+					mScore *= 0.5f * mPlayer->getTeam()->getAITacticParameters().TackleActionCoefficient;
 				}
 			}
 		}

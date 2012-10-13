@@ -426,7 +426,7 @@ void Referee::ballTouched(const Player& p)
 void Referee::playerTackled(const Player& tackled, const Player& tacklee)
 {
 	if((mFirstTeamInControl == tackled.getTeam()->isFirst()) ||
-			MatchEntity::distanceBetween(tacklee, *mMatch->getBall()) > MAX_KICK_DISTANCE) {
+			MatchEntity::distanceBetween(tacklee, *mMatch->getBall()) > MAX_KICK_DISTANCE * 1.4f) {
 		if(tackled.getTeam()->isFirst())
 			mFouledTeam = 2;
 		else
