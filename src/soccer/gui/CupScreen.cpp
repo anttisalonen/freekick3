@@ -14,9 +14,15 @@
 namespace Soccer {
 
 CupScreen::CupScreen(boost::shared_ptr<ScreenManager> sm, boost::shared_ptr<StatefulCup> l)
-	: CompetitionScreen(sm, "Cup", l)
+	: CompetitionScreen(sm, "Cup", l),
+	mCup(l)
 {
 	updateScreenElements();
+}
+
+void CupScreen::saveCompetition(boost::archive::binary_oarchive& oa) const
+{
+	oa << mCup;
 }
 
 }

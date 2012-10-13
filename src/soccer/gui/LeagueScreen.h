@@ -17,6 +17,9 @@ class LeagueScreen : public CompetitionScreen {
 		LeagueScreen(boost::shared_ptr<ScreenManager> sm, boost::shared_ptr<StatefulLeague> l);
 		virtual void drawTable() override;
 
+	protected:
+		virtual void saveCompetition(boost::archive::binary_oarchive& oa) const override;
+
 	private:
 		void addTableText(const char* text, float x, float y,
 				TextAlignment align = TextAlignment::MiddleLeft,

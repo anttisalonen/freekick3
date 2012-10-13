@@ -20,6 +20,11 @@ LeagueScreen::LeagueScreen(boost::shared_ptr<ScreenManager> sm, boost::shared_pt
 	updateScreenElements();
 }
 
+void LeagueScreen::saveCompetition(boost::archive::binary_oarchive& oa) const
+{
+	oa << mLeague;
+}
+
 void LeagueScreen::addTableText(const char* text, float x, float y,
 		TextAlignment align, Common::Color col)
 {

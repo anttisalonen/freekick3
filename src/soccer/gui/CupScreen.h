@@ -15,6 +15,12 @@ namespace Soccer {
 class CupScreen : public CompetitionScreen {
 	public:
 		CupScreen(boost::shared_ptr<ScreenManager> sm, boost::shared_ptr<StatefulCup> l);
+
+	protected:
+		virtual void saveCompetition(boost::archive::binary_oarchive& oa) const override;
+
+	private:
+		boost::shared_ptr<StatefulCup> mCup;
 };
 
 }

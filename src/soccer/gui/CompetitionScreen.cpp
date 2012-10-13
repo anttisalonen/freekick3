@@ -235,9 +235,7 @@ void CompetitionScreen::saveCompetition() const
 	out.push(boost::iostreams::bzip2_compressor());
 	out.push(ofs);
 	boost::archive::binary_oarchive oa(out);
-	oa.template register_type<StatefulLeague>();
-	/* TODO: saving/loading cup. */
-	oa << mCompetition;
+	saveCompetition(oa);
 	std::cout << "Saved to " << filename << "\n";
 }
 

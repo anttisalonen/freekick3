@@ -7,6 +7,7 @@
 #include <boost/archive/binary_iarchive.hpp>
 #include <boost/archive/binary_oarchive.hpp>
 
+#include "soccer/gui/CupScreen.h"
 #include "soccer/gui/LeagueScreen.h"
 #include "soccer/gui/LoadGameScreen.h"
 #include "soccer/gui/Menu.h"
@@ -49,12 +50,17 @@ void LoadGameScreen::buttonPressed(boost::shared_ptr<Button> button)
 		in.push(ifs);
 		boost::archive::binary_iarchive ia(in);
 
-		boost::shared_ptr<StatefulLeague> league;
-		ia.template register_type<StatefulLeague>();
-		ia >> league;
-
-		mScreenManager->dropScreen();
-		mScreenManager->addScreen(boost::shared_ptr<Screen>(new LeagueScreen(mScreenManager, league)));
+		if(buttonText == "League") {
+			boost::shared_ptr<StatefulLeague> league;
+			ia >> league;
+			mScreenManager->dropScreen();
+			mScreenManager->addScreen(boost::shared_ptr<Screen>(new LeagueScreen(mScreenManager, league)));
+		} else if(buttonText == "Cup") {
+			boost::shared_ptr<StatefulCup> comp;
+			ia >> comp;
+			mScreenManager->dropScreen();
+			mScreenManager->addScreen(boost::shared_ptr<Screen>(new CupScreen(mScreenManager, comp)));
+		}
 	}
 }
 

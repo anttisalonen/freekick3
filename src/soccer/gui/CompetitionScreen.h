@@ -4,6 +4,7 @@
 #include <map>
 #include <string>
 #include <boost/shared_ptr.hpp>
+#include <boost/archive/binary_oarchive.hpp>
 
 #include "soccer/Competition.h"
 
@@ -23,6 +24,7 @@ class CompetitionScreen : public Screen {
 	protected:
 		void updateScreenElements();
 		Common::Color mMyTeamColor;
+		virtual void saveCompetition(boost::archive::binary_oarchive& oa) const = 0;
 
 	private:
 		enum class LabelType {

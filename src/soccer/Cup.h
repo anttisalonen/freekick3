@@ -14,6 +14,12 @@ namespace Soccer {
 
 struct CupEntry {
 	MatchResult Result;
+
+	template<class Archive>
+	void serialize(Archive& ar, const unsigned int version)
+	{
+		ar & Result;
+	}
 };
 
 class StatefulCup : public StatefulCompetition {
@@ -32,6 +38,7 @@ class StatefulCup : public StatefulCompetition {
 		void serialize(Archive& ar, const unsigned int version)
 		{
 			ar & boost::serialization::base_object<StatefulCompetition>(*this);
+			ar & mEntries;
 		}
 };
 
