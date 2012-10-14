@@ -17,8 +17,8 @@ class CompetitionScreen : public Screen {
 	public:
 		CompetitionScreen(boost::shared_ptr<ScreenManager> sm, const std::string& name, boost::shared_ptr<StatefulCompetition> l);
 		virtual ~CompetitionScreen() { }
-		void buttonPressed(boost::shared_ptr<Button> button);
-		const std::string& getName() const;
+		virtual void buttonPressed(boost::shared_ptr<Button> button) override;
+		virtual const std::string& getName() const override;
 		virtual void drawTable() { }
 
 	protected:

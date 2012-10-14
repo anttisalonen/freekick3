@@ -3,6 +3,17 @@
 
 namespace Soccer {
 
+static unsigned int pow2roundup(unsigned int x)
+{
+	x--;
+	x |= x >> 1;
+	x |= x >> 2;
+	x |= x >> 4;
+	x |= x >> 8;
+	x |= x >> 16;
+	return x + 1;
+}
+
 static unsigned int countbits(unsigned int v)
 {
 	unsigned int c; // c accumulates the total bits set in v
@@ -22,7 +33,6 @@ StatefulCup::StatefulCup(std::vector<boost::shared_ptr<StatefulTeam>>& teams)
 
 bool StatefulCup::matchPlayed(const MatchResult& res)
 {
-	/* TODO */
 	if(!mNextMatch)
 		return true;
 
@@ -82,6 +92,30 @@ void StatefulCup::setupNextRound(std::vector<boost::shared_ptr<StatefulTeam>>& t
 
 StatefulCup::StatefulCup()
 {
+}
+
+std::vector<boost::shared_ptr<Team>> StatefulCup::collectTeamsFromCountry(const boost::shared_ptr<LeagueSystem> s)
+{
+	std::vector<boost::shared_ptr<Team>> teams;
+	unsigned int numTeams = 0;
+	for(auto league : s->getContainer()) {
+		numTeams += league.second->getContainer().size();
+	}
+
+	numTeams = pow2roundup(numTeams) / 2;
+
+	for(auto league : s->getContainer()) {
+		if(numTeams == 0)
+			break;
+		for(auto t : league.second->getContainer()) {
+			if(numTeams == 0)
+				break;
+			teams.push_back(t.second);
+			numTeams--;
+		}
+	}
+
+	return teams;
 }
 
 }

@@ -26,6 +26,7 @@ class StatefulCup : public StatefulCompetition {
 	public:
 		StatefulCup(std::vector<boost::shared_ptr<StatefulTeam>>& teams);
 		bool matchPlayed(const MatchResult& res) override;
+		static std::vector<boost::shared_ptr<Team>> collectTeamsFromCountry(const boost::shared_ptr<LeagueSystem> s);
 
 	private:
 		void setupNextRound(std::vector<boost::shared_ptr<StatefulTeam>>& teams);

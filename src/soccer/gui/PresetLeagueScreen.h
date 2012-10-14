@@ -14,11 +14,11 @@ namespace Soccer {
 class PresetLeagueScreen : public TeamBrowser {
 	public:
 		PresetLeagueScreen(boost::shared_ptr<ScreenManager> sm);
-		bool enteringLeague(boost::shared_ptr<League> p);
-		bool canClickDone();
-		void clickedDone();
-		const std::string& getName() const;
-		bool clickingOnTeam(boost::shared_ptr<Team> p);
+		virtual bool enteringLeague(boost::shared_ptr<League> p) override;
+		virtual bool canClickDone() override;
+		virtual void clickedDone() override;
+		virtual const std::string& getName() const override;
+		virtual bool clickingOnTeam(boost::shared_ptr<Team> p) override;
 
 	private:
 		static const std::string ScreenName;

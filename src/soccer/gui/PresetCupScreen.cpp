@@ -16,46 +16,18 @@ PresetCupScreen::PresetCupScreen(boost::shared_ptr<ScreenManager> sm)
 {
 }
 
-static unsigned int pow2roundup(unsigned int x)
-{
-	x--;
-	x |= x >> 1;
-	x |= x >> 2;
-	x |= x >> 4;
-	x |= x >> 8;
-	x |= x >> 16;
-	return x + 1;
-}
-
 bool PresetCupScreen::enteringCountry(boost::shared_ptr<LeagueSystem> p)
 {
+	auto teams = StatefulCup::collectTeamsFromCountry(p);
+
 	mSelectedTeams.clear();
-	unsigned int numTeams = 0;
-	for(auto league : p->getContainer()) {
-		numTeams += league.second->getContainer().size();
+	for(auto t : teams) {
+		mSelectedTeams.insert(std::make_pair(t, TeamSelection::Computer));
 	}
 
-	numTeams = pow2roundup(numTeams) / 2;
+	addTeamButtons(teams);
 
-	for(auto league : p->getContainer()) {
-		if(numTeams == 0)
-			break;
-		for(auto t : league.second->getContainer()) {
-			if(numTeams == 0)
-				break;
-			mSelectedTeams.insert(std::make_pair(t.second, TeamSelection::Computer));
-			numTeams--;
-		}
-	}
-
-	{
-		std::vector<boost::shared_ptr<Team>> teams;
-		for(auto t : mSelectedTeams) {
-			teams.push_back(t.first);
-		}
-		addTeamButtons(teams);
-	}
-
+	// return false because we already added the team buttons
 	return false;
 }
 

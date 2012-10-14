@@ -87,8 +87,8 @@ class Schedule {
 
 /* NOTE: for each class deriving from StatefulCompetition,
  * 1. implement matchPlayed - it should be abstract but isn't due to serialization.
- * 2. add registering the class to CompetitionScreen::saveCompetition.
- * 3. add registering the class to LoadGameScreen::buttonPressed.
+ * 2. add saving the class to YourCompetitionScreen::saveCompetition.
+ * 3. add loading the class to LoadGameScreen::buttonPressed.
  */
 class StatefulCompetition {
 	public:

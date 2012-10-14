@@ -52,6 +52,7 @@ class TeamBrowser : public Screen {
 		void addSelectionButton(const char* text, int i, int maxnum);
 		void teamClicked(boost::shared_ptr<Button> button);
 		void setTeamButtonColor(boost::shared_ptr<Button> button) const;
+		void updatePlayButton();
 
 		boost::shared_ptr<Button> mPlayButton;
 		std::map<std::string, boost::shared_ptr<Continent>> mContinentButtons;

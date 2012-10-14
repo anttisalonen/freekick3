@@ -138,31 +138,29 @@ void TeamBrowser::clearCurrentButtons()
 void TeamBrowser::buttonPressed(boost::shared_ptr<Button> button)
 {
 	const std::string& buttonText = button->getText();
-	if(buttonText == "Back") {
+	if(buttonText == "Play") {
+		clickedDone();
+		return;
+	} else if(buttonText == "Back") {
 		switch(mCurrentLevel) {
 			case TeamBrowserLevel::Continents:
 			default:
 				mScreenManager->dropScreen();
-				return;
+				break;
 
 			case TeamBrowserLevel::Countries:
 				addContinentButtons();
-				return;
+				break;
 
 			case TeamBrowserLevel::Leagues:
 				addCountryButtons(mCurrentContinent);
-				return;
+				break;
 
 			case TeamBrowserLevel::Teams:
 				addLeagueButtons(mCurrentCountry);
-				return;
+				break;
 		}
-	}
-	else if(buttonText == "Play") {
-		clickedDone();
-		return;
-	}
-	else {
+	} else {
 		switch(mCurrentLevel) {
 			case TeamBrowserLevel::Continents:
 				{
@@ -203,13 +201,9 @@ void TeamBrowser::buttonPressed(boost::shared_ptr<Button> button)
 			case TeamBrowserLevel::Teams:
 				teamClicked(button);
 				break;
-
 		}
 	}
-
-	if(canClickDone()) {
-		mPlayButton->show();
-	}
+	updatePlayButton();
 }
 
 void TeamBrowser::setTeamButtonColor(boost::shared_ptr<Button> button) const
@@ -241,7 +235,10 @@ void TeamBrowser::teamClicked(boost::shared_ptr<Button> button)
 		if(clickingOnTeam(it->second))
 			setTeamButtonColor(button);
 	}
+}
 
+void TeamBrowser::updatePlayButton()
+{
 	mPlayButton->hide();
 	if(canClickDone()) {
 		mPlayButton->show();
