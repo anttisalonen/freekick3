@@ -13,8 +13,9 @@
 
 namespace Soccer {
 
-LeagueScreen::LeagueScreen(boost::shared_ptr<ScreenManager> sm, boost::shared_ptr<StatefulLeague> l)
-	: CompetitionScreen(sm, "League", l),
+LeagueScreen::LeagueScreen(boost::shared_ptr<ScreenManager> sm, boost::shared_ptr<StatefulLeague> l,
+		bool onlyOneRound)
+	: CompetitionScreen(sm, "League", l, onlyOneRound),
 	mLeague(l)
 {
 	updateScreenElements();

@@ -13,5 +13,20 @@ Season::Season()
 {
 }
 
+boost::shared_ptr<Team> Season::getTeam()
+{
+	return mTeam;
+}
+
+boost::shared_ptr<StatefulLeague> Season::getLeague()
+{
+	return mLeague;
+}
+
+boost::shared_ptr<StatefulCup> Season::getCup()
+{
+	return mCup;
+}
+
 }
 

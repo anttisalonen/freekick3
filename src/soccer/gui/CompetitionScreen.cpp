@@ -14,20 +14,26 @@
 
 namespace Soccer {
 
-CompetitionScreen::CompetitionScreen(boost::shared_ptr<ScreenManager> sm, const std::string& name, boost::shared_ptr<StatefulCompetition> l)
+CompetitionScreen::CompetitionScreen(boost::shared_ptr<ScreenManager> sm, const std::string& name,
+		boost::shared_ptr<StatefulCompetition> l,
+		bool onlyOneRound)
 	: Screen(sm),
 	mMyTeamColor(128, 128, 255),
 	mCompetitionName(name),
 	mScreenName(name + " Screen"),
 	mCompetition(l),
-	mTextSize(0.048f)
+	mTextSize(0.048f),
+	mOneRound(onlyOneRound)
 {
 	addButton("Back",  Common::Rectangle(0.01f, 0.90f, 0.23f, 0.06f));
-	addButton("Save",   Common::Rectangle(0.01f, 0.83f, 0.23f, 0.06f));
-	mSkipButton      = addButton("Skip",       Common::Rectangle(0.26f, 0.90f, 0.23f, 0.06f));
-	mResultButton    = addButton("Result",     Common::Rectangle(0.51f, 0.90f, 0.23f, 0.06f));
-	mMatchButton     = addButton("Match",      Common::Rectangle(0.76f, 0.90f, 0.23f, 0.06f));
-	mNextRoundButton = addButton("Next Round", Common::Rectangle(0.26f, 0.90f, 0.73f, 0.06f));
+	if(!mOneRound)
+		addButton("Save",   Common::Rectangle(0.01f, 0.83f, 0.23f, 0.06f));
+	if(!mOneRound)
+		mSkipButton = addButton("Skip",       Common::Rectangle(0.26f, 0.90f, 0.23f, 0.06f));
+	mResultButton       = addButton("Result",     Common::Rectangle(0.51f, 0.90f, 0.23f, 0.06f));
+	mMatchButton        = addButton("Match",      Common::Rectangle(0.76f, 0.90f, 0.23f, 0.06f));
+	if(!mOneRound)
+		mNextRoundButton = addButton("Next Round", Common::Rectangle(0.26f, 0.90f, 0.73f, 0.06f));
 
 	updateRoundMatches();
 }
@@ -98,8 +104,10 @@ void CompetitionScreen::updateRoundMatches()
 		mRoundMatches.clear();
 		mRoundMatches = r->getMatches();
 	}
-	mNextRoundButton->hide();
-	mSkipButton->show();
+	if(mNextRoundButton)
+		mNextRoundButton->hide();
+	if(mSkipButton)
+		mSkipButton->show();
 	mResultButton->show();
 	mMatchButton->show();
 }
@@ -145,10 +153,11 @@ bool CompetitionScreen::playNextMatch(bool display)
 
 void CompetitionScreen::updateNextRoundButton()
 {
-	mSkipButton->hide();
+	if(mSkipButton)
+		mSkipButton->hide();
 	mResultButton->hide();
 	mMatchButton->hide();
-	if(mCompetition->getCurrentRound())
+	if(mNextRoundButton && mCompetition->getCurrentRound())
 		mNextRoundButton->show();
 }
 
@@ -159,14 +168,17 @@ void CompetitionScreen::updateScreenElements()
 	if(allRoundMatchesPlayed()) {
 		updateNextRoundButton();
 	} else if(!m) {
-		mSkipButton->hide();
+		if(mSkipButton)
+			mSkipButton->hide();
 		mResultButton->hide();
 		mMatchButton->hide();
-		mNextRoundButton->hide();
+		if(mNextRoundButton)
+			mNextRoundButton->hide();
 	}
 	else {
-		mSkipButton->hide();
-		if(shouldShowSkipButton())
+		if(mSkipButton)
+			mSkipButton->hide();
+		if(mSkipButton && shouldShowSkipButton())
 			mSkipButton->show();
 	}
 	drawTable();
@@ -184,7 +196,10 @@ void CompetitionScreen::buttonPressed(boost::shared_ptr<Button> button)
 {
 	const std::string& buttonText = button->getText();
 	if(buttonText == "Back") {
-		mScreenManager->dropScreensUntil("Main Menu");
+		if(mOneRound)
+			mScreenManager->dropScreen();
+		else
+			mScreenManager->dropScreensUntil("Main Menu");
 	}
 	else if(buttonText == "Save") {
 		saveCompetition();

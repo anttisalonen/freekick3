@@ -15,7 +15,9 @@ namespace Soccer {
 
 class CompetitionScreen : public Screen {
 	public:
-		CompetitionScreen(boost::shared_ptr<ScreenManager> sm, const std::string& name, boost::shared_ptr<StatefulCompetition> l);
+		CompetitionScreen(boost::shared_ptr<ScreenManager> sm, const std::string& name,
+				boost::shared_ptr<StatefulCompetition> l,
+				bool onlyOneRound = false);
 		virtual ~CompetitionScreen() { }
 		virtual void buttonPressed(boost::shared_ptr<Button> button) override;
 		virtual const std::string& getName() const override;
@@ -54,6 +56,8 @@ class CompetitionScreen : public Screen {
 		boost::shared_ptr<Button> mNextRoundButton;
 		std::vector<boost::shared_ptr<Button>> mResultLabels;
 		std::vector<boost::shared_ptr<Match>> mRoundMatches;
+
+		bool mOneRound;
 };
 
 }

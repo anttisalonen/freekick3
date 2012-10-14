@@ -14,7 +14,8 @@ namespace Soccer {
 
 class LeagueScreen : public CompetitionScreen {
 	public:
-		LeagueScreen(boost::shared_ptr<ScreenManager> sm, boost::shared_ptr<StatefulLeague> l);
+		LeagueScreen(boost::shared_ptr<ScreenManager> sm, boost::shared_ptr<StatefulLeague> l,
+				bool onlyOneRound = false);
 		virtual void drawTable() override;
 
 	protected:

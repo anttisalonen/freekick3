@@ -47,7 +47,7 @@ void PresetSeasonScreen::clickedDone()
 			allteams.insert({t.first, st});
 			leagueteams.push_back(st);
 		}
-		boost::shared_ptr<StatefulLeague> league(new StatefulLeague(leagueteams));
+		league = boost::shared_ptr<StatefulLeague>(new StatefulLeague(leagueteams));
 	}
 
 	{
@@ -64,7 +64,7 @@ void PresetSeasonScreen::clickedDone()
 				cupteams.push_back(it->second);
 			}
 		}
-		boost::shared_ptr<StatefulCup> cup(new StatefulCup(cupteams));
+		cup = boost::shared_ptr<StatefulCup>(new StatefulCup(cupteams));
 	}
 
 	boost::shared_ptr<Season> season(new Season(mOwnTeam, league, cup));
