@@ -45,6 +45,7 @@ class CompetitionScreen : public Screen {
 		bool shouldShowSkipButton() const;
 		void saveCompetition() const;
 		void updateNextRoundButton();
+		void skipMatches();
 
 		const std::string mCompetitionName;
 		const std::string mScreenName;

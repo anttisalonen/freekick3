@@ -17,9 +17,8 @@ SeasonScreen::SeasonScreen(boost::shared_ptr<ScreenManager> sm, boost::shared_pt
 	mSeason(s)
 {
 	addButton("Back",  Common::Rectangle(0.01f, 0.90f, 0.23f, 0.06f));
-	addButton("Save",   Common::Rectangle(0.01f, 0.83f, 0.23f, 0.06f));
-	mNextRoundButton = addButton("Next Round", Common::Rectangle(0.51f, 0.90f, 0.23f, 0.06f));
-	mMatchButton     = addButton("Match",      Common::Rectangle(0.76f, 0.90f, 0.23f, 0.06f));
+	addButton("Save",  Common::Rectangle(0.01f, 0.83f, 0.23f, 0.06f));
+	mNextRoundButton = addButton("Next Round", Common::Rectangle(0.26f, 0.90f, 0.73f, 0.06f));
 }
 
 std::string SeasonScreen::ScreenName = std::string("Season Screen");
@@ -37,8 +36,6 @@ void SeasonScreen::buttonPressed(boost::shared_ptr<Button> button)
 		mScreenManager->addScreen(boost::shared_ptr<Screen>(new LeagueScreen(mScreenManager,
 						mSeason->getLeague(),
 						true)));
-	}
-	else if(buttonText == "Match") {
 	}
 }
 
