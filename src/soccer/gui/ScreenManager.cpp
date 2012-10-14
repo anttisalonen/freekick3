@@ -52,8 +52,12 @@ void ScreenManager::addScreen(boost::shared_ptr<Screen> s)
 
 void ScreenManager::dropScreen()
 {
-	if(mScreens.size())
+	if(mScreens.size()) {
 		mScreens.pop_back();
+		if(!mScreens.empty()) {
+			getCurrentScreen()->onReentry();
+		}
+	}
 }
 
 void ScreenManager::dropScreensUntil(const std::string& screenname)

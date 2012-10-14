@@ -23,9 +23,12 @@ class CompetitionScreen : public Screen {
 		virtual const std::string& getName() const override;
 		virtual void drawTable() { }
 
+		static void addMatchLabels(const Match& m, float xp, float yp, float fontsize,
+				Screen& scr,
+				std::vector<boost::shared_ptr<Button>>& labels);
+
 	protected:
 		void updateScreenElements();
-		Common::Color mMyTeamColor;
 		virtual void saveCompetition(boost::archive::binary_oarchive& oa) const = 0;
 
 	private:
@@ -35,9 +38,6 @@ class CompetitionScreen : public Screen {
 		};
 
 		void drawInfo();
-		void addResultText(const char* text, float x, float y,
-				TextAlignment align = TextAlignment::MiddleLeft,
-				Common::Color col = Common::Color::White);
 		bool allRoundMatchesPlayed() const;
 		void updateRoundMatches();
 		bool playNextMatch(bool display);

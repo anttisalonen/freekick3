@@ -19,6 +19,37 @@ SeasonScreen::SeasonScreen(boost::shared_ptr<ScreenManager> sm, boost::shared_pt
 	addButton("Back",  Common::Rectangle(0.01f, 0.90f, 0.23f, 0.06f));
 	addButton("Save",  Common::Rectangle(0.01f, 0.83f, 0.23f, 0.06f));
 	mNextRoundButton = addButton("Next Round", Common::Rectangle(0.26f, 0.90f, 0.73f, 0.06f));
+	addMatchPlan();
+}
+
+void SeasonScreen::onReentry()
+{
+	addMatchPlan();
+}
+
+void SeasonScreen::addMatchPlan()
+{
+	for(auto l : mMatchPlanLabels) {
+		removeButton(l);
+	}
+	mMatchPlanLabels.clear();
+
+	auto s = mSeason->getLeague()->getSchedule();
+	float x = 0.75f;
+	float y = 0.03f;
+	for(unsigned int i = 0; i < s.getNumberOfRounds(); i++) {
+		auto r = s.getRound(i);
+		for(auto m : r->getMatches()) {
+			if(m->getTeam(0) == mSeason->getTeam() ||
+					m->getTeam(1) == mSeason->getTeam()) {
+				CompetitionScreen::addMatchLabels(*m, x, y, 0.6f,
+						*this, mMatchPlanLabels);
+				y += 0.03f;
+				if(y >= 0.85f)
+					return;
+			}
+		}
+	}
 }
 
 std::string SeasonScreen::ScreenName = std::string("Season Screen");

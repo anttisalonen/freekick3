@@ -15,13 +15,13 @@ namespace Soccer {
 
 class Season {
 	public:
-		Season(boost::shared_ptr<Team> t, boost::shared_ptr<StatefulLeague> l, boost::shared_ptr<StatefulCup> c);
-		boost::shared_ptr<Team> getTeam();
+		Season(boost::shared_ptr<StatefulTeam> t, boost::shared_ptr<StatefulLeague> l, boost::shared_ptr<StatefulCup> c);
+		boost::shared_ptr<StatefulTeam> getTeam();
 		boost::shared_ptr<StatefulLeague> getLeague();
 		boost::shared_ptr<StatefulCup> getCup();
 
 	private:
-		boost::shared_ptr<Team> mTeam;
+		boost::shared_ptr<StatefulTeam> mTeam;
 		boost::shared_ptr<StatefulLeague> mLeague;
 		boost::shared_ptr<StatefulCup> mCup;
 

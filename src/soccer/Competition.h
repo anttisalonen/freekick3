@@ -58,6 +58,11 @@ class Schedule {
 			mRounds.push_back(r);
 		}
 
+		unsigned int getNumberOfRounds() const
+		{
+			return mRounds.size();
+		}
+
 		const Round* getRound(unsigned int rn) const
 		{
 			if(rn >= mRounds.size())

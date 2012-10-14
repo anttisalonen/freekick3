@@ -18,7 +18,6 @@ CompetitionScreen::CompetitionScreen(boost::shared_ptr<ScreenManager> sm, const 
 		boost::shared_ptr<StatefulCompetition> l,
 		bool onlyOneRound)
 	: Screen(sm),
-	mMyTeamColor(128, 128, 255),
 	mCompetitionName(name),
 	mScreenName(name + " Screen"),
 	mCompetition(l),
@@ -37,40 +36,44 @@ CompetitionScreen::CompetitionScreen(boost::shared_ptr<ScreenManager> sm, const 
 	updateRoundMatches();
 }
 
-void CompetitionScreen::addResultText(const char* text, float x, float y,
-		TextAlignment align, Common::Color col)
+void CompetitionScreen::addMatchLabels(const Match& m, float xp, float yp,
+		float fontsize, Screen& scr, std::vector<boost::shared_ptr<Button>>& labels)
 {
-	mResultLabels.push_back(addLabel(text, x, y, align, 0.6f, col));
-}
-
-void CompetitionScreen::addMatchLabels(const Match& m, float xp, float yp)
-{
+	static const Common::Color humancolor(192, 192, 192);
+	static const Common::Color woncolor(255, 247, 125);
 	const Common::Color& textColor1 = m.getTeam(0)->getController().HumanControlled ?
-		mMyTeamColor : m.getResult().homeWon() ? Common::Color::Yellow : Common::Color::White;
+		m.getResult().homeWon() ? woncolor : humancolor :
+		m.getResult().homeWon() ? woncolor : Common::Color::White;
 	const Common::Color& textColor2 = m.getTeam(1)->getController().HumanControlled ?
-		mMyTeamColor : m.getResult().awayWon() ? Common::Color::Yellow : Common::Color::White;
+		m.getResult().awayWon() ? woncolor : humancolor :
+		m.getResult().awayWon() ? woncolor : Common::Color::White;
 
-	addResultText(m.getTeam(0)->getName().c_str(), xp - 0.04f, yp,
-			TextAlignment::MiddleRight, textColor1);
-	addResultText(m.getTeam(1)->getName().c_str(), xp + 0.04f, yp,
-			TextAlignment::MiddleLeft, textColor2);
+	labels.push_back(scr.addLabel(m.getTeam(0)->getName().c_str(), xp - 0.04f, yp,
+			TextAlignment::MiddleRight, fontsize, textColor1));
+	labels.push_back(scr.addLabel(m.getTeam(1)->getName().c_str(), xp + 0.04f, yp,
+			TextAlignment::MiddleLeft, fontsize, textColor2));
 	if(m.getResult().Played) {
 		if(!(m.getResult().HomePenalties || m.getResult().AwayPenalties)) {
-			addResultText(" - ", xp, yp, TextAlignment::Centered);
-			addResultText(std::to_string(m.getResult().HomeGoals).c_str(), xp - 0.01f, yp,
-					TextAlignment::Centered);
-			addResultText(std::to_string(m.getResult().AwayGoals).c_str(), xp + 0.01f, yp,
-					TextAlignment::Centered);
+			labels.push_back(scr.addLabel(" - ", xp, yp, TextAlignment::Centered, fontsize, Common::Color::White));
+			labels.push_back(scr.addLabel(std::to_string(m.getResult().HomeGoals).c_str(), xp - 0.01f, yp,
+					TextAlignment::Centered, fontsize, Common::Color::White));
+			labels.push_back(scr.addLabel(std::to_string(m.getResult().AwayGoals).c_str(), xp + 0.01f, yp,
+					TextAlignment::Centered, fontsize, Common::Color::White));
 		} else {
 			std::stringstream ss;
 			ss << m.getResult().HomeGoals << "-" << m.getResult().AwayGoals <<
 				" (" << m.getResult().HomePenalties << "-" <<
 				m.getResult().AwayPenalties << ")";
-			addResultText(ss.str().c_str(), xp, yp, TextAlignment::Centered);
+			labels.push_back(scr.addLabel(ss.str().c_str(), xp, yp, TextAlignment::Centered, fontsize, Common::Color::White));
 		}
 	} else {
-		addResultText(" - ", xp, yp, TextAlignment::Centered);
+		labels.push_back(scr.addLabel(" - ", xp, yp, TextAlignment::Centered, fontsize, Common::Color::White));
 	}
+}
+
+void CompetitionScreen::addMatchLabels(const Match& m, float xp, float yp)
+{
+	addMatchLabels(m, xp, yp, 0.6f, *this, mResultLabels);
 }
 
 void CompetitionScreen::drawInfo()

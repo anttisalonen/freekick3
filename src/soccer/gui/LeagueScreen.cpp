@@ -69,8 +69,8 @@ void LeagueScreen::drawTable()
 			});
 
 	for(auto e : ves) {
-		const Common::Color& textColor = e.first->getController().HumanControlled ?
-			mMyTeamColor : Common::Color::White;
+		const Common::Color textColor = e.first->getController().HumanControlled ?
+			Common::Color(128, 128, 255) : Common::Color::White;
 		addTableText(e.first->getName().c_str(),                    0.05f, y,
 				TextAlignment::MiddleLeft, textColor);
 		addTableText(std::to_string(e.second.Matches).c_str(),      0.25f, y);

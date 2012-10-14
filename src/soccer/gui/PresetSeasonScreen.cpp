@@ -67,7 +67,10 @@ void PresetSeasonScreen::clickedDone()
 		cup = boost::shared_ptr<StatefulCup>(new StatefulCup(cupteams));
 	}
 
-	boost::shared_ptr<Season> season(new Season(mOwnTeam, league, cup));
+	auto myit = allteams.find(mOwnTeam);
+	assert(myit != allteams.end());
+
+	boost::shared_ptr<Season> season(new Season(myit->second, league, cup));
 	mScreenManager->addScreen(boost::shared_ptr<Screen>(new SeasonScreen(mScreenManager, season)));
 }
 
