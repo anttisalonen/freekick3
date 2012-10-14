@@ -148,6 +148,14 @@ void Button::draw(int screenWidth, int screenHeight)
 		glVertex3f(r.x + r.w, screenHeight - r.y - r.h, 1.0f);
 		glVertex3f(r.x, screenHeight - r.y - r.h, 1.0f);
 		glEnd();
+
+		glBegin(GL_LINE_LOOP);
+		glColor3f(0.5f, 0.5f, 0.5f);
+		glVertex3f(r.x, screenHeight - r.y, 1.0f);
+		glVertex3f(r.x + r.w, screenHeight - r.y, 1.0f);
+		glVertex3f(r.x + r.w, screenHeight - r.y - r.h, 1.0f);
+		glVertex3f(r.x, screenHeight - r.y - r.h, 1.0f);
+		glEnd();
 	}
 
 	float tw2 = 0.5f * this->getTextTexture()->getWidth() * this->getTextWidth();
