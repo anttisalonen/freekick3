@@ -13,8 +13,9 @@
 
 namespace Soccer {
 
-CupScreen::CupScreen(boost::shared_ptr<ScreenManager> sm, boost::shared_ptr<StatefulCup> l)
-	: CompetitionScreen(sm, "Cup", l),
+CupScreen::CupScreen(boost::shared_ptr<ScreenManager> sm, boost::shared_ptr<StatefulCup> l,
+		bool onlyOneRound)
+	: CompetitionScreen(sm, "Cup", l, onlyOneRound),
 	mCup(l)
 {
 	updateScreenElements();

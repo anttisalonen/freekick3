@@ -19,11 +19,16 @@ class Season {
 		boost::shared_ptr<StatefulTeam> getTeam();
 		boost::shared_ptr<StatefulLeague> getLeague();
 		boost::shared_ptr<StatefulCup> getCup();
+		const std::vector<std::pair<CompetitionType, unsigned int>>& getSchedule() const;
 
 	private:
+		void createSchedule();
+
 		boost::shared_ptr<StatefulTeam> mTeam;
 		boost::shared_ptr<StatefulLeague> mLeague;
 		boost::shared_ptr<StatefulCup> mCup;
+
+		std::vector<std::pair<CompetitionType, unsigned int>> mSchedule;
 
 		friend class boost::serialization::access;
 		Season(); // serialization
@@ -33,6 +38,7 @@ class Season {
 			ar & mTeam;
 			ar & mLeague;
 			ar & mCup;
+			ar & mSchedule;
 		}
 };
 

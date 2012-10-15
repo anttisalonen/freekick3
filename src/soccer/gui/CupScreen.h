@@ -14,7 +14,8 @@ namespace Soccer {
 
 class CupScreen : public CompetitionScreen {
 	public:
-		CupScreen(boost::shared_ptr<ScreenManager> sm, boost::shared_ptr<StatefulCup> l);
+		CupScreen(boost::shared_ptr<ScreenManager> sm, boost::shared_ptr<StatefulCup> l,
+				bool onlyOneRound = false);
 
 	protected:
 		virtual void saveCompetition(boost::archive::binary_oarchive& oa) const override;

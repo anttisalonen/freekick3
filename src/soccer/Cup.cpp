@@ -3,6 +3,25 @@
 
 namespace Soccer {
 
+/* thanks go to http://graphics.stanford.edu/~seander/bithacks.html */
+static unsigned int logbase2(unsigned int v)
+{
+	unsigned int r = 0; // r will be lg(v)
+
+	while (v >>= 1)
+	{
+		  r++;
+	}
+
+	return r;
+}
+
+static bool ispow2(unsigned int v)
+{
+	return v && !(v & (v - 1));
+}
+
+// compute the next highest power of 2 of 32-bit x
 static unsigned int pow2roundup(unsigned int x)
 {
 	x--;
@@ -14,19 +33,18 @@ static unsigned int pow2roundup(unsigned int x)
 	return x + 1;
 }
 
-static unsigned int countbits(unsigned int v)
+static unsigned int pow2rounddown(unsigned int x)
 {
-	unsigned int c; // c accumulates the total bits set in v
-	for (c = 0; v; c++)
-	{
-		v &= v - 1; // clear the least significant bit set
-	}
-	return c;
+	if(ispow2(x))
+		return x;
+
+	return pow2roundup(x) / 2;
 }
 
 StatefulCup::StatefulCup(std::vector<boost::shared_ptr<StatefulTeam>>& teams)
 	: StatefulCompetition()
 {
+	mTotalRounds = logbase2(teams.size());
 	setupNextRound(teams);
 	setNextMatch();
 }
@@ -67,7 +85,7 @@ bool StatefulCup::matchPlayed(const MatchResult& res)
 
 void StatefulCup::setupNextRound(std::vector<boost::shared_ptr<StatefulTeam>>& teams)
 {
-	if(countbits(teams.size()) != 1) {
+	if(!ispow2(teams.size())) {
 		throw std::runtime_error("Number of teams in cup must be power of two.");
 	}
 
@@ -102,7 +120,7 @@ std::vector<boost::shared_ptr<Team>> StatefulCup::collectTeamsFromCountry(const 
 		numTeams += league.second->getContainer().size();
 	}
 
-	numTeams = pow2roundup(numTeams) / 2;
+	numTeams = pow2rounddown(numTeams);
 
 	for(auto league : s->getContainer()) {
 		if(numTeams == 0)
@@ -117,5 +135,16 @@ std::vector<boost::shared_ptr<Team>> StatefulCup::collectTeamsFromCountry(const 
 
 	return teams;
 }
+
+CompetitionType StatefulCup::getType() const
+{
+	return CompetitionType::Cup;
+}
+
+unsigned int StatefulCup::getTotalNumberOfRounds() const
+{
+	return mTotalRounds;
+}
+
 
 }

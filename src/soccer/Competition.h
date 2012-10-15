@@ -90,8 +90,13 @@ class Schedule {
 		}
 };
 
+enum class CompetitionType {
+	League,
+	Cup
+};
+
 /* NOTE: for each class deriving from StatefulCompetition,
- * 1. implement matchPlayed - it should be abstract but isn't due to serialization.
+ * 1. implement matchPlayed and getType - they should be abstract but aren't due to serialization.
  * 2. add saving the class to YourCompetitionScreen::saveCompetition.
  * 3. add loading the class to LoadGameScreen::buttonPressed.
  */
@@ -102,12 +107,14 @@ class StatefulCompetition {
 		const Schedule& getSchedule() const;
 		const boost::shared_ptr<Match> getNextMatch() const;
 		virtual bool matchPlayed(const MatchResult& res) { return false; }
+		virtual CompetitionType getType() const { return CompetitionType::League; }
 		const Round* getCurrentRound() const;
 
 	protected:
 		void setNextMatch();
 		Schedule mSchedule;
 		boost::shared_ptr<Match> mNextMatch;
+
 	private:
 		int mThisRound;
 		int mNextMatchId;

@@ -48,6 +48,7 @@ class StatefulLeague : public StatefulCompetition {
 		StatefulLeague(std::vector<boost::shared_ptr<StatefulTeam>>& teams);
 		const std::map<boost::shared_ptr<StatefulTeam>, LeagueEntry>& getEntries() const;
 		bool matchPlayed(const MatchResult& res) override;
+		virtual CompetitionType getType() const override;
 
 	private:
 		void setRoundRobin(std::vector<boost::shared_ptr<StatefulTeam>>& teams);

@@ -104,5 +104,10 @@ StatefulLeague::StatefulLeague()
 {
 }
 
+CompetitionType StatefulLeague::getType() const
+{
+	return CompetitionType::League;
+}
+
 
 }

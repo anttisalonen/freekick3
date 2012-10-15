@@ -208,7 +208,8 @@ void CompetitionScreen::buttonPressed(boost::shared_ptr<Button> button)
 	if(buttonText == "Back") {
 		if(mOneRound) {
 			mScreenManager->dropScreen();
-			skipMatches();
+			if(!allRoundMatchesPlayed())
+				skipMatches();
 		} else
 			mScreenManager->dropScreensUntil("Main Menu");
 	}
