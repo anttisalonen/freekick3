@@ -41,23 +41,19 @@ static unsigned int pow2rounddown(unsigned int x)
 	return pow2roundup(x) / 2;
 }
 
-StatefulCup::StatefulCup(std::vector<boost::shared_ptr<StatefulTeam>>& teams)
-	: StatefulCompetition()
+StatefulCup::StatefulCup(std::vector<boost::shared_ptr<StatefulTeam>>& teams, bool onlyoneround)
+	: StatefulCompetition(),
+	mOnlyOneRound(onlyoneround)
 {
 	mTotalRounds = logbase2(teams.size());
 	setupNextRound(teams);
 	setNextMatch();
 }
 
-bool StatefulCup::matchPlayed(const MatchResult& res)
+void StatefulCup::matchPlayed(const MatchResult& res)
 {
-	if(!mNextMatch)
-		return true;
-
-	if(!res.Played) {
-		return false;
-	}
-	mNextMatch->setResult(res);
+	assert(mNextMatch);
+	assert(res.Played);
 
 	auto it = mEntries.find({mNextMatch->getTeam(0), mNextMatch->getTeam(1)});
 	assert(it != mEntries.end());
@@ -67,20 +63,12 @@ bool StatefulCup::matchPlayed(const MatchResult& res)
 	it->second.Result = res;
 
 	setNextMatch();
-	if(!mNextMatch && mEntries.size() > 1) {
-		std::vector<boost::shared_ptr<StatefulTeam>> teams;
-		for(auto& e : mEntries) {
-			assert(e.second.Result.Played);
-			if(e.second.Result.HomeGoals > e.second.Result.AwayGoals ||
-					e.second.Result.HomePenalties > e.second.Result.AwayPenalties)
-				teams.push_back(e.first.first);
-			else
-				teams.push_back(e.first.second);
-		}
+	if(!mNextMatch && mEntries.size() > 1 && !mOnlyOneRound) {
+		std::vector<boost::shared_ptr<StatefulTeam>> teams = getTeamsByPosition();
+		assert(teams.size());
 		setupNextRound(teams);
 		setNextMatch();
 	}
-	return mNextMatch == boost::shared_ptr<Match>();
 }
 
 void StatefulCup::setupNextRound(std::vector<boost::shared_ptr<StatefulTeam>>& teams)
@@ -146,5 +134,34 @@ unsigned int StatefulCup::getTotalNumberOfRounds() const
 	return mTotalRounds;
 }
 
+unsigned int StatefulCup::getNumberOfTeams() const
+{
+	return mEntries.size() * 2;
+}
+
+std::vector<boost::shared_ptr<StatefulTeam>> StatefulCup::getTeamsByPosition() const
+{
+	std::vector<boost::shared_ptr<StatefulTeam>> teams;
+
+	for(auto& e : mEntries) {
+		if(!e.second.Result.Played) {
+			return std::vector<boost::shared_ptr<StatefulTeam>>();
+		}
+		if(e.second.Result.HomeGoals > e.second.Result.AwayGoals ||
+				e.second.Result.HomePenalties > e.second.Result.AwayPenalties)
+			teams.push_back(e.first.first);
+		else {
+			assert(e.second.Result.AwayGoals > e.second.Result.HomeGoals ||
+					e.second.Result.AwayPenalties > e.second.Result.HomePenalties);
+			teams.push_back(e.first.second);
+		}
+	}
+
+	return teams;
+}
+
 
 }
+
+BOOST_CLASS_EXPORT_IMPLEMENT(Soccer::StatefulCup);
+

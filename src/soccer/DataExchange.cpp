@@ -69,7 +69,7 @@ boost::shared_ptr<Team> DataExchange::parseTeam(const TiXmlElement* teamelem)
 		int playerid;
 		if(pelem->QueryIntAttribute("id", &playerid) != TIXML_SUCCESS)
 			throw std::runtime_error("Error parsing player in team");
-		const TiXmlElement* nameelem = pelem->FirstChildElement("Name");
+		nameelem = pelem->FirstChildElement("Name");
 		if(nameelem) {
 			players.push_back(parsePlayer(pelem));
 		}
@@ -493,6 +493,8 @@ void DataExchange::updateTeamDatabase(const char* fn, TeamDatabase& db)
 		for(const TiXmlElement* countryelem = continentelem->FirstChildElement(); countryelem;
 				countryelem = countryelem->NextSiblingElement()) {
 			std::string countryname;
+			unsigned int level = 0;
+
 			if(countryelem->QueryStringAttribute("name", &countryname) != TIXML_SUCCESS)
 				throw std::runtime_error("Error parsing country name");
 
@@ -502,13 +504,16 @@ void DataExchange::updateTeamDatabase(const char* fn, TeamDatabase& db)
 				if(leagueelem->QueryStringAttribute("name", &leaguename) != TIXML_SUCCESS)
 					throw std::runtime_error("Error parsing league name");
 
+				boost::shared_ptr<Soccer::League> league = db.getOrCreateLeague(continentname.c_str(),
+						countryname.c_str(), leaguename.c_str(), level);
+
 				for(const TiXmlElement* teamelem = leagueelem->FirstChildElement(); teamelem;
 						teamelem = teamelem->NextSiblingElement()) {
 					boost::shared_ptr<Team> t = parseTeam(teamelem);
-					boost::shared_ptr<Soccer::League> league = db.getOrCreateLeague(continentname.c_str(),
-							countryname.c_str(), leaguename.c_str());
 					league->addT(t);
 				}
+
+				level++;
 			}
 		}
 	}

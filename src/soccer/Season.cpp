@@ -29,6 +29,11 @@ boost::shared_ptr<StatefulCup> Season::getCup()
 	return mCup;
 }
 
+boost::shared_ptr<StatefulTournament> Season::getTournament()
+{
+	return mTournament;
+}
+
 void Season::createSchedule()
 {
 	mSchedule.clear();

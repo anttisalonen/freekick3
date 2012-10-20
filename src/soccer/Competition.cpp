@@ -49,3 +49,8 @@ const Round* StatefulCompetition::getCurrentRound() const
 }
 
 }
+
+
+BOOST_CLASS_EXPORT_IMPLEMENT(Soccer::StatefulCompetition);
+
+

@@ -27,10 +27,10 @@ class Screen {
 		boost::shared_ptr<Button> addLabel(const char* text, float x, float y,
 				TextAlignment centered = TextAlignment::Centered,
 				float fsize = 1.0f, Common::Color col = Common::Color::White);
-
-	protected:
 		boost::shared_ptr<Button> addButton(const char* text, const Common::Rectangle& dim);
 		bool removeButton(boost::shared_ptr<Button> b);
+
+	protected:
 		bool removeSlider(boost::shared_ptr<Slider> b);
 		boost::shared_ptr<Image> addImage(const char* filepath, const Common::Rectangle& dim);
 		bool removeImage(boost::shared_ptr<Image> i);

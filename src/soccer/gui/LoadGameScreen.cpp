@@ -10,6 +10,8 @@
 #include "soccer/gui/CupScreen.h"
 #include "soccer/gui/LeagueScreen.h"
 #include "soccer/gui/SeasonScreen.h"
+#include "soccer/gui/TournamentScreen.h"
+
 #include "soccer/gui/LoadGameScreen.h"
 #include "soccer/gui/Menu.h"
 
@@ -66,6 +68,11 @@ void LoadGameScreen::buttonPressed(boost::shared_ptr<Button> button)
 			ia >> comp;
 			mScreenManager->dropScreen();
 			mScreenManager->addScreen(boost::shared_ptr<Screen>(new SeasonScreen(mScreenManager, comp)));
+		} else if(buttonText == "Tournament") {
+			boost::shared_ptr<StatefulTournament> comp;
+			ia >> comp;
+			mScreenManager->dropScreen();
+			mScreenManager->addScreen(boost::shared_ptr<Screen>(new TournamentScreen(mScreenManager, comp)));
 		}
 	}
 }

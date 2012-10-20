@@ -26,64 +26,65 @@ void LeagueScreen::saveCompetition(boost::archive::binary_oarchive& oa) const
 	oa << mLeague;
 }
 
-void LeagueScreen::addTableText(const char* text, float x, float y,
-		TextAlignment align, Common::Color col)
+void LeagueScreen::addTableText(Screen& scr, const char* text, float x, float y,
+		TextAlignment align, Common::Color col, std::vector<boost::shared_ptr<Button>>& labels)
 {
-	mTableLabels.push_back(addLabel(text, x, y, align, 0.6f, col));
+	labels.push_back(scr.addLabel(text, x, y, align, 0.6f, col));
+}
+
+void LeagueScreen::drawTable(Screen& scr, std::vector<boost::shared_ptr<Button>>& labels, const StatefulLeague& l, float x, float y)
+{
+	x -= 0.05f;
+
+	addTableText(scr, "Team",    x + 0.05f, y, TextAlignment::MiddleLeft, Common::Color::White, labels);
+	addTableText(scr, "M",       x + 0.25f, y, TextAlignment::MiddleLeft, Common::Color::White, labels);
+	addTableText(scr, "W",       x + 0.29f, y, TextAlignment::MiddleLeft, Common::Color::White, labels);
+	addTableText(scr, "D",       x + 0.33f, y, TextAlignment::MiddleLeft, Common::Color::White, labels);
+	addTableText(scr, "L",       x + 0.37f, y, TextAlignment::MiddleLeft, Common::Color::White, labels);
+	addTableText(scr, "GF",      x + 0.41f, y, TextAlignment::MiddleLeft, Common::Color::White, labels);
+	addTableText(scr, "GA",      x + 0.45f, y, TextAlignment::MiddleLeft, Common::Color::White, labels);
+	addTableText(scr, "GD",      x + 0.49f, y, TextAlignment::MiddleLeft, Common::Color::White, labels);
+	addTableText(scr, "P",       x + 0.53f, y, TextAlignment::MiddleLeft, Common::Color::White, labels);
+	y += 0.03f;
+
+	std::vector<boost::shared_ptr<StatefulTeam>> es = l.getTeamsByPosition();
+
+	for(auto e : es) {
+		const auto& le = l.getEntries().find(e);
+		assert(le != l.getEntries().end());
+
+		const Common::Color textColor = e->getController().HumanControlled ?
+			Common::Color(128, 128, 255) : Common::Color::White;
+		addTableText(scr, e->getName().c_str(),                    x + 0.05f, y,
+				TextAlignment::MiddleLeft, textColor, labels);
+		addTableText(scr, std::to_string(le->second.Matches).c_str(),      x + 0.25f, y,
+				TextAlignment::MiddleLeft, Common::Color::White, labels);
+		addTableText(scr, std::to_string(le->second.Wins).c_str(),         x + 0.29f, y,
+				TextAlignment::MiddleLeft, Common::Color::White, labels);
+		addTableText(scr, std::to_string(le->second.Draws).c_str(),        x + 0.33f, y,
+				TextAlignment::MiddleLeft, Common::Color::White, labels);
+		addTableText(scr, std::to_string(le->second.Losses).c_str(),       x + 0.37f, y,
+				TextAlignment::MiddleLeft, Common::Color::White, labels);
+		addTableText(scr, std::to_string(le->second.GoalsFor).c_str(),     x + 0.41f, y,
+				TextAlignment::MiddleLeft, Common::Color::White, labels);
+		addTableText(scr, std::to_string(le->second.GoalsAgainst).c_str(), x + 0.45f, y,
+				TextAlignment::MiddleLeft, Common::Color::White, labels);
+		addTableText(scr, std::to_string(le->second.GoalsFor - le->second.GoalsAgainst).c_str(), x + 0.49f, y,
+				TextAlignment::MiddleLeft, Common::Color::White, labels);
+		addTableText(scr, std::to_string(le->second.Points).c_str(),       x + 0.53f, y,
+				TextAlignment::MiddleLeft, Common::Color::White, labels);
+		y += 0.03f;
+	}
 }
 
 void LeagueScreen::drawTable()
 {
-	float y = 0.09f;
-
-	for(auto l : mTableLabels) {
-		removeButton(l);
+	for(auto lbl : mTableLabels) {
+		removeButton(lbl);
 	}
 	mTableLabels.clear();
 
-	addTableText("Team",    0.05f, y);
-	addTableText("M",       0.25f, y);
-	addTableText("W",       0.29f, y);
-	addTableText("D",       0.33f, y);
-	addTableText("L",       0.37f, y);
-	addTableText("GF",      0.41f, y);
-	addTableText("GA",      0.45f, y);
-	addTableText("GD",      0.49f, y);
-	addTableText("P",       0.53f, y);
-	y += 0.03f;
-
-	const std::map<boost::shared_ptr<StatefulTeam>, LeagueEntry>& es = mLeague->getEntries();
-	std::vector<std::pair<boost::shared_ptr<StatefulTeam>, LeagueEntry>> ves(es.begin(), es.end());
-	std::sort(ves.begin(), ves.end(), [](const std::pair<boost::shared_ptr<StatefulTeam>, LeagueEntry>& p1,
-				const std::pair<boost::shared_ptr<StatefulTeam>, LeagueEntry>& p2) -> bool {
-			if(p1.second.Points != p2.second.Points)
-				return p1.second.Points > p2.second.Points;
-			int gd1 = p1.second.GoalsFor - p1.second.GoalsAgainst;
-			int gd2 = p2.second.GoalsFor - p2.second.GoalsAgainst;
-			if(gd1 != gd2)
-				return gd1 > gd2;
-			if(p1.second.GoalsFor != p2.second.GoalsFor)
-				return p1.second.GoalsFor > p2.second.GoalsFor;
-			return strcmp(p1.first->getName().c_str(),
-				p2.first->getName().c_str()) < 0;
-			});
-
-	for(auto e : ves) {
-		const Common::Color textColor = e.first->getController().HumanControlled ?
-			Common::Color(128, 128, 255) : Common::Color::White;
-		addTableText(e.first->getName().c_str(),                    0.05f, y,
-				TextAlignment::MiddleLeft, textColor);
-		addTableText(std::to_string(e.second.Matches).c_str(),      0.25f, y);
-		addTableText(std::to_string(e.second.Wins).c_str(),         0.29f, y);
-		addTableText(std::to_string(e.second.Draws).c_str(),        0.33f, y);
-		addTableText(std::to_string(e.second.Losses).c_str(),       0.37f, y);
-		addTableText(std::to_string(e.second.GoalsFor).c_str(),     0.41f, y);
-		addTableText(std::to_string(e.second.GoalsAgainst).c_str(), 0.45f, y);
-		addTableText(std::to_string(e.second.GoalsFor - e.second.GoalsAgainst).c_str(),
-											 0.49f, y);
-		addTableText(std::to_string(e.second.Points).c_str(),       0.53f, y);
-		y += 0.03f;
-	}
+	drawTable(*this, mTableLabels, *mLeague, 0.05f, 0.09f);
 }
 
 }

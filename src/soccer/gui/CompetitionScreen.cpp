@@ -118,14 +118,15 @@ bool CompetitionScreen::playNextMatch(bool display)
 	const boost::shared_ptr<Match> m = mCompetition->getNextMatch();
 	if(display) {
 		mScreenManager->addScreen(boost::shared_ptr<Screen>(new TeamTacticsScreen(mScreenManager, *m,
-						[&](Match& m) -> void {
-							RunningMatch rm = RunningMatch(m);
+						[&](Match& mp) -> void {
+							RunningMatch rm = RunningMatch(mp);
 							MatchResult r;
 							while(!rm.matchFinished(&r)) {
 								sleep(1);
 								mScreenManager->drawScreen();
 							}
 							if(r.Played) {
+								mp.setResult(r);
 								mCompetition->matchPlayed(r);
 							}
 							mScreenManager->dropScreen();
@@ -137,9 +138,12 @@ bool CompetitionScreen::playNextMatch(bool display)
 		if(m->getTeam(0)->getController().HumanControlled ||
 				m->getTeam(1)->getController().HumanControlled) {
 			mScreenManager->addScreen(boost::shared_ptr<Screen>(new TeamTacticsScreen(mScreenManager, *m,
-							[&](Match& m) -> void {
-							MatchResult r = m.play(false);
-							mCompetition->matchPlayed(r);
+							[&](Match& mt) -> void {
+							MatchResult r = mt.play(false);
+							if(r.Played) {
+								mt.setResult(r);
+								mCompetition->matchPlayed(r);
+							}
 							mScreenManager->dropScreen();
 							updateScreenElements();
 							})));
@@ -147,7 +151,13 @@ bool CompetitionScreen::playNextMatch(bool display)
 		}
 		else {
 			MatchResult r = m->play(false);
-			return mCompetition->matchPlayed(r);
+			if(r.Played) {
+				m->setResult(r);
+				mCompetition->matchPlayed(r);
+				return !mCompetition->getNextMatch();
+			} else {
+				return false;
+			}
 		}
 	}
 }

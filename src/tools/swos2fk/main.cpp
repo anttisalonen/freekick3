@@ -715,7 +715,7 @@ int FreekickWriter::write()
 		Soccer::Kit homekit = swosKitToSoccerKit(st.primary_kit);
 		Soccer::Kit awaykit = swosKitToSoccerKit(st.secondary_kit);
 		boost::shared_ptr<Soccer::League> league = teamdb.getOrCreateLeague(nationToContinent(st.nation),
-				teamNationalityToString(st.nation), leagueLevelToString(st.division));
+				teamNationalityToString(st.nation), leagueLevelToString(st.division), st.division);
 
 		printf("%s in %s - %s - %s\n", st.team_name, leagueLevelToString(st.division),
 				teamNationalityToString(st.nation), nationToContinent(st.nation));

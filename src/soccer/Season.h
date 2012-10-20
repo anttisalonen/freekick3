@@ -8,6 +8,7 @@
 
 #include "soccer/League.h"
 #include "soccer/Cup.h"
+#include "soccer/Tournament.h"
 #include "soccer/Match.h"
 
 
@@ -19,6 +20,7 @@ class Season {
 		boost::shared_ptr<StatefulTeam> getTeam();
 		boost::shared_ptr<StatefulLeague> getLeague();
 		boost::shared_ptr<StatefulCup> getCup();
+		boost::shared_ptr<StatefulTournament> getTournament();
 		const std::vector<std::pair<CompetitionType, unsigned int>>& getSchedule() const;
 
 	private:
@@ -27,6 +29,7 @@ class Season {
 		boost::shared_ptr<StatefulTeam> mTeam;
 		boost::shared_ptr<StatefulLeague> mLeague;
 		boost::shared_ptr<StatefulCup> mCup;
+		boost::shared_ptr<StatefulTournament> mTournament;
 
 		std::vector<std::pair<CompetitionType, unsigned int>> mSchedule;
 
@@ -39,6 +42,7 @@ class Season {
 			ar & mLeague;
 			ar & mCup;
 			ar & mSchedule;
+			/* TODO: add serialising tournament */
 		}
 };
 

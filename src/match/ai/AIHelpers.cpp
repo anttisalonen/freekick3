@@ -59,7 +59,7 @@ boost::shared_ptr<PlayerAction> AIHelpers::createMoveActionToBall(const Player& 
 
 AbsVector3 AIHelpers::getShotPosition(const Player& p)
 {
-	AbsVector3 v = getPositionByFunc(p, [&](const AbsVector3& v) { return p.getTeam()->getShotScoreAt(v); });
+	AbsVector3 v = getPositionByFunc(p, [&](const AbsVector3& vp) { return p.getTeam()->getShotScoreAt(vp); });
 	if((v.v - p.getPosition().v).length() > 2.0f)
 		return v;
 	else
@@ -68,7 +68,7 @@ AbsVector3 AIHelpers::getShotPosition(const Player& p)
 
 AbsVector3 AIHelpers::getPassPosition(const Player& p)
 {
-	AbsVector3 v = getPositionByFunc(p, [&](const AbsVector3& v) { return p.getTeam()->getPassScoreAt(v); });
+	AbsVector3 v = getPositionByFunc(p, [&](const AbsVector3& vp) { return p.getTeam()->getPassScoreAt(vp); });
 	if((v.v - p.getPosition().v).length() > 2.0f)
 		return v;
 	else

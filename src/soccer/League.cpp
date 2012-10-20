@@ -12,15 +12,11 @@ StatefulLeague::StatefulLeague(std::vector<boost::shared_ptr<StatefulTeam>>& tea
 	setNextMatch();
 }
 
-bool StatefulLeague::matchPlayed(const MatchResult& res)
+void StatefulLeague::matchPlayed(const MatchResult& res)
 {
-	if(!mNextMatch)
-		return true;
+	assert(mNextMatch);
+	assert(res.Played);
 
-	if(!res.Played) {
-		return false;
-	}
-	mNextMatch->setResult(res);
 	auto meit1 = mEntries.find(mNextMatch->getTeam(0));
 	auto meit2 = mEntries.find(mNextMatch->getTeam(1));
 	assert(meit1 != mEntries.end());
@@ -49,9 +45,7 @@ bool StatefulLeague::matchPlayed(const MatchResult& res)
 		meit1->second.Draws++;
 		meit2->second.Draws++;
 	}
-
 	setNextMatch();
-	return mNextMatch == boost::shared_ptr<Match>();
 }
 
 const std::map<boost::shared_ptr<StatefulTeam>, LeagueEntry>& StatefulLeague::getEntries() const
@@ -109,5 +103,37 @@ CompetitionType StatefulLeague::getType() const
 	return CompetitionType::League;
 }
 
+unsigned int StatefulLeague::getNumberOfTeams() const
+{
+	return mEntries.size();
+}
+
+std::vector<boost::shared_ptr<StatefulTeam>> StatefulLeague::getTeamsByPosition() const
+{
+	std::vector<std::pair<boost::shared_ptr<StatefulTeam>, LeagueEntry>> ves(mEntries.begin(), mEntries.end());
+	std::sort(ves.begin(), ves.end(), [](const std::pair<boost::shared_ptr<StatefulTeam>, LeagueEntry>& p1,
+				const std::pair<boost::shared_ptr<StatefulTeam>, LeagueEntry>& p2) -> bool {
+			if(p1.second.Points != p2.second.Points)
+				return p1.second.Points > p2.second.Points;
+			int gd1 = p1.second.GoalsFor - p1.second.GoalsAgainst;
+			int gd2 = p2.second.GoalsFor - p2.second.GoalsAgainst;
+			if(gd1 != gd2)
+				return gd1 > gd2;
+			if(p1.second.GoalsFor != p2.second.GoalsFor)
+				return p1.second.GoalsFor > p2.second.GoalsFor;
+			return strcmp(p1.first->getName().c_str(),
+				p2.first->getName().c_str()) < 0;
+			});
+
+	std::vector<boost::shared_ptr<StatefulTeam>> res;
+	for(auto t : ves)
+		res.push_back(t.first);
+	return res;
+}
+
 
 }
+
+BOOST_CLASS_EXPORT_IMPLEMENT(Soccer::StatefulLeague);
+
+

@@ -73,9 +73,10 @@ SimulationStrength::SimulationStrength(const StatefulTeam& t)
 {
 	/* TODO: make use of FastPassing and ShootClose here. */
 	float press = t.getTactics().Pressure * 0.5f + 0.25f;
-	float mLongBalls = t.getTactics().LongBalls * 0.5f + 0.25f;
 	float wings = 0.5f;
 	float variance = 0.5f;
+
+	mLongBalls = t.getTactics().LongBalls * 0.5f + 0.25f;
 
 	press += (rand() % 2000 - 1000) * 0.001f * variance;
 	mLongBalls += (rand() % 2000 - 1000) * 0.001f * variance;

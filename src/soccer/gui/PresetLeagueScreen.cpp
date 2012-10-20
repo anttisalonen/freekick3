@@ -1,7 +1,3 @@
-#include <sys/wait.h>
-#include <unistd.h>
-#include <stdio.h>
-
 #include "soccer/Match.h"
 #include "soccer/League.h"
 

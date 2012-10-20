@@ -25,12 +25,12 @@ boost::shared_ptr<LeagueSystem> TeamDatabase::getOrCreateLeagueSystem(const char
 }
 
 boost::shared_ptr<League> TeamDatabase::getOrCreateLeague(const char* continentName,
-		const char* countryName, const char* leagueName)
+		const char* countryName, const char* leagueName, unsigned int level)
 {
 	auto lsys = getOrCreateLeagueSystem(continentName, countryName);
 	auto leag = lsys->getT(leagueName);
 	if(!leag) {
-		leag = boost::shared_ptr<Soccer::League>(new Soccer::League(leagueName));
+		leag = boost::shared_ptr<Soccer::League>(new Soccer::League(leagueName, level));
 		lsys->addT(leag);
 	}
 	return leag;

@@ -8,6 +8,7 @@
 #include "soccer/gui/Menu.h"
 #include "soccer/gui/LeagueScreen.h"
 #include "soccer/gui/CupScreen.h"
+#include "soccer/gui/TournamentScreen.h"
 #include "soccer/gui/SeasonScreen.h"
 
 namespace Soccer {
@@ -57,6 +58,12 @@ void SeasonScreen::addMatchPlan()
 			case CompetitionType::Cup:
 			{
 				ss << "Cup Round " << (std::get<1>(ctr) + 1);
+			}
+			break;
+
+			case CompetitionType::Tournament:
+			{
+				ss << "Tournament Round " << (std::get<1>(ctr) + 1);
 			}
 			break;
 		}
@@ -126,6 +133,14 @@ void SeasonScreen::buttonPressed(boost::shared_ptr<Button> button)
 										true)));
 					}
 					return;
+
+					case CompetitionType::Tournament:
+					{
+						mScreenManager->addScreen(boost::shared_ptr<Screen>(new TournamentScreen(mScreenManager,
+										mSeason->getTournament(),
+										true)));
+					}
+					return;
 				}
 				break;
 			}
@@ -186,6 +201,14 @@ SeasonScreen::RoundTuple SeasonScreen::getRound(unsigned int i) const
 			const Schedule& s = mSeason->getCup()->getSchedule();
 			const Round* r = s.getRound(ct.second);
 			return RoundTuple(CompetitionType::Cup, ct.second, r);
+		}
+		break;
+
+		case CompetitionType::Tournament:
+		{
+			const Schedule& s = mSeason->getTournament()->getSchedule();
+			const Round* r = s.getRound(ct.second);
+			return RoundTuple(CompetitionType::Tournament, ct.second, r);
 		}
 		break;
 	}

@@ -47,8 +47,10 @@ class StatefulLeague : public StatefulCompetition {
 	public:
 		StatefulLeague(std::vector<boost::shared_ptr<StatefulTeam>>& teams);
 		const std::map<boost::shared_ptr<StatefulTeam>, LeagueEntry>& getEntries() const;
-		bool matchPlayed(const MatchResult& res) override;
+		void matchPlayed(const MatchResult& res) override;
 		virtual CompetitionType getType() const override;
+		virtual unsigned int getNumberOfTeams() const override;
+		virtual std::vector<boost::shared_ptr<StatefulTeam>> getTeamsByPosition() const override;
 
 	private:
 		void setRoundRobin(std::vector<boost::shared_ptr<StatefulTeam>>& teams);
@@ -61,15 +63,19 @@ class StatefulLeague : public StatefulCompetition {
 		template<class Archive>
 		void serialize(Archive& ar, const unsigned int version)
 		{
+			std::cout << "Serializing league " << this << "\n";
 			ar.template register_type<StatefulCompetition>();
-			ar & boost::serialization::base_object<StatefulCompetition>(*this);
+			ar & BOOST_SERIALIZATION_BASE_OBJECT_NVP(StatefulCompetition);
 			ar & mEntries;
 			ar & const_cast<int&>(mPointsPerWin);
 			ar & const_cast<int&>(mNumCycles);
+			std::cout << "Serializing league done!\n";
 		}
 };
 
 }
+
+BOOST_CLASS_EXPORT_KEY(Soccer::StatefulLeague);
 
 #endif
 

@@ -23,33 +23,40 @@ TeamBrowser::TeamBrowser(boost::shared_ptr<ScreenManager> sm)
 	addContinentButtons();
 }
 
-void TeamBrowser::addSelectionButton(const char* text, int i, int maxnum)
+boost::shared_ptr<Button> TeamBrowser::createSelectionButton(Screen& scr, const char* text, int i, int maxnum)
 {
 	if(i > maxnum)
-		return;
+		return boost::shared_ptr<Button>();
 
 	if(maxnum < 10) {
-		boost::shared_ptr<Button> b(addButton(text, Common::Rectangle(0.35f, 0.05f + i * 0.08f, 0.25f, 0.05f)));
-		mCurrentButtons.push_back(b);
+		boost::shared_ptr<Button> b(scr.addButton(text, Common::Rectangle(0.35f, 0.05f + i * 0.08f, 0.25f, 0.05f)));
+		return b;
 	}
 	else if(maxnum < 30) {
-		boost::shared_ptr<Button> b(addButton(text, Common::Rectangle(0.05f + (i % 3) * 0.30f,
+		boost::shared_ptr<Button> b(scr.addButton(text, Common::Rectangle(0.05f + (i % 3) * 0.30f,
 						0.05f + (i / 3) * 0.08f, 0.25f, 0.05f)));
-		mCurrentButtons.push_back(b);
+		return b;
 	}
 	else if(maxnum < 50) {
-		boost::shared_ptr<Button> b(addButton(text, Common::Rectangle(0.05f + (i % 3) * 0.30f,
+		boost::shared_ptr<Button> b(scr.addButton(text, Common::Rectangle(0.05f + (i % 3) * 0.30f,
 						0.05f + (i / 3) * 0.05f, 0.25f, 0.04f)));
-		mCurrentButtons.push_back(b);
+		return b;
 	}
 	else {
 		if(i > 71)
-			return;
+			return boost::shared_ptr<Button>();
 
-		boost::shared_ptr<Button> b(addButton(text, Common::Rectangle(0.05f + (i % 3) * 0.30f,
+		boost::shared_ptr<Button> b(scr.addButton(text, Common::Rectangle(0.05f + (i % 3) * 0.30f,
 						0.05f + (i / 3) * 0.035f, 0.25f, 0.03f)));
-		mCurrentButtons.push_back(b);
+		return b;
 	}
+}
+
+void TeamBrowser::addSelectionButton(const char* text, int i, int maxnum)
+{
+	auto b = createSelectionButton(*this, text, i, maxnum);
+	if(b)
+		mCurrentButtons.push_back(b);
 }
 
 void TeamBrowser::addContinentButtons()
@@ -206,6 +213,24 @@ void TeamBrowser::buttonPressed(boost::shared_ptr<Button> button)
 	updatePlayButton();
 }
 
+void TeamBrowser::setTeamButtonColor(boost::shared_ptr<Button> button, TeamSelection ts)
+{
+	switch(ts) {
+		case TeamSelection::None:
+			button->setColor1(Button::DefaultColor1);
+			button->setColor2(Button::DefaultColor2);
+			break;
+
+		case TeamSelection::Computer:
+			Menu::setButtonComputerColor(button);
+			break;
+
+		case TeamSelection::Human:
+			Menu::setButtonHumanColor(button);
+			break;
+	}
+}
+
 void TeamBrowser::setTeamButtonColor(boost::shared_ptr<Button> button) const
 {
 	const std::string& buttonText = button->getText();
@@ -213,16 +238,10 @@ void TeamBrowser::setTeamButtonColor(boost::shared_ptr<Button> button) const
 	if(it != mTeamButtons.end()) {
 		auto it2 = mSelectedTeams.find(it->second);
 		if(it2 == mSelectedTeams.end()) {
-			button->setColor1(Button::DefaultColor1);
-			button->setColor2(Button::DefaultColor2);
+			setTeamButtonColor(button, TeamSelection::None);
 		}
 		else {
-			if(it2->second == TeamSelection::Computer) {
-				Menu::setButtonComputerColor(button);
-			}
-			else {
-				Menu::setButtonHumanColor(button);
-			}
+			setTeamButtonColor(button, it2->second);
 		}
 	}
 }
@@ -288,10 +307,11 @@ bool TeamBrowser::clickingOnTeam(boost::shared_ptr<Team> p)
 	return true;
 }
 
-void TeamBrowser::toggleTeamOwnership(boost::shared_ptr<Team> p)
+void TeamBrowser::toggleTeamOwnership(boost::shared_ptr<Team> p,
+		std::map<boost::shared_ptr<Team>, TeamSelection>& teams)
 {
-	auto it2 = mSelectedTeams.find(p);
-	if(it2 != mSelectedTeams.end()) {
+	auto it2 = teams.find(p);
+	if(it2 != teams.end()) {
 		if(it2->second == TeamSelection::Computer) {
 			it2->second = TeamSelection::Human;
 		}
@@ -301,17 +321,27 @@ void TeamBrowser::toggleTeamOwnership(boost::shared_ptr<Team> p)
 	}
 }
 
-std::vector<boost::shared_ptr<StatefulTeam>> TeamBrowser::createStatefulTeams() const
+void TeamBrowser::toggleTeamOwnership(boost::shared_ptr<Team> p)
+{
+	toggleTeamOwnership(p, mSelectedTeams);
+}
+
+std::vector<boost::shared_ptr<StatefulTeam>> TeamBrowser::createStatefulTeams(const std::map<boost::shared_ptr<Team>, TeamSelection>& t1)
 {
 	std::vector<boost::shared_ptr<StatefulTeam>> teams;
 
-	for(auto t : mSelectedTeams) {
+	for(auto t : t1) {
 		teams.push_back(boost::shared_ptr<StatefulTeam>(new StatefulTeam(*t.first,
-						TeamController(t.second == TeamSelection::Human,
-							0), AITactics::createTeamTactics(*t.first))));
+						TeamController(t.second == TeamSelection::Human, 0),
+						AITactics::createTeamTactics(*t.first))));
 	}
 
 	return teams;
+}
+
+std::vector<boost::shared_ptr<StatefulTeam>> TeamBrowser::createStatefulTeams() const
+{
+	return createStatefulTeams(mSelectedTeams);
 }
 
 

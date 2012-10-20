@@ -29,6 +29,12 @@ class TeamBrowser : public Screen {
 		TeamBrowser(boost::shared_ptr<ScreenManager> sm);
 		void buttonPressed(boost::shared_ptr<Button> button);
 
+		static boost::shared_ptr<Button> createSelectionButton(Screen& scr, const char* text, int i, int maxnum);
+		static void toggleTeamOwnership(boost::shared_ptr<Team> p,
+				std::map<boost::shared_ptr<Team>, TeamSelection>& teams);
+		static std::vector<boost::shared_ptr<StatefulTeam>> createStatefulTeams(const std::map<boost::shared_ptr<Team>, TeamSelection>& t1);
+		static void setTeamButtonColor(boost::shared_ptr<Button> button, TeamSelection ts);
+
 	protected:
 		virtual bool enteringContinent(boost::shared_ptr<Continent> p);
 		virtual bool enteringCountry(boost::shared_ptr<LeagueSystem> p);
@@ -36,12 +42,13 @@ class TeamBrowser : public Screen {
 		virtual bool clickingOnTeam(boost::shared_ptr<Team> p);
 		virtual bool canClickDone() = 0;
 		virtual void clickedDone() = 0;
-		std::map<boost::shared_ptr<Team>, TeamSelection> mSelectedTeams;
 		TeamBrowserLevel getCurrentLevel() const;
 		void setCurrentLevel(TeamBrowserLevel t);
 		void toggleTeamOwnership(boost::shared_ptr<Team> p);
 		std::vector<boost::shared_ptr<StatefulTeam>> createStatefulTeams() const;
 		void addTeamButtons(const std::vector<boost::shared_ptr<Team>>& teams);
+
+		std::map<boost::shared_ptr<Team>, TeamSelection> mSelectedTeams;
 
 	private:
 		void clearCurrentButtons();
