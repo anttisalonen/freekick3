@@ -101,11 +101,7 @@ void CompetitionScreen::drawInfo()
 
 void CompetitionScreen::updateRoundMatches()
 {
-	const Round* r = mCompetition->getCurrentRound();
-	if(r) {
-		mRoundMatches.clear();
-		mRoundMatches = r->getMatches();
-	}
+	mRoundMatches = mCompetition->getCurrentRoundMatches();
 	if(mNextRoundButton)
 		mNextRoundButton->hide();
 	mSkipButton->show();
@@ -167,7 +163,7 @@ void CompetitionScreen::updateNextRoundButton()
 	mSkipButton->hide();
 	mResultButton->hide();
 	mMatchButton->hide();
-	if(mNextRoundButton && mCompetition->getCurrentRound())
+	if(mNextRoundButton && !mCompetition->getCurrentRoundMatches().empty())
 		mNextRoundButton->show();
 }
 

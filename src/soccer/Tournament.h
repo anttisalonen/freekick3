@@ -113,12 +113,12 @@ class StatefulTournamentStage : public StatefulCompetition {
 		virtual const boost::shared_ptr<Match> getNextMatch() const override;
 		virtual void matchPlayed(const MatchResult& res) override;
 		virtual CompetitionType getType() const override;
-		virtual const Round* getCurrentRound() const override;
 		virtual unsigned int getNumberOfTeams() const override;
 		virtual std::vector<boost::shared_ptr<StatefulTeam>> getTeamsByPosition() const override;
 		const boost::shared_ptr<StatefulCompetition> getCurrentTournamentGroup() const;
 		boost::shared_ptr<StatefulCompetition> getCurrentTournamentGroup();
 		const std::vector<boost::shared_ptr<StatefulCompetition>>& getGroups() const;
+		virtual std::vector<boost::shared_ptr<Match>> getCurrentRoundMatches() const override;
 
 	private:
 		std::vector<boost::shared_ptr<StatefulCompetition>> mTournamentGroups;
@@ -142,10 +142,10 @@ class StatefulTournament : public StatefulCompetition {
 		virtual const boost::shared_ptr<Match> getNextMatch() const override;
 		virtual void matchPlayed(const MatchResult& res) override;
 		virtual CompetitionType getType() const override;
-		virtual const Round* getCurrentRound() const override;
 		virtual std::vector<boost::shared_ptr<StatefulTeam>> getTeamsByPosition() const override;
 		const boost::shared_ptr<StatefulTournamentStage> getCurrentStage() const;
 		boost::shared_ptr<StatefulTournamentStage> getCurrentStage();
+		virtual std::vector<boost::shared_ptr<Match>> getCurrentRoundMatches() const override;
 
 		void addGroupStage(const GroupStage& r);
 		void addKnockoutStage(const KnockoutStage& r);

@@ -87,13 +87,6 @@ boost::shared_ptr<StatefulCompetition> StatefulTournamentStage::getCurrentTourna
 	}
 }
 
-const Round* StatefulTournamentStage::getCurrentRound() const
-{
-	auto tr = getCurrentTournamentGroup();
-	assert(tr);
-	return tr->getCurrentRound();
-}
-
 const boost::shared_ptr<Match> StatefulTournamentStage::getNextMatch() const
 {
 	auto tr = getCurrentTournamentGroup();
@@ -105,10 +98,17 @@ void StatefulTournamentStage::matchPlayed(const MatchResult& res)
 {
 	auto tr = getCurrentTournamentGroup();
 	assert(tr);
+
+	auto roundbefore = tr->getNextMatchRoundNumber();
+
 	tr->matchPlayed(res);
-	mCurrentGroupIndex++;
-	if(mCurrentGroupIndex >= mTournamentGroups.size())
-		mCurrentGroupIndex = 0;
+
+	auto roundafter = tr->getNextMatchRoundNumber();
+	if(roundbefore != roundafter || !tr->getNextMatch()) {
+		mCurrentGroupIndex++;
+		if(mCurrentGroupIndex >= mTournamentGroups.size())
+			mCurrentGroupIndex = 0;
+	}
 }
 
 CompetitionType StatefulTournamentStage::getType() const
@@ -157,6 +157,16 @@ const std::vector<boost::shared_ptr<StatefulCompetition>>& StatefulTournamentSta
 	return mTournamentGroups;
 }
 
+std::vector<boost::shared_ptr<Match>> StatefulTournamentStage::getCurrentRoundMatches() const
+{
+	std::vector<boost::shared_ptr<Match>> ret;
+	for(auto t : mTournamentGroups) {
+		auto m = t->getCurrentRoundMatches();
+		ret.insert(ret.end(), m.begin(), m.end());
+	}
+	return ret;
+}
+
 
 StatefulTournament::StatefulTournament(const TournamentConfig& tc, std::vector<boost::shared_ptr<StatefulTeam>>& teams)
 	: mTeams(teams),
@@ -199,13 +209,6 @@ void StatefulTournament::addKnockoutStage(const KnockoutStage& r)
 	boost::shared_ptr<StatefulCup> cup(new StatefulCup(mTeams, true));
 	mTournamentStages.push_back(boost::shared_ptr<StatefulTournamentStage>(new StatefulTournamentStage({boost::shared_ptr<StatefulCompetition>(cup)})));
 	mTeams.clear();
-}
-
-const Round* StatefulTournament::getCurrentRound() const
-{
-	auto tr = getCurrentStage();
-	assert(tr);
-	return tr->getCurrentRound();
 }
 
 const boost::shared_ptr<Match> StatefulTournament::getNextMatch() const
@@ -263,6 +266,13 @@ boost::shared_ptr<StatefulTournamentStage> StatefulTournament::getCurrentStage()
 	} else {
 		return mTournamentStages.back();
 	}
+}
+
+std::vector<boost::shared_ptr<Match>> StatefulTournament::getCurrentRoundMatches() const
+{
+	auto tr = getCurrentStage();
+	assert(tr);
+	return tr->getCurrentRoundMatches();
 }
 
 StatefulTournament::StatefulTournament()

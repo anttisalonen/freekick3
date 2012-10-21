@@ -43,9 +43,19 @@ const boost::shared_ptr<Match> StatefulCompetition::getNextMatch() const
 	return mNextMatch;
 }
 
-const Round* StatefulCompetition::getCurrentRound() const
+std::vector<boost::shared_ptr<Match>> StatefulCompetition::getCurrentRoundMatches() const
 {
-	return mSchedule.getRound(mThisRound);
+	auto r = mSchedule.getRound(mThisRound);
+	if(r) {
+		return r->getMatches();
+	} else {
+		return std::vector<boost::shared_ptr<Match>>();
+	}
+}
+
+int StatefulCompetition::getNextMatchRoundNumber() const
+{
+	return mThisRound;
 }
 
 }

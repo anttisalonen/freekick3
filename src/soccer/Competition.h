@@ -114,11 +114,12 @@ class StatefulCompetition {
 		 * To add matches the callback should use mSchedule.addRound(). */
 		virtual void matchPlayed(const MatchResult& res) { assert(0); }
 		virtual CompetitionType getType() const { assert(0); return CompetitionType::League; }
-		virtual const Round* getCurrentRound() const;
 		virtual unsigned int getNumberOfTeams() const { assert(0); return 0; }
 		virtual std::vector<boost::shared_ptr<StatefulTeam>> getTeamsByPosition() const {
 			assert(0); return std::vector<boost::shared_ptr<StatefulTeam>>();
 		}
+		virtual std::vector<boost::shared_ptr<Match>> getCurrentRoundMatches() const;
+		int getNextMatchRoundNumber() const;
 
 	protected:
 		void setNextMatch();
