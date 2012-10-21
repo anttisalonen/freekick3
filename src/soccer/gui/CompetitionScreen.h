@@ -21,9 +21,12 @@ class CompetitionScreen : public Screen {
 		virtual ~CompetitionScreen() { }
 		virtual void buttonPressed(boost::shared_ptr<Button> button) override;
 		virtual const std::string& getName() const override;
-		virtual void drawTable() { }
+		virtual bool drawTable() { return false; }
 
-		static void addMatchLabels(const Match& m, float xp, float yp, float fontsize,
+		static void addResultLabels(int a, int b, float xp, float yp,
+				float fontsize, Screen& scr, std::vector<boost::shared_ptr<Button>>& labels,
+				const char* suffix = NULL);
+		static float addMatchLabels(const Match& m, float xp, float yp, float fontsize,
 				Screen& scr,
 				std::vector<boost::shared_ptr<Button>>& labels);
 
@@ -37,11 +40,11 @@ class CompetitionScreen : public Screen {
 			Result,
 		};
 
-		void drawInfo();
+		void drawInfo(bool drewtable);
 		bool allRoundMatchesPlayed() const;
 		void updateRoundMatches();
 		bool playNextMatch(bool display);
-		void addMatchLabels(const Match& m, float xp, float yp);
+		float addMatchLabels(const Match& m, float xp, float yp);
 		bool shouldShowSkipButton() const;
 		void saveCompetition() const;
 		void updateNextRoundButton();

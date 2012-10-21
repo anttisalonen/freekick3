@@ -11,20 +11,112 @@
 namespace Soccer {
 
 MatchRules::MatchRules()
-	: ExtraTimeOnTie(false),
-	PenaltiesOnTie(false)
 {
 }
 
-bool MatchResult::homeWon() const
+void CupEntry::addMatchResult(const MatchResult& m)
 {
-	return Played && (HomeGoals > AwayGoals || HomePenalties > AwayPenalties);
+	assert(m.Played);
+	mMatchResults.push_back(m);
 }
 
-bool MatchResult::awayWon() const
+unsigned int CupEntry::numMatchesPlayed() const
 {
-	return Played && (HomeGoals < AwayGoals || HomePenalties < AwayPenalties);
+	return mMatchResults.size();
 }
+
+bool CupEntry::firstWon() const
+{
+	if(numMatchesPlayed() == 0) {
+		return false;
+	} else {
+		auto agg = aggregate();
+		auto pen = penalties();
+		if(agg.first > agg.second || pen.first > pen.second) {
+			return true;
+		} else if(agg.second > agg.first || pen.second > pen.first) {
+			return false;
+		} else {
+			if(numMatchesPlayed() > 1) {
+				assert((agg.first == agg.second) && (pen.first == 0) && (pen.second == 0));
+				// away goals rule
+				return firstWinsByAwayGoals();
+			} else {
+				return false;
+			}
+		}
+	}
+}
+
+bool CupEntry::firstWinsByAwayGoals() const
+{
+	std::pair<int, int> awaygoals;
+	awaygoals.first = awaygoals.second = 0;
+
+	unsigned int i = 0;
+	for(auto& m : mMatchResults) {
+		bool firstPlaysAway = (i & 1) == 1;
+		assert(m.Played);
+		if(firstPlaysAway) {
+			awaygoals.first  += m.AwayGoals;
+		} else {
+			awaygoals.second += m.AwayGoals;
+		}
+		i++;
+	}
+
+	assert(awaygoals.first != awaygoals.second);
+	return awaygoals.first > awaygoals.second;
+}
+
+std::pair<int, int> CupEntry::aggregate() const
+{
+	std::pair<int, int> res;
+	res.first = res.second = 0;
+
+	unsigned int i = 0;
+	for(auto& m : mMatchResults) {
+		bool swapHomeAway = (i & 1) == 1;
+		if(m.Played) {
+			if(!swapHomeAway) {
+				res.first += m.HomeGoals;
+				res.second += m.AwayGoals;
+			} else {
+				res.first += m.AwayGoals;
+				res.second += m.HomeGoals;
+			}
+		}
+
+		i++;
+	}
+
+	return res;
+}
+
+std::pair<int, int> CupEntry::penalties() const
+{
+	std::pair<int, int> res;
+	res.first = res.second = 0;
+
+	if(mMatchResults.empty())
+		return res;
+
+	bool swapHomeAway = (mMatchResults.size() & 1) == 0;
+	auto& m = mMatchResults.back();
+	if(!m.Played)
+		return res;
+
+	if(!swapHomeAway) {
+		res.first += m.HomePenalties;
+		res.second += m.AwayPenalties;
+	} else {
+		res.first += m.AwayPenalties;
+		res.second += m.HomePenalties;
+	}
+
+	return res;
+}
+
 
 Match::Match(const boost::shared_ptr<StatefulTeam> t1, const boost::shared_ptr<StatefulTeam> t2,
 		const MatchRules& r)
@@ -191,13 +283,24 @@ MatchResult SimulationStrength::simulateAgainst(const SimulationStrength& t2, co
 		simulateStep(t2, homegoals, awaygoals, tries);
 	}
 
-	if(homegoals == awaygoals && r.ExtraTimeOnTie) {
+	bool tie;
+	if(!r.AwayGoals)
+		tie = homegoals == awaygoals;
+	else
+		tie = homegoals == r.AwayAggregate && awaygoals == r.HomeAggregate;
+
+	if(tie && r.ExtraTimeOnTie) {
 		for(int i = 0; i < 3; i++) {
 			simulateStep(t2, homegoals, awaygoals, tries);
 		}
 	}
 
-	if(homegoals == awaygoals && r.PenaltiesOnTie) {
+	if(!r.AwayGoals)
+		tie = homegoals == awaygoals;
+	else
+		tie = homegoals == r.AwayAggregate && awaygoals == r.HomeAggregate;
+
+	if(tie && r.PenaltiesOnTie) {
 		int homepen = rand() % 3 + 3;
 		int awaypen = rand() % 3 + 3;
 		if(homepen == awaypen) {
@@ -322,6 +425,10 @@ const MatchResult& Match::getResult() const
 void Match::setResult(const MatchResult& m)
 {
 	mResult = m;
+	if(m.Played) {
+		if(mCupEntry.numMatchesPlayed() == 0)
+			mCupEntry.addMatchResult(m);
+	}
 }
 
 const boost::shared_ptr<StatefulTeam> Match::getTeam(int i) const
@@ -337,8 +444,24 @@ const MatchRules& Match::getRules() const
 	return mRules;
 }
 
+MatchRules& Match::getRules()
+{
+	return mRules;
+}
+
+void Match::setCupEntry(const CupEntry& c)
+{
+	mCupEntry = c;
+}
+
+const CupEntry& Match::getCupEntry() const
+{
+	return mCupEntry;
+}
+
+
 Match::Match()
-	: mRules(false, false)
+	: mRules(false, false, false)
 {
 }
 
@@ -357,15 +480,15 @@ RunningMatch::RunningMatch(const Match& m)
 		teamnum = 2;
 		plnum = m.getTeam(1)->getController().PlayerShirtNumber;
 	}
-	startMatch(teamnum, plnum, m.getRules().ExtraTimeOnTie, m.getRules().PenaltiesOnTie);
+	startMatch(teamnum, plnum, m.getRules());
 }
 
-void RunningMatch::startMatch(int teamnum, int playernum, bool et, bool penalties)
+void RunningMatch::startMatch(int teamnum, int playernum, const MatchRules& rules)
 {
 	pid_t fret = fork();
 	if(fret == 0) {
 		/* child */
-		std::vector<const char*> args;
+		std::vector<std::string> args;
 		args.push_back("freekick3-match");
 		args.push_back(matchfilenamebuf);
 		if(teamnum == 0) {
@@ -379,11 +502,16 @@ void RunningMatch::startMatch(int teamnum, int playernum, bool et, bool penaltie
 				args.push_back(std::to_string(playernum).c_str());
 			}
 		}
-		if(et) {
+		if(rules.ExtraTimeOnTie) {
 			args.push_back("-E");
 		}
-		if(penalties) {
+		if(rules.PenaltiesOnTie) {
 			args.push_back("-P");
+		}
+		if(rules.AwayGoals) {
+			args.push_back("-A");
+			args.push_back(std::to_string(rules.HomeAggregate).c_str());
+			args.push_back(std::to_string(rules.AwayAggregate).c_str());
 		}
 
 		std::cout << "Running command: ";
@@ -392,9 +520,12 @@ void RunningMatch::startMatch(int teamnum, int playernum, bool et, bool penaltie
 		}
 		std::cout << "\n";
 
-		args.push_back((char*)0);
+		char **argsarray = new char*[args.size() + 1];
 
-		char* const* argsarray = const_cast<char* const*>(&args[0]);
+		for(unsigned int i = 0; i < args.size(); i++) {
+			argsarray[i] = const_cast<char*>(args[i].c_str());
+		}
+		argsarray[args.size()] = (char*)0;
 
 		if(execvp("freekick3-match", argsarray) == -1) {
 			/* try bin/freekick3-match */
@@ -413,6 +544,7 @@ void RunningMatch::startMatch(int teamnum, int playernum, bool et, bool penaltie
 				}
 			}
 		}
+		delete[] argsarray;
 	}
 	else if(fret != -1) {
 		/* parent */

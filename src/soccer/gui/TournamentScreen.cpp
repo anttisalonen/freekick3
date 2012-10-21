@@ -43,8 +43,9 @@ void TournamentScreen::setScrollPositionToActiveGroup()
 		mScrollPosition = mActiveScrollPosition;
 }
 
-void TournamentScreen::drawTable()
+bool TournamentScreen::drawTable()
 {
+	bool ret = false;
 	for(auto lbl : mTableLabels) {
 		removeButton(lbl);
 	}
@@ -75,6 +76,7 @@ void TournamentScreen::drawTable()
 					mScrollDownButton->show();
 				} else {
 					LeagueScreen::drawTable(*this, mTableLabels, *l, 0.05f, 0.09f + totalnumrows * 0.03f);
+					ret = true;
 				}
 				totalnumrows += numteams + 2;
 			}
@@ -84,6 +86,8 @@ void TournamentScreen::drawTable()
 		mScrollUpButton->hide();
 		mScrollDownButton->hide();
 	}
+
+	return ret;
 }
 
 }

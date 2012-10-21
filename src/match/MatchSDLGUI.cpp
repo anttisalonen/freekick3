@@ -196,7 +196,13 @@ void MatchSDLGUI::drawTexts()
 	if(penaltyshootout) {
 		result << " (" << mMatch->getPenaltyShootout().getScore(true) <<
 			" - " << mMatch->getPenaltyShootout().getScore(false) << ")";
+	} else {
+		if(mMatch->getAwayGoals()) {
+			result << " (" << mMatch->getAggregateScore(true) <<
+				" - " << mMatch->getAggregateScore(false) << ")";
+		}
 	}
+
 	drawText(90, screenHeight - 30, FontConfig(result.str().c_str(), Color(255, 255, 255), 1.5f), true, false);
 
 	if(mMatch->getMatchHalf() != MatchHalf::Finished && mMatch->getMatchHalf() != MatchHalf::PenaltyShootout) {

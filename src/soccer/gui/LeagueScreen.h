@@ -16,7 +16,7 @@ class LeagueScreen : public CompetitionScreen {
 	public:
 		LeagueScreen(boost::shared_ptr<ScreenManager> sm, boost::shared_ptr<StatefulLeague> l,
 				bool onlyOneRound = false);
-		virtual void drawTable() override;
+		virtual bool drawTable() override;
 		static void drawTable(Screen& scr, std::vector<boost::shared_ptr<Button>>& labels, const StatefulLeague& l, float x, float y);
 		static void addTableText(Screen& scr, const char* text, float x, float y,
 				TextAlignment align, Common::Color col,

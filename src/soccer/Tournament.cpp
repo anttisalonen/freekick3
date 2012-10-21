@@ -16,6 +16,11 @@ GroupStage::GroupStage(unsigned int numGroups, unsigned int numTeams, unsigned i
 {
 }
 
+unsigned int GroupStage::getNumberOfGroups() const
+{
+	return mNumGroups;
+}
+
 void GroupStage::addStage(StatefulTournament& t)
 {
 	t.addGroupStage(*this);
@@ -29,6 +34,11 @@ unsigned int GroupStage::getTotalTeams() const
 unsigned int GroupStage::getContinuingTeams() const
 {
 	return mNumWinners;
+}
+
+unsigned int GroupStage::getNumberOfLegs() const
+{
+	return mLegs;
 }
 
 KnockoutStage::KnockoutStage(unsigned int legs, bool awaygoals, unsigned int continuingteams)
@@ -51,6 +61,16 @@ unsigned int KnockoutStage::getTotalTeams() const
 unsigned int KnockoutStage::getContinuingTeams() const
 {
 	return mContinuingTeams;
+}
+
+unsigned int KnockoutStage::getNumberOfLegs() const
+{
+	return mLegs;
+}
+
+bool KnockoutStage::getAwayGoals() const
+{
+	return mAwayGoals;
 }
 
 TournamentConfig::TournamentConfig()
@@ -180,7 +200,7 @@ StatefulTournament::StatefulTournament(const TournamentConfig& tc, std::vector<b
 
 void StatefulTournament::addGroupStage(const GroupStage& r)
 {
-	assert(r.mNumGroups);
+	assert(r.getNumberOfGroups());
 	std::vector<std::vector<boost::shared_ptr<StatefulTeam>>> groups;
 
 	unsigned int g = 0;
@@ -189,14 +209,14 @@ void StatefulTournament::addGroupStage(const GroupStage& r)
 			groups.push_back(std::vector<boost::shared_ptr<StatefulTeam>>());
 		groups[g].push_back(t);
 		g++;
-		if(g >= r.mNumGroups)
+		if(g >= r.getNumberOfGroups())
 			g = 0;
 	}
 	mTeams.clear();
 	std::vector<boost::shared_ptr<StatefulCompetition>> competitions;
 
 	for(auto& gr : groups) {
-		boost::shared_ptr<StatefulLeague> league(new StatefulLeague(gr));
+		boost::shared_ptr<StatefulLeague> league(new StatefulLeague(gr, r.getNumberOfLegs()));
 		competitions.push_back(league);
 	}
 	mTournamentStages.push_back(boost::shared_ptr<StatefulTournamentStage>(new StatefulTournamentStage(competitions)));
@@ -206,7 +226,7 @@ void StatefulTournament::addKnockoutStage(const KnockoutStage& r)
 {
 	/* TODO: handle legs and away goals */
 	assert(mTeams.size() == r.getTotalTeams());
-	boost::shared_ptr<StatefulCup> cup(new StatefulCup(mTeams, true));
+	boost::shared_ptr<StatefulCup> cup(new StatefulCup(mTeams, true, r.getNumberOfLegs(), r.getAwayGoals()));
 	mTournamentStages.push_back(boost::shared_ptr<StatefulTournamentStage>(new StatefulTournamentStage({boost::shared_ptr<StatefulCompetition>(cup)})));
 	mTeams.clear();
 }

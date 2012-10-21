@@ -9,7 +9,8 @@
 
 #define TACKLE_DISTANCE 1.0f
 
-Match::Match(const Soccer::Match& m, double matchtime, bool extratime, bool penalties)
+Match::Match(const Soccer::Match& m, double matchtime, bool extratime, bool penalties,
+				bool awaygoals, int homeagg, int awayagg)
 	: Soccer::Match(m),
 	mTime(0),
 	mTimeAccelerationConstant(90.0f / matchtime),
@@ -18,7 +19,10 @@ Match::Match(const Soccer::Match& m, double matchtime, bool extratime, bool pena
 	mPitch(Pitch(68.0f, 105.0f)),
 	mGoalScorer(nullptr),
 	mExtraTime(extratime),
-	mPenalties(penalties)
+	mPenalties(penalties),
+	mAwayGoals(awaygoals),
+	mHomeAgg(homeagg),
+	mAwayAgg(awayagg)
 {
 	static const unsigned int numPlayers = 11;
 	assert(matchtime);
@@ -384,7 +388,9 @@ void Match::updateTime(double time)
 					setMatchHalf(MatchHalf::HalfTimePauseBegin);
 				} else {
 					// Second half is finished
-					if((mScore[0] == mScore[1]) && (mExtraTime || mPenalties)) {
+					bool tie = mAwayGoals ? mScore[0] == mAwayAgg && mScore[1] == mHomeAgg :
+						mScore[0] == mScore[1];
+					if((tie) && (mExtraTime || mPenalties)) {
 						if(mExtraTime) {
 							setMatchHalf(MatchHalf::FullTimePauseBegin);
 						} else {
@@ -402,7 +408,9 @@ void Match::updateTime(double time)
 				if(mMatchHalf == MatchHalf::ExtraTimeFirstHalf) {
 					setMatchHalf(MatchHalf::ExtraTimeSecondHalf);
 				} else {
-					if((mScore[0] == mScore[1]) && mPenalties) {
+					bool tie = mAwayGoals ? mScore[0] == mAwayAgg && mScore[1] == mHomeAgg :
+						mScore[0] == mScore[1];
+					if(tie && mPenalties) {
 						setMatchHalf(MatchHalf::PenaltyShootout);
 					} else {
 						setMatchHalf(MatchHalf::Finished);
@@ -444,6 +452,16 @@ const PenaltyShootout& Match::getPenaltyShootout() const
 void Match::addPenaltyShootoutShot(bool goal)
 {
 	mPenaltyShootout.addShot(goal);
+}
+
+bool Match::getAwayGoals() const
+{
+	return mAwayGoals;
+}
+
+int Match::getAggregateScore(bool first) const
+{
+	return first ? mHomeAgg + mScore[0] : mAwayAgg + mScore[1];
 }
 
 

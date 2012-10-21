@@ -39,14 +39,14 @@ class GroupStage : public TournamentStage {
 		void addStage(StatefulTournament& t) override;
 		unsigned int getTotalTeams() const override;
 		unsigned int getContinuingTeams() const override;
+		unsigned int getNumberOfLegs() const;
+		unsigned int getNumberOfGroups() const;
 
 	private:
 		unsigned int mNumGroups;
 		unsigned int mNumTeams;
 		unsigned int mNumWinners;
 		unsigned int mLegs;
-
-		friend class StatefulTournament;
 
 		friend class boost::serialization::access;
 		GroupStage() { } // serialization
@@ -68,13 +68,13 @@ class KnockoutStage : public TournamentStage {
 		void addStage(StatefulTournament& t) override;
 		unsigned int getTotalTeams() const override;
 		unsigned int getContinuingTeams() const override;
+		unsigned int getNumberOfLegs() const;
+		bool getAwayGoals() const;
 
 	private:
 		unsigned int mContinuingTeams;
 		unsigned int mLegs;
 		bool mAwayGoals;
-
-		friend class StatefulTournament;
 
 		friend class boost::serialization::access;
 		KnockoutStage() { } // serialization

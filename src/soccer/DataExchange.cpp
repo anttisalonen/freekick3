@@ -262,16 +262,29 @@ boost::shared_ptr<Match> DataExchange::parseMatchDataFile(const char* fn)
 	if(!matchruleselem)
 		throw std::runtime_error(ss.str());
 
-	int et, pen;
+	int et, pen, awaygoals;
+	int homeagg = 0, awayagg = 0;
+
 	if(matchruleselem->QueryIntAttribute("et", &et) != TIXML_SUCCESS)
 		throw std::runtime_error(ss.str());
 
 	if(matchruleselem->QueryIntAttribute("pen", &pen) != TIXML_SUCCESS)
 		throw std::runtime_error(ss.str());
 
+	if(matchruleselem->QueryIntAttribute("awaygoals", &awaygoals) != TIXML_SUCCESS)
+		throw std::runtime_error(ss.str());
+
+	if(awaygoals) {
+		if(matchruleselem->QueryIntAttribute("homeaggregate", &homeagg) != TIXML_SUCCESS)
+			throw std::runtime_error(ss.str());
+
+		if(matchruleselem->QueryIntAttribute("awayaggregate", &awayagg) != TIXML_SUCCESS)
+			throw std::runtime_error(ss.str());
+	}
+
 	boost::shared_ptr<Match> m(new Match(boost::shared_ptr<StatefulTeam>(new StatefulTeam(*teams[0], tcs[0], tt[0])),
 				boost::shared_ptr<StatefulTeam>(new StatefulTeam(*teams[1], tcs[1], tt[1])),
-				MatchRules(et, pen)));
+				MatchRules(et, pen, awaygoals, homeagg, awayagg)));
 	m->setResult(mres);
 	return m;
 }
@@ -457,6 +470,11 @@ void DataExchange::createMatchDataFile(const Match& m, const char* fn)
 		TiXmlElement* ruleselem = new TiXmlElement("MatchRules");
 		ruleselem->SetAttribute("et", m.getRules().ExtraTimeOnTie ? "1" : "0");
 		ruleselem->SetAttribute("pen", m.getRules().PenaltiesOnTie ? "1" : "0");
+		ruleselem->SetAttribute("awaygoals", m.getRules().AwayGoals ? "1" : "0");
+		if(m.getRules().AwayGoals) {
+			ruleselem->SetAttribute("homeaggregate", m.getRules().HomeAggregate);
+			ruleselem->SetAttribute("awayaggregate", m.getRules().AwayAggregate);
+		}
 		matchelem->LinkEndChild(ruleselem);
 	}
 

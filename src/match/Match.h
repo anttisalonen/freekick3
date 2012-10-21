@@ -78,7 +78,8 @@ class PenaltyShootout {
 
 class Match : public Soccer::Match {
 	public:
-		Match(const Soccer::Match& m, double matchtime, bool extratime, bool penalties);
+		Match(const Soccer::Match& m, double matchtime, bool extratime, bool penalties,
+				bool awaygoals, int homeagg, int awayagg);
 		Team* getTeam(unsigned int team);
 		const Team* getTeam(unsigned int team) const;
 		const Player* getPlayer(unsigned int team, unsigned int idx) const;
@@ -108,6 +109,8 @@ class Match : public Soccer::Match {
 		const std::array<std::vector<GoalInfo>, 2>& getGoalInfos() const;
 		const PenaltyShootout& getPenaltyShootout() const;
 		void addPenaltyShootoutShot(bool goal);
+		bool getAwayGoals() const;
+		int getAggregateScore(bool first) const;
 
 	private:
 		void applyPlayerAction(PlayerAction* a,
@@ -129,6 +132,9 @@ class Match : public Soccer::Match {
 		bool mExtraTime;
 		bool mPenalties;
 		PenaltyShootout mPenaltyShootout;
+		bool mAwayGoals;
+		int mHomeAgg;
+		int mAwayAgg;
 };
 
 #endif

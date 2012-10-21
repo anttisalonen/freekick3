@@ -10,7 +10,7 @@
 
 void usage(const char* p)
 {
-	printf("Usage: %s <path to match data file> [-o] [-t team] [-p player] [-f FPS [-s seed]] [-d] [-m sec] [-x] [-E] [-P]\n\n"
+	printf("Usage: %s <path to match data file> [-o] [-t team] [-p player] [-f FPS [-s seed]] [-d] [-m sec] [-x] [-E] [-P] [-A h a]\n\n"
 			"\t-o\tobserver mode\n"
 			"\t-t team\tteam number (1 or 2)\n"
 			"\t-p num\tplayer number (1-11)\n"
@@ -21,6 +21,7 @@ void usage(const char* p)
 			"\t-s seed\tmake fixed frame rate non-deterministic with seed (-1: use time)\n"
 			"\t-E\textra time on tie\n"
 			"\t-P\tpenalties on tie\n"
+			"\t-A h a\tapply away goals rule - h-a is the aggregate result before this match\n"
 			"\n",
 			p);
 }
@@ -43,7 +44,10 @@ int main(int argc, char** argv)
 	int seed = 0;
 	bool extratime = false;
 	bool penalties = false;
+	bool awaygoals = false;
 	bool onlypenalties = false;
+	int hg = 0;
+	int ag = 0;
 
 	for(int i = 2; i < argc; i++) {
 		if(!strcmp(argv[i], "-o")) {
@@ -99,6 +103,12 @@ int main(int argc, char** argv)
 			extratime = true;
 		} else if(!strcmp(argv[i], "-P")) {
 			penalties = true;
+		} else if(!strcmp(argv[i], "-A")) {
+			awaygoals = true;
+			if(++i >= argc) { printf("-A requires two numeric arguments.\n"); exit(1); }
+			hg = atoi(argv[i]);
+			if(++i >= argc) { printf("-A requires two numeric arguments.\n"); exit(1); }
+			ag = atoi(argv[i]);
 		} else if(!strcmp(argv[i], "-h") || !strcmp(argv[i], "--help")) {
 			usage(argv[0]);
 			exit(0);
@@ -112,7 +122,7 @@ int main(int argc, char** argv)
 
 	try {
 		boost::shared_ptr<Soccer::Match> matchdata = Soccer::DataExchange::parseMatchDataFile(argv[1]);
-		boost::shared_ptr<Match> match(new Match(*matchdata, seconds, extratime, penalties));
+		boost::shared_ptr<Match> match(new Match(*matchdata, seconds, extratime, penalties, awaygoals, hg, ag));
 		if(onlypenalties)
 			match->setMatchHalf(MatchHalf::PenaltyShootout);
 		boost::shared_ptr<MatchGUI> gui;
@@ -130,6 +140,14 @@ int main(int argc, char** argv)
 			// finished match
 			printf("Final score: %d - %d\n", match->getResult().HomeGoals,
 					match->getResult().AwayGoals);
+			if(match->getResult().HomePenalties || match->getResult().AwayPenalties) {
+				printf("Penalties: %d - %d\n", match->getResult().HomePenalties,
+						match->getResult().AwayPenalties);
+			}
+			if(awaygoals) {
+				printf("Aggregate: %d - %d\n", match->getResult().HomeGoals + hg,
+						match->getResult().AwayGoals + ag);
+			}
 			Soccer::DataExchange::createMatchDataFile(*match, argv[1]);
 		}
 	}

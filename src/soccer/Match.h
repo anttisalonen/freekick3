@@ -10,11 +10,20 @@
 
 namespace Soccer {
 
-struct MatchRules {
-	MatchRules(bool et, bool pen) : ExtraTimeOnTie(et),
-		PenaltiesOnTie(pen) { }
-	const bool ExtraTimeOnTie;
-	const bool PenaltiesOnTie;
+class MatchRules {
+	public:
+		MatchRules(bool et, bool pen, bool ag, unsigned int hga = 0, unsigned int aga = 0)
+			: ExtraTimeOnTie(et),
+			PenaltiesOnTie(pen),
+			AwayGoals(ag),
+			HomeAggregate(hga),
+			AwayAggregate(aga)
+	{ }
+		const bool ExtraTimeOnTie = false;
+		const bool PenaltiesOnTie = false;
+		const bool AwayGoals = false;
+		unsigned int HomeAggregate = 0;
+		unsigned int AwayAggregate = 0;
 
 	private:
 		friend class boost::serialization::access;
@@ -24,21 +33,23 @@ struct MatchRules {
 		{
 			ar & const_cast<bool&>(ExtraTimeOnTie);
 			ar & const_cast<bool&>(PenaltiesOnTie);
+			ar & const_cast<bool&>(AwayGoals);
+			ar & HomeAggregate;
+			ar & AwayAggregate;
 		}
 };
 
 struct MatchResult {
-	MatchResult() : HomeGoals(0), AwayGoals(0),
-		HomePenalties(0), AwayPenalties(0), Played(false) { }
-	MatchResult(int h, int a, int hp = 0, int ap = 0) : HomeGoals(h), AwayGoals(a),
-		HomePenalties(hp), AwayPenalties(ap), Played(true) { }
-	bool homeWon() const;
-	bool awayWon() const;
+	MatchResult() : Played(false) { }
+	MatchResult(int h, int a, int hp = 0, int ap = 0) :
+		HomeGoals(h), AwayGoals(a),
+		HomePenalties(hp), AwayPenalties(ap),
+		Played(true) { }
 
-	int HomeGoals;
-	int AwayGoals;
-	int HomePenalties;
-	int AwayPenalties;
+	int HomeGoals = 0;
+	int AwayGoals = 0;
+	int HomePenalties = 0;
+	int AwayPenalties = 0;
 	bool Played;
 
 	friend class boost::serialization::access;
@@ -50,6 +61,27 @@ struct MatchResult {
 			ar & HomePenalties;
 			ar & AwayPenalties;
 			ar & Played;
+		}
+};
+
+class CupEntry {
+	public:
+		void addMatchResult(const MatchResult& m);
+		unsigned int numMatchesPlayed() const;
+		bool firstWon() const;
+		std::pair<int, int> aggregate() const;
+		std::pair<int, int> penalties() const;
+
+	private:
+		bool firstWinsByAwayGoals() const;
+
+		std::vector<MatchResult> mMatchResults;
+
+		friend class boost::serialization::access;
+		template<class Archive>
+		void serialize(Archive& ar, const unsigned int version)
+		{
+			ar & mMatchResults;
 		}
 };
 
@@ -83,8 +115,9 @@ class RunningMatch {
 	public:
 		RunningMatch(const Match& m);
 		bool matchFinished(MatchResult* r);
+
 	private:
-		void startMatch(int teamnum, int playernum, bool et, bool penalties);
+		void startMatch(int teamnum, int playernum, const MatchRules& rules);
 		pid_t mChildPid;
 		char matchfilenamebuf[L_tmpnam];
 };
@@ -99,6 +132,9 @@ class Match {
 		void setResult(const MatchResult& m);
 		const boost::shared_ptr<StatefulTeam> getTeam(int i) const;
 		const MatchRules& getRules() const;
+		MatchRules& getRules();
+		void setCupEntry(const CupEntry& c);
+		const CupEntry& getCupEntry() const;
 
 	private:
 		MatchResult simulateMatchResult() const;
@@ -107,6 +143,7 @@ class Match {
 		const boost::shared_ptr<StatefulTeam> mTeam2;
 		MatchRules mRules;
 		MatchResult mResult;
+		CupEntry mCupEntry;
 
 		friend class boost::serialization::access;
 		Match();
@@ -117,6 +154,7 @@ class Match {
 			ar & const_cast<boost::shared_ptr<StatefulTeam>&>(mTeam2);
 			ar & mRules;
 			ar & mResult;
+			ar & mCupEntry;
 		}
 };
 

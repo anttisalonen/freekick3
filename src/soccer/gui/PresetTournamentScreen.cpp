@@ -27,9 +27,9 @@ void PresetTournamentScreen::buttonPressed(boost::shared_ptr<Button> button)
 		std::vector<boost::shared_ptr<Team>> teams = getUEFAChampionsLeagueTeams();
 		std::unique_ptr<TournamentConfig> tournamentConfig(new TournamentConfig());;
 		auto k1 = boost::shared_ptr<TournamentStage>(new KnockoutStage(1, false, 1));
-		auto k2 = boost::shared_ptr<TournamentStage>(new KnockoutStage(1, false, 2));
-		auto k3 = boost::shared_ptr<TournamentStage>(new KnockoutStage(1, false, 4));
-		auto k4 = boost::shared_ptr<TournamentStage>(new KnockoutStage(1, false, 8));
+		auto k2 = boost::shared_ptr<TournamentStage>(new KnockoutStage(2, true, 2));
+		auto k3 = boost::shared_ptr<TournamentStage>(new KnockoutStage(2, true, 4));
+		auto k4 = boost::shared_ptr<TournamentStage>(new KnockoutStage(2, true, 8));
 		tournamentConfig->pushStage(k1);
 		tournamentConfig->pushStage(k2);
 		tournamentConfig->pushStage(k3);

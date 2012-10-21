@@ -3,10 +3,10 @@
 
 namespace Soccer {
 
-StatefulLeague::StatefulLeague(std::vector<boost::shared_ptr<StatefulTeam>>& teams)
+StatefulLeague::StatefulLeague(std::vector<boost::shared_ptr<StatefulTeam>>& teams, unsigned int numCycles)
 	: StatefulCompetition(),
 	mPointsPerWin(3),
-	mNumCycles(2)
+	mNumCycles(numCycles)
 {
 	setRoundRobin(teams);
 	setNextMatch();
@@ -82,7 +82,7 @@ void StatefulLeague::setRoundRobin(std::vector<boost::shared_ptr<StatefulTeam>>&
 					ind2 = other;
 				}
 
-				r.addMatch(boost::shared_ptr<Match>(new Match(teams[ind1], teams[ind2], MatchRules(false, false))));
+				r.addMatch(boost::shared_ptr<Match>(new Match(teams[ind1], teams[ind2], MatchRules(false, false, false))));
 				printf("%5d-%-5d ", teams[ind1]->getId(), teams[ind2]->getId());
 			}
 		}

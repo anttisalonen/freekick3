@@ -16,7 +16,7 @@ class TournamentScreen : public CompetitionScreen {
 	public:
 		TournamentScreen(boost::shared_ptr<ScreenManager> sm, boost::shared_ptr<StatefulTournament> l,
 				bool onlyOneRound = false);
-		virtual void drawTable() override;
+		virtual bool drawTable() override;
 		virtual void buttonPressed(boost::shared_ptr<Button> button) override;
 
 	protected:

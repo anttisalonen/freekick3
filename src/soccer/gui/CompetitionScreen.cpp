@@ -36,47 +36,70 @@ CompetitionScreen::CompetitionScreen(boost::shared_ptr<ScreenManager> sm, const 
 	updateRoundMatches();
 }
 
-void CompetitionScreen::addMatchLabels(const Match& m, float xp, float yp,
+void CompetitionScreen::addResultLabels(int a, int b, float xp, float yp,
+		float fontsize, Screen& scr, std::vector<boost::shared_ptr<Button>>& labels,
+		const char* suffix)
+{
+	if(!suffix) {
+		labels.push_back(scr.addLabel(" - ", xp, yp, TextAlignment::Centered, fontsize, Common::Color::White));
+		labels.push_back(scr.addLabel(std::to_string(a).c_str(), xp - 0.01f, yp,
+					TextAlignment::Centered, fontsize, Common::Color::White));
+		labels.push_back(scr.addLabel(std::to_string(b).c_str(), xp + 0.01f, yp,
+					TextAlignment::Centered, fontsize, Common::Color::White));
+	} else {
+		std::stringstream ss;
+		ss << "(" << a << "-" << b << suffix << ")";
+		labels.push_back(scr.addLabel(ss.str().c_str(), xp, yp, TextAlignment::Centered, fontsize, Common::Color::White));
+	}
+}
+
+float CompetitionScreen::addMatchLabels(const Match& m, float xp, float yp,
 		float fontsize, Screen& scr, std::vector<boost::shared_ptr<Button>>& labels)
 {
+	float ret = 0.0f;
 	static const Common::Color humancolor(192, 192, 192);
 	static const Common::Color woncolor(255, 247, 125);
+	bool played = m.getCupEntry().numMatchesPlayed() > 0;
+	bool homefirst = (m.getCupEntry().numMatchesPlayed() & 1) == 1;
 	const Common::Color& textColor1 = m.getTeam(0)->getController().HumanControlled ?
-		m.getResult().homeWon() ? woncolor : humancolor :
-		m.getResult().homeWon() ? woncolor : Common::Color::White;
+		(played && (m.getCupEntry().firstWon() == homefirst)) ? woncolor : humancolor :
+		(played && (m.getCupEntry().firstWon() == homefirst)) ? woncolor : Common::Color::White;
 	const Common::Color& textColor2 = m.getTeam(1)->getController().HumanControlled ?
-		m.getResult().awayWon() ? woncolor : humancolor :
-		m.getResult().awayWon() ? woncolor : Common::Color::White;
+		(played && (!m.getCupEntry().firstWon() == homefirst)) ? woncolor : humancolor :
+		(played && (!m.getCupEntry().firstWon() == homefirst)) ? woncolor : Common::Color::White;
 
 	labels.push_back(scr.addLabel(m.getTeam(0)->getName().c_str(), xp - 0.04f, yp,
 			TextAlignment::MiddleRight, fontsize, textColor1));
 	labels.push_back(scr.addLabel(m.getTeam(1)->getName().c_str(), xp + 0.04f, yp,
 			TextAlignment::MiddleLeft, fontsize, textColor2));
-	if(m.getResult().Played) {
-		if(!(m.getResult().HomePenalties || m.getResult().AwayPenalties)) {
-			labels.push_back(scr.addLabel(" - ", xp, yp, TextAlignment::Centered, fontsize, Common::Color::White));
-			labels.push_back(scr.addLabel(std::to_string(m.getResult().HomeGoals).c_str(), xp - 0.01f, yp,
-					TextAlignment::Centered, fontsize, Common::Color::White));
-			labels.push_back(scr.addLabel(std::to_string(m.getResult().AwayGoals).c_str(), xp + 0.01f, yp,
-					TextAlignment::Centered, fontsize, Common::Color::White));
-		} else {
-			std::stringstream ss;
-			ss << m.getResult().HomeGoals << "-" << m.getResult().AwayGoals <<
-				" (" << m.getResult().HomePenalties << "-" <<
-				m.getResult().AwayPenalties << ")";
-			labels.push_back(scr.addLabel(ss.str().c_str(), xp, yp, TextAlignment::Centered, fontsize, Common::Color::White));
+	if(played) {
+		addResultLabels(m.getResult().HomeGoals, m.getResult().AwayGoals, xp, yp, fontsize, scr, labels);
+		if(m.getResult().HomePenalties || m.getResult().AwayPenalties) {
+			yp += 0.03f;
+			ret += 0.03f;
+			addResultLabels(m.getResult().HomePenalties, m.getResult().AwayPenalties, xp, yp, fontsize, scr, labels, " p.");
+		}
+		auto& c = m.getCupEntry();
+		if(c.numMatchesPlayed() > 1) {
+			yp += 0.03f;
+			ret += 0.03f;
+			auto agg = c.aggregate();
+			addResultLabels(homefirst ? agg.first : agg.second,
+				homefirst ? agg.second : agg.first, xp, yp, fontsize, scr, labels, " agg.");
 		}
 	} else {
 		labels.push_back(scr.addLabel(" - ", xp, yp, TextAlignment::Centered, fontsize, Common::Color::White));
 	}
+
+	return ret;
 }
 
-void CompetitionScreen::addMatchLabels(const Match& m, float xp, float yp)
+float CompetitionScreen::addMatchLabels(const Match& m, float xp, float yp)
 {
-	addMatchLabels(m, xp, yp, 0.6f, *this, mResultLabels);
+	return addMatchLabels(m, xp, yp, 0.6f, *this, mResultLabels);
 }
 
-void CompetitionScreen::drawInfo()
+void CompetitionScreen::drawInfo(bool drewtable)
 {
 	for(auto l : mResultLabels) {
 		removeButton(l);
@@ -86,7 +109,7 @@ void CompetitionScreen::drawInfo()
 	float y = 0.1f;
 	for(auto m : mRoundMatches) {
 		// next round
-		addMatchLabels(*m, 0.75f, y);
+		y += addMatchLabels(*m, 0.75f, y);
 		y += 0.03f;
 	}
 
@@ -185,8 +208,8 @@ void CompetitionScreen::updateScreenElements()
 		if(shouldShowSkipButton())
 			mSkipButton->show();
 	}
-	drawTable();
-	drawInfo();
+	bool t = drawTable();
+	drawInfo(t);
 }
 
 bool CompetitionScreen::shouldShowSkipButton() const

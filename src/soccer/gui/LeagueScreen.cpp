@@ -77,7 +77,7 @@ void LeagueScreen::drawTable(Screen& scr, std::vector<boost::shared_ptr<Button>>
 	}
 }
 
-void LeagueScreen::drawTable()
+bool LeagueScreen::drawTable()
 {
 	for(auto lbl : mTableLabels) {
 		removeButton(lbl);
@@ -85,6 +85,7 @@ void LeagueScreen::drawTable()
 	mTableLabels.clear();
 
 	drawTable(*this, mTableLabels, *mLeague, 0.05f, 0.09f);
+	return true;
 }
 
 }

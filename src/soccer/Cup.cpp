@@ -41,9 +41,13 @@ static unsigned int pow2rounddown(unsigned int x)
 	return pow2roundup(x) / 2;
 }
 
-StatefulCup::StatefulCup(std::vector<boost::shared_ptr<StatefulTeam>>& teams, bool onlyoneround)
+
+StatefulCup::StatefulCup(std::vector<boost::shared_ptr<StatefulTeam>>& teams, bool onlyoneround,
+		unsigned int legs, bool awaygoals)
 	: StatefulCompetition(),
-	mOnlyOneRound(onlyoneround)
+	mOnlyOneRound(onlyoneround),
+	mLegs(legs),
+	mAwayGoals(awaygoals)
 {
 	mTotalRounds = logbase2(teams.size());
 	setupNextRound(teams);
@@ -56,11 +60,18 @@ void StatefulCup::matchPlayed(const MatchResult& res)
 	assert(res.Played);
 
 	auto it = mEntries.find({mNextMatch->getTeam(0), mNextMatch->getTeam(1)});
+	if(it == mEntries.end())
+		it = mEntries.find({mNextMatch->getTeam(1), mNextMatch->getTeam(0)});
 	assert(it != mEntries.end());
+
+	it->second.addMatchResult(res);
+	mNextMatch->setCupEntry(it->second);
+
 	if(res.HomeGoals == res.AwayGoals) {
-		assert(res.HomePenalties != res.AwayPenalties);
+		if(mLegs == 1) {
+			assert(res.HomePenalties != res.AwayPenalties);
+		}
 	}
-	it->second.Result = res;
 
 	setNextMatch();
 	if(!mNextMatch && mEntries.size() > 1 && !mOnlyOneRound) {
@@ -68,6 +79,17 @@ void StatefulCup::matchPlayed(const MatchResult& res)
 		assert(teams.size());
 		setupNextRound(teams);
 		setNextMatch();
+	}
+
+	if(mNextMatch) {
+		auto newit = mEntries.find({mNextMatch->getTeam(0), mNextMatch->getTeam(1)});
+		if(newit == mEntries.end())
+			newit = mEntries.find({mNextMatch->getTeam(1), mNextMatch->getTeam(0)});
+		assert(newit != mEntries.end());
+
+		auto agg = newit->second.aggregate();
+		mNextMatch->getRules().AwayAggregate = agg.first;
+		mNextMatch->getRules().HomeAggregate = agg.second;
 	}
 }
 
@@ -84,16 +106,24 @@ void StatefulCup::setupNextRound(std::vector<boost::shared_ptr<StatefulTeam>>& t
 	mEntries.clear();
 	std::random_shuffle(teams.begin(), teams.end());
 
-	Round r;
-	for(auto it = teams.begin(); it != teams.end(); ++it) {
-		auto t1 = *it;
-		++it;
-		assert(it != teams.end());
-		auto t2 = *it;
-		mEntries.insert({{t1, t2}, CupEntry()});
-		r.addMatch(boost::shared_ptr<Match>(new Match(t1, t2, MatchRules(true, true))));
+	for(unsigned int i = 0; i < mLegs; i++) {
+		Round r;
+		for(auto it = teams.begin(); it != teams.end(); ++it) {
+			auto t1 = *it;
+			++it;
+			assert(it != teams.end());
+			auto t2 = *it;
+			if(i == 0)
+				mEntries.insert({{t1, t2}, CupEntry()});
+
+			auto pen = (i == mLegs - 1);
+			bool swapHomeAway = (i & 1) == 1;
+			auto m = boost::shared_ptr<Match>(new Match(swapHomeAway ? t2 : t1, swapHomeAway ? t1 : t2,
+						MatchRules(pen, pen, mAwayGoals)));
+			r.addMatch(m);
+		}
+		mSchedule.addRound(r);
 	}
-	mSchedule.addRound(r);
 }
 
 StatefulCup::StatefulCup()
@@ -144,15 +174,13 @@ std::vector<boost::shared_ptr<StatefulTeam>> StatefulCup::getTeamsByPosition() c
 	std::vector<boost::shared_ptr<StatefulTeam>> teams;
 
 	for(auto& e : mEntries) {
-		if(!e.second.Result.Played) {
+		if(e.second.numMatchesPlayed() < mLegs) {
 			return std::vector<boost::shared_ptr<StatefulTeam>>();
 		}
-		if(e.second.Result.HomeGoals > e.second.Result.AwayGoals ||
-				e.second.Result.HomePenalties > e.second.Result.AwayPenalties)
+
+		if(e.second.firstWon()) {
 			teams.push_back(e.first.first);
-		else {
-			assert(e.second.Result.AwayGoals > e.second.Result.HomeGoals ||
-					e.second.Result.AwayPenalties > e.second.Result.HomePenalties);
+		} else {
 			teams.push_back(e.first.second);
 		}
 	}
