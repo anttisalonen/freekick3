@@ -44,13 +44,11 @@ class StatefulCup : public StatefulCompetition {
 		template<class Archive>
 		void serialize(Archive& ar, const unsigned int version)
 		{
-			std::cout << "Serializing cup " << this << "\n";
 			ar.template register_type<StatefulCompetition>();
 			ar & BOOST_SERIALIZATION_BASE_OBJECT_NVP(StatefulCompetition);
 			ar & mEntries;
 			ar & mTotalRounds;
 			ar & mOnlyOneRound;
-			std::cout << "Serializing cup done!\n";
 		}
 };
 

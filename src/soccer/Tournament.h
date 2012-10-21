@@ -30,8 +30,6 @@ class TournamentStage {
 		template<class Archive>
 		void serialize(Archive& ar, const unsigned int version)
 		{
-			std::cout << "Serializing tournament stage...\n";
-			std::cout << "Serializing tournament stage done!\n";
 		}
 };
 
@@ -55,14 +53,12 @@ class GroupStage : public TournamentStage {
 		template<class Archive>
 		void serialize(Archive& ar, const unsigned int version)
 		{
-			std::cout << "Serializing group stage...\n";
 			ar.template register_type<TournamentStage>();
 			ar & BOOST_SERIALIZATION_BASE_OBJECT_NVP(TournamentStage);
 			ar & mNumGroups;
 			ar & mNumTeams;
 			ar & mNumWinners;
 			ar & mLegs;
-			std::cout << "Serializing group stage done!\n";
 		}
 };
 
@@ -85,13 +81,11 @@ class KnockoutStage : public TournamentStage {
 		template<class Archive>
 		void serialize(Archive& ar, const unsigned int version)
 		{
-			std::cout << "Serializing knockout stage...\n";
 			ar.template register_type<TournamentStage>();
 			ar & BOOST_SERIALIZATION_BASE_OBJECT_NVP(TournamentStage);
 			ar & mContinuingTeams;
 			ar & mLegs;
 			ar & mAwayGoals;
-			std::cout << "Serializing knockout stage done!\n";
 		}
 };
 
@@ -109,9 +103,7 @@ class TournamentConfig {
 		template<class Archive>
 		void serialize(Archive& ar, const unsigned int version)
 		{
-			std::cout << "Serializing tournament config...\n";
 			ar & mStages;
-			std::cout << "Serializing tournament config done!\n";
 		}
 };
 
@@ -169,16 +161,11 @@ class StatefulTournament : public StatefulCompetition {
 		template<class Archive>
 		void serialize(Archive& ar, const unsigned int version)
 		{
-			std::cout << "Serializing tournament of type " << this << "\n";
 			ar.template register_type<StatefulCompetition>();
 			ar & BOOST_SERIALIZATION_BASE_OBJECT_NVP(StatefulCompetition);
-			std::cout << "Serializing tournament stages...\n";
 			ar & mTournamentStages;
-			std::cout << "Serializing tournament teams...\n";
 			ar & mTeams;
-			std::cout << "Serializing tournament config...\n";
 			ar & mConfig;
-			std::cout << "Serializing tournament done!\n";
 		}
 };
 

@@ -111,3 +111,12 @@ void LoadGameScreen::collectSavedFiles()
 }
 
 }
+
+// In order for load and save to work, these lines have to be in this module.
+// Don't ask me why...
+BOOST_CLASS_EXPORT_IMPLEMENT(Soccer::TournamentStage);
+BOOST_CLASS_EXPORT_IMPLEMENT(Soccer::GroupStage);
+BOOST_CLASS_EXPORT_IMPLEMENT(Soccer::KnockoutStage);
+BOOST_CLASS_EXPORT_IMPLEMENT(Soccer::StatefulTournamentStage);
+BOOST_CLASS_EXPORT_IMPLEMENT(Soccer::StatefulTournament);
+

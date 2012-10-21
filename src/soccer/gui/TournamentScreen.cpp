@@ -88,10 +88,4 @@ void TournamentScreen::drawTable()
 
 }
 
-BOOST_CLASS_EXPORT_IMPLEMENT(Soccer::TournamentStage);
-BOOST_CLASS_EXPORT_IMPLEMENT(Soccer::GroupStage);
-BOOST_CLASS_EXPORT_IMPLEMENT(Soccer::KnockoutStage);
-BOOST_CLASS_EXPORT_IMPLEMENT(Soccer::StatefulTournamentStage);
-BOOST_CLASS_EXPORT_IMPLEMENT(Soccer::StatefulTournament);
-
 
