@@ -166,7 +166,7 @@ SimulationStrength::SimulationStrength(const StatefulTeam& t)
 	/* TODO: make use of FastPassing and ShootClose here. */
 	float press = t.getTactics().Pressure * 0.5f + 0.25f;
 	float wings = 0.5f;
-	float variance = 0.5f;
+	float variance = 0.05f;
 
 	mLongBalls = t.getTactics().LongBalls * 0.5f + 0.25f;
 
@@ -174,9 +174,14 @@ SimulationStrength::SimulationStrength(const StatefulTeam& t)
 	mLongBalls += (rand() % 2000 - 1000) * 0.001f * variance;
 	wings += (rand() % 2000 - 1000) * 0.001f * variance;
 
-	press = Common::clamp(0.0f, press, 1.0f);
-	mLongBalls = Common::clamp(0.0f, mLongBalls, 1.0f);
+	press = Common::clamp(0.25f, press, 0.75f);
+	mLongBalls = Common::clamp(0.1f, mLongBalls, 0.9f);
 	wings = Common::clamp(0.25f, wings, 0.75f);
+
+#ifdef DEBUG_SIMULATION
+			printf("Team %25s Pressure %2.3f Long balls %2.3f Wings %2.3f\n",
+					t.getName().c_str(), press, mLongBalls, wings);
+#endif
 
 	for(auto p : t.getPlayers()) {
 		auto it = t.getTactics().mTactics.find(p->getId());
@@ -242,6 +247,14 @@ SimulationStrength::SimulationStrength(const StatefulTeam& t)
 	mCenterTry = (mCenterGet) * (1.0f - wings);
 	mLeftTry   = (mLeftGet)   * (0.5f * wings);
 	mRightTry  = (mRightGet)  * (0.5f * wings);
+
+#ifdef DEBUG_SIMULATION
+			printf("Team   %25s %3.2f %3.2f %3.2f = %3.2f %3.2f %3.2f = %3.2f %3.2f %3.2f\n",
+					t.getName().c_str(),
+					mLeftDefense, mCenterDefense, mRightDefense,
+					mLeftGet, mCenterGet, mRightGet,
+					mLeftUse, mCenterUse, mRightUse);
+#endif
 }
 
 int SimulationStrength::pickOne(const std::vector<float>& values)
@@ -368,14 +381,16 @@ void SimulationStrength::simulateStep(const SimulationStrength& t2, int& homegoa
 		holdnum = 1;
 	}
 	else {
-		float t1hold = t1get / (t1get + t2get);
-		float difftomiddle = t1hold - ((t1get + t2get) / 2.0f);
+		float difftomiddle = fabs(t1get - ((t1get + t2get) / 2.0f));
 		float totalLongBalls = Common::clamp(0.0f, (mLongBalls + t2.mLongBalls) / 2.0f, 1.0f);
-		t1hold -= difftomiddle * totalLongBalls;
 		std::vector<float> holding;
-		holding.push_back(t1get - difftomiddle * totalLongBalls);
-		holding.push_back(t2get + difftomiddle * totalLongBalls);
+		float t1chance = t1get + difftomiddle * totalLongBalls;
+		float t2chance = t2get + difftomiddle * totalLongBalls;
+		holding.push_back(t1chance);
+		holding.push_back(t2chance);
 		holdnum = pickOne(holding);
+		assert(t1chance >= 0.0f);
+		assert(t2chance >= 0.0f);
 	}
 	float att, def;
 	bool homescorer;
