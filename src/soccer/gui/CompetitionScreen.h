@@ -28,7 +28,7 @@ class CompetitionScreen : public Screen {
 				const char* suffix = NULL);
 		static float addMatchLabels(const Match& m, float xp, float yp, float fontsize,
 				Screen& scr,
-				std::vector<boost::shared_ptr<Button>>& labels);
+				std::vector<boost::shared_ptr<Button>>& labels, bool rowsAvailable);
 
 	protected:
 		void updateScreenElements();

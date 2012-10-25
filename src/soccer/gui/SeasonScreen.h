@@ -32,6 +32,7 @@ class SeasonScreen : public Screen {
 		boost::shared_ptr<Button> mNextRoundButton;
 		boost::shared_ptr<Button> mScrollUpButton;
 		boost::shared_ptr<Button> mScrollDownButton;
+		boost::shared_ptr<Button> mFinishButton;
 		std::vector<boost::shared_ptr<Button>> mMatchPlanLabels;
 
 		unsigned int mPlanPos;

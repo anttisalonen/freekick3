@@ -54,7 +54,8 @@ void CompetitionScreen::addResultLabels(int a, int b, float xp, float yp,
 }
 
 float CompetitionScreen::addMatchLabels(const Match& m, float xp, float yp,
-		float fontsize, Screen& scr, std::vector<boost::shared_ptr<Button>>& labels)
+		float fontsize, Screen& scr, std::vector<boost::shared_ptr<Button>>& labels,
+		bool rowsAvailable)
 {
 	float ret = 0.0f;
 	static const Common::Color humancolor(192, 192, 192);
@@ -74,13 +75,13 @@ float CompetitionScreen::addMatchLabels(const Match& m, float xp, float yp,
 			TextAlignment::MiddleLeft, fontsize, textColor2));
 	if(played) {
 		addResultLabels(m.getResult().HomeGoals, m.getResult().AwayGoals, xp, yp, fontsize, scr, labels);
-		if(m.getResult().HomePenalties || m.getResult().AwayPenalties) {
+		if((m.getResult().HomePenalties || m.getResult().AwayPenalties) && rowsAvailable) {
 			yp += 0.03f;
 			ret += 0.03f;
 			addResultLabels(m.getResult().HomePenalties, m.getResult().AwayPenalties, xp, yp, fontsize, scr, labels, " p.");
 		}
 		auto& c = m.getCupEntry();
-		if(c.numMatchesPlayed() > 1) {
+		if((c.numMatchesPlayed() > 1) && rowsAvailable) {
 			yp += 0.03f;
 			ret += 0.03f;
 			auto agg = c.aggregate();
@@ -96,7 +97,7 @@ float CompetitionScreen::addMatchLabels(const Match& m, float xp, float yp,
 
 float CompetitionScreen::addMatchLabels(const Match& m, float xp, float yp)
 {
-	return addMatchLabels(m, xp, yp, 0.6f, *this, mResultLabels);
+	return addMatchLabels(m, xp, yp, 0.6f, *this, mResultLabels, true);
 }
 
 void CompetitionScreen::drawInfo(bool drewtable)

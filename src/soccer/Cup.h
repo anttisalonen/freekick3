@@ -12,11 +12,14 @@
 
 namespace Soccer {
 
+class StatefulLeagueSystem;
+
 class StatefulCup : public StatefulCompetition {
 	public:
 		StatefulCup(std::vector<boost::shared_ptr<StatefulTeam>>& teams, bool onlyoneround = false,
 				unsigned int legs = 1, bool awaygoals = false);
 		void matchPlayed(const MatchResult& res) override;
+		static std::vector<boost::shared_ptr<StatefulTeam>> collectTeamsFromCountry(const boost::shared_ptr<StatefulLeagueSystem> s);
 		static std::vector<boost::shared_ptr<Team>> collectTeamsFromCountry(const boost::shared_ptr<LeagueSystem> s);
 		virtual CompetitionType getType() const override;
 		unsigned int getTotalNumberOfRounds() const;

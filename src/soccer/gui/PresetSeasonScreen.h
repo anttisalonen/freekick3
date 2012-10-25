@@ -9,7 +9,7 @@ namespace Soccer {
 
 class PresetSeasonScreen : public PresetLeagueScreen {
 	public:
-		PresetSeasonScreen(boost::shared_ptr<ScreenManager> sm);
+		PresetSeasonScreen(boost::shared_ptr<ScreenManager> sm, bool career = false);
 
 	protected:
 		virtual bool enteringCountry(boost::shared_ptr<LeagueSystem> p) override;
@@ -25,6 +25,8 @@ class PresetSeasonScreen : public PresetLeagueScreen {
 		boost::shared_ptr<League> mLeague;
 		boost::shared_ptr<LeagueSystem> mCountry;
 		boost::shared_ptr<Team> mOwnTeam;
+
+		bool mCareer;
 };
 
 }

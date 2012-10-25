@@ -9,8 +9,9 @@
 
 namespace Soccer {
 
-PresetSeasonScreen::PresetSeasonScreen(boost::shared_ptr<ScreenManager> sm)
-	: PresetLeagueScreen(sm)
+PresetSeasonScreen::PresetSeasonScreen(boost::shared_ptr<ScreenManager> sm, bool career)
+	: PresetLeagueScreen(sm),
+	mCareer(career)
 {
 }
 
@@ -33,44 +34,7 @@ bool PresetSeasonScreen::enteringLeague(boost::shared_ptr<League> p)
 
 void PresetSeasonScreen::clickedDone()
 {
-	std::map<boost::shared_ptr<Team>, boost::shared_ptr<StatefulTeam>> allteams;
-
-	boost::shared_ptr<StatefulLeague> league;
-	boost::shared_ptr<StatefulCup> cup;
-
-	{
-		std::vector<boost::shared_ptr<StatefulTeam>> leagueteams;
-		for(auto t : mSelectedTeams) {
-			boost::shared_ptr<StatefulTeam> st(new StatefulTeam(*t.first,
-						TeamController(t.first == mOwnTeam, 0),
-						AITactics::createTeamTactics(*t.first)));
-			allteams.insert({t.first, st});
-			leagueteams.push_back(st);
-		}
-		league = boost::shared_ptr<StatefulLeague>(new StatefulLeague(leagueteams));
-	}
-
-	{
-		std::vector<boost::shared_ptr<StatefulTeam>> cupteams;
-		std::vector<boost::shared_ptr<Team>> cupteamentries;
-		cupteamentries = StatefulCup::collectTeamsFromCountry(mCountry);
-		for(auto t : cupteamentries) {
-			auto it = allteams.find(t);
-			if(it == allteams.end()) {
-				cupteams.push_back(boost::shared_ptr<StatefulTeam>(new StatefulTeam(*t,
-								TeamController(t == mOwnTeam, 0),
-								AITactics::createTeamTactics(*t))));
-			} else {
-				cupteams.push_back(it->second);
-			}
-		}
-		cup = boost::shared_ptr<StatefulCup>(new StatefulCup(cupteams));
-	}
-
-	auto myit = allteams.find(mOwnTeam);
-	assert(myit != allteams.end());
-
-	boost::shared_ptr<Season> season(new Season(myit->second, league, cup));
+	boost::shared_ptr<Season> season = Season::createSeason(mOwnTeam, mCountry, mCareer);
 	mScreenManager->addScreen(boost::shared_ptr<Screen>(new SeasonScreen(mScreenManager, season)));
 }
 

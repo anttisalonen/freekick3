@@ -20,7 +20,7 @@ MainMenuScreen::MainMenuScreen(boost::shared_ptr<ScreenManager> sm)
 	addButton("Preset Cup",        Rectangle(0.15f, 0.55f, 0.30f, 0.07f));
 	addButton("Preset Season",     Rectangle(0.55f, 0.55f, 0.30f, 0.07f));
 	addButton("Preset Tournament", Rectangle(0.15f, 0.65f, 0.30f, 0.07f));
-	//addButton("Career",            Rectangle(0.55f, 0.65f, 0.30f, 0.07f));
+	addButton("Career",            Rectangle(0.55f, 0.65f, 0.30f, 0.07f));
 	addButton("Load Game",         Rectangle(0.15f, 0.75f, 0.30f, 0.07f));
 	addButton("Usage",             Rectangle(0.55f, 0.75f, 0.30f, 0.07f));
 	addButton("Quit",              Rectangle(0.35f, 0.85f, 0.30f, 0.07f));
@@ -46,6 +46,9 @@ void MainMenuScreen::buttonPressed(boost::shared_ptr<Button> button)
 	}
 	else if(buttonText == "Preset Tournament") {
 		mScreenManager->addScreen(boost::shared_ptr<Screen>(new PresetTournamentScreen(mScreenManager)));
+	}
+	else if(buttonText == "Career") {
+		mScreenManager->addScreen(boost::shared_ptr<Screen>(new PresetSeasonScreen(mScreenManager, true)));
 	}
 	else if(buttonText == "Load Game") {
 		mScreenManager->addScreen(boost::shared_ptr<Screen>(new LoadGameScreen(mScreenManager)));

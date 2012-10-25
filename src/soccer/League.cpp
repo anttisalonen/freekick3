@@ -12,6 +12,12 @@ StatefulLeague::StatefulLeague(std::vector<boost::shared_ptr<StatefulTeam>>& tea
 	setNextMatch();
 }
 
+void StatefulLeague::resetTeams(std::vector<boost::shared_ptr<StatefulTeam>>& teams)
+{
+	setRoundRobin(teams);
+	setNextMatch();
+}
+
 void StatefulLeague::matchPlayed(const MatchResult& res)
 {
 	assert(mNextMatch);

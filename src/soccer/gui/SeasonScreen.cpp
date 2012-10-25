@@ -20,9 +20,11 @@ SeasonScreen::SeasonScreen(boost::shared_ptr<ScreenManager> sm, boost::shared_pt
 {
 	addButton("Back",  Common::Rectangle(0.01f, 0.90f, 0.23f, 0.06f));
 	addButton("Save",  Common::Rectangle(0.01f, 0.83f, 0.23f, 0.06f));
-	mNextRoundButton  = addButton("Next Round", Common::Rectangle(0.26f, 0.90f, 0.73f, 0.06f));
-	mScrollUpButton   = addButton("Prev",       Common::Rectangle(0.65f, 0.04f, 0.20f, 0.04f));
-	mScrollDownButton = addButton("Next",       Common::Rectangle(0.65f, 0.83f, 0.20f, 0.04f));
+	mNextRoundButton  = addButton("Next Round",    Common::Rectangle(0.26f, 0.90f, 0.73f, 0.06f));
+	mScrollUpButton   = addButton("Prev",          Common::Rectangle(0.65f, 0.04f, 0.20f, 0.04f));
+	mScrollDownButton = addButton("Next",          Common::Rectangle(0.65f, 0.83f, 0.20f, 0.04f));
+	mFinishButton     = addButton("Finish Season", Common::Rectangle(0.26f, 0.90f, 0.73f, 0.06f));
+	mFinishButton->hide();
 	addMatchPlan();
 }
 
@@ -74,7 +76,7 @@ void SeasonScreen::addMatchPlan()
 				if(m->getTeam(0) == mSeason->getTeam() ||
 						m->getTeam(1) == mSeason->getTeam()) {
 					CompetitionScreen::addMatchLabels(*m, x, y, 0.6f,
-							*this, mMatchPlanLabels);
+							*this, mMatchPlanLabels, false);
 					break;
 				}
 			}
@@ -107,7 +109,8 @@ void SeasonScreen::buttonPressed(boost::shared_ptr<Button> button)
 		save();
 	}
 	else if(buttonText == "Next Round") {
-		for(unsigned int i = 0; i < mSeason->getSchedule().size(); i++) {
+		unsigned int i = 0;
+		for(i = 0; i < mSeason->getSchedule().size(); i++) {
 			RoundTuple ct = getRound(i);
 			assert(std::get<2>(ct));
 			assert(std::get<2>(ct)->getMatches().size());
@@ -124,7 +127,7 @@ void SeasonScreen::buttonPressed(boost::shared_ptr<Button> button)
 										mSeason->getLeague(),
 										true)));
 					}
-					return;
+					break;
 
 					case CompetitionType::Cup:
 					{
@@ -132,7 +135,7 @@ void SeasonScreen::buttonPressed(boost::shared_ptr<Button> button)
 										mSeason->getCup(),
 										true)));
 					}
-					return;
+					break;
 
 					case CompetitionType::Tournament:
 					{
@@ -140,14 +143,27 @@ void SeasonScreen::buttonPressed(boost::shared_ptr<Button> button)
 										mSeason->getTournament(),
 										true)));
 					}
-					return;
+					break;
 				}
 				break;
 			}
 		}
 
-		/* no more matches */
-		mNextRoundButton->hide();
+		if(i >= mSeason->getSchedule().size() - 1) {
+			/* no more matches */
+			mNextRoundButton->hide();
+			if(mSeason->getLeagueSystem())
+				mFinishButton->show();
+			/* TODO: display season summary */
+		}
+	} else if(buttonText == "Finish Season") {
+		assert(mSeason->getLeagueSystem());
+		mSeason->getLeagueSystem()->promoteAndRelegateTeams();
+		mSeason = Season::createSeason(mSeason->getTeam(), mSeason->getLeagueSystem());
+		mFinishButton->hide();
+		mNextRoundButton->show();
+		mPlanPos = 0;
+		addMatchPlan();
 	} else if(buttonText == "Prev") {
 		if(mPlanPos < 10)
 			mPlanPos = 0;
@@ -168,7 +184,10 @@ const std::string& SeasonScreen::getName() const
 void SeasonScreen::save()
 {
 	std::string filename(Menu::getSaveDir());
-	filename += "/Season.sav";
+	if(mSeason->getLeagueSystem())
+		filename += "/Career.sav";
+	else
+		filename += "/Season.sav";
 	std::ofstream ofs(filename, std::ios::out | std::ios::binary | std::ios::trunc);
 	boost::iostreams::filtering_streambuf<boost::iostreams::output> out;
 	out.push(boost::iostreams::bzip2_compressor());

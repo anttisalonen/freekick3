@@ -1,5 +1,7 @@
 #include <stdexcept>
+
 #include "Cup.h"
+#include "Season.h"
 
 namespace Soccer {
 
@@ -128,6 +130,30 @@ void StatefulCup::setupNextRound(std::vector<boost::shared_ptr<StatefulTeam>>& t
 
 StatefulCup::StatefulCup()
 {
+}
+
+std::vector<boost::shared_ptr<StatefulTeam>> StatefulCup::collectTeamsFromCountry(const boost::shared_ptr<StatefulLeagueSystem> s)
+{
+	std::vector<boost::shared_ptr<StatefulTeam>> teams;
+	unsigned int numTeams = 0;
+	for(auto league : s->getLeagues()) {
+		numTeams += league->getNumberOfTeams();
+	}
+
+	numTeams = pow2rounddown(numTeams);
+
+	for(auto league : s->getLeagues()) {
+		if(numTeams == 0)
+			break;
+		for(auto t : league->getTeamsByPosition()) {
+			if(numTeams == 0)
+				break;
+			teams.push_back(t);
+			numTeams--;
+		}
+	}
+
+	return teams;
 }
 
 std::vector<boost::shared_ptr<Team>> StatefulCup::collectTeamsFromCountry(const boost::shared_ptr<LeagueSystem> s)

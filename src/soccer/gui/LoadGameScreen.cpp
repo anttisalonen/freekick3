@@ -63,7 +63,7 @@ void LoadGameScreen::buttonPressed(boost::shared_ptr<Button> button)
 			ia >> comp;
 			mScreenManager->dropScreen();
 			mScreenManager->addScreen(boost::shared_ptr<Screen>(new CupScreen(mScreenManager, comp)));
-		} else if(buttonText == "Season") {
+		} else if(buttonText == "Season" || buttonText == "Career") {
 			boost::shared_ptr<Season> comp;
 			ia >> comp;
 			mScreenManager->dropScreen();
