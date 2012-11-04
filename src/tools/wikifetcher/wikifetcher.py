@@ -121,7 +121,7 @@ class Converter:
                 out_playernode = etree.SubElement(out_teamnode, 'Players')
 
                 for in_playernode in in_teamnode.xpath('Player'):
-                    # TODO: create dummy players and cut off too many players as appropriate
+                    # TODO: cut off too many players as appropriate
                     player_name = in_playernode.get('name')
                     player_num  = in_playernode.get('number')
                     player_pos  = in_playernode.get('pos')
@@ -131,6 +131,14 @@ class Converter:
                     etree.SubElement(out_playernode, 'Player').set('id', str(self.nextplayerid))
                     self.nextplayerid += 1
                     out_playernodes.append(playernode)
+
+                generatedPlayerNum = 1
+                while len(out_playernode) < 16:
+                    playernode = PlayerConfigurator('Player ' + str(generatedPlayerNum), 0, '--', 'N/A').createFreekick3Node(self.nextplayerid)
+                    etree.SubElement(out_playernode, 'Player').set('id', str(self.nextplayerid))
+                    self.nextplayerid += 1
+                    out_playernodes.append(playernode)
+                    generatedPlayerNum += 1
 
                 out_kitsnode = etree.SubElement(out_teamnode, 'Kits')
                 for in_kitnode in in_teamnode.xpath('Kit'):
