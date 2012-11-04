@@ -137,7 +137,7 @@ class Converter:
                     out_kitnode = createKitNode(in_kitnode)
                     out_kitsnode.append(out_kitnode)
             break # TODO: support more than one group
-        return out_leaguenode, out_playernodes
+        return out_leaguenode, int(in_leagueroot.get('level_number')), out_playernodes
 
     def collect(self, indir, outdir):
         if not os.path.isdir(indir):
@@ -162,11 +162,17 @@ class Converter:
                 assert country
                 leaguesystemnode.set('name', os.path.basename(country).decode('utf-8'))
                 leagues = glob.glob(os.path.join(country, '*.xml'))
+                leaguenodes = dict()
                 for league in leagues:
-                    leaguenode, playernodes = self.createLeagueNode(league)
-                    leaguesystemnode.append(leaguenode)
+                    leaguenode, levelnum, playernodes = self.createLeagueNode(league)
+                    if levelnum in leaguenodes:
+                        print >> sys.stderr, "Warning: level number %d already in use, won't include %s" % (levelnum, leaguenode.get('name'))
+                        continue
+                    leaguenodes[levelnum] = leaguenode
                     for pn in playernodes:
                         playersroot.append(pn)
+                for levelnum, league in sorted(leaguenodes.items()):
+                    leaguesystemnode.append(league)
 
         mkdir_p(outdir)
         with open(os.path.join(outdir, 'Teams.xml'), 'w') as f:
