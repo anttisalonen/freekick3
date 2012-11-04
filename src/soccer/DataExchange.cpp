@@ -80,38 +80,40 @@ boost::shared_ptr<Team> DataExchange::parseTeam(const TiXmlElement* teamelem)
 
 	std::vector<Kit> kits;
 	const TiXmlElement* kitselem = teamelem->FirstChildElement("Kits");
-	if(!kitselem)
-		throw std::runtime_error("Error parsing kits in team");
-
-	for(const TiXmlElement* kitelem = kitselem->FirstChildElement(); kitelem; kitelem = kitelem->NextSiblingElement()) {
-		int kittype;
-		if(kitelem->QueryIntAttribute("type", &kittype) != TIXML_SUCCESS)
-			throw std::runtime_error("Error parsing kit in team");
-		if(kittype < 0 || kittype > 3)
-			throw std::runtime_error("Error parsing kit type in team");
-
-		Common::Color colors[4];
-		int j = 0;
-		for(auto cs : { "ShirtColor1", "ShirtColor2", "ShortsColor", "SocksColor" }) {
-			const TiXmlElement* color1elem = kitelem->FirstChildElement(cs);
-			if(!color1elem)
+	if(kitselem) {
+		for(const TiXmlElement* kitelem = kitselem->FirstChildElement(); kitelem; kitelem = kitelem->NextSiblingElement()) {
+			int kittype;
+			if(kitelem->QueryIntAttribute("type", &kittype) != TIXML_SUCCESS)
 				throw std::runtime_error("Error parsing kit in team");
-			int components[3];
-			int i = 0;
-			for(auto s : { "r", "g", "b" }) {
-				if(color1elem->QueryIntAttribute(s, &components[i]) != TIXML_SUCCESS)
+			if(kittype < 0 || kittype > 3)
+				throw std::runtime_error("Error parsing kit type in team");
+
+			Common::Color colors[4];
+			int j = 0;
+			for(auto cs : { "ShirtColor1", "ShirtColor2", "ShortsColor", "SocksColor" }) {
+				const TiXmlElement* color1elem = kitelem->FirstChildElement(cs);
+				if(!color1elem)
 					throw std::runtime_error("Error parsing kit in team");
-				if(components[i] < 0 || components[i] > 255)
-					throw std::runtime_error("Error parsing kit in team");
-				i++;
+				int components[3];
+				int i = 0;
+				for(auto s : { "r", "g", "b" }) {
+					if(color1elem->QueryIntAttribute(s, &components[i]) != TIXML_SUCCESS)
+						throw std::runtime_error("Error parsing kit in team");
+					if(components[i] < 0 || components[i] > 255)
+						throw std::runtime_error("Error parsing kit in team");
+					i++;
+				}
+				colors[j++] = Common::Color(components[0], components[1], components[2]);
 			}
-			colors[j++] = Common::Color(components[0], components[1], components[2]);
+			kits.push_back(Kit(Kit::KitType(kittype), colors[0], colors[1], colors[2], colors[3]));
+			if(kits.size() == 2)
+				break;
 		}
-		kits.push_back(Kit(Kit::KitType(kittype), colors[0], colors[1], colors[2], colors[3]));
 	}
 
-	if(kits.size() != 2) {
-		throw std::runtime_error("Error parsing kits in team");
+	while(kits.size() < 2) {
+		auto color = kits.size() == 0 ? Common::Color::Black : Common::Color::White;
+		kits.push_back(Kit(Kit::KitType::Plain, color, color, color, color));
 	}
 
 	boost::shared_ptr<Team> team;
