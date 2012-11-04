@@ -136,6 +136,8 @@ class Converter:
                 for in_kitnode in in_teamnode.xpath('Kit'):
                     out_kitnode = createKitNode(in_kitnode)
                     out_kitsnode.append(out_kitnode)
+            if len(out_leaguenode) == 0:
+                continue
             break # TODO: support more than one group
         return out_leaguenode, int(in_leagueroot.get('level_number')), out_playernodes
 
@@ -165,6 +167,8 @@ class Converter:
                 leaguenodes = dict()
                 for league in leagues:
                     leaguenode, levelnum, playernodes = self.createLeagueNode(league)
+                    if len(leaguenode) == 0:
+                        continue
                     if levelnum in leaguenodes:
                         print >> sys.stderr, "Warning: level number %d already in use, won't include %s" % (levelnum, leaguenode.get('name'))
                         continue
