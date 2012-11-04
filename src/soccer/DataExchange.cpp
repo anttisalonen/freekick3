@@ -176,7 +176,7 @@ boost::shared_ptr<Match> DataExchange::parseMatchDataFile(const char* fn)
 	std::stringstream ss;
 	ss << "Error parsing match file " << fn;
 
-	if(!doc.LoadFile())
+	if(!doc.LoadFile(TIXML_ENCODING_UTF8))
 		throw std::runtime_error(ss.str());
 
 	TiXmlHandle handle(&doc);
@@ -494,7 +494,7 @@ void DataExchange::updateTeamDatabase(const char* fn, TeamDatabase& db)
 	std::stringstream ss;
 	ss << "Error parsing team database file " << fn << ": ";
 
-	if(!doc.LoadFile())
+	if(!doc.LoadFile(TIXML_ENCODING_UTF8))
 		throw std::runtime_error(ss.str());
 
 	TiXmlHandle handle(&doc);
@@ -545,7 +545,7 @@ void DataExchange::updatePlayerDatabase(const char* fn, PlayerDatabase& db)
 	std::stringstream ss;
 	ss << "Error parsing team database file " << fn << ": ";
 
-	if(!doc.LoadFile()) {
+	if(!doc.LoadFile(TIXML_ENCODING_UTF8)) {
 		ss << "could not open file";
 		throw std::runtime_error(ss.str());
 	}
