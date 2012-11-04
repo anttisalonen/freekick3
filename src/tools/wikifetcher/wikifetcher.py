@@ -74,6 +74,29 @@ class PlayerConfigurator:
         etree.SubElement(skillsnode, 'GoalKeeping').text = str(goalkeeping)
         return playernode
 
+def createKitNode(node):
+    outnode = etree.Element('Kit')
+    outnode.set('type', node.get('type'))
+    for child in node:
+        if child.tag == 'Body':
+            tname = 'ShirtColor1'
+        elif child.tag == 'Body2':
+            tname = 'ShirtColor2'
+        elif child.tag == 'Shorts':
+            tname = 'ShortsColor'
+        elif child.tag == 'Socks':
+            tname = 'SocksColor'
+        else:
+            continue
+        r = int(child.get('r'))
+        g = int(child.get('g'))
+        b = int(child.get('b'))
+        n = etree.SubElement(outnode, tname)
+        n.set('r', str(r))
+        n.set('g', str(g))
+        n.set('b', str(b))
+    return outnode
+
 class Converter:
     def __init__(self):
         self.nextteamid = 1
@@ -108,6 +131,11 @@ class Converter:
                     etree.SubElement(out_playernode, 'Player').set('id', str(self.nextplayerid))
                     self.nextplayerid += 1
                     out_playernodes.append(playernode)
+
+                out_kitsnode = etree.SubElement(out_teamnode, 'Kits')
+                for in_kitnode in in_teamnode.xpath('Kit'):
+                    out_kitnode = createKitNode(in_kitnode)
+                    out_kitsnode.append(out_kitnode)
             break # TODO: support more than one group
         return out_leaguenode, out_playernodes
 
