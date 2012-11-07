@@ -96,10 +96,17 @@ void TeamBrowser::addLeagueButtons(boost::shared_ptr<LeagueSystem> c)
 	mLeagueButtons.clear();
 	int maxnum = c->getContainer().size();
 	int i = 0;
-	/* NOTE: the ordering is alphabetical */
+	std::vector<boost::shared_ptr<League>> leagues;
 	for(auto league : c->getContainer()) {
-		const std::string& tname = league.second->getName();
-		mLeagueButtons.insert(std::make_pair(tname, league.second));
+		leagues.push_back(league.second);
+	}
+
+	std::sort(leagues.begin(), leagues.end(), [](boost::shared_ptr<League> l1, boost::shared_ptr<League> l2) {
+		return l1->getLevel() < l2->getLevel(); });
+
+	for(auto l : leagues) {
+		const std::string& tname = l->getName();
+		mLeagueButtons.insert(std::make_pair(tname, l));
 		addSelectionButton(tname.c_str(), i, maxnum);
 		i++;
 	}
