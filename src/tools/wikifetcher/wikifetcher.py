@@ -6,6 +6,7 @@ import os
 import glob
 from lxml import etree
 import random
+import re
 
 def mkdir_p(path):
     try:
@@ -97,6 +98,25 @@ def createKitNode(node):
         n.set('b', str(b))
     return outnode
 
+def shortenName(string):
+    maxStringLen = 23
+    stringLen = len(string)
+    if stringLen <= maxStringLen:
+        return string
+    names = string.split()
+    shortername = ''
+    shorterStringLen = stringLen
+    for n in names[:-1]:
+        if len(n) > 2 and shorterStringLen > maxStringLen:
+            shortername += n[0] + '. '
+            shorterStringLen -= (len(n) - 2)
+        else:
+            shortername += n + ' '
+    shortername += names[-1]
+    if len(shortername) <= maxStringLen:
+        return shortername
+    return shortername[:(maxStringLen - 2)].strip() + '.'
+
 class Converter:
     def __init__(self):
         self.nextteamid = 1
@@ -112,11 +132,17 @@ class Converter:
         title = in_leagueroot.get('title')
         out_leaguenode.set('name', title)
         for in_groupnode in in_leagueroot.xpath('/League/Group'):
+            if len(out_leaguenode) > 0:
+                print "Warning: already have a group, won't include group '%s'." % in_groupnode.get('title')
+                continue
             for in_teamnode in in_groupnode.xpath('Team'):
                 out_teamnode = etree.SubElement(out_leaguenode, 'Team')
                 out_teamnode.set('id', str(self.nextteamid))
                 self.nextteamid += 1
                 teamname = in_teamnode.get('name')
+                teamname = re.sub(' F\.C\.$', '', teamname)
+                teamname = re.sub('^F\.C\. ', '', teamname)
+                teamname = shortenName(teamname.strip())
                 etree.SubElement(out_teamnode, 'Name').text = teamname
                 out_playernode = etree.SubElement(out_teamnode, 'Players')
 
@@ -126,7 +152,7 @@ class Converter:
                     player_num  = in_playernode.get('number')
                     player_pos  = in_playernode.get('pos')
                     player_nat  = in_playernode.get('nationality')
-                    pc = PlayerConfigurator(player_name, player_num, player_pos, player_nat)
+                    pc = PlayerConfigurator(shortenName(player_name), player_num, player_pos, player_nat)
                     playernode = pc.createFreekick3Node(self.nextplayerid)
                     etree.SubElement(out_playernode, 'Player').set('id', str(self.nextplayerid))
                     self.nextplayerid += 1
@@ -144,9 +170,6 @@ class Converter:
                 for in_kitnode in in_teamnode.xpath('Kit'):
                     out_kitnode = createKitNode(in_kitnode)
                     out_kitsnode.append(out_kitnode)
-            if len(out_leaguenode) == 0:
-                continue
-            break # TODO: support more than one group
         return out_leaguenode, int(in_leagueroot.get('level_number')), out_playernodes
 
     def collect(self, indir, outdir):
