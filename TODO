@@ -12,7 +12,6 @@ Display match statistics during match on key press
 Team tactics screen: Ability to set and see offensive flag on players
 Offsides
 Tactics AI should consider opponent and opponent's tactics
-Goalkeeper dives
 
 Larger tasks:
 Match weather
@@ -20,10 +19,15 @@ Injuries
 Yellow and red cards
 Displaying the referee
 Substitutions
-Cups
-Seasons
-Career mode
 Replay ability
 International teams
 Coach mode
 Sound effects
+Goalkeeper dives
+Dynamic energy status for teams
+ - Initially lower energy status for the away team
+ - Changes with time, ball possession, goals
+ - e.g.:
+  - on first goal, scoring team energy lowered, other team energy raised
+  - on connection goal, scoring team energy raised
+  - notion of break point, where the goal lowers energy of both teams
