@@ -155,7 +155,7 @@ std::vector<boost::shared_ptr<StatefulTeam>> StatefulTournamentStage::getTeamsBy
 	}
 
 	std::vector<boost::shared_ptr<StatefulTeam>> ret;
-	int maxTeams = 0;
+	unsigned int maxTeams = 0;
 	for(auto& l : individualLists) {
 		if(l.size() > maxTeams)
 			maxTeams = l.size();

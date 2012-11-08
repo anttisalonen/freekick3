@@ -280,7 +280,7 @@ int SimulationStrength::pickOne(const std::vector<float>& values)
 MatchResult SimulationStrength::simulateAgainst(const SimulationStrength& t2, const MatchRules& r)
 {
 	const int steps = 9;
-	int homegoals = 0, awaygoals = 0;
+	unsigned int homegoals = 0, awaygoals = 0;
 
 	float totalTry = mCenterTry + mLeftTry + mRightTry +
 		t2.mCenterTry + t2.mLeftTry + t2.mRightTry;
@@ -330,7 +330,7 @@ MatchResult SimulationStrength::simulateAgainst(const SimulationStrength& t2, co
 
 }
 
-void SimulationStrength::simulateStep(const SimulationStrength& t2, int& homegoals, int& awaygoals, const std::vector<float>& tries)
+void SimulationStrength::simulateStep(const SimulationStrength& t2, unsigned int& homegoals, unsigned int& awaygoals, const std::vector<float>& tries)
 {
 #ifdef DEBUG_SIMULATION
 	printf("Step ");

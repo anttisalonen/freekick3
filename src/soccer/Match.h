@@ -41,15 +41,15 @@ class MatchRules {
 
 struct MatchResult {
 	MatchResult() : Played(false) { }
-	MatchResult(int h, int a, int hp = 0, int ap = 0) :
+	MatchResult(unsigned int h, unsigned int a, unsigned int hp = 0, unsigned int ap = 0) :
 		HomeGoals(h), AwayGoals(a),
 		HomePenalties(hp), AwayPenalties(ap),
 		Played(true) { }
 
-	int HomeGoals = 0;
-	int AwayGoals = 0;
-	int HomePenalties = 0;
-	int AwayPenalties = 0;
+	unsigned int HomeGoals = 0;
+	unsigned int AwayGoals = 0;
+	unsigned int HomePenalties = 0;
+	unsigned int AwayPenalties = 0;
 	bool Played;
 
 	friend class boost::serialization::access;
@@ -91,7 +91,7 @@ class SimulationStrength {
 		MatchResult simulateAgainst(const SimulationStrength& t2, const MatchRules& r);
 
 	private:
-		void simulateStep(const SimulationStrength& t2, int& homegoals, int& awaygoals, const std::vector<float>& tries);
+		void simulateStep(const SimulationStrength& t2, unsigned int& homegoals, unsigned int& awaygoals, const std::vector<float>& tries);
 
 		static int pickOne(const std::vector<float>& values);
 		float mCenterDefense;

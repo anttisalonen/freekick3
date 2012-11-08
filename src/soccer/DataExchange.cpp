@@ -209,13 +209,13 @@ boost::shared_ptr<Match> DataExchange::parseMatchDataFile(const char* fn)
 	mres.Played = played;
 
 	if(mres.Played) {
-		if(matchreselem->QueryIntAttribute("home", &mres.HomeGoals) != TIXML_SUCCESS)
+		if(matchreselem->QueryUnsignedAttribute("home", &mres.HomeGoals) != TIXML_SUCCESS)
 			throw std::runtime_error(ss.str());
-		if(matchreselem->QueryIntAttribute("away", &mres.AwayGoals) != TIXML_SUCCESS)
+		if(matchreselem->QueryUnsignedAttribute("away", &mres.AwayGoals) != TIXML_SUCCESS)
 			throw std::runtime_error(ss.str());
-		if(matchreselem->QueryIntAttribute("homePenalties", &mres.HomePenalties) != TIXML_SUCCESS)
+		if(matchreselem->QueryUnsignedAttribute("homePenalties", &mres.HomePenalties) != TIXML_SUCCESS)
 			throw std::runtime_error(ss.str());
-		if(matchreselem->QueryIntAttribute("awayPenalties", &mres.AwayPenalties) != TIXML_SUCCESS)
+		if(matchreselem->QueryUnsignedAttribute("awayPenalties", &mres.AwayPenalties) != TIXML_SUCCESS)
 			throw std::runtime_error(ss.str());
 	}
 

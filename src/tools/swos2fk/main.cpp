@@ -195,7 +195,7 @@ void SwosParser::correct_name(char* n)
 class FreekickWriter {
 	public:
 		FreekickWriter(const std::string& outputDir, const std::string& teamFile,
-				bool scramble, const std::vector<s_team>& teams);
+				bool scrambl, const std::vector<s_team>& teams);
 		int write();
 
 	private:
@@ -216,13 +216,13 @@ class FreekickWriter {
 };
 
 FreekickWriter::FreekickWriter(const std::string& outputDir, const std::string& teamFile,
-		bool scramble, const std::vector<s_team>& teams)
+		bool scrambl, const std::vector<s_team>& teams)
 	 : mOutputDir(outputDir),
 	 mTeamFile(teamFile),
 	 mTeams(teams),
 	 mCurrentTeamId(1),
 	 mCurrentLeagueId(1),
-	 mScramble(scramble)
+	 mScramble(scrambl)
 {
 	if(mTeamFile.empty()) {
 		setupDefaultNationalities();

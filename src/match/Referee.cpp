@@ -71,14 +71,14 @@ boost::shared_ptr<RefereeAction> Referee::act(double time)
 					if(!mWaitForResumeClock.running()) {
 						if(mFouledTeam != 0) {
 							mOutOfPlayClock.rewind();
-							boost::shared_ptr<RefereeAction> act = setFoulRestart();
-							return act;
+							boost::shared_ptr<RefereeAction> a = setFoulRestart();
+							return a;
 						}
 						if(!MatchHelpers::onPitch(*mMatch->getBall())) {
-							boost::shared_ptr<RefereeAction> act = setOutOfPlay();
-							if(act) {
+							boost::shared_ptr<RefereeAction> a = setOutOfPlay();
+							if(a) {
 								mOutOfPlayClock.rewind();
-								return act;
+								return a;
 							}
 						}
 					}
