@@ -48,9 +48,9 @@ int Player::getSkillIndex(const Player& p)
 		sk.RunSpeed + sk.Heading +
 		sk.ShotPower + sk.Tackling) * 1000.0f / 6;
 	if(gkskill > fieldskill)
-		return -std::min(1000, int(gkskill * 1.5f));
+		return -std::min(1000, int(gkskill * 1.0f));
 	else
-		return std::min(1000, int(fieldskill * 1.5f));
+		return std::min(1000, int(fieldskill * 1.0f));
 }
 
 std::string Player::getTopSkillsString(const Player& p)
