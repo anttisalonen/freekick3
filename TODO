@@ -31,3 +31,9 @@ Dynamic energy status for teams
   - on first goal, scoring team energy lowered, other team energy raised
   - on connection goal, scoring team energy raised
   - notion of break point, where the goal lowers energy of both teams
+ - Add risk taking for losing team, add careful playing for winning team
+Consider new team tactics settings, e.g.:
+ - Wing attacks
+ - Careful playing
+Curved shots
+ - curve strength and direction depends on the shape of the triangle formed by player, ball position, target position
