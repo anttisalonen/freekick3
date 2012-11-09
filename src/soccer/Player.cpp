@@ -43,10 +43,26 @@ std::string Player::getShorterName(const Player& p)
 int Player::getSkillIndex(const Player& p)
 {
 	const PlayerSkills& sk = p.getSkills();
-	int gkskill = sk.GoalKeeping * 1000;
-	int fieldskill = (sk.Passing + sk.BallControl +
-		sk.RunSpeed + sk.Heading +
-		sk.ShotPower + sk.Tackling) * 1000.0f / 6;
+	/* field skill index is the average of the top three skills.
+	 * goal keeper skill index is just the goal keeping skill,
+	 * scaled down a bit for compensation. */
+	int gkskill = sk.GoalKeeping * 950;
+	auto s = getTopSkillsString(p);
+	float fieldskill = 0.0f;
+	assert(s.size() == 3);
+	for(auto c : s) {
+		switch(c) {
+			default:
+			case 'P': fieldskill += sk.Passing; break; 
+			case 'S': fieldskill += sk.RunSpeed; break; 
+			case 'C': fieldskill += sk.BallControl; break; 
+			case 'H': fieldskill += sk.Heading; break; 
+			case 'V': fieldskill += sk.ShotPower; break; 
+			case 'T': fieldskill += sk.Tackling; break; 
+		}
+	}
+	fieldskill *= 1000.0f;
+	fieldskill /= float(s.size());
 	if(gkskill > fieldskill)
 		return -std::min(1000, int(gkskill * 1.0f));
 	else

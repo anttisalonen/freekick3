@@ -237,7 +237,7 @@ void TeamTacticsScreen::addPlayerLabels(const boost::shared_ptr<Player> pl, int 
 			col = Common::Color::Yellow;
 			gk = true;
 		}
-		mSkillLabels[i].push_back(addLabel(std::to_string(abs(skill / 100)).c_str(),
+		mSkillLabels[i].push_back(addLabel(std::to_string(abs(skill / 40)).c_str(),
 					x + namewidth + 0.01f, y + nameheight * 0.5f,
 					TextAlignment::MiddleLeft,
 					0.5f, col));
@@ -247,7 +247,7 @@ void TeamTacticsScreen::addPlayerLabels(const boost::shared_ptr<Player> pl, int 
 	if(!gk) {
 		const std::string top = Player::getTopSkillsString(*pl);
 		mTop3Labels[i].push_back(addLabel(top.c_str(),
-					x + namewidth + 0.025f, y + nameheight * 0.5f,
+					x + namewidth + 0.030, y + nameheight * 0.5f,
 					TextAlignment::MiddleLeft,
 					0.5f, Common::Color::White));
 	}

@@ -53,9 +53,12 @@ TeamTactics AITactics::createTeamTactics(const Team& team, unsigned int def, uns
 	assert(skillvalues.size() >= 11);
 
 	std::sort(skillvalues.begin(), skillvalues.end(), [](const Item& i1, const Item& i2) {
-			return i1.second.Goalkeeping > i1.second.Goalkeeping; });
+			return i1.second.Goalkeeping > i2.second.Goalkeeping; });
 
 	boost::shared_ptr<Player> goalkeeper = skillvalues[0].first;
+#ifdef TACTICS_DEBUG
+	std::cout << "Picked GK (" << skillvalues[0].second.Goalkeeping << ") " << goalkeeper->getName() << "\n";
+#endif
 	std::vector<boost::shared_ptr<Player>> defenders, midfielders, forwards;
 	skillvalues.erase(skillvalues.begin());
 
@@ -118,7 +121,7 @@ TeamTactics AITactics::createTeamTactics(const Team& team, unsigned int def, uns
 				defenders.push_back(bestplayer->first);
 				defslots--;
 #ifdef TACTICS_DEBUG
-				std::cout << "Picked DF " << bestplayer->first->getName() << "\n";
+				std::cout << "Picked DF (" << bestplayer->second.Defending << ") " << bestplayer->first->getName() << "\n";
 #endif
 				break;
 
@@ -126,7 +129,7 @@ TeamTactics AITactics::createTeamTactics(const Team& team, unsigned int def, uns
 				midfielders.push_back(bestplayer->first);
 				mfslots--;
 #ifdef TACTICS_DEBUG
-				std::cout << "Picked MF " << bestplayer->first->getName() << "\n";
+				std::cout << "Picked MF (" << bestplayer->second.Midfield << ") " << bestplayer->first->getName() << "\n";
 #endif
 				break;
 
@@ -134,7 +137,7 @@ TeamTactics AITactics::createTeamTactics(const Team& team, unsigned int def, uns
 				forwards.push_back(bestplayer->first);
 				fwslots--;
 #ifdef TACTICS_DEBUG
-				std::cout << "Picked FW " << bestplayer->first->getName() << "\n";
+				std::cout << "Picked FW (" << bestplayer->second.Forward << ") " << bestplayer->first->getName() << "\n";
 #endif
 				break;
 		}
@@ -218,10 +221,21 @@ TeamTactics AITactics::createTeamTactics(const Team& team, unsigned int def, uns
 	float tackdiff = tacklingavg - totalavg;
 	float speddiff = speedavg - totalavg;
 
-	tt.Pressure    = Common::clamp(0.0f, 0.5f +  speddiff * 5.0f +  tackdiff * 5.0f, 1.0f);
-	tt.LongBalls   = Common::clamp(0.0f, 0.5f + -passdiff * 5.0f +  headdiff * 5.0f, 1.0f);
-	tt.FastPassing = Common::clamp(0.0f, 0.5f +  passdiff * 5.0f + -contdiff * 5.0f, 1.0f);
-	tt.ShootClose  = Common::clamp(0.0f, 0.5f + -shotdiff * 5.0f +  speddiff * 5.0f, 1.0f);
+	std::vector<float> diffs = {fabs(passdiff), fabs(headdiff), fabs(contdiff),
+		fabs(shotdiff), fabs(tackdiff), fabs(speddiff)};
+	auto maxdiff = *std::max_element(diffs.begin(), diffs.end());
+
+	float var = maxdiff > 0.001f ? 0.25f / maxdiff : 5.0f;
+
+#ifdef TACTICS_DEBUG
+	printf("Tactics maximum difference:   %3.4f\n", maxdiff);
+	printf("Tactics variance coefficient: %3.4f\n", var);
+#endif
+
+	tt.Pressure    = Common::clamp(0.0f, 0.5f + var * (speddiff + tackdiff), 1.0f);
+	tt.LongBalls   = Common::clamp(0.0f, 0.5f + var * (headdiff - passdiff), 1.0f);
+	tt.FastPassing = Common::clamp(0.0f, 0.5f + var * (passdiff - contdiff), 1.0f);
+	tt.ShootClose  = Common::clamp(0.0f, 0.5f + var * (speddiff - shotdiff), 1.0f);
 
 #ifdef TACTICS_DEBUG
 	printf("Passing:        %3.4f - %3.4f\n", passavg, passdiff);
