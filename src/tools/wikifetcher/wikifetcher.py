@@ -22,22 +22,36 @@ class PlayerPosition:
     DF = 1
     MF = 2
     FW = 3
+    WI = 4
+    BK = 5
 
     def __init__(self, string):
         string = string.strip()
         string = string[:2]
         if string == 'GK':
             self.pos = self.GK
-        elif string == 'DF' or string == 'CB':
+        elif string == 'CB':
             self.pos = self.DF
-        elif string == 'MF' or string == 'CM' or string == 'LM' or string == 'RM' or string == 'WI':
+        elif string == 'DF':
+            if random.choice([True, False]):
+                self.pos = self.DF
+            else:
+                self.pos = self.BK
+        elif string == 'MF':
+            if random.choice([True, False]):
+                self.pos = self.MF
+            else:
+                self.pos = self.WI
+        elif string == 'CM':
             self.pos = self.MF
+        elif string == 'LM' or string == 'RM' or string == 'WI':
+            self.pos = self.WI
         elif string == 'FW':
             self.pos = self.FW
         else:
             if string != '--':
                 print >> sys.stderr, 'Unknown player position string: "%s"' % string
-            self.pos = random.choice([self.GK] + 4 * [self.DF] + 4 * [self.MF] + 2 * [self.FW])
+            self.pos = random.choice([self.GK] + 2 * [self.DF] + 2 * [self.BK] + 2 * [self.MF] + 2 * [self.WI] + 2 * [self.FW])
 
 class Nationality:
     def __init__(self, string):
@@ -60,13 +74,82 @@ class PlayerConfigurator:
         namenode.text = self.name
         skillsnode = etree.SubElement(playernode, 'Skills')
         # TODO: set skills correctly
-        shotpower = self.teamstrength
-        passing = self.teamstrength
-        runspeed = self.teamstrength
-        ballcontrol = self.teamstrength
-        tackling = self.teamstrength
-        heading = self.teamstrength
-        goalkeeping = self.teamstrength
+        shift = 0.2
+        minskillvalue = 0.01
+        assert self.teamstrength <= 1.0
+        def get_skill(mode):
+            v = random.triangular(mode - shift, mode, mode - shift * 0.5)
+            return max(minskillvalue, v)
+        def top_skill():
+            return get_skill(self.teamstrength)
+        def good_skill():
+            return get_skill(self.teamstrength * 0.85)
+        def standard_skill():
+            return get_skill(self.teamstrength * 0.7)
+        def poor_skill():
+            return get_skill(self.teamstrength * 0.5)
+        def bad_skill():
+            return get_skill(self.teamstrength * 0.3)
+
+        # default
+        goalkeeping = bad_skill()
+
+        """ Two goals:
+        1. Each pitch position should in average have the same total skill.
+        2. Each skill should in average have the same total.
+        To reach #1, each position gets EITHER two top and two good skills
+        OR one top and four good skills.
+        To reach #2, each skill must total EITHER two top slots and one good
+        slot OR one top slot and three good slots OR five good slots.
+
+        This is based on standard_skill being 0.7 * t, good = 0.85 * t and
+        top = 1.0 * t.
+        """
+        if self.pos.pos == PlayerPosition.GK:
+            goalkeeping = top_skill()
+            shotpower   = standard_skill()
+            passing     = standard_skill()
+            tackling    = poor_skill()
+            ballcontrol = poor_skill()
+            runspeed    = poor_skill()
+            heading     = poor_skill()
+        elif self.pos.pos == PlayerPosition.DF:
+            tackling    = top_skill()
+            heading     = top_skill()
+            ballcontrol = good_skill()
+            passing     = good_skill()
+            shotpower   = standard_skill()
+            runspeed    = standard_skill()
+        elif self.pos.pos == PlayerPosition.BK:
+            tackling    = top_skill()
+            runspeed    = top_skill()
+            ballcontrol = good_skill()
+            shotpower   = good_skill()
+            passing     = standard_skill()
+            heading     = standard_skill()
+        elif self.pos.pos == PlayerPosition.MF:
+            passing     = top_skill()
+            heading     = good_skill()
+            tackling    = good_skill()
+            shotpower   = good_skill()
+            ballcontrol = good_skill()
+            runspeed    = standard_skill()
+        elif self.pos.pos == PlayerPosition.WI:
+            passing     = top_skill()
+            runspeed    = top_skill()
+            ballcontrol = good_skill()
+            shotpower   = good_skill()
+            tackling    = standard_skill()
+            heading     = standard_skill()
+        elif self.pos.pos == PlayerPosition.FW:
+            shotpower   = top_skill()
+            heading     = top_skill()
+            ballcontrol = good_skill()
+            runspeed    = good_skill()
+            passing     = standard_skill()
+            tackling    = standard_skill()
+        else:
+            print >> sys.stderr, 'Unknown player position:', self.pos.pos
         etree.SubElement(skillsnode, 'ShotPower').text = str(shotpower)
         etree.SubElement(skillsnode, 'Passing').text = str(passing)
         etree.SubElement(skillsnode, 'RunSpeed').text = str(runspeed)
@@ -101,6 +184,7 @@ def createKitNode(node):
 
 def shortenName(string):
     maxStringLen = 23
+    string = string.strip().replace("'", '').replace("'", '')
     stringLen = len(string)
     if stringLen <= maxStringLen:
         return string
@@ -139,7 +223,7 @@ class Converter:
                 teamname = in_teamnode.get('name')
                 teamname = re.sub(' F\.C\.$', '', teamname)
                 teamname = re.sub('^F\.C\. ', '', teamname)
-                teamname = shortenName(teamname.strip())
+                teamname = shortenName(teamname)
                 postext = in_teamnode.get('position')
                 if postext:
                     teampos = int(in_teamnode.get('position'))
