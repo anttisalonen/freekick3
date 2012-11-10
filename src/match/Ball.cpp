@@ -11,7 +11,7 @@ using Common::Vector3;
 static const float collisionIgnoreDistance = 1.5f;
 
 Ball::Ball(Match* match)
-	: MatchEntity(match, Common::Vector3(0, 0, 0)),
+	: MatchEntity(match, true, Common::Vector3(0, 0, 0)),
 	mGrabbed(false),
 	mGrabber(nullptr)
 {

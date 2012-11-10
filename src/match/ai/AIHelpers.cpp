@@ -2,6 +2,7 @@
 #include <algorithm>
 
 #include "common/Math.h"
+#include "common/Steering.h"
 
 #include "match/Team.h"
 #include "match/Match.h"
@@ -41,22 +42,10 @@ boost::shared_ptr<PlayerAction> AIHelpers::createMoveActionTo(const Player& p,
 
 boost::shared_ptr<PlayerAction> AIHelpers::createMoveActionToBall(const Player& p)
 {
+	Common::Steering s(p);
 	const Ball* b = p.getMatch()->getBall();
-	const Vector3& vel = b->getVelocity();
-	if(vel.length() < 8.0f || MatchEntity::distanceBetween(p, *b) < 2.0f) {
-		return createMoveActionTo(p, b->getPosition());
-	}
-	else {
-		Vector3 tgt(b->getPosition() + vel * 0.5f);
-		if(MatchHelpers::attacksUp(p))
-			tgt.y -= 0.5f;
-		else
-			tgt.y += 0.5f;
-		if(MatchHelpers::onPitch(*p.getMatch(), tgt))
-			return createMoveActionTo(p, tgt);
-		else
-			return createMoveActionTo(p, b->getPosition());
-	}
+	auto vec = s.pursuit(*b);
+	return createMoveActionTo(p, vec);
 }
 
 Vector3 AIHelpers::getShotPosition(const Player& p)

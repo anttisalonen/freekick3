@@ -1,15 +1,15 @@
 #ifndef MATCHENTITY_H
 #define MATCHENTITY_H
 
-#include "common/Entity.h"
+#include "common/Vehicle.h"
 
 #include "match/Distance.h"
 
 class Match;
 
-class MatchEntity : public Common::Entity {
+class MatchEntity : public Common::Vehicle {
 	public:
-		MatchEntity(Match* match, const Common::Vector3& pos);
+		MatchEntity(Match* match, bool ball, const Common::Vector3& pos);
 		virtual ~MatchEntity() { }
 		const Match* getMatch() const;
 

@@ -9,7 +9,7 @@ using Common::Vector3;
 
 Player::Player(Match* match, Team* team, const Soccer::Player& p,
 		ShirtNumber sn, const Soccer::PlayerTactics& t)
-	: MatchEntity(match, match->convertRelativeToAbsoluteVector(team->getPausePosition())),
+	: MatchEntity(match, false, match->convertRelativeToAbsoluteVector(team->getPausePosition())),
 	Soccer::Player(p),
 	mTeam(team),
 	mBallKickedTimer(1.0f - p.getSkills().Tackling * 0.5f),
