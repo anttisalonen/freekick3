@@ -34,21 +34,21 @@ class Team : public Soccer::StatefulTeam {
 		void act(double time);
 		const Match* getMatch() const;
 		Player* getPlayerNearestToBall() const;
-		float getShotScoreAt(const AbsVector3& pos) const;
-		float getPassScoreAt(const AbsVector3& pos) const;
+		float getShotScoreAt(const Common::Vector3& pos) const;
+		float getPassScoreAt(const Common::Vector3& pos) const;
 		void matchHalfChanged(MatchHalf m);
 		void setPlayerReceivingPass(Player* p);
 		Player* getPlayerReceivingPass();
 		void ballKicked(Player* p);
-		bool isOffsidePosition(const AbsVector3& pos) const;
+		bool isOffsidePosition(const Common::Vector3& pos) const;
 		const AITacticParameters& getAITacticParameters() const;
 	private:
 		void updatePlayerNearestToBall();
 		void updateSupportingPositions();
-		float calculateShotScoreAt(const AbsVector3& pos) const;
+		float calculateShotScoreAt(const Common::Vector3& pos) const;
 		float calculatePassScoreAt(const std::vector<boost::shared_ptr<Player>>& offensivePlayers,
-				const AbsVector3& pos) const;
-		void getSupportPositionCoordinates(const AbsVector3& pos, unsigned int& i, unsigned int& j) const;
+				const Common::Vector3& pos) const;
+		void getSupportPositionCoordinates(const Common::Vector3& pos, unsigned int& i, unsigned int& j) const;
 		Match* mMatch;
 		bool mFirst;
 		std::vector<boost::shared_ptr<Player>> mPlayers;

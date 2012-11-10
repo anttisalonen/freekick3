@@ -41,10 +41,10 @@ boost::shared_ptr<PlayerAction> AIGoalkeeperState::actOnBall(double time)
 
 boost::shared_ptr<PlayerAction> AIGoalkeeperState::actNearBall(double time)
 {
-	float balltogoaldist = (MatchHelpers::ownGoalPosition(*mPlayer).v - mPlayer->getMatch()->getBall()->getPosition().v).length();
-	float ballvel = mPlayer->getMatch()->getBall()->getVelocity().v.length();
-	float balltooppdist = (MatchHelpers::nearestOppositePlayerToBall(*mPlayer->getTeam())->getPosition().v -
-			MatchHelpers::ownGoalPosition(*mPlayer).v).length();
+	float balltogoaldist = (MatchHelpers::ownGoalPosition(*mPlayer) - mPlayer->getMatch()->getBall()->getPosition()).length();
+	float ballvel = mPlayer->getMatch()->getBall()->getVelocity().length();
+	float balltooppdist = (MatchHelpers::nearestOppositePlayerToBall(*mPlayer->getTeam())->getPosition() -
+			MatchHelpers::ownGoalPosition(*mPlayer)).length();
 
 	float disttonearestdef = MatchEntity::distanceBetween(*MatchHelpers::nearestOwnFieldPlayerToBall(*mPlayer->getTeam()),
 			*mPlayer->getMatch()->getBall());
@@ -69,51 +69,51 @@ boost::shared_ptr<PlayerAction> AIGoalkeeperState::actNearBall(double time)
 boost::shared_ptr<PlayerAction> AIGoalkeeperState::actOffBall(double time)
 {
 	const Ball* ball = mPlayer->getMatch()->getBall();
-	AbsVector3 ballpos = ball->getPosition();
-	Vector3 futureballpos = ballpos.v + ball->getVelocity().v * 0.5f;
-	Vector3 goalmiddlepoint = MatchHelpers::ownGoalPosition(*mPlayer).v;
+	Vector3 ballpos = ball->getPosition();
+	Vector3 futureballpos = ballpos + ball->getVelocity() * 0.5f;
+	Vector3 goalmiddlepoint = MatchHelpers::ownGoalPosition(*mPlayer);
 	static const float gkdisttogoal = 1.0f;
 	if(MatchHelpers::attacksUp(*mPlayer))
 		goalmiddlepoint.y += gkdisttogoal;
 	else
 		goalmiddlepoint.y -= gkdisttogoal;
 
-	float balltowardsgoal = Common::Math::pointToLineDistance(ballpos.v, futureballpos, goalmiddlepoint);
-	if(Common::signum(ball->getVelocity().v.y) == Common::signum(goalmiddlepoint.y) && balltowardsgoal < GOAL_WIDTH_2) {
-		Vector3 tgtpos = Common::Math::lineLineIntersection2D(ballpos.v,
+	float balltowardsgoal = Common::Math::pointToLineDistance(ballpos, futureballpos, goalmiddlepoint);
+	if(Common::signum(ball->getVelocity().y) == Common::signum(goalmiddlepoint.y) && balltowardsgoal < GOAL_WIDTH_2) {
+		Vector3 tgtpos = Common::Math::lineLineIntersection2D(ballpos,
 				futureballpos,
 				Vector3(-GOAL_WIDTH_2, goalmiddlepoint.y, 0),
 				Vector3(GOAL_WIDTH_2, goalmiddlepoint.y, 0));
 		// tgtpos may be null when the ball doesn't move
 		if(!tgtpos.null()) {
-			float timetogoal = (ballpos.v - goalmiddlepoint).length() / ball->getVelocity().v.length();
+			float timetogoal = (ballpos - goalmiddlepoint).length() / ball->getVelocity().length();
 			if(timetogoal < 0.5f && futureballpos.z > 2.0f &&
-					(tgtpos - mPlayer->getPosition().v).length() < 1.0f) {
+					(tgtpos - mPlayer->getPosition()).length() < 1.0f) {
 				// jump
-				tgtpos -= mPlayer->getPosition().v;
+				tgtpos -= mPlayer->getPosition();
 				tgtpos.z = fabs(futureballpos.z);
-				return boost::shared_ptr<PlayerAction>(new JumpToPA(AbsVector3(tgtpos)));
+				return boost::shared_ptr<PlayerAction>(new JumpToPA(Vector3(tgtpos)));
 			}
 			else {
-				return AIHelpers::createMoveActionTo(*mPlayer, AbsVector3(tgtpos));
+				return AIHelpers::createMoveActionTo(*mPlayer, Vector3(tgtpos));
 			}
 		}
 	}
 
-	AbsVector3 diffvec = ballpos.v - mPivotPoint.v;
-	AbsVector3 vectoball = MatchEntity::vectorFromTo(*mPlayer, *mPlayer->getMatch()->getBall());
-	if(vectoball.v.length() < 10.0f) {
-		AbsVector3 vectogoal = MatchHelpers::ownGoalPosition(*mPlayer).v - mPlayer->getPosition().v;
-		if(vectogoal.v.length() < 10.0f) {
+	Vector3 diffvec = ballpos - mPivotPoint;
+	Vector3 vectoball = MatchEntity::vectorFromTo(*mPlayer, *mPlayer->getMatch()->getBall());
+	if(vectoball.length() < 10.0f) {
+		Vector3 vectogoal = MatchHelpers::ownGoalPosition(*mPlayer) - mPlayer->getPosition();
+		if(vectogoal.length() < 10.0f) {
 			return AIHelpers::createMoveActionTo(*mPlayer, ballpos);
 		}
 	}
-	AbsVector3 point = mPivotPoint.v + diffvec.v.normalized() * mDistanceFromPivot;
-	point.v.x = Common::clamp(-3.0f, point.v.x, 3.0f);
-	if(mPivotPoint.v.y > 0)
-		point.v.y = std::min(mPlayer->getMatch()->getPitchHeight() * 0.5f, point.v.y);
+	Vector3 point = mPivotPoint + diffvec.normalized() * mDistanceFromPivot;
+	point.x = Common::clamp(-3.0f, point.x, 3.0f);
+	if(mPivotPoint.y > 0)
+		point.y = std::min(mPlayer->getMatch()->getPitchHeight() * 0.5f, point.y);
 	else
-		point.v.y = std::max(mPlayer->getMatch()->getPitchHeight() * -0.5f, point.v.y);
+		point.y = std::max(mPlayer->getMatch()->getPitchHeight() * -0.5f, point.y);
 
 	return AIHelpers::createMoveActionTo(*mPlayer, point);
 }

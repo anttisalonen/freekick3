@@ -51,7 +51,7 @@ class MatchSDLGUI : public MatchGUI, public PlayerController {
 		void drawText(float x, float y,
 				const Common::FontConfig& f,
 				bool screencoordinates, bool centered);
-		AbsVector3 getMousePositionOnPitch() const;
+		Common::Vector3 getMousePositionOnPitch() const;
 		void setupPitchLines();
 		void drawPitchLines();
 		void drawGoals();

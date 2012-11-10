@@ -6,6 +6,8 @@
 #include "match/PlayerActions.h"
 #include "match/ai/AIHelpers.h"
 
+using Common::Vector3;
+
 PlayerAIController::PlayerAIController(Player* p)
 	: PlayerController(p),
 	mKickInTimer(1.0f)
@@ -24,7 +26,7 @@ boost::shared_ptr<PlayerAction> PlayerAIController::act(double time)
 		case MatchHalf::HalfTimePauseEnd:
 		case MatchHalf::FullTimePauseEnd:
 			if(mPlayer->getShirtNumber() >= 10 && MatchHelpers::myTeamInControl(*mPlayer))
-				return AIHelpers::createMoveActionTo(*mPlayer, AbsVector3(mPlayer->getShirtNumber() == 10 ?
+				return AIHelpers::createMoveActionTo(*mPlayer, Vector3(mPlayer->getShirtNumber() == 10 ?
 							-1.0f : 2.0f, 0, 0));
 			else
 				return AIHelpers::createMoveActionTo(*mPlayer,
@@ -80,11 +82,11 @@ boost::shared_ptr<PlayerAction> PlayerAIController::actOffPlay(double time)
 		}
 		else {
 			if(mPlayer->getMatch()->getMatchHalf() == MatchHalf::PenaltyShootout) {
-				return AIHelpers::createMoveActionTo(*mPlayer, AbsVector3(0, 0, 0));
+				return AIHelpers::createMoveActionTo(*mPlayer, Vector3(0, 0, 0));
 			} else {
 				if(mPlayer->getMatch()->getPlayState() == PlayState::OutKickoff) {
 					if(mPlayer->getShirtNumber() >= 10)
-						return AIHelpers::createMoveActionTo(*mPlayer, AbsVector3(mPlayer->getShirtNumber() == 10 ?
+						return AIHelpers::createMoveActionTo(*mPlayer, Vector3(mPlayer->getShirtNumber() == 10 ?
 									-1.0f : 2.0f, 0, 0));
 					else
 						return AIHelpers::createMoveActionTo(*mPlayer,
@@ -104,7 +106,7 @@ boost::shared_ptr<PlayerAction> PlayerAIController::actOffPlay(double time)
 			if(mPlayer->isGoalkeeper()) {
 				return mPlayState->actOnRestart(time);
 			} else {
-				return AIHelpers::createMoveActionTo(*mPlayer, AbsVector3(0, 0, 0));
+				return AIHelpers::createMoveActionTo(*mPlayer, Vector3(0, 0, 0));
 			}
 		} else {
 			return mPlayState->actOnRestart(time);
@@ -115,7 +117,7 @@ boost::shared_ptr<PlayerAction> PlayerAIController::actOffPlay(double time)
 // called when this player should restart the game
 boost::shared_ptr<PlayerAction> PlayerAIController::doRestart(double time)
 {
-	AbsVector3 shoulddiff;
+	Vector3 shoulddiff;
 
 	// if the ball is far out, idle
 	if(MatchHelpers::distanceToPitch(*mPlayer->getMatch(),
@@ -123,14 +125,14 @@ boost::shared_ptr<PlayerAction> PlayerAIController::doRestart(double time)
 		return boost::shared_ptr<PlayerAction>(new IdlePA());
 	}
 
-	const AbsVector3& ballpos = mPlayer->getMatch()->getBall()->getPosition();
+	const Vector3& ballpos = mPlayer->getMatch()->getBall()->getPosition();
 	switch(mPlayer->getMatch()->getPlayState()) {
 		case PlayState::OutThrowin:
 			{
-				if(ballpos.v.x < 0.0f)
-					shoulddiff.v.x = -1.0f;
+				if(ballpos.x < 0.0f)
+					shoulddiff.x = -1.0f;
 				else
-					shoulddiff.v.x = 1.0f;
+					shoulddiff.x = 1.0f;
 
 				break;
 			}
@@ -142,28 +144,28 @@ boost::shared_ptr<PlayerAction> PlayerAIController::doRestart(double time)
 		case PlayState::OutGoalkick:
 			{
 				if(MatchHelpers::attacksUp(*mPlayer))
-					shoulddiff.v.y = -1.0f;
+					shoulddiff.y = -1.0f;
 				else
-					shoulddiff.v.y = 1.0f;
+					shoulddiff.y = 1.0f;
 				break;
 			}
 
 		case PlayState::OutCornerkick:
 			{
-				if(ballpos.v.x < 0.0f)
-					shoulddiff.v.x = -1.0f;
+				if(ballpos.x < 0.0f)
+					shoulddiff.x = -1.0f;
 				else
-					shoulddiff.v.x = 1.0f;
-				if(ballpos.v.y < 0.0f)
-					shoulddiff.v.y = -1.0f;
+					shoulddiff.x = 1.0f;
+				if(ballpos.y < 0.0f)
+					shoulddiff.y = -1.0f;
 				else
-					shoulddiff.v.y = 1.0f;
+					shoulddiff.y = 1.0f;
 
 				break;
 			}
 
 		case PlayState::OutKickoff:
-			shoulddiff.v.x = -1.0f;
+			shoulddiff.x = -1.0f;
 			break;
 
 		case PlayState::InPlay:
@@ -171,22 +173,22 @@ boost::shared_ptr<PlayerAction> PlayerAIController::doRestart(double time)
 			break;
 	}
 
-	shoulddiff.v.normalize();
-	shoulddiff.v *= MAX_KICK_DISTANCE * 0.8f;
-	AbsVector3 shouldpos(mPlayer->getMatch()->getBall()->getPosition().v + shoulddiff.v);
+	shoulddiff.normalize();
+	shoulddiff *= MAX_KICK_DISTANCE * 0.8f;
+	Vector3 shouldpos(mPlayer->getMatch()->getBall()->getPosition() + shoulddiff);
 	return gotoKickPositionOrKick(time, shouldpos);
 }
 
-boost::shared_ptr<PlayerAction> PlayerAIController::gotoKickPositionOrKick(double time, const AbsVector3& pos)
+boost::shared_ptr<PlayerAction> PlayerAIController::gotoKickPositionOrKick(double time, const Vector3& pos)
 {
 	// called with the position where the player should restart from
-	AbsVector3 tgt(pos.v - mPlayer->getPosition().v);
-	if(tgt.v.length() < 0.5f) {
+	Vector3 tgt(pos - mPlayer->getPosition());
+	if(tgt.length() < 0.5f) {
 		// near target - see if we can kick the ball (should be true)
 		// if we can, wait for a while, then restart
 		// if we can't, run to the ball
-		float dist = (mPlayer->getMatch()->getBall()->getPosition().v -
-				mPlayer->getPosition().v).length();
+		float dist = (mPlayer->getMatch()->getBall()->getPosition() -
+				mPlayer->getPosition()).length();
 		bool shouldkickball = MatchHelpers::playersPositionedForRestart(*mPlayer->getMatch(), *mPlayer);
 		if(shouldkickball) {
 			if(dist < MAX_KICK_DISTANCE * 1.0f) {

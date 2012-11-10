@@ -70,8 +70,8 @@ boost::shared_ptr<PlayerAction> AIPlayController::actOnRestart(double time)
 	if(!MatchHelpers::myTeamInControl(*mPlayer) &&
 			mPlayer->getMatch()->getPlayState() == PlayState::OutDirectFreekick &&
 			!mPlayer->isGoalkeeper() && mPlayer->getShirtNumber() >= 8) {
-		Vector3 ballpos = mPlayer->getMatch()->getBall()->getPosition().v;
-		Vector3 goalpos = MatchHelpers::ownGoalPosition(*mPlayer).v;
+		Vector3 ballpos = mPlayer->getMatch()->getBall()->getPosition();
+		Vector3 goalpos = MatchHelpers::ownGoalPosition(*mPlayer);
 		if((ballpos - goalpos).length() < 35.0f) {
 			Vector3 mypos = (goalpos - ballpos).normalized() * 9.50f;
 
@@ -84,23 +84,23 @@ boost::shared_ptr<PlayerAction> AIPlayController::actOnRestart(double time)
 			mypos += perp * dist;
 
 			return AIHelpers::createMoveActionTo(*mPlayer,
-					AbsVector3(ballpos + mypos));
+					Vector3(ballpos + mypos));
 		}
 	}
 
 	// if we're blocking the game, move away from the ball
 	if(MatchHelpers::playerBlockingRestart(*mPlayer)) {
-		AbsVector3 dir = MatchEntity::vectorFromTo(*mPlayer->getMatch()->getBall(),
+		Vector3 dir = MatchEntity::vectorFromTo(*mPlayer->getMatch()->getBall(),
 				*mPlayer);
 
-		if(dir.v.null() || mPlayer->getMatch()->getPlayState() == PlayState::OutPenaltykick) {
+		if(dir.null() || mPlayer->getMatch()->getPlayState() == PlayState::OutPenaltykick) {
 			dir = mPlayer->getMatch()->getBall()->getPosition();
-			dir.v *= -1.0f;
+			dir *= -1.0f;
 		}
-		dir.v.normalize();
+		dir.normalize();
 
 		return AIHelpers::createMoveActionTo(*mPlayer,
-				AbsVector3(mPlayer->getPosition().v + dir.v));
+				Vector3(mPlayer->getPosition() + dir));
 	}
 	else {
 		return mCurrentState->actOffBall(time);

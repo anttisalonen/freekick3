@@ -21,22 +21,22 @@ class IdlePA : public PlayerAction {
 
 class RunToPA : public PlayerAction {
 	public:
-		RunToPA(const AbsVector3& v);
+		RunToPA(const Common::Vector3& v);
 		void applyPlayerAction(Match& match, Player& p, double time);
 		std::string getDescription() const;
 	private:
-		AbsVector3 mDiff;
+		Common::Vector3 mDiff;
 };
 
 class KickBallPA : public PlayerAction {
 	public:
 		// the vector length should be between 0 and 1,
 		// 1 being the maximum power
-		KickBallPA(const AbsVector3& v, Player* passtgt = nullptr, bool absolute = false);
+		KickBallPA(const Common::Vector3& v, Player* passtgt = nullptr, bool absolute = false);
 		void applyPlayerAction(Match& match, Player& p, double time);
 		std::string getDescription() const;
 	private:
-		AbsVector3 mDiff;
+		Common::Vector3 mDiff;
 		Player* mPassTarget;
 		bool mAbsolute;
 };
@@ -49,20 +49,20 @@ class GrabBallPA : public PlayerAction {
 
 class TacklePA : public PlayerAction {
 	public:
-		TacklePA(const AbsVector3& v);
+		TacklePA(const Common::Vector3& v);
 		void applyPlayerAction(Match& match, Player& p, double time);
 		std::string getDescription() const;
 	private:
-		AbsVector3 mDiff;
+		Common::Vector3 mDiff;
 };
 
 class JumpToPA : public PlayerAction {
 	public:
-		JumpToPA(const AbsVector3& v);
+		JumpToPA(const Common::Vector3& v);
 		void applyPlayerAction(Match& match, Player& p, double time);
 		std::string getDescription() const;
 	private:
-		AbsVector3 mDiff;
+		Common::Vector3 mDiff;
 };
 
 #endif

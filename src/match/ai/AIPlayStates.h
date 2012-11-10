@@ -36,7 +36,7 @@ class AIState {
 	protected:
 		boost::shared_ptr<PlayerAction> switchState(boost::shared_ptr<AIState> newstate, double time);
 		void setNewState(boost::shared_ptr<AIState> newstate);
-		boost::shared_ptr<PlayerAction> gotoKickPositionOrKick(double time, const AbsVector3& pos) const;
+		boost::shared_ptr<PlayerAction> gotoKickPositionOrKick(double time, const Common::Vector3& pos) const;
 		boost::shared_ptr<PlayerAction> fetchAndKickBall(double time, bool kicking) const;
 		Player* mPlayer;
 		AIPlayController* mPlayController;
@@ -52,7 +52,7 @@ class AIGoalkeeperState : public AIState {
 		void matchHalfChanged(MatchHalf m) override;
 	private:
 		void setPivotPoint();
-		AbsVector3 mPivotPoint;
+		Common::Vector3 mPivotPoint;
 		float mDistanceFromPivot;
 		Countdown mHoldBallTimer;
 };

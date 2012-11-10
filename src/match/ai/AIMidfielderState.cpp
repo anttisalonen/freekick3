@@ -37,10 +37,10 @@ boost::shared_ptr<PlayerAction> AIMidfielderState::actOffBall(double time)
 	if(!MatchHelpers::myTeamInControl(*mPlayer) && mPlayer->getMatch()->getPlayState() != PlayState::InPlay) {
 		return boost::shared_ptr<PlayerAction>(new IdlePA());
 	}
-	AbsVector3 v = AIHelpers::getPassPosition(*mPlayer);
+	Common::Vector3 v = AIHelpers::getPassPosition(*mPlayer);
 	std::stringstream ss;
 	char buf[128];
-	sprintf(buf, "Midfield %d %d", (int)v.v.x, (int)v.v.y);
+	sprintf(buf, "Midfield %d %d", (int)v.x, (int)v.y);
 	mDescription = std::string(buf);
 	return AIHelpers::createMoveActionTo(*mPlayer, v);
 }

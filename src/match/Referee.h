@@ -39,13 +39,13 @@ class Referee {
 
 		Match* mMatch;
 		bool mFirstTeamInControl;
-		AbsVector3 mRestartPosition;
+		Common::Vector3 mRestartPosition;
 		Countdown mOutOfPlayClock;
 		Countdown mWaitForResumeClock;
 		Countdown mWaitForPenaltyShot;
 		const Player* mPlayerInControl;
 		int mFouledTeam;
-		AbsVector3 mFoulPosition;
+		Common::Vector3 mFoulPosition;
 		const Player* mRestartedPlayer;
 };
 

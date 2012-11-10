@@ -13,11 +13,11 @@ class PlayerAIController : public PlayerController {
 		const std::string& getDescription() const;
 		virtual void matchHalfChanged(MatchHalf m) override;
 	protected:
-		boost::shared_ptr<PlayerAction> createMoveActionTo(const AbsVector3& pos) const;
+		boost::shared_ptr<PlayerAction> createMoveActionTo(const Common::Vector3& pos) const;
 	private:
 		boost::shared_ptr<PlayerAction> actOffPlay(double time);
 		boost::shared_ptr<PlayerAction> doRestart(double time);
-		boost::shared_ptr<PlayerAction> gotoKickPositionOrKick(double time, const AbsVector3& pos);
+		boost::shared_ptr<PlayerAction> gotoKickPositionOrKick(double time, const Common::Vector3& pos);
 		Countdown mKickInTimer;
 		boost::shared_ptr<AIPlayController> mPlayState;
 };

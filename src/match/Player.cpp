@@ -66,7 +66,7 @@ const RelVector3& Player::getHomePosition() const
 
 void Player::setHomePosition(const RelVector3& p)
 {
-	// printf("Set home position to %3.2f, %3.2f\n", p.v.x, p.v.y);
+	// printf("Set home position to %3.2f, %3.2f\n", p.x, p.y);
 	mHomePosition = p;
 }
 
@@ -123,27 +123,27 @@ bool Player::canKickBall() const
 void Player::update(float time)
 {
 	MatchEntity::update(time);
-	Vector3 planevel(mVelocity.v);
+	Vector3 planevel(mVelocity);
 	planevel.z = 0.0f;
 	if(planevel.length() > getRunSpeed()) {
 		planevel.normalize();
 		planevel *= getRunSpeed();
-		mVelocity.v.x = planevel.x;
-		mVelocity.v.y = planevel.y;
+		mVelocity.x = planevel.x;
+		mVelocity.y = planevel.y;
 	}
 	if(!isAirborne()) {
-		mVelocity.v.z = std::max(0.0f, mVelocity.v.z);
-		mPosition.v.z = std::max(0.0f, mPosition.v.z);
+		mVelocity.z = std::max(0.0f, mVelocity.z);
+		mPosition.z = std::max(0.0f, mPosition.z);
 	}
 	else {
-		mVelocity.v.z -= 9.81f * time;
+		mVelocity.z -= 9.81f * time;
 	}
 	mBallKickedTimer.doCountdown(time);
 	mBallKickedTimer.check();
 
 	mTacklingTimer.doCountdown(time);
 	if(mTacklingTimer.running() && mTacklingTimer.timeLeft() < 0.5f) {
-		mVelocity.v *= 0.5f;
+		mVelocity *= 0.5f;
 		mTacklingTimer.check();
 	}
 
@@ -183,8 +183,8 @@ void Player::setTackling()
 void Player::setTackled()
 {
 	mTackledTimer.rewind();
-	mVelocity.v.zero();
-	mAcceleration.v.zero();
+	mVelocity.zero();
+	mAcceleration.zero();
 }
 
 bool Player::standing() const
@@ -199,7 +199,7 @@ bool Player::tackling() const
 
 bool Player::isAirborne() const
 {
-	return mPosition.v.z > 0.05f;
+	return mPosition.z > 0.05f;
 }
 
 Soccer::PlayerPosition Player::getPlayerPosition() const

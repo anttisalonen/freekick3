@@ -93,11 +93,11 @@ class Match : public Soccer::Match {
 		void setMatchHalf(MatchHalf h);
 		void setPlayState(PlayState h);
 		PlayState getPlayState() const;
-		AbsVector3 convertRelativeToAbsoluteVector(const RelVector3& v) const;
-		RelVector3 convertAbsoluteToRelativeVector(const AbsVector3& v) const;
+		Common::Vector3 convertRelativeToAbsoluteVector(const RelVector3& v) const;
+		RelVector3 convertAbsoluteToRelativeVector(const Common::Vector3& v) const;
 		float getPitchWidth() const;
 		float getPitchHeight() const;
-		int kickBall(Player* p, const AbsVector3& v);
+		int kickBall(Player* p, const Common::Vector3& v);
 		double getRollInertiaFactor() const;
 		double getAirViscosityFactor() const;
 		void addGoal(bool forFirst);

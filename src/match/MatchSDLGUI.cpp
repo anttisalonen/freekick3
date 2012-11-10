@@ -163,8 +163,8 @@ void MatchSDLGUI::drawEnvironment()
 		const Team* t = mMatch->getTeam(mDebugDisplay == 2 ? 0 : 1);
 		for(int j = -pheight * 0.5f + 8; j < pheight * 0.5 - 8; j += 8) {
 			for(int i = -pwidth * 0.5f + 8; i < pwidth * 0.5 - 8; i += 8) {
-				float score1 = t->getShotScoreAt(AbsVector3(i, j, 0));
-				float score2 = t->getPassScoreAt(AbsVector3(i, j, 0));
+				float score1 = t->getShotScoreAt(Vector3(i, j, 0));
+				float score2 = t->getPassScoreAt(Vector3(i, j, 0));
 				glDisable(GL_TEXTURE_2D);
 				glPointSize(5.0f);
 				glBegin(GL_POINTS);
@@ -281,18 +281,18 @@ void MatchSDLGUI::drawTexts()
 
 const boost::shared_ptr<Texture> MatchSDLGUI::playerTexture(const Player* p)
 {
-	AbsVector3 vec = p->getVelocity();
-	if(vec.v.null()) {
+	Vector3 vec = p->getVelocity();
+	if(vec.null()) {
 		vec = MatchEntity::vectorFromTo(*p, *mMatch->getBall());
 	}
 	int dir = 0;
-	if(vec.v.x > fabs(vec.v.y)) {
+	if(vec.x > fabs(vec.y)) {
 		dir = 1; // west
 	}
-	else if(vec.v.x < -fabs(vec.v.y)) {
+	else if(vec.x < -fabs(vec.y)) {
 		dir = 3; // east
 	}
-	else if(vec.v.y < 0) {
+	else if(vec.y < 0) {
 		dir = 2; // south
 	}
 	if(p->tackling()) {
@@ -322,22 +322,22 @@ void MatchSDLGUI::drawPlayers()
 			if(!pl)
 				break;
 			j++;
-			const AbsVector3& v(pl->getPosition());
+			const Vector3& v(pl->getPosition());
 
 			drawSprite(*mPlayerShadowTexture,
-					Rectangle((-mCamera.x + v.v.x - 0.8f + v.v.z * 0.3f) * mScaleLevel + screenWidth * 0.5f,
-						(-mCamera.y + v.v.y - 0.8f - v.v.z * 0.4f) * mScaleLevel + screenHeight * 0.5f,
+					Rectangle((-mCamera.x + v.x - 0.8f + v.z * 0.3f) * mScaleLevel + screenWidth * 0.5f,
+						(-mCamera.y + v.y - 0.8f - v.z * 0.4f) * mScaleLevel + screenHeight * 0.5f,
 						mScaleLevel * 2.0f, mScaleLevel * 2.0f),
 					Rectangle(1, 1, -1, -1), playerShadowHeight);
 
 			drawSprite(*playerTexture(pl),
-					Rectangle((-mCamera.x + v.v.x - 0.8f) * mScaleLevel + screenWidth * 0.5f,
-						(-mCamera.y + v.v.y + v.v.z * 0.6f) * mScaleLevel + screenHeight * 0.5f,
+					Rectangle((-mCamera.x + v.x - 0.8f) * mScaleLevel + screenWidth * 0.5f,
+						(-mCamera.y + v.y + v.z * 0.6f) * mScaleLevel + screenHeight * 0.5f,
 						mScaleLevel * 2.0f, mScaleLevel * 2.0f),
 					Rectangle(1, 1, -1, -1), playerHeight);
 
 			if(mDebugDisplay > 0) {
-				drawText(v.v.x, v.v.y,
+				drawText(v.x, v.y,
 						FontConfig(pl->getAIController()->getDescription().c_str(),
 							Color(0, 0, 0), 0.05f), false, true);
 			}
@@ -345,7 +345,7 @@ void MatchSDLGUI::drawPlayers()
 			{
 				char buf[128];
 				sprintf(buf, "%d", pl->getShirtNumber());
-				drawText(v.v.x, v.v.y + 2.0f,
+				drawText(v.x, v.y + 2.0f,
 						FontConfig(buf, !mObserver && pl == mPlayer ?
 							Color(255, 255, 255) : Color(30, 30, 30), 0.05f),
 						false, true);
@@ -356,14 +356,14 @@ void MatchSDLGUI::drawPlayers()
 
 void MatchSDLGUI::drawBall()
 {
-	const AbsVector3& v(mMatch->getBall()->getPosition());
+	const Vector3& v(mMatch->getBall()->getPosition());
 
-	drawSprite(*mBallShadowTexture, Rectangle((-mCamera.x + v.v.x - 0.2f + v.v.z * 0.3f) * mScaleLevel + screenWidth * 0.5f,
-				(-mCamera.y + v.v.y - 0.2f - v.v.z * 0.4f) * mScaleLevel + screenHeight * 0.5f,
+	drawSprite(*mBallShadowTexture, Rectangle((-mCamera.x + v.x - 0.2f + v.z * 0.3f) * mScaleLevel + screenWidth * 0.5f,
+				(-mCamera.y + v.y - 0.2f - v.z * 0.4f) * mScaleLevel + screenHeight * 0.5f,
 				mScaleLevel * 0.6f, mScaleLevel * 0.6f),
 			Rectangle(1, 1, -1, -1), ballShadowHeight);
-	drawSprite(*mBallTexture, Rectangle((-mCamera.x + v.v.x - 0.2f) * mScaleLevel + screenWidth * 0.5f,
-				(-mCamera.y + v.v.y - 0.1f + v.v.z * 0.6f) * mScaleLevel + screenHeight * 0.5f,
+	drawSprite(*mBallTexture, Rectangle((-mCamera.x + v.x - 0.2f) * mScaleLevel + screenWidth * 0.5f,
+				(-mCamera.y + v.y - 0.1f + v.z * 0.6f) * mScaleLevel + screenHeight * 0.5f,
 				mScaleLevel * 0.6f, mScaleLevel * 0.6f),
 			Rectangle(1, 1, -1, -1), ballHeight);
 }
@@ -373,15 +373,15 @@ void MatchSDLGUI::startFrame()
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 	if(!mFreeCamera) {
 		if(mControlledPlayerIndex != -1 && mCamFollowsPlayer) {
-			mCamera.x = mPlayer->getPosition().v.x;
-			mCamera.y = mPlayer->getPosition().v.y;
+			mCamera.x = mPlayer->getPosition().x;
+			mCamera.y = mPlayer->getPosition().y;
 		}
 		else if((mMatch->getPlayState() == PlayState::InPlay ||
 					(MatchHelpers::distanceToPitch(*mMatch, mMatch->getBall()->getPosition()) < MAX_KICK_DISTANCE &&
 					 mMatch->getPlayState() != PlayState::OutDirectFreekick)) ||
 				(mControlledPlayerIndex != -1 && !mCamFollowsPlayer)) {
-			mCamera.x = mMatch->getBall()->getPosition().v.x;
-			mCamera.y = mMatch->getBall()->getPosition().v.y;
+			mCamera.x = mMatch->getBall()->getPosition().x;
+			mCamera.y = mMatch->getBall()->getPosition().y;
 		}
 	}
 
@@ -617,7 +617,7 @@ bool MatchSDLGUI::handleInput(float frameTime)
 						break;
 
 					case SDLK_SPACE:
-						if(mMatch->getBall()->getPosition().v.z > 1.0f) {
+						if(mMatch->getBall()->getPosition().z > 1.0f) {
 							mHeading = true;
 						}
 						else {
@@ -755,7 +755,7 @@ boost::shared_ptr<PlayerAction> MatchSDLGUI::act(double time)
 		heading = true;
 	}
 
-	AbsVector3 toBall = AbsVector3(mMatch->getBall()->getPosition().v - mPlayer->getPosition().v);
+	Vector3 toBall = Vector3(mMatch->getBall()->getPosition() - mPlayer->getPosition());
 	if((mMouseAim && MatchHelpers::canKickBall(*mPlayer))|| (mPlayerKickPower && !mPlayerKickPowerVelocity)) {
 		// about to kick
 		kickpower = mPlayerKickPower;
@@ -780,16 +780,16 @@ boost::shared_ptr<PlayerAction> MatchSDLGUI::act(double time)
 		if(MatchHelpers::myTeamInControl(*mPlayer)) {
 			bool nearest = MatchHelpers::nearestOwnPlayerTo(*mPlayer,
 					mPlayer->getMatch()->getBall()->getPosition());
-			if(nearest && toBall.v.length() > MAX_KICK_DISTANCE) {
+			if(nearest && toBall.length() > MAX_KICK_DISTANCE) {
 				return AIHelpers::createMoveActionToBall(*mPlayer);
 			}
 		}
 	}
 
 	if(heading) {
-		AbsVector3 jump = mPlayerControlVelocity;
-		jump.v.z = 1.0f;
-		std::cout << "Heading: " << jump.v << "\n";
+		Vector3 jump = mPlayerControlVelocity;
+		jump.z = 1.0f;
+		std::cout << "Heading: " << jump << "\n";
 		return boost::shared_ptr<PlayerAction>(new JumpToPA(jump));
 	}
 
@@ -799,34 +799,34 @@ boost::shared_ptr<PlayerAction> MatchSDLGUI::act(double time)
 			Vector3 kicktgt = mPlayerControlVelocity * kickpower;
 			if(mPlayerKickPowerVelocity > 0.5f)
 				kicktgt.z += kicktgt.length() * 0.3f;
-			return boost::shared_ptr<PlayerAction>(new KickBallPA(AbsVector3(kicktgt)));
+			return boost::shared_ptr<PlayerAction>(new KickBallPA(Vector3(kicktgt)));
 		}
 		else {
 			// pass, shot, dribble?
-			AbsVector3 tgt(getMousePositionOnPitch());
-			AbsVector3 goalpos = MatchHelpers::oppositeGoalPosition(*mPlayer);
-			float goaldiff = (tgt.v - goalpos.v).length();
+			Vector3 tgt(getMousePositionOnPitch());
+			Vector3 goalpos = MatchHelpers::oppositeGoalPosition(*mPlayer);
+			float goaldiff = (tgt - goalpos).length();
 			Player* passtgt = MatchHelpers::nearestOwnPlayerTo(*mPlayer->getTeam(), tgt);
-			float passdiff = (tgt.v - passtgt->getPosition().v).length();
+			float passdiff = (tgt - passtgt->getPosition()).length();
 			if(goaldiff < 10.0f && goaldiff < passdiff) {
 				// full power
-				AbsVector3 kicktgt = getMousePositionOnPitch();
+				Vector3 kicktgt = getMousePositionOnPitch();
 				if(mPlayerKickPowerVelocity > 0.5f)
-					kicktgt.v.z = kicktgt.v.length() * 0.1f;
+					kicktgt.z = kicktgt.length() * 0.1f;
 				return boost::shared_ptr<PlayerAction>(new KickBallPA(kicktgt, nullptr, true));
 			}
 			else if(passdiff < 5.0f) {
 				// pass
-				AbsVector3 kicktgt = AIHelpers::getPassKickVector(*mPlayer, *passtgt);
+				Vector3 kicktgt = AIHelpers::getPassKickVector(*mPlayer, *passtgt);
 				if(mPlayerKickPowerVelocity > 0.5f)
-					kicktgt.v.z += kicktgt.v.length() * 0.3f;
+					kicktgt.z += kicktgt.length() * 0.3f;
 				return boost::shared_ptr<PlayerAction>(new KickBallPA(kicktgt, passtgt));
 			}
 			else {
 				// dribble
-				AbsVector3 kicktgt = AIHelpers::getPassKickVector(*mPlayer, tgt);
+				Vector3 kicktgt = AIHelpers::getPassKickVector(*mPlayer, tgt);
 				if(mPlayerKickPowerVelocity > 0.5f)
-					kicktgt.v.z += kicktgt.v.length() * 0.3f;
+					kicktgt.z += kicktgt.length() * 0.3f;
 				return boost::shared_ptr<PlayerAction>(new KickBallPA(kicktgt));
 			}
 		}
@@ -838,11 +838,11 @@ boost::shared_ptr<PlayerAction> MatchSDLGUI::act(double time)
 		}
 		if(!mPlayerControlVelocity.null()) {
 			if(tackling) {
-				return boost::shared_ptr<PlayerAction>(new TacklePA(AbsVector3(mPlayerControlVelocity)));
+				return boost::shared_ptr<PlayerAction>(new TacklePA(Vector3(mPlayerControlVelocity)));
 			}
 			else {
 				// not about to kick or tackle => run around
-				return boost::shared_ptr<PlayerAction>(new RunToPA(AbsVector3(mPlayerControlVelocity)));
+				return boost::shared_ptr<PlayerAction>(new RunToPA(Vector3(mPlayerControlVelocity)));
 			}
 		}
 		return boost::shared_ptr<PlayerAction>(new IdlePA());
@@ -928,7 +928,7 @@ void MatchSDLGUI::drawText(float x, float y,
 			Rectangle(0, 1, 1, -1), textHeight);
 }
 
-AbsVector3 MatchSDLGUI::getMousePositionOnPitch() const
+Vector3 MatchSDLGUI::getMousePositionOnPitch() const
 {
 	int xp, yp;
 	float x, y;
@@ -939,7 +939,7 @@ AbsVector3 MatchSDLGUI::getMousePositionOnPitch() const
 	y = float(yp) / mScaleLevel + mCamera.y - (screenHeight / (2.0f * mScaleLevel));
 
 	// printf("Position at (%3.3f, %3.3f)\n", x, y);
-	return AbsVector3(x, y, 0);
+	return Vector3(x, y, 0);
 }
 
 void MatchSDLGUI::drawPitchLines()

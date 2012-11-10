@@ -8,6 +8,8 @@
 #include "match/Referee.h"
 #include "match/RefereeActions.h"
 
+using Common::Vector3;
+
 // #define DEBUG_CONTROLLING_TEAM
 
 enum class BallOutStatus {
@@ -94,7 +96,7 @@ boost::shared_ptr<RefereeAction> Referee::act(double time)
 					if(mMatch->getBall()->grabbed())
 						mMatch->getBall()->drop();
 					mMatch->getBall()->setPosition(mRestartPosition);
-					mMatch->getBall()->setVelocity(AbsVector3());
+					mMatch->getBall()->setVelocity(Vector3());
 				}
 			}
 			break;
@@ -110,8 +112,8 @@ boost::shared_ptr<RefereeAction> Referee::act(double time)
 							if(mWaitForPenaltyShot.check() ||
 									mMatch->getBall()->grabbed() ||
 									!MatchHelpers::onPitch(*mMatch->getBall())) {
-								mRestartPosition.v.x = 0.0f;
-								mRestartPosition.v.y = 1.0f * (mMatch->getPitchHeight() * 0.5f - 11.00f);
+								mRestartPosition.x = 0.0f;
+								mRestartPosition.y = 1.0f * (mMatch->getPitchHeight() * 0.5f - 11.00f);
 								mOutOfPlayClock.rewind();
 								addPenaltyShootoutResult();
 								mFirstTeamInControl = mMatch->getPenaltyShootout().firstTeamKicksNext();
@@ -127,7 +129,7 @@ boost::shared_ptr<RefereeAction> Referee::act(double time)
 					if(mMatch->getBall()->grabbed())
 						mMatch->getBall()->drop();
 					mMatch->getBall()->setPosition(mRestartPosition);
-					mMatch->getBall()->setVelocity(AbsVector3());
+					mMatch->getBall()->setVelocity(Vector3());
 					mWaitForPenaltyShot.rewind();
 				}
 			}
@@ -211,13 +213,13 @@ void Referee::ballKicked(const Player& p)
 		else {
 			if(&p == mRestartedPlayer && !mOutOfPlayClock.running() && !mWaitForResumeClock.running()) {
 				mRestartPosition = p.getMatch()->getBall()->getPosition();
-				mRestartPosition.v.z = 0.0f;
+				mRestartPosition.z = 0.0f;
 				mFirstTeamInControl = !p.getTeam()->isFirst();
 #ifdef DEBUG_CONTROLLING_TEAM
 				std::cout << __LINE__ << ": First team in control: " << mFirstTeamInControl << " - indirect free kick\n";
 #endif
 				mPlayerInControl = nullptr;
-				std::cout << "Double touch by " << p.getName() << " - restart position: " << mRestartPosition.v << " by " << mFirstTeamInControl << "\n";
+				std::cout << "Double touch by " << p.getName() << " - restart position: " << mRestartPosition << " by " << mFirstTeamInControl << "\n";
 				mOutOfPlayClock.rewind();
 				mMatch->setPlayState(PlayState::OutIndirectFreekick);
 			}
@@ -234,13 +236,13 @@ bool Referee::firstTeamAttacksUp() const
 BallOutStatus Referee::getBallOutStatus() const
 {
 	RelVector3 bp(mMatch->convertAbsoluteToRelativeVector(mMatch->getBall()->getPosition()));
-	RelVector3 br(mMatch->convertAbsoluteToRelativeVector(AbsVector3(BALL_RADIUS, BALL_RADIUS, BALL_RADIUS)));
+	RelVector3 br(mMatch->convertAbsoluteToRelativeVector(Vector3(BALL_RADIUS, BALL_RADIUS, BALL_RADIUS)));
 	if(fabs(bp.v.x + br.v.x) > 1.0f) {
 		return BallOutStatus::Throwin;
 	}
 	if(fabs(bp.v.y + br.v.y) > 1.0f) {
-		if(fabs(mMatch->getBall()->getPosition().v.x) < GOAL_WIDTH_2 &&
-				mMatch->getBall()->getPosition().v.z < GOAL_HEIGHT) {
+		if(fabs(mMatch->getBall()->getPosition().x) < GOAL_WIDTH_2 &&
+				mMatch->getBall()->getPosition().z < GOAL_HEIGHT) {
 			return BallOutStatus::Goal;
 		}
 		if((((bp.v.y < 0.0f) == mFirstTeamInControl) && firstTeamAttacksUp()) ||
@@ -283,10 +285,10 @@ boost::shared_ptr<RefereeAction> Referee::setOutOfPlay()
 	switch(bst) {
 		case BallOutStatus::Throwin:
 			mRestartPosition = mMatch->getBall()->getPosition();
-			mRestartPosition.v.x = mMatch->getPitchWidth() * 0.5f;
+			mRestartPosition.x = mMatch->getPitchWidth() * 0.5f;
 			if(bp.v.x < 0.0f)
-				mRestartPosition.v.x = -mRestartPosition.v.x;
-			mRestartPosition.v.z = 0.0f;
+				mRestartPosition.x = -mRestartPosition.x;
+			mRestartPosition.z = 0.0f;
 			mFirstTeamInControl = !mFirstTeamInControl;
 #ifdef DEBUG_CONTROLLING_TEAM
 			std::cout << __LINE__ << ": First team in control: " << mFirstTeamInControl << " - throwin\n";
@@ -295,9 +297,9 @@ boost::shared_ptr<RefereeAction> Referee::setOutOfPlay()
 			return boost::shared_ptr<RefereeAction>(new ChangePlayStateRA(PlayState::OutThrowin));
 
 		case BallOutStatus::Goal:
-			mRestartPosition.v.x = 0.0f;
-			mRestartPosition.v.y = 0.0f;
-			mRestartPosition.v.z = 0.0f;
+			mRestartPosition.x = 0.0f;
+			mRestartPosition.y = 0.0f;
+			mRestartPosition.z = 0.0f;
 			bool firstscores;
 			if(bp.v.y > 1.0f) {
 				firstscores = firstTeamAttacksUp();
@@ -318,9 +320,9 @@ boost::shared_ptr<RefereeAction> Referee::setOutOfPlay()
 				bp.v.x = 1.0f;
 			if(bp.v.y == 0.0f)
 				bp.v.y = 1.0f;
-			mRestartPosition.v.x = Common::signum(bp.v.x) * mMatch->getPitchWidth() * 0.5f;
-			mRestartPosition.v.y = Common::signum(bp.v.y) * mMatch->getPitchHeight() * 0.5f;
-			mRestartPosition.v.z = 0.0f;
+			mRestartPosition.x = Common::signum(bp.v.x) * mMatch->getPitchWidth() * 0.5f;
+			mRestartPosition.y = Common::signum(bp.v.y) * mMatch->getPitchHeight() * 0.5f;
+			mRestartPosition.z = 0.0f;
 			mFirstTeamInControl = !mFirstTeamInControl;
 #ifdef DEBUG_CONTROLLING_TEAM
 			std::cout << __LINE__ << ": First team in control: " << mFirstTeamInControl << " - corner kick\n";
@@ -329,15 +331,15 @@ boost::shared_ptr<RefereeAction> Referee::setOutOfPlay()
 			return boost::shared_ptr<RefereeAction>(new ChangePlayStateRA(PlayState::OutCornerkick));
 
 		case BallOutStatus::GoalKick:
-			mRestartPosition.v.x = 9.16f;
+			mRestartPosition.x = 9.16f;
 			if(bp.v.x < 0) {
-				mRestartPosition.v.x = -mRestartPosition.v.x;
+				mRestartPosition.x = -mRestartPosition.x;
 			}
-			mRestartPosition.v.y = mMatch->getPitchHeight() * 0.5f - 5.5f;
+			mRestartPosition.y = mMatch->getPitchHeight() * 0.5f - 5.5f;
 			if(bp.v.y < 0) {
-				mRestartPosition.v.y = -mRestartPosition.v.y;
+				mRestartPosition.y = -mRestartPosition.y;
 			}
-			mRestartPosition.v.z = 0.0f;
+			mRestartPosition.z = 0.0f;
 			mFirstTeamInControl = !mFirstTeamInControl;
 #ifdef DEBUG_CONTROLLING_TEAM
 			std::cout << __LINE__ << ": First team in control: " << mFirstTeamInControl << " - goal kick\n";
@@ -362,7 +364,7 @@ boost::shared_ptr<RefereeAction> Referee::setFoulRestart()
 	mFouledTeam = 0;
 
 	mRestartPosition = mFoulPosition;
-	mRestartPosition.v.z = 0.0f;
+	mRestartPosition.z = 0.0f;
 	mPlayerInControl = nullptr;
 
 	int pen = MatchHelpers::inPenaltyArea(*mMatch, mRestartPosition);
@@ -370,8 +372,8 @@ boost::shared_ptr<RefereeAction> Referee::setFoulRestart()
 		if((MatchHelpers::attacksUp(*mMatch->getTeam(0)) == mFirstTeamInControl && pen ==  1) ||
 		   (MatchHelpers::attacksUp(*mMatch->getTeam(0)) != mFirstTeamInControl && pen == -1)) {
 			bool up = pen == 1;
-			mRestartPosition.v.x = 0.0f;
-			mRestartPosition.v.y = (up ? 1.0f : -1.0f) * (mMatch->getPitchHeight() * 0.5f - 11.00f);
+			mRestartPosition.x = 0.0f;
+			mRestartPosition.y = (up ? 1.0f : -1.0f) * (mMatch->getPitchHeight() * 0.5f - 11.00f);
 			return boost::shared_ptr<RefereeAction>(new ChangePlayStateRA(PlayState::OutPenaltykick));
 		}
 	}
@@ -402,8 +404,8 @@ void Referee::matchHalfChanged(MatchHalf m)
 		std::cout << __LINE__ << ": First team in control: " << mFirstTeamInControl << " - extra time\n";
 #endif
 	} else if(m == MatchHalf::PenaltyShootout) {
-		mRestartPosition.v.x = 0.0f;
-		mRestartPosition.v.y = 1.0f * (mMatch->getPitchHeight() * 0.5f - 11.00f);
+		mRestartPosition.x = 0.0f;
+		mRestartPosition.y = 1.0f * (mMatch->getPitchHeight() * 0.5f - 11.00f);
 		mMatch->setPlayState(PlayState::OutPenaltykick);
 		mOutOfPlayClock.rewind();
 	}

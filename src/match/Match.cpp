@@ -1,6 +1,8 @@
 #include <string>
 #include <stdexcept>
 
+#include "common/Vector3.h"
+
 #include "match/Match.h"
 #include "match/Team.h"
 #include "match/MatchHelpers.h"
@@ -8,6 +10,8 @@
 #include "match/RefereeActions.h"
 
 #define TACKLE_DISTANCE 1.0f
+
+using Common::Vector3;
 
 Match::Match(const Soccer::Match& m, double matchtime, bool extratime, bool penalties,
 				bool awaygoals, int homeagg, int awayagg)
@@ -108,8 +112,8 @@ void Match::update(double time)
 			boost::shared_ptr<PlayerAction> a(p->act(time));
 			applyPlayerAction(a.get(), p, time);
 			if(p->tackling() && MatchHelpers::canKickBall(*p)) {
-				if(!p->getVelocity().v.null()) {
-					KickBallPA pa(AbsVector3(p->getVelocity().v.normalized() * 0.3f),
+				if(!p->getVelocity().null()) {
+					KickBallPA pa(Vector3(p->getVelocity().normalized() * 0.3f),
 							nullptr, false);
 					applyPlayerAction(&pa, p, time);
 				}
@@ -162,8 +166,8 @@ void Match::setMatchHalf(MatchHalf h)
 	if(mMatchHalf == MatchHalf::HalfTimePauseEnd ||
 			mMatchHalf == MatchHalf::FullTimePauseEnd ||
 			mMatchHalf == MatchHalf::ExtraTimeSecondHalf) {
-		mBall->setPosition(AbsVector3(0, 0, 0.4));
-		mBall->setVelocity(AbsVector3(0, 0, 0));
+		mBall->setPosition(Vector3(0, 0, 0.4));
+		mBall->setVelocity(Vector3(0, 0, 0));
 	}
 }
 
@@ -194,14 +198,14 @@ void Match::updateReferee(double time)
 	a->applyRefereeAction(*this, mReferee, time);
 }
 
-AbsVector3 Match::convertRelativeToAbsoluteVector(const RelVector3& v) const
+Vector3 Match::convertRelativeToAbsoluteVector(const RelVector3& v) const
 {
-	return AbsVector3(v.v.x * mPitch.getWidth() * 0.5f, v.v.y * mPitch.getHeight() * 0.5f, v.v.z);
+	return Vector3(v.v.x * mPitch.getWidth() * 0.5f, v.v.y * mPitch.getHeight() * 0.5f, v.v.z);
 }
 
-RelVector3 Match::convertAbsoluteToRelativeVector(const AbsVector3& v) const
+RelVector3 Match::convertAbsoluteToRelativeVector(const Vector3& v) const
 {
-	return RelVector3(v.v.x / mPitch.getWidth() * 2.0f, v.v.y / mPitch.getHeight() * 2.0f, v.v.z);
+	return RelVector3(v.x / mPitch.getWidth() * 2.0f, v.y / mPitch.getHeight() * 2.0f, v.z);
 }
 
 float Match::getPitchWidth() const
@@ -284,7 +288,7 @@ bool playing(PlayState h)
 	return h == PlayState::InPlay;
 }
 
-int Match::kickBall(Player* p, const AbsVector3& v)
+int Match::kickBall(Player* p, const Vector3& v)
 {
 	if(MatchHelpers::canKickBall(*p) && mReferee.canKickBall(*p)) {
 		int failpoints = 0;
@@ -292,7 +296,7 @@ int Match::kickBall(Player* p, const AbsVector3& v)
 
 		if(playing(getPlayState())) {
 			if(!MatchHelpers::ballInHeadingHeight(*p) &&
-					!(mBall->getVelocity().v.length() / 80.0f < p->getSkills().BallControl)) {
+					!(mBall->getVelocity().length() / 80.0f < p->getSkills().BallControl)) {
 				failpoints++;
 				if(MatchEntity::distanceBetween(*mBall, *p) < MAX_KICK_DISTANCE * 0.5f) {
 					failpoints++;
@@ -308,24 +312,24 @@ int Match::kickBall(Player* p, const AbsVector3& v)
 			}
 		}
 
-		AbsVector3 ballvel(v);
+		Vector3 ballvel(v);
 
 		if(getPlayState() == PlayState::OutThrowin) {
-			AbsVector3 pos = mBall->getPosition();
-			pos.v.z = 1.8f;
+			Vector3 pos = mBall->getPosition();
+			pos.z = 1.8f;
 			mBall->setPosition(pos);
-			ballvel.v.z += ballvel.v.length() * 0.5f;
+			ballvel.z += ballvel.length() * 0.5f;
 
-			if(ballvel.v.length() > 20.0f) {
-				ballvel.v.normalize();
-				ballvel.v *= 20.0f;
+			if(ballvel.length() > 20.0f) {
+				ballvel.normalize();
+				ballvel *= 20.0f;
 			}
 		}
 
 		if(failpoints == 0)
 			mBall->setVelocity(ballvel);
 		else
-			mBall->addVelocity(AbsVector3(ballvel.v * (1.0f / (failpoints + 3))));
+			mBall->addVelocity(Vector3(ballvel * (1.0f / (failpoints + 3))));
 		mBall->kicked(p);
 		mReferee.ballKicked(*p);
 		for(auto t : mTeams)
@@ -383,7 +387,7 @@ void Match::updateTime(double time)
 		}
 		if(mMatchHalf == MatchHalf::FirstHalf ||
 				mMatchHalf == MatchHalf::SecondHalf) {
-			if(mTime >= 45.0f && (fabs(mBall->getPosition().v.y) < 20.0f || mTime > 50.5f)) {
+			if(mTime >= 45.0f && (fabs(mBall->getPosition().y) < 20.0f || mTime > 50.5f)) {
 				if(mMatchHalf == MatchHalf::FirstHalf) {
 					setMatchHalf(MatchHalf::HalfTimePauseBegin);
 				} else {
@@ -404,7 +408,7 @@ void Match::updateTime(double time)
 			}
 		} else if(mMatchHalf == MatchHalf::ExtraTimeFirstHalf ||
 				mMatchHalf == MatchHalf::ExtraTimeSecondHalf) {
-			if(mTime >= 15.0f && (fabs(mBall->getPosition().v.y) < 25.0f || mTime > 16.5f)) {
+			if(mTime >= 15.0f && (fabs(mBall->getPosition().y) < 25.0f || mTime > 16.5f)) {
 				if(mMatchHalf == MatchHalf::ExtraTimeFirstHalf) {
 					setMatchHalf(MatchHalf::ExtraTimeSecondHalf);
 				} else {

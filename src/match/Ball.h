@@ -19,7 +19,7 @@ class Ball : public MatchEntity {
 		const Player* checkPlayerCollisions();
 	private:
 		bool checkCollision(const Player& p);
-		AbsVector3 mCollisionFreePoint;
+		Common::Vector3 mCollisionFreePoint;
 		bool mGrabbed;
 		Player* mGrabber;
 };

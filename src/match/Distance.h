@@ -10,11 +10,4 @@ struct RelVector3 {
 	Common::Vector3 v;
 };
 
-struct AbsVector3 {
-	AbsVector3() { }
-	AbsVector3(const Common::Vector3& v_) : v(v_) { }
-	AbsVector3(float x, float y, float z) : v(Common::Vector3(x, y, z)) { }
-	Common::Vector3 v;
-};
-
 #endif

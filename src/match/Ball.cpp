@@ -1,9 +1,12 @@
 #include "common/Math.h"
+#include "common/Vector3.h"
 
 #include "match/Ball.h"
 #include "match/Match.h"
 #include "match/Player.h"
 #include "match/Team.h"
+
+using Common::Vector3;
 
 static const float collisionIgnoreDistance = 1.5f;
 
@@ -12,14 +15,14 @@ Ball::Ball(Match* match)
 	mGrabbed(false),
 	mGrabber(nullptr)
 {
-	mPosition.v.z = 0.10f;
+	mPosition.z = 0.10f;
 }
 
 const Player* Ball::checkPlayerCollisions()
 {
 	const Player* ret = nullptr;
-	if(mVelocity.v.length() > 2.0f &&
-			(mPosition.v - mCollisionFreePoint.v).length() > collisionIgnoreDistance) {
+	if(mVelocity.length() > 2.0f &&
+			(mPosition - mCollisionFreePoint).length() > collisionIgnoreDistance) {
 		for(int i = 0; i < 2; i++) {
 			for(auto p : mMatch->getTeam(i)->getPlayers()) {
 				if(checkCollision(*p))
@@ -33,95 +36,95 @@ const Player* Ball::checkPlayerCollisions()
 void Ball::update(float time)
 {
 	if(!mGrabbed) {
-		bool outsideBefore1 = mPosition.v.x < -GOAL_WIDTH_2 - GOAL_NET_RADIUS;
-		bool outsideBefore2 = mPosition.v.x > GOAL_WIDTH_2 + GOAL_NET_RADIUS;
-		bool outsideBefore3 = mPosition.v.z > GOAL_HEIGHT;
+		bool outsideBefore1 = mPosition.x < -GOAL_WIDTH_2 - GOAL_NET_RADIUS;
+		bool outsideBefore2 = mPosition.x > GOAL_WIDTH_2 + GOAL_NET_RADIUS;
+		bool outsideBefore3 = mPosition.z > GOAL_HEIGHT;
 		MatchEntity::update(time);
-		bool outsideAfter1 = mPosition.v.x < -GOAL_WIDTH_2 - GOAL_NET_RADIUS;
-		bool outsideAfter2 = mPosition.v.x > GOAL_WIDTH_2 + GOAL_NET_RADIUS;
-		bool outsideAfter3 = mPosition.v.z > GOAL_HEIGHT;
+		bool outsideAfter1 = mPosition.x < -GOAL_WIDTH_2 - GOAL_NET_RADIUS;
+		bool outsideAfter2 = mPosition.x > GOAL_WIDTH_2 + GOAL_NET_RADIUS;
+		bool outsideAfter3 = mPosition.z > GOAL_HEIGHT;
 
-		if(mPosition.v.z < 0.15f) {
-			if(fabs(mVelocity.v.z) < 0.1f)
-				mVelocity.v.z = 0.0f;
+		if(mPosition.z < 0.15f) {
+			if(fabs(mVelocity.z) < 0.1f)
+				mVelocity.z = 0.0f;
 
-			if(mVelocity.v.z < -0.1f) {
+			if(mVelocity.z < -0.1f) {
 				// bounciness
 				/* TODO: this constant should be a pitch/match property. */
-				mVelocity.v.z *= -0.65f;
+				mVelocity.z *= -0.65f;
 			}
 			else {
-				mVelocity.v *= 1.0f - time * mMatch->getRollInertiaFactor();
+				mVelocity *= 1.0f - time * mMatch->getRollInertiaFactor();
 			}
 		}
 		else {
-			mVelocity.v *= 1.0f - time * mMatch->getAirViscosityFactor();
-			mVelocity.v.z -= 9.81f * time;
+			mVelocity *= 1.0f - time * mMatch->getAirViscosityFactor();
+			mVelocity.z -= 9.81f * time;
 		}
 
 		{
 			static_assert(GOAL_POST_RADIUS > GOAL_NET_RADIUS, "Post radius must be more than net radius.");
-			bool xOnPost = fabs(mPosition.v.x - GOAL_WIDTH_2) < GOAL_POST_RADIUS;
-			bool yOnPost = fabs(mPosition.v.y - mMatch->getPitchHeight() * 0.5f) < GOAL_POST_RADIUS;
-			bool zOnPost = fabs(mPosition.v.z - GOAL_HEIGHT) < GOAL_POST_RADIUS;
-			if((xOnPost && yOnPost && mPosition.v.z < GOAL_HEIGHT + GOAL_POST_RADIUS) ||
-					(yOnPost && zOnPost && mPosition.v.x < GOAL_WIDTH_2 + GOAL_POST_RADIUS)) {
+			bool xOnPost = fabs(mPosition.x - GOAL_WIDTH_2) < GOAL_POST_RADIUS;
+			bool yOnPost = fabs(mPosition.y - mMatch->getPitchHeight() * 0.5f) < GOAL_POST_RADIUS;
+			bool zOnPost = fabs(mPosition.z - GOAL_HEIGHT) < GOAL_POST_RADIUS;
+			if((xOnPost && yOnPost && mPosition.z < GOAL_HEIGHT + GOAL_POST_RADIUS) ||
+					(yOnPost && zOnPost && mPosition.x < GOAL_WIDTH_2 + GOAL_POST_RADIUS)) {
 				// post/bar
 
 				// keep ball on the pitch
-				if(mPosition.v.y > 0.0f) {
-					mVelocity.v.y = -fabs(mVelocity.v.y);
-					mPosition.v.y = mMatch->getPitchHeight() * 0.5f - GOAL_POST_RADIUS - BALL_RADIUS * 1.2f;
+				if(mPosition.y > 0.0f) {
+					mVelocity.y = -fabs(mVelocity.y);
+					mPosition.y = mMatch->getPitchHeight() * 0.5f - GOAL_POST_RADIUS - BALL_RADIUS * 1.2f;
 				}
 				else {
-					mVelocity.v.y = fabs(mVelocity.v.y);
-					mPosition.v.y = -mMatch->getPitchHeight() * 0.5f + GOAL_POST_RADIUS + BALL_RADIUS * 1.2f;
+					mVelocity.y = fabs(mVelocity.y);
+					mPosition.y = -mMatch->getPitchHeight() * 0.5f + GOAL_POST_RADIUS + BALL_RADIUS * 1.2f;
 				}
-				mVelocity.v *= 0.9f;
+				mVelocity *= 0.9f;
 			}
 			else {
 				// net
-				mPosition.v.y = Common::clamp(-mMatch->getPitchHeight() * 0.5f - 3.0f,
-						mPosition.v.y,
+				mPosition.y = Common::clamp(-mMatch->getPitchHeight() * 0.5f - 3.0f,
+						mPosition.y,
 						mMatch->getPitchHeight() * 0.5f + 3.0f);
-				if(mPosition.v.y > mMatch->getPitchHeight() * 0.5f ||
-						mPosition.v.y < -mMatch->getPitchHeight() * 0.5f) {
+				if(mPosition.y > mMatch->getPitchHeight() * 0.5f ||
+						mPosition.y < -mMatch->getPitchHeight() * 0.5f) {
 					/* check for ball hitting the net */
-					if(mPosition.v.z < (GOAL_HEIGHT + GOAL_NET_RADIUS) &&
+					if(mPosition.z < (GOAL_HEIGHT + GOAL_NET_RADIUS) &&
 							(outsideBefore1 != outsideAfter1 || outsideBefore2 != outsideAfter2)) {
-						mVelocity.v.x = 0.0f;
+						mVelocity.x = 0.0f;
 
 						// keep ball on the correct side of the net
 						if(outsideBefore1 != outsideAfter1) {
 							// left net
-							mPosition.v.x = -GOAL_WIDTH_2;
+							mPosition.x = -GOAL_WIDTH_2;
 							if(outsideBefore1) {
 								// outside the goal
-								mPosition.v.x -= 0.3f;
+								mPosition.x -= 0.3f;
 							}
 							else {
 								// inside the goal
-								mPosition.v.x += 0.3f;
+								mPosition.x += 0.3f;
 							}
 						}
 						else {
 							// right net
-							mPosition.v.x = GOAL_WIDTH_2;
+							mPosition.x = GOAL_WIDTH_2;
 							if(outsideBefore2) {
 								// outside the goal
-								mPosition.v.x += 0.3f;
+								mPosition.x += 0.3f;
 							}
 							else {
 								// inside the goal
-								mPosition.v.x -= 0.3f;
+								mPosition.x -= 0.3f;
 							}
 						}
 					}
 					if(outsideBefore3 != outsideAfter3) {
-						mVelocity.v.z = 0.0f;
+						mVelocity.z = 0.0f;
 						if(outsideBefore3) {
 							/* keep ball on top of goal */
-							mPosition.v.z = GOAL_HEIGHT + 0.01f;
+							mPosition.z = GOAL_HEIGHT + 0.01f;
 						}
 					}
 				}
@@ -129,7 +132,7 @@ void Ball::update(float time)
 		}
 	}
 	else {
-		mAcceleration = AbsVector3();
+		mAcceleration = Vector3();
 		mVelocity = mGrabber->getVelocity();
 		mPosition = mGrabber->getPosition();
 	}
@@ -148,11 +151,11 @@ bool Ball::checkCollision(const Player& p)
 {
 	float dist = MatchEntity::distanceBetween(*this, p);
 	if(dist < 1.0f) {
-		bool catchSuccessful = getVelocity().v.length() / 80.0f < p.getSkills().BallControl;
+		bool catchSuccessful = getVelocity().length() / 80.0f < p.getSkills().BallControl;
 		if(catchSuccessful)
-			mVelocity.v *= -0.1f;
+			mVelocity *= -0.1f;
 		else
-			mVelocity.v *= -0.7f;
+			mVelocity *= -0.7f;
 		return true;
 	}
 	else {
@@ -168,11 +171,11 @@ bool Ball::grabbed() const
 void Ball::grab(Player* p)
 {
 	mGrabbed = true;
-	mAcceleration = AbsVector3();
-	mVelocity = AbsVector3();
+	mAcceleration = Vector3();
+	mVelocity = Vector3();
 	mGrabber = p;
 	mPosition = mGrabber->getPosition();
-	mPosition.v.z = 0.10f;
+	mPosition.z = 0.10f;
 }
 
 void Ball::drop()

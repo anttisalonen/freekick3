@@ -6,16 +6,16 @@
 using Common::Vector3;
 
 double MatchHelpers::distanceToPitch(const Match& m,
-		const AbsVector3& v)
+		const Vector3& v)
 {
 	float r = m.getPitchWidth() * 0.5f;
 	float l = -r;
 	float u = m.getPitchHeight() * 0.5f;
 	float d = -u;
-	if(v.v.x >= l && v.v.x <= r && v.v.y >= d && v.v.y <= u)
+	if(v.x >= l && v.x <= r && v.y >= d && v.y <= u)
 		return 0.0f;
-	float dhoriz = v.v.x < l ? l - v.v.x : v.v.x - r;
-	float dvert  = v.v.y < d ? d - v.v.y : v.v.y - u;
+	float dhoriz = v.x < l ? l - v.x : v.x - r;
+	float dvert  = v.y < d ? d - v.y : v.y - u;
 	if(dvert < 0)
 		return dhoriz;
 	else if(dhoriz < 0)
@@ -47,7 +47,7 @@ Player* MatchHelpers::nearestOwnPlayerToBall(const Team& t)
 	return nearestOwnPlayerTo(t, t.getMatch()->getBall()->getPosition());
 }
 
-Player* MatchHelpers::nearestOwnPlayerTo(const Team& t, const AbsVector3& v, bool goalkeepers)
+Player* MatchHelpers::nearestOwnPlayerTo(const Team& t, const Vector3& v, bool goalkeepers)
 {
 	Player* np = nullptr;
 	float smallest_dist = 1000000.0f;
@@ -56,7 +56,7 @@ Player* MatchHelpers::nearestOwnPlayerTo(const Team& t, const AbsVector3& v, boo
 			continue;
 		if(tp->isGoalkeeper() && !goalkeepers)
 			continue;
-		float this_dist = (v.v - tp->getPosition().v).length();
+		float this_dist = (v - tp->getPosition()).length();
 		if(this_dist < smallest_dist) {
 			smallest_dist = this_dist;
 			np = &*tp;
@@ -71,28 +71,28 @@ Player* MatchHelpers::nearestOppositePlayerToBall(const Team& t)
 	return nearestOwnPlayerToBall(*t2);
 }
 
-bool MatchHelpers::nearestOwnPlayerTo(const Player& p, const AbsVector3& v)
+bool MatchHelpers::nearestOwnPlayerTo(const Player& p, const Vector3& v)
 {
 	Player* np = nearestOwnPlayerTo(*p.getTeam(), v);
 	return &p == np;
 }
 
-AbsVector3 MatchHelpers::oppositePenaltySpotPosition(const Player& p)
+Vector3 MatchHelpers::oppositePenaltySpotPosition(const Player& p)
 {
-	AbsVector3 v(oppositeGoalPosition(p));
-	if(v.v.y > 0.0f)
-		v.v.y -= 11.0f;
+	Vector3 v(oppositeGoalPosition(p));
+	if(v.y > 0.0f)
+		v.y -= 11.0f;
 	else
-		v.v.y += 11.0f;
+		v.y += 11.0f;
 	return v;
 }
 
-AbsVector3 MatchHelpers::ownGoalPosition(const Player& p)
+Vector3 MatchHelpers::ownGoalPosition(const Player& p)
 {
 	return ownGoalPosition(*p.getTeam());
 }
 
-AbsVector3 MatchHelpers::ownGoalPosition(const Team& t)
+Vector3 MatchHelpers::ownGoalPosition(const Team& t)
 {
 	const Match* m = t.getMatch();
 	assert(m);
@@ -104,12 +104,12 @@ AbsVector3 MatchHelpers::ownGoalPosition(const Team& t)
 	}
 }
 
-AbsVector3 MatchHelpers::oppositeGoalPosition(const Player& p)
+Vector3 MatchHelpers::oppositeGoalPosition(const Player& p)
 {
 	return oppositeGoalPosition(*p.getTeam());
 }
 
-AbsVector3 MatchHelpers::oppositeGoalPosition(const Team& t)
+Vector3 MatchHelpers::oppositeGoalPosition(const Team& t)
 {
 	const Match* m = t.getMatch();
 	assert(m);
@@ -123,14 +123,14 @@ AbsVector3 MatchHelpers::oppositeGoalPosition(const Team& t)
 
 bool MatchHelpers::ballInHeadingHeight(const Player& p)
 {
-	float zdiff = p.getMatch()->getBall()->getPosition().v.z - p.getPosition().v.z;
+	float zdiff = p.getMatch()->getBall()->getPosition().z - p.getPosition().z;
 	return zdiff >= 1.7f && zdiff <= 1.9f;
 }
 
 bool MatchHelpers::canKickBall(const Player& p)
 {
-	Vector3 v1 = p.getPosition().v;
-	Vector3 v2 = p.getMatch()->getBall()->getPosition().v;
+	Vector3 v1 = p.getPosition();
+	Vector3 v2 = p.getMatch()->getBall()->getPosition();
 	float zdiff = v2.z - v1.z;
 	v1.z = v2.z = 0.0f;
 	float planediff = (v2 - v1).length();
@@ -190,11 +190,11 @@ const Team* MatchHelpers::getOpposingTeam(const Player& p)
 	return p.getMatch()->getTeam(idx);
 }
 
-bool MatchHelpers::onPitch(const Match& m, const AbsVector3& v)
+bool MatchHelpers::onPitch(const Match& m, const Vector3& v)
 {
 	float pw2 = m.getPitchWidth() / 2.0f;
 	float ph2 = m.getPitchHeight() / 2.0f;
-	return v.v.x >= -pw2 && v.v.y >= -ph2 && v.v.x <= pw2 && v.v.y <= ph2;
+	return v.x >= -pw2 && v.y >= -ph2 && v.x <= pw2 && v.y <= ph2;
 }
 
 bool MatchHelpers::onPitch(const MatchEntity& m)
@@ -235,7 +235,7 @@ bool MatchHelpers::playerPositionedForRestart(const Player& restarter, const Pla
 					(!isOpposingPlayer(restarter, p) && inOpposingPenaltyArea(p));
 				bool isrestarter = &p == &restarter;
 				bool isgoalie = isOpposingPlayer(restarter, p) && p.isGoalkeeper();
-				bool nearowngoalline = fabs(p.getPosition().v.y - MatchHelpers::ownGoalPosition(p).v.y) < 0.5f;
+				bool nearowngoalline = fabs(p.getPosition().y - MatchHelpers::ownGoalPosition(p).y) < 0.5f;
 
 				if(isrestarter) {
 					return nearball;
@@ -305,10 +305,10 @@ int MatchHelpers::inPenaltyArea(const Player& p)
 	return inPenaltyArea(*p.getMatch(), p.getPosition());
 }
 
-int MatchHelpers::inPenaltyArea(const Match& m, const AbsVector3& v)
+int MatchHelpers::inPenaltyArea(const Match& m, const Vector3& v)
 {
-	bool in_x = fabs(v.v.x) < 20.15f;
-	float yp = v.v.y;
+	bool in_x = fabs(v.x) < 20.15f;
+	float yp = v.y;
 
 	if(!in_x)
 		return 0;
@@ -341,7 +341,7 @@ bool MatchHelpers::inOpposingPenaltyArea(const Player& p)
 
 bool MatchHelpers::onOwnSide(const Player& p)
 {
-	if(fabs(p.getPosition().v.y > 1.0f) && attacksUp(p) != (p.getPosition().v.y < 0.0f)) {
+	if(fabs(p.getPosition().y > 1.0f) && attacksUp(p) != (p.getPosition().y < 0.0f)) {
 		return false;
 	}
 	if(!onPitch(*p.getMatch(), p.getPosition())) {
@@ -355,7 +355,7 @@ bool MatchHelpers::onOwnSideAndReady(const Player& p)
 	if(!onOwnSide(p)) {
 		return false;
 	}
-	if(p.getVelocity().v.length() > 1.0f) {
+	if(p.getVelocity().length() > 1.0f) {
 		return false;
 	}
 	return true;
@@ -376,9 +376,9 @@ bool MatchHelpers::canGrabBall(const Player& p)
 		float distToBall = MatchEntity::distanceBetween(p, *b);
 		float maxDist = p.standing() ? 0.5f : 0.0f;
 		maxDist += sqrt(p.getSkills().GoalKeeping);
-		float ballHeight = b->getPosition().v.z;
-		float maxBallHeight = p.isAirborne() ? p.getPosition().v.z + 2.0f : p.standing() ? 2.0f : 0.5f;
-		float minBallHeight = p.isAirborne() ? p.getPosition().v.z : 0.0f;
+		float ballHeight = b->getPosition().z;
+		float maxBallHeight = p.isAirborne() ? p.getPosition().z + 2.0f : p.standing() ? 2.0f : 0.5f;
+		float minBallHeight = p.isAirborne() ? p.getPosition().z : 0.0f;
 		if(maxDist >= distToBall && maxBallHeight >= ballHeight && minBallHeight <= ballHeight) {
 			return true;
 		}
@@ -387,21 +387,21 @@ bool MatchHelpers::canGrabBall(const Player& p)
 	return false;
 }
 
-bool MatchHelpers::goodKickingPosition(const Player& p, const AbsVector3& v)
+bool MatchHelpers::goodKickingPosition(const Player& p, const Vector3& v)
 {
-	Vector3 pb = p.getMatch()->getBall()->getPosition().v - p.getPosition().v;
-	Vector3 pt = (p.getMatch()->getBall()->getPosition().v + v.v) - p.getPosition().v;
+	Vector3 pb = p.getMatch()->getBall()->getPosition() - p.getPosition();
+	Vector3 pt = (p.getMatch()->getBall()->getPosition() + v) - p.getPosition();
 	return pt.dot(pb) >= 0.0f;
 }
 
 float MatchHelpers::distanceToOwnGoal(const Player& p)
 {
-	return (p.getPosition().v - ownGoalPosition(p).v).length();
+	return (p.getPosition() - ownGoalPosition(p)).length();
 }
 
 float MatchHelpers::distanceToOppositeGoal(const Player& p)
 {
-	return (p.getPosition().v - oppositeGoalPosition(p).v).length();
+	return (p.getPosition() - oppositeGoalPosition(p)).length();
 }
 
 bool MatchHelpers::playerBlockingRestart(const Player& p)
