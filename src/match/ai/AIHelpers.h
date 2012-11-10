@@ -23,6 +23,8 @@ class AIHelpers {
 		static float scaledCoefficient(float dist, float maximum);
 		static float checkKickSuccess(const Player& p, const Common::Vector3& v, float score);
 		static float getPassForwardCoefficient(const Player& p, const Player& tp);
+		static float getDepthCoefficient(const Team& p, const Common::Vector3& v);
+		static float getDepthCoefficient(const Player& p, const Common::Vector3& v);
 
 	private:
 		static Common::Vector3 getPositionByFunc(const Player& p, std::function<float (const Common::Vector3& v)> func);

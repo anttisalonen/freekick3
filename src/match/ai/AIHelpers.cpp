@@ -180,4 +180,18 @@ float AIHelpers::getPassForwardCoefficient(const Player& p, const Player& tp)
 	}
 }
 
+float AIHelpers::getDepthCoefficient(const Team& p, const Vector3& v)
+{
+	float depthCoeff = 0.5f + 0.5f * (v.y / (0.5f * p.getMatch()->getPitchHeight()));
+	if(!MatchHelpers::attacksUp(p))
+		depthCoeff = 1.0f - depthCoeff;
+
+	return depthCoeff;
+}
+
+float AIHelpers::getDepthCoefficient(const Player& p, const Vector3& v)
+{
+	return getDepthCoefficient(*p.getTeam(), v);
+}
+
 

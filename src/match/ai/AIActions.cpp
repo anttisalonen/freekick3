@@ -144,7 +144,7 @@ AIShootAction::AIShootAction(const Player* p)
 	}
 
 	mScore = maxscore;
-	mScore *= sqrt(mPlayer->getTeam()->getAITacticParameters().ShootActionCoefficient);
+	mScore *= mPlayer->getTeam()->getAITacticParameters().ShootActionCoefficient;
 	mAction = boost::shared_ptr<PlayerAction>(new KickBallPA(tgt, nullptr, true));
 }
 
@@ -211,7 +211,7 @@ AIDribbleAction::AIDribbleAction(const Player* p)
 	if(MatchHelpers::distanceToOwnGoal(*p) < 5.0f)
 		return;
 
-	static const float dribblelen = 6.0f;
+	float dribblelen = 6.0f;
 	for(int i = 0; i < 12; i++) {
 		Vector3 vec;
 		vec.x = dribblelen * sin(i * 2 * PI / 12.0f);
@@ -224,38 +224,29 @@ AIDribbleAction::AIDribbleAction(const Player* p)
 			continue;
 
 		float thisscore = 1.0f;
+		float depthCoeff = AIHelpers::getDepthCoefficient(*p, vec);
 		for(auto op : MatchHelpers::getOpposingPlayers(*p)) {
 			float dist = Common::Math::pointToLineDistance(p->getPosition(),
 					p->getPosition() + vec * 2.0f,
 					op->getPosition());
 			static const float maxdist = dribblelen;
 			if(dist < maxdist) {
-				thisscore -= (maxdist - dist) / maxdist;
+				thisscore -= AIHelpers::scaledCoefficient(dist, maxdist) * (1.0f - depthCoeff);
 				if(thisscore <= 0.0) {
 					break;
 				}
 			}
-		}
-		if(MatchHelpers::distanceToOppositeGoal(*p) < 40.0f) {
-			if(MatchHelpers::attacksUp(*p))
-				thisscore = thisscore * ((vec.y + dribblelen) / (2.0f * dribblelen));
-			else
-				thisscore = thisscore * ((vec.y - dribblelen) / (2.0f * dribblelen));
 		}
 
 		thisscore = AIHelpers::checkKickSuccess(*mPlayer, vec, thisscore);
 
 		if(thisscore > bestscore) {
 			bestscore = thisscore;
-			bestvec = Vector3(vec.normalized() * dribblelen * 0.05f);
+			/* TODO: make scaling depend on player skill */
+			bestvec = Vector3(vec.normalized() * dribblelen * 0.04f);
 		}
 	}
 	mScore = bestscore;
-
-	float oppdist = MatchEntity::distanceBetween(*MatchHelpers::nearestOppositePlayerToBall(*p->getTeam()),
-			*p->getMatch()->getBall());
-
-	mScore *= 1.0f - AIHelpers::scaledCoefficient(oppdist, 4.0f);
 
 	float dribblecoeff = mPlayer->getTeam()->getAITacticParameters().DribbleActionCoefficient;
 	mScore *= sqrt(dribblecoeff);

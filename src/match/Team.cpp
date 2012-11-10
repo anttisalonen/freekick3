@@ -202,10 +202,7 @@ float Team::calculatePassScoreAt(const std::vector<boost::shared_ptr<Player>>& o
 {
 	float pts = 0.0f;
 
-	float depthCoeff = 0.5f + 0.5f * (pos.y / (0.5f * mMatch->getPitchHeight()));
-	if(!MatchHelpers::attacksUp(*this))
-		depthCoeff = 1.0f - depthCoeff;
-
+	float depthCoeff = AIHelpers::getDepthCoefficient(*this, pos);
 	for(auto op : offensivePlayers) {
 		if((pos.y > op->getPosition().y) == MatchHelpers::attacksUp(*this))
 			continue;
