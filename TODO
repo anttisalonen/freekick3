@@ -37,3 +37,15 @@ Consider new team tactics settings, e.g.:
  - Careful playing
 Curved shots
  - curve strength and direction depends on the shape of the triangle formed by player, ball position, target position
+Increase AI variability
+ - identify patterns in AI behavior (e.g. tackling) and make them dependent on team tactics and player skills
+Make camera more wobbly
+Goal keepers blocking the ball but not being able to hold on to it
+Player pushing (collision detection)
+Make AI score more goals!
+Fix visual glitch when showing score between two teams with long names e.g. SpVgg Bayern Hof vs. Viktoria Aschaffenburg
+Do not tackle opponent when the opponent is farther from the ball than self
+Support parallel leagues
+Fix the issue of bottom leagues scoring less goals than the top leagues
+Set continent names in wikifetcher
+Read confederation tournament data from XML
