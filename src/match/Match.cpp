@@ -10,6 +10,7 @@
 #include "match/RefereeActions.h"
 
 #define TACKLE_DISTANCE 1.0f
+#define PLAYER_RADIUS 0.6f
 
 using Common::Vector3;
 
@@ -127,6 +128,8 @@ void Match::update(double time)
 						p->setTackled();
 						mReferee.playerTackled(*p, *p2);
 					}
+				} else if(p->standing() && !p2->tackling() && !p2->isAirborne()) {
+					checkPlayerPlayerCollision(p, p2);
 				}
 			}
 		}
@@ -145,6 +148,15 @@ void Match::update(double time)
 
 	updateReferee(time);
 	updateTime(time);
+}
+
+void Match::checkPlayerPlayerCollision(boost::shared_ptr<Player> p, boost::shared_ptr<Player> p2)
+{
+	auto vec = MatchEntity::vectorFromTo(*p, *p2);
+	float pen = PLAYER_RADIUS * 2.0f - vec.length();
+	if(pen > 0.0f) {
+		p->move(vec * -pen * 0.5f);
+	}
 }
 
 MatchHalf Match::getMatchHalf() const

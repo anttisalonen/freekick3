@@ -117,6 +117,8 @@ class Match : public Soccer::Match {
 				const boost::shared_ptr<Player> p, double time);
 		void updateReferee(double time);
 		void updateTime(double time);
+		void checkPlayerPlayerCollision(boost::shared_ptr<Player> p, boost::shared_ptr<Player> p2);
+
 		boost::shared_ptr<Team> mTeams[2];
 		boost::shared_ptr<Ball> mBall;
 		std::map<boost::shared_ptr<Player>, boost::shared_ptr<PlayerAction>> mCachedActions;
