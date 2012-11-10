@@ -127,13 +127,13 @@ float Team::getPassScoreAt(const Vector3& pos) const
 
 void Team::updateSupportingPositions()
 {
-	std::vector<boost::shared_ptr<Player>> offensivePlayers;
+	std::vector<boost::shared_ptr<Player>> passTargetCandidates;
 	Vector3 oppgoal = MatchHelpers::oppositeGoalPosition(*this);
 	for(auto pl : mPlayers) {
-		float len = (pl->getPosition() - oppgoal).length();
-		if((len < 50.0f && pl->getPlayerPosition() == Soccer::PlayerPosition::Forward) ||
-			len < 30.0f) {
-			offensivePlayers.push_back(pl);
+		float goaldist = (pl->getPosition() - oppgoal).length();
+		if((goaldist < 60.0f && pl->getPlayerPosition() == Soccer::PlayerPosition::Forward) ||
+			(goaldist < 45.0f)) {
+			passTargetCandidates.push_back(pl);
 		}
 	}
 
@@ -154,8 +154,17 @@ void Team::updateSupportingPositions()
 			Vector3 pos(x, y, 0);
 			mSupportingPositions.at(j).at(i).ShotScore =
 				calculateShotScoreAt(pos);
+		}
+	}
+
+	/* calculate shot score first as it will be required by the pass score */
+	for(unsigned int j = 0; j < mSupportingPositions.size(); j++) {
+		float y = -mMatch->getPitchHeight() * 0.5f + SUPPORTING_POS_RESOLUTION * (j + 2);
+		for(unsigned int i = 0; i < mSupportingPositions[j].size(); i++) {
+			float x = -mMatch->getPitchWidth() * 0.5f + SUPPORTING_POS_RESOLUTION * (i + 2);
+			Vector3 pos(x, y, 0);
 			mSupportingPositions.at(j).at(i).PassScore =
-				calculatePassScoreAt(offensivePlayers, pos);
+				calculatePassScoreAt(passTargetCandidates, pos);
 		}
 	}
 }
@@ -191,42 +200,37 @@ float Team::calculateShotScoreAt(const Vector3& pos) const
 float Team::calculatePassScoreAt(const std::vector<boost::shared_ptr<Player>>& offensivePlayers,
 		const Vector3& pos) const
 {
-	/* TODO: this function returns too often 0 (when there are no
-	 * forwards near the goal). This leads to midfielders standing still.
-	 * Make this function richer. */
 	float pts = 0.0f;
+
+	float depthCoeff = 0.5f + 0.5f * (pos.y / (0.5f * mMatch->getPitchHeight()));
+	if(!MatchHelpers::attacksUp(*this))
+		depthCoeff = 1.0f - depthCoeff;
 
 	for(auto op : offensivePlayers) {
 		if((pos.y > op->getPosition().y) == MatchHelpers::attacksUp(*this))
 			continue;
 
+		float shotScore = getShotScoreAt(pos);
 		float distToPl = (pos - op->getPosition()).length();
 		float optimumDist = 20.0f;
-		if(mMatch->getPlayState() == PlayState::OutThrowin) {
+		if(mMatch->getPlayState() == PlayState::OutThrowin)
 			optimumDist = 10.0f;
-		}
-		pts = std::max(pts, AIHelpers::scaledDistanceFrom(distToPl, optimumDist));
+		float distScore = AIHelpers::scaledDistanceFrom(distToPl, optimumDist);
+		pts += (distScore + shotScore) * (depthCoeff * 0.5f + 0.5f);
 	}
-	pts = Common::clamp(0.0f, pts, 1.0f);
-	//printf("Pts: %3.3f - ", pts);
 
 	if(pts > 0.0f) {
 		for(auto op : MatchHelpers::getOpposingPlayers(*this)) {
-			float distToPl = (pos - op->getPosition()).length();
+			float distToOpp = (pos - op->getPosition()).length();
 			const float maxDistToOpp = 10.0f;
-			if(distToPl < maxDistToOpp) {
-				pts *= (maxDistToOpp - distToPl) / maxDistToOpp;
-				// std::cout << "Distance to player: " << distToPl << "; ";
+			if(distToOpp < maxDistToOpp) {
+				pts *= (0.5f * (1 - depthCoeff)) * AIHelpers::scaledCoefficient(distToOpp, maxDistToOpp);
 				if(pts < 0.0f)
 					break;
 			}
 		}
-		pts = Common::clamp(0.0f, pts, 1.0f);
 	}
-	// std::cout << "Total pass points: " << pts << "\n";
-	//printf("Pts: %3.3f - ", pts);
-
-	//printf("Pts: %3.3f\n", pts);
+	pts = Common::clamp(0.0f, pts, 1.0f);
 	return pts;
 }
 
