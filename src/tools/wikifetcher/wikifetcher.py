@@ -67,7 +67,7 @@ class PlayerConfigurator:
         self.nationality = Nationality(nationality)
         self.teamstrength = teamstrength
 
-    def createFreekick3Node(self, idnumber):
+    def createFreekick3Node(self, idnumber, strength_coefficient):
         playernode = etree.Element('Player')
         playernode.set('id', str(idnumber))
         namenode = etree.SubElement(playernode, 'Name')
@@ -78,8 +78,9 @@ class PlayerConfigurator:
         minskillvalue = 0.01
         assert self.teamstrength <= 1.0
         def get_skill(mode):
-            v = random.triangular(mode - shift, mode, mode - shift * 0.5)
-            return max(minskillvalue, v)
+            m = mode * strength_coefficient
+            v = random.triangular(m - shift, m, m - shift * 0.5)
+            return min(1.0, max(minskillvalue, v))
         def top_skill():
             return get_skill(self.teamstrength)
         def good_skill():
@@ -185,6 +186,7 @@ def createKitNode(node):
 def shortenName(string):
     maxStringLen = 23
     string = string.strip().replace("'", '').replace("'", '')
+    string = re.sub('\([^)]*\)', '', string)
     stringLen = len(string)
     if stringLen <= maxStringLen:
         return string
@@ -201,6 +203,36 @@ def shortenName(string):
     if len(shortername) <= maxStringLen:
         return shortername
     return shortername[:(maxStringLen - 2)].strip() + '.'
+
+class PlayerStrengthSetup:
+    """The purpose of this class is to ensure the "real world" substitute players
+    aren't as good as the standard line up of the team. This currently simply
+    favors the players that appear first in the list, which works well in most
+    cases."""
+    def __init__(self):
+        self.max_spots = dict()
+        self.max_spots[PlayerPosition.GK] = 1
+        self.max_spots[PlayerPosition.DF] = 5
+        self.max_spots[PlayerPosition.MF] = 5
+        self.max_spots[PlayerPosition.FW] = 3
+        self.used = dict()
+        for p in [PlayerPosition.GK, PlayerPosition.DF, PlayerPosition.MF, PlayerPosition.FW]:
+            self.used[p] = 0
+
+    def getStrengthCoefficient(self, pos):
+        p = pos.pos
+        if p == PlayerPosition.WI:
+            p = PlayerPosition.MF
+        elif p == PlayerPosition.BK:
+            p = PlayerPosition.DF
+        maxsp = self.max_spots[p]
+        used  = self.used[p]
+        if used >= maxsp:
+            coeff = random.uniform(0.8, 0.95)
+        else:
+            coeff = 1.0
+            self.used[p] = self.used[p] + 1
+        return coeff
 
 class Converter:
     def __init__(self):
@@ -238,6 +270,7 @@ class Converter:
                 etree.SubElement(out_teamnode, 'Name').text = teamname
                 out_playernode = etree.SubElement(out_teamnode, 'Players')
 
+                playerstrengths = PlayerStrengthSetup()
                 for in_playernode in in_teamnode.xpath('Player'):
                     # TODO: cut off too many players as appropriate
                     player_name = in_playernode.get('name')
@@ -245,16 +278,17 @@ class Converter:
                     player_pos  = in_playernode.get('pos')
                     player_nat  = in_playernode.get('nationality')
                     pc = PlayerConfigurator(shortenName(player_name), player_num, player_pos, player_nat, this_team_strength)
-                    playernode = pc.createFreekick3Node(self.nextplayerid)
+                    pl_strength = playerstrengths.getStrengthCoefficient(pc.pos)
+                    playernode = pc.createFreekick3Node(self.nextplayerid, pl_strength)
                     etree.SubElement(out_playernode, 'Player').set('id', str(self.nextplayerid))
                     self.nextplayerid += 1
                     out_playernodes.append(playernode)
 
                 generatedPlayerNum = 1
-                while len(out_playernode) < 16:
+                while len(out_playernode) < 20:
                     # Lower strength for dummy players
-                    playernode = PlayerConfigurator('Player ' + str(generatedPlayerNum), 0, '--', 'N/A',
-                        this_team_strength * 0.93).createFreekick3Node(self.nextplayerid)
+                    pc = PlayerConfigurator('Player ' + str(generatedPlayerNum), 0, '--', 'N/A', this_team_strength)
+                    playernode = pc.createFreekick3Node(self.nextplayerid, playerstrengths.getStrengthCoefficient(pc.pos) * 0.93)
                     etree.SubElement(out_playernode, 'Player').set('id', str(self.nextplayerid))
                     self.nextplayerid += 1
                     out_playernodes.append(playernode)
