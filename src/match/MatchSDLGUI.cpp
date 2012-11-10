@@ -163,17 +163,17 @@ void MatchSDLGUI::drawEnvironment()
 		const Team* t = mMatch->getTeam(mDebugDisplay == 2 ? 0 : 1);
 		for(int j = -pheight * 0.5f + 8; j < pheight * 0.5 - 8; j += 8) {
 			for(int i = -pwidth * 0.5f + 8; i < pwidth * 0.5 - 8; i += 8) {
-				float score1 = t->getShotScoreAt(Vector3(i, j, 0));
-				float score2 = t->getPassScoreAt(Vector3(i, j, 0));
+				float score1 = 2.0f * t->getShotScoreAt(Vector3(i, j, 0));
+				float score2 = 2.0f * t->getPassScoreAt(Vector3(i, j, 0));
 				glDisable(GL_TEXTURE_2D);
-				glPointSize(5.0f);
+				glPointSize(10.0f);
 				glBegin(GL_POINTS);
-				glColor3f(score1, 0.0f, 0.0f);
-				glVertex3f((-mCamera.x + i) * mScaleLevel + screenWidth * 0.5f - 3.0f,
+				glColor3f(std::min(1.0f, score1), 0.0f, 0.0f);
+				glVertex3f((-mCamera.x + i) * mScaleLevel + screenWidth * 0.5f - 5.0f,
 						(-mCamera.y + j) * mScaleLevel + screenHeight * 0.5f,
 						textHeight);
-				glColor3f(0.0f, 0.0f, score2);
-				glVertex3f((-mCamera.x + i) * mScaleLevel + screenWidth * 0.5f + 3.0f,
+				glColor3f(0.0f, 0.0f, std::min(1.0f, score2));
+				glVertex3f((-mCamera.x + i) * mScaleLevel + screenWidth * 0.5f + 5.0f,
 						(-mCamera.y + j) * mScaleLevel + screenHeight * 0.5f,
 						textHeight);
 				glEnd();
