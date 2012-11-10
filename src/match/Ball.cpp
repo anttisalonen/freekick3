@@ -10,12 +10,14 @@ using Common::Vector3;
 
 static const float collisionIgnoreDistance = 1.5f;
 
+static const float minimumBallHeight = 0.10f;
+
 Ball::Ball(Match* match)
 	: MatchEntity(match, true, Common::Vector3(0, 0, 0)),
 	mGrabbed(false),
 	mGrabber(nullptr)
 {
-	mPosition.z = 0.10f;
+	mPosition.z = minimumBallHeight;
 }
 
 const Player* Ball::checkPlayerCollisions()
@@ -45,6 +47,7 @@ void Ball::update(float time)
 		bool outsideAfter3 = mPosition.z > GOAL_HEIGHT;
 
 		if(mPosition.z < 0.15f) {
+			mPosition.z = 0.15f;
 			if(fabs(mVelocity.z) < 0.1f)
 				mVelocity.z = 0.0f;
 
@@ -135,6 +138,7 @@ void Ball::update(float time)
 		mAcceleration = Vector3();
 		mVelocity = mGrabber->getVelocity();
 		mPosition = mGrabber->getPosition();
+		mPosition.z = std::max(minimumBallHeight, mPosition.z);
 	}
 }
 
@@ -175,7 +179,7 @@ void Ball::grab(Player* p)
 	mVelocity = Vector3();
 	mGrabber = p;
 	mPosition = mGrabber->getPosition();
-	mPosition.z = 0.10f;
+	mPosition.z = minimumBallHeight;
 }
 
 void Ball::drop()
