@@ -22,9 +22,7 @@ boost::shared_ptr<PlayerAction> AIDefendState::actOffBall(double time)
 		case Soccer::PlayerPosition::Defender:
 			{
 				if(MatchHelpers::myTeamInControl(*mPlayer) &&
-						(mPlayer->getMatch()->getPlayState() == PlayState::OutDirectFreekick ||
-						 mPlayer->getMatch()->getPlayState() == PlayState::OutPenaltykick ||
-						 mPlayer->getMatch()->getPlayState() == PlayState::OutCornerkick ||
+						(!playing(mPlayer->getMatch()->getPlayState()) ||
 						 mPlayer->getPlayerPosition() == Soccer::PlayerPosition::Midfielder ||
 						 mPlayer->getTactics().Offensive)) {
 					return mPlayController->switchState(boost::shared_ptr<AIState>(new AIMidfielderState(mPlayer, mPlayController)), time);
