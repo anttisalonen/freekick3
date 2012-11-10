@@ -8,6 +8,8 @@
 
 #define SUPPORTING_POS_RESOLUTION 4
 
+using Common::Vector3;
+
 Team::Team(Match* match, const Soccer::StatefulTeam& t, bool first)
 	: Soccer::StatefulTeam(t),
 	mMatch(match),

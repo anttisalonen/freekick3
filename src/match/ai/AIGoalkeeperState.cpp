@@ -5,6 +5,8 @@
 #include "match/ai/AIPlayStates.h"
 #include "match/PlayerActions.h"
 
+using Common::Vector3;
+
 AIGoalkeeperState::AIGoalkeeperState(Player* p, AIPlayController* m)
 	: AIState(p, m),
 	mHoldBallTimer(1.0f)

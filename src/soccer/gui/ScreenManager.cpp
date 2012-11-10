@@ -25,7 +25,7 @@ ScreenManager::ScreenManager(const Menu& m)
 	: mMenu(m),
 	mPressedButton(std::string(""))
 {
-	mScreen = SDL_utils::initSDL(screenWidth, screenHeight);
+	mScreen = SDL_utils::initSDL(screenWidth, screenHeight, "Freekick 3");
 	SDL_utils::setupOrthoScreen(screenWidth, screenHeight);
 
 	mFont = TTF_OpenFont("share/DejaVuSans.ttf", fontHeight);

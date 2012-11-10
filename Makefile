@@ -15,7 +15,7 @@ BINDIR       = bin
 
 # Common lib
 
-COMMONSRCFILES = SDLSurface.cpp Texture.cpp SDL_utils.cpp Color.cpp Math.cpp
+COMMONSRCFILES = SDLSurface.cpp Texture.cpp SDL_utils.cpp Color.cpp Math.cpp Quaternion.cpp
 COMMONSRCDIR = src/common
 COMMONSRCS = $(addprefix $(COMMONSRCDIR)/, $(COMMONSRCFILES))
 COMMONOBJS = $(COMMONSRCS:.cpp=.o)

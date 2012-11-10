@@ -61,7 +61,7 @@ MatchSDLGUI::MatchSDLGUI(boost::shared_ptr<Match> match, bool observer, int team
 		return;
 	}
 
-	mScreen = SDL_utils::initSDL(screenWidth, screenHeight);
+	mScreen = SDL_utils::initSDL(screenWidth, screenHeight, "Freekick 3 match");
 
 	loadTextures();
 	loadFont();

@@ -3,6 +3,8 @@
 #include "match/MatchHelpers.h"
 #include "match/Team.h"
 
+using Common::Vector3;
+
 double MatchHelpers::distanceToPitch(const Match& m,
 		const AbsVector3& v)
 {

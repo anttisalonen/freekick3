@@ -4,6 +4,8 @@
 #include "match/MatchHelpers.h"
 #include "match/ai/AIHelpers.h"
 
+using Common::Vector3;
+
 AIPlayController::AIPlayController(Player* p)
 	: PlayerController(p)
 {

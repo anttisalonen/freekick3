@@ -11,6 +11,7 @@
 #include "common/Color.h"
 #include "common/Rectangle.h"
 #include "common/Vector3.h"
+#include "common/FontConfig.h"
 
 #include "match/MatchGUI.h"
 #include "match/Clock.h"
@@ -23,50 +24,6 @@ struct LineCoord {
 	float x;
 	float y;
 };
-
-struct FontConfig {
-	inline FontConfig(const char* str, const Common::Color& c, float scale);
-	inline bool operator==(const FontConfig& f) const;
-	inline bool operator<(const FontConfig& f) const;
-	std::string mText;
-	Common::Color mColor;
-	float mScale;
-};
-
-FontConfig::FontConfig(const char* str, const Common::Color& c, float scale)
-	: mText(str),
-	mColor(c),
-	mScale(scale)
-{
-}
-
-bool FontConfig::operator==(const FontConfig& f) const
-{
-	return mText == f.mText && mColor == f.mColor && mScale == f.mScale;
-}
-
-bool FontConfig::operator<(const FontConfig& f) const
-{
-	if(mText != f.mText)
-		return mText < f.mText;
-	if(!(mColor == f.mColor))
-		return mColor < f.mColor;
-	return mScale < f.mScale;
-}
-
-struct TextTexture {
-	inline TextTexture(boost::shared_ptr<Common::Texture> t, unsigned int w, unsigned int h);
-	boost::shared_ptr<Common::Texture> mTexture;
-	unsigned int mWidth;
-	unsigned int mHeight;
-};
-
-TextTexture::TextTexture(boost::shared_ptr<Common::Texture> t, unsigned int w, unsigned int h)
-	: mTexture(t),
-	mWidth(w),
-	mHeight(h)
-{
-}
 
 class MatchSDLGUI : public MatchGUI, public PlayerController {
 	public:
@@ -92,7 +49,7 @@ class MatchSDLGUI : public MatchGUI, public PlayerController {
 				const Common::Rectangle& vertcoords,
 				const Common::Rectangle& texcoords, float depth);
 		void drawText(float x, float y,
-				const FontConfig& f,
+				const Common::FontConfig& f,
 				bool screencoordinates, bool centered);
 		AbsVector3 getMousePositionOnPitch() const;
 		void setupPitchLines();
@@ -114,13 +71,13 @@ class MatchSDLGUI : public MatchGUI, public PlayerController {
 		float mScaleLevel;
 		float mScaleLevelVelocity;
 		bool mFreeCamera;
-		Vector3 mCamera;
-		Vector3 mCameraVelocity;
-		Vector3 mPlayerControlVelocity;
+		Common::Vector3 mCamera;
+		Common::Vector3 mCameraVelocity;
+		Common::Vector3 mPlayerControlVelocity;
 		double mPlayerKickPower;
 		double mPlayerKickPowerVelocity;
 		TTF_Font* mFont;
-		std::map<FontConfig, boost::shared_ptr<TextTexture>> mTextMap;
+		std::map<Common::FontConfig, boost::shared_ptr<Common::TextTexture>> mTextMap;
 		bool mObserver;
 		bool mMouseAim;
 		int mControlledPlayerIndex;

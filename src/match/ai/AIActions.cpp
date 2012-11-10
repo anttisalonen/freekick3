@@ -8,6 +8,8 @@
 #include "match/ai/AIHelpers.h"
 #include "match/MatchHelpers.h"
 
+using Common::Vector3;
+
 AIActionChooser::AIActionChooser(const std::vector<boost::shared_ptr<AIAction>>& actions,
 		bool debug)
 	: mBestAction(boost::shared_ptr<AIAction>())
