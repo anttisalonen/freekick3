@@ -10,7 +10,7 @@ struct AITacticParameters {
 	float LongPassActionCoefficient;
 	float DribbleActionCoefficient;
 	float ShootActionCoefficient;
-	float ShootRiskCoefficient;
+	float ShootCloseCoefficient;
 	float ClearActionCoefficient;
 	float FetchBallActionCoefficient;
 	float GuardActionCoefficient;

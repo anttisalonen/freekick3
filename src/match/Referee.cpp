@@ -201,7 +201,6 @@ void Referee::ballKicked(const Player& p)
 	if(playing(mMatch->getMatchHalf())) {
 		ballTouched(p);
 
-		std::cout << "Ball kicked by " << p.getName() << "\n";
 		if(!playing(mMatch->getPlayState())) {
 			if(p.getTeam()->isFirst() == mFirstTeamInControl) {
 				mMatch->setPlayState(PlayState::InPlay);

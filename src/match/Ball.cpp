@@ -47,7 +47,7 @@ void Ball::update(float time)
 		bool outsideAfter3 = mPosition.z > GOAL_HEIGHT;
 
 		if(mPosition.z < minimumBallHeight) {
-			mPosition.z = minimumBallHeight;
+			mPosition.z = minimumBallHeight * 0.95f;
 			if(fabs(mVelocity.z) < 0.1f)
 				mVelocity.z = 0.0f;
 

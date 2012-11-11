@@ -179,14 +179,14 @@ float Team::calculateShotScoreAt(const Vector3& pos) const
 	assert(pos.x < mMatch->getPitchWidth());
 	assert(pos.y > -mMatch->getPitchHeight());
 	assert(pos.y < mMatch->getPitchHeight());
+	float distToGoalCoeff = std::min(1.0f, AIHelpers::scaledCoefficient(distToGoal, 30.0f) + 0.25f);
 
 	if(pts > 0) {
 		for(auto op : MatchHelpers::getOpposingPlayers(*this)) {
-			float distToPl = (pos - op->getPosition()).length();
+			float distToOpp = (pos - op->getPosition()).length();
 			const float maxDistToOpp = 8.0f;
-			if(distToPl < maxDistToOpp) {
-				pts *= (maxDistToOpp - distToPl) / (maxDistToOpp * 2.0f);
-				// std::cout << "Distance to player: " << distToPl << "; ";
+			if(distToOpp < maxDistToOpp) {
+				pts -= (1.0f - distToGoalCoeff) * AIHelpers::scaledCoefficient(distToOpp, maxDistToOpp);
 				if(pts < 0)
 					break;
 			}
@@ -202,7 +202,7 @@ float Team::calculatePassScoreAt(const std::vector<boost::shared_ptr<Player>>& o
 {
 	float pts = 0.0f;
 
-	float depthCoeff = AIHelpers::getDepthCoefficient(*this, pos);
+	float depthCoeff = sqrt(AIHelpers::getDepthCoefficient(*this, pos));
 	for(auto op : offensivePlayers) {
 		if((pos.y > op->getPosition().y) == MatchHelpers::attacksUp(*this))
 			continue;
@@ -210,10 +210,8 @@ float Team::calculatePassScoreAt(const std::vector<boost::shared_ptr<Player>>& o
 		float shotScore = getShotScoreAt(pos);
 		float distToPl = (pos - op->getPosition()).length();
 		float optimumDist = 20.0f;
-		if(mMatch->getPlayState() == PlayState::OutThrowin)
-			optimumDist = 10.0f;
 		float distScore = AIHelpers::scaledDistanceFrom(distToPl, optimumDist);
-		pts += (distScore + shotScore) * (depthCoeff * 0.5f + 0.5f);
+		pts += (distScore + shotScore) * depthCoeff;
 	}
 
 	if(pts > 0.0f) {
@@ -221,12 +219,18 @@ float Team::calculatePassScoreAt(const std::vector<boost::shared_ptr<Player>>& o
 			float distToOpp = (pos - op->getPosition()).length();
 			const float maxDistToOpp = 10.0f;
 			if(distToOpp < maxDistToOpp) {
-				pts *= (0.5f * (1 - depthCoeff)) * AIHelpers::scaledCoefficient(distToOpp, maxDistToOpp);
+				pts *= (1 - depthCoeff) * AIHelpers::scaledCoefficient(distToOpp, maxDistToOpp);
 				if(pts < 0.0f)
 					break;
 			}
 		}
 	}
+
+	if(mMatch->getPlayState() == PlayState::OutThrowin) {
+		float distToBall = (pos - mMatch->getBall()->getPosition()).length();
+		pts *= AIHelpers::scaledCoefficient(distToBall, 50.0f);
+	}
+
 	pts = Common::clamp(0.0f, pts, 1.0f);
 	return pts;
 }

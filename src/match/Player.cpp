@@ -12,10 +12,10 @@ Player::Player(Match* match, Team* team, const Soccer::Player& p,
 	: MatchEntity(match, false, match->convertRelativeToAbsoluteVector(team->getPausePosition())),
 	Soccer::Player(p),
 	mTeam(team),
-	mBallKickedTimer(1.0f - p.getSkills().Tackling * 0.2f),
+	mBallKickedTimer(1.0f - p.getSkills().BallControl * 0.5f),
 	mTactics(t),
 	mShirtNumber(sn),
-	mTacklingTimer(1.0f), /* TODO: make dependent on player skill */
+	mTacklingTimer(1.0f - p.getSkills().Tackling * 0.5f),
 	mTackledTimer(2.0f)   /* TODO: make dependent on player skill */
 {
 	mAIController = new PlayerAIController(this);

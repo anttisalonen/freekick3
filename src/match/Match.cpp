@@ -156,6 +156,7 @@ void Match::checkPlayerPlayerCollision(boost::shared_ptr<Player> p, boost::share
 	float pen = PLAYER_RADIUS * 2.0f - vec.length();
 	if(pen > 0.0f) {
 		p->move(vec * -pen * 0.5f);
+		p2->move(vec * pen * 0.5f);
 	}
 }
 
@@ -304,6 +305,7 @@ int Match::kickBall(Player* p, const Vector3& v)
 {
 	if(MatchHelpers::canKickBall(*p) && mReferee.canKickBall(*p)) {
 		int failpoints = 0;
+		std::cout << "Ball kicked by " << p->getName() << "\n";
 		p->ballKicked();
 
 		if(playing(getPlayState())) {
