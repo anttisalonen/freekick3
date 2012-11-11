@@ -135,9 +135,12 @@ class Match {
 		MatchRules& getRules();
 		void setCupEntry(const CupEntry& c);
 		const CupEntry& getCupEntry() const;
+		static void setMatchDataDumpDirectory(const std::string& s);
 
 	private:
 		MatchResult simulateMatchResult() const;
+
+		static std::string MatchDataDumpDirectory;
 
 		const boost::shared_ptr<StatefulTeam> mTeam1;
 		const boost::shared_ptr<StatefulTeam> mTeam2;

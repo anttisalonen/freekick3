@@ -1,4 +1,5 @@
 #include <sys/wait.h>
+#include <sys/stat.h>
 #include <unistd.h>
 #include <stdio.h>
 
@@ -126,6 +127,15 @@ Match::Match(const boost::shared_ptr<StatefulTeam> t1, const boost::shared_ptr<S
 {
 }
 
+static std::string teamNameToFilename(const std::string& s)
+{
+	std::string ret(s);
+	std::replace(ret.begin(), ret.end(), ' ', '_');
+	std::replace(ret.begin(), ret.end(), '.', '_');
+	std::replace(ret.begin(), ret.end(), '/', '_');
+	return ret;
+}
+
 MatchResult Match::play(bool display) const
 {
 	if(display) {
@@ -137,6 +147,19 @@ MatchResult Match::play(bool display) const
 		return r;
 	}
 	else {
+		if(!MatchDataDumpDirectory.empty()) {
+			std::string s(MatchDataDumpDirectory);
+			s += teamNameToFilename(mTeam1->getName()) + "-vs-" + teamNameToFilename(mTeam2->getName()) + ".xml";
+			FILE* f = fopen(s.c_str(), "w");
+			if(f) {
+				DataExchange::createMatchDataFile(*this, f);
+				std::cout << "Created match data file " << s << "\n";
+				fclose(f);
+			} else {
+				perror("fopen");
+				std::cerr << "Could not createa match data file.\n";
+			}
+		}
 		return simulateMatchResult();
 	}
 }
@@ -587,6 +610,24 @@ bool RunningMatch::matchFinished(MatchResult* r)
 	}
 	else {
 		return false;
+	}
+}
+
+
+std::string Match::MatchDataDumpDirectory;
+
+void Match::setMatchDataDumpDirectory(const std::string& s)
+{
+	MatchDataDumpDirectory = s;
+	if(!s.empty()) {
+		if(*MatchDataDumpDirectory.rbegin() != '/')
+			MatchDataDumpDirectory.push_back('/');
+		if(mkdir(MatchDataDumpDirectory.c_str(), S_IRWXU | S_IRWXG | S_IROTH | S_IXOTH)) {
+			if(errno != EEXIST) {
+				perror("mkdir");
+				std::cerr << "Warning: could not create match data dump directory. Dumping may not work.\n";
+			}
+		}
 	}
 }
 

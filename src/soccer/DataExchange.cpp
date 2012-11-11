@@ -425,7 +425,7 @@ TiXmlElement* DataExchange::createPlayerElement(const Player& p)
 	return playerelem;
 }
 
-void DataExchange::createMatchDataFile(const Match& m, const char* fn)
+TiXmlDocument DataExchange::createMatchData(const Match& m)
 {
 	TiXmlDocument doc;
 	TiXmlDeclaration* decl = new TiXmlDeclaration("1.0", "", "");
@@ -482,11 +482,24 @@ void DataExchange::createMatchDataFile(const Match& m, const char* fn)
 
 	doc.LinkEndChild(decl);
 	doc.LinkEndChild(matchelem);
+	return doc;
+}
+
+void DataExchange::createMatchDataFile(const Match& m, const char* fn)
+{
+	TiXmlDocument doc = createMatchData(m);
 	if(!doc.SaveFile(fn)) {
 		throw std::runtime_error(std::string("Unable to save XML file ") + fn);
 	}
 }
 
+void DataExchange::createMatchDataFile(const Match& m, FILE* file)
+{
+	TiXmlDocument doc = createMatchData(m);
+	if(!doc.SaveFile(file)) {
+		throw std::runtime_error(std::string("Unable to save match data file"));
+	}
+}
 
 void DataExchange::updateTeamDatabase(const char* fn, TeamDatabase& db)
 {
