@@ -82,8 +82,8 @@ boost::shared_ptr<PlayerAction> AIGoalkeeperState::actOffBall(double time)
 	if(Common::signum(ball->getVelocity().y) == Common::signum(goalmiddlepoint.y) && balltowardsgoal < GOAL_WIDTH_2) {
 		Vector3 tgtpos = Common::Math::lineLineIntersection2D(ballpos,
 				futureballpos,
-				Vector3(-GOAL_WIDTH_2, goalmiddlepoint.y, 0),
-				Vector3(GOAL_WIDTH_2, goalmiddlepoint.y, 0));
+				Vector3(-GOAL_WIDTH_2 * 0.7f, goalmiddlepoint.y, 0),
+				Vector3(GOAL_WIDTH_2 * 0.7f, goalmiddlepoint.y, 0));
 		// tgtpos may be null when the ball doesn't move
 		if(!tgtpos.null()) {
 			float timetogoal = (ballpos - goalmiddlepoint).length() / ball->getVelocity().length();

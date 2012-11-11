@@ -112,7 +112,7 @@ AIShootAction::AIShootAction(const Player* p)
 	const float riskcoeff = mPlayer->getTeam()->getAITacticParameters().ShootCloseCoefficient;
 	/* controls how far the player might shoot from */
 	float defaultScore = std::max(0.0f, 1.0f - (vec.length() - 10.0f) *
-			(0.02f + 0.02f * (1.0f - riskcoeff)));
+			(0.1f + 0.1f * (1.0f - riskcoeff)));
 	float maxscore = -1.0f;
 	const float maxOppDist = 2.0f;
 
@@ -162,7 +162,7 @@ AIClearAction::AIClearAction(const Player* p)
 
 	const float maxDist = 20.0f;
 
-	if(distToOpposingPlayer < 5.0f)
+	if(distToOpposingPlayer < 10.0f)
 		mScore = AIHelpers::scaledCoefficient(distToOwnGoal, maxDist);
 	else
 		mScore = -1.0f;
@@ -427,7 +427,8 @@ AIGuardAction::AIGuardAction(const Player* p)
 		}
 	}
 	mScore = highestdangerousness;
-	mScore *= mPlayer->getTeam()->getAITacticParameters().GuardActionCoefficient;
+	/* drop guard score as it should be seen as backup action */
+	mScore *= mPlayer->getTeam()->getAITacticParameters().GuardActionCoefficient * 0.5f;
 	mAction = AIHelpers::createMoveActionTo(*p, tgtpos, 1.0f);
 }
 
@@ -472,7 +473,7 @@ AIBlockPassAction::AIBlockPassAction(const Player* p)
 	Vector3 bestpos(p->getPosition());
 	mScore = -1.0f;
 	for(auto pl : MatchHelpers::getOpposingPlayers(*p)) {
-		if(op == &*pl || pl->isGoalkeeper())
+		if(op == &*pl)
 			continue;
 		float disttogoal = (owngoal - pl->getPosition()).length();
 		if(disttogoal > 50.0f)
@@ -533,7 +534,7 @@ AITackleAction::AITackleAction(const Player* p)
 						p->getMatch()->getBall()->getPosition()).length();
 				if(distToOwnGoal > 10.0f && distToOwnGoal < 80.0f) {
 					mScore = 1.0f - (oppdist / maxOppDist);
-					mScore *= 0.5f * mPlayer->getTeam()->getAITacticParameters().TackleActionCoefficient;
+					mScore *= mPlayer->getTeam()->getAITacticParameters().TackleActionCoefficient;
 				}
 			}
 		}
