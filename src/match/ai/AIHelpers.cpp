@@ -51,7 +51,8 @@ boost::shared_ptr<PlayerAction> AIHelpers::createMoveActionToBall(const Player& 
 Vector3 AIHelpers::getShotPosition(const Player& p)
 {
 	Vector3 v = getPositionByFunc(p, [&](const Vector3& vp) { return p.getTeam()->getShotScoreAt(vp); });
-	if((v - p.getPosition()).length() > 2.0f)
+	/* NOTE: this constant basically defines how far in offside a forward will stand. */
+	if((v - p.getPosition()).length() > 0.5f)
 		return v;
 	else
 		return p.getPosition();
@@ -192,6 +193,24 @@ float AIHelpers::getDepthCoefficient(const Team& p, const Vector3& v)
 float AIHelpers::getDepthCoefficient(const Player& p, const Vector3& v)
 {
 	return getDepthCoefficient(*p.getTeam(), v);
+}
+
+bool AIHelpers::opponentAttacking(const Player& p)
+{
+	if(!MatchHelpers::myTeamInControl(p))
+		return true;
+
+	auto b = p.getTeam()->getMatch()->getBall();
+	auto grabber = b->getGrabber();
+	if(grabber && grabber->getTeam() == p.getTeam())
+		return false;
+
+	float ourDist = MatchEntity::distanceBetween(*MatchHelpers::nearestOwnPlayerToBall(*p.getTeam()), *b);
+	float theirDist = MatchEntity::distanceBetween(*MatchHelpers::nearestOppositePlayerToBall(*p.getTeam()), *b);
+	if(theirDist < ourDist)
+		return true;
+
+	return false;
 }
 
 

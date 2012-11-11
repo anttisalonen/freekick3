@@ -22,7 +22,7 @@ AITacticParameters::AITacticParameters(const Soccer::StatefulTeam& tt)
 	 * trying-to-kick-the-ball-through-opponents. */
 	ShootCloseCoefficient      = Common::clamp(0.1f, t.ShootClose * 1.0f, 0.9f);
 	ClearActionCoefficient     = Common::clamp(0.3f, (1.0f - t.Pressure) * 0.5f + 0.25f, 0.7f);
-	FetchBallActionCoefficient = 0.5f + Common::clamp(0.1f, t.Pressure * 0.5f, 0.9f);
+	FetchBallActionCoefficient = mildify(Common::clamp(0.1f, t.Pressure, 0.9f));
 	GuardActionCoefficient     = Common::clamp(0.1f, t.Pressure, 0.9f);
 	BlockActionCoefficient     = Common::clamp(0.1f, t.Pressure, 0.9f);
 	BlockPassActionCoefficient = Common::clamp(0.1f, t.Pressure, 0.9f);

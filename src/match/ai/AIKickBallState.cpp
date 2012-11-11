@@ -25,8 +25,10 @@ boost::shared_ptr<PlayerAction> AIKickBallState::actOnBall(double time)
 	}
 
 	if(mPlayer->getMatch()->getPlayState() == PlayState::InPlay) {
-		actions.push_back(boost::shared_ptr<AIAction>(new AIClearAction(mPlayer)));
-		actions.push_back(boost::shared_ptr<AIAction>(new AITackleAction(mPlayer)));
+		if(!mPlayer->getMatch()->getBall()->grabbed()) {
+			actions.push_back(boost::shared_ptr<AIAction>(new AIClearAction(mPlayer)));
+			actions.push_back(boost::shared_ptr<AIAction>(new AITackleAction(mPlayer)));
+		}
 		if(!mPlayer->isGoalkeeper())
 			actions.push_back(boost::shared_ptr<AIAction>(new AIDribbleAction(mPlayer)));
 	}

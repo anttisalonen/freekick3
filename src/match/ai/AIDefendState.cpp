@@ -21,7 +21,8 @@ boost::shared_ptr<PlayerAction> AIDefendState::actOffBall(double time)
 		case Soccer::PlayerPosition::Midfielder:
 		case Soccer::PlayerPosition::Defender:
 			{
-				if(MatchHelpers::myTeamInControl(*mPlayer) &&
+				bool oppAtt = AIHelpers::opponentAttacking(*mPlayer);
+				if(!oppAtt &&
 						(!playing(mPlayer->getMatch()->getPlayState()) ||
 						 mPlayer->getPlayerPosition() == Soccer::PlayerPosition::Midfielder ||
 						 mPlayer->getTactics().Offensive)) {
@@ -29,7 +30,7 @@ boost::shared_ptr<PlayerAction> AIDefendState::actOffBall(double time)
 				}
 
 				std::vector<boost::shared_ptr<AIAction>> actions;
-				if(mPlayer->getMatch()->getPlayState() == PlayState::InPlay) {
+				if(mPlayer->getMatch()->getPlayState() == PlayState::InPlay && !mPlayer->getMatch()->getBall()->grabbed()) {
 					actions.push_back(boost::shared_ptr<AIAction>(new AIFetchBallAction(mPlayer)));
 				}
 				actions.push_back(boost::shared_ptr<AIAction>(new AIBlockAction(mPlayer)));

@@ -99,11 +99,16 @@ boost::shared_ptr<PlayerAction> AIPlayController::actOnRestart(double time)
 		}
 		dir.normalize();
 
+		mCurrentState->blockedMatch();
+
 		return AIHelpers::createMoveActionTo(*mPlayer,
 				Vector3(mPlayer->getPosition() + dir));
 	}
 	else {
-		return mCurrentState->actOffBall(time);
+		if(mCurrentState->checkBlockedMatchTimer(time))
+			return boost::shared_ptr<PlayerAction>(new IdlePA());
+		else
+			return mCurrentState->actOffBall(time);
 	}
 }
 
@@ -114,8 +119,21 @@ void AIPlayController::matchHalfChanged(MatchHalf m)
 
 AIState::AIState(Player* p, AIPlayController* m)
 	: mPlayer(p),
-	mPlayController(m)
+	mPlayController(m),
+	mBlockedMatchTimer(2.0f)
 {
+}
+
+bool AIState::checkBlockedMatchTimer(double time)
+{
+	mBlockedMatchTimer.doCountdown(time);
+	mBlockedMatchTimer.check();
+	return mBlockedMatchTimer.running();
+}
+
+void AIState::blockedMatch()
+{
+	mBlockedMatchTimer.rewind();
 }
 
 boost::shared_ptr<PlayerAction> AIState::actOnBall(double time)

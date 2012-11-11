@@ -202,6 +202,12 @@ float Team::calculatePassScoreAt(const std::vector<boost::shared_ptr<Player>>& o
 {
 	float pts = 0.0f;
 
+	if(mMatch->getPlayState() == PlayState::OutThrowin) {
+		float distToBall = (pos - mMatch->getBall()->getPosition()).length();
+		pts = AIHelpers::scaledCoefficient(distToBall, 50.0f);
+		return pts;
+	}
+
 	float depthCoeff = sqrt(AIHelpers::getDepthCoefficient(*this, pos));
 	for(auto op : offensivePlayers) {
 		if((pos.y > op->getPosition().y) == MatchHelpers::attacksUp(*this))
@@ -224,11 +230,6 @@ float Team::calculatePassScoreAt(const std::vector<boost::shared_ptr<Player>>& o
 					break;
 			}
 		}
-	}
-
-	if(mMatch->getPlayState() == PlayState::OutThrowin) {
-		float distToBall = (pos - mMatch->getBall()->getPosition()).length();
-		pts *= AIHelpers::scaledCoefficient(distToBall, 50.0f);
 	}
 
 	pts = Common::clamp(0.0f, pts, 1.0f);

@@ -33,6 +33,9 @@ class AIState {
 		virtual boost::shared_ptr<PlayerAction> actOffBall(double time) = 0;
 		const std::string& getDescription() const;
 		virtual void matchHalfChanged(MatchHalf m) { }
+		bool checkBlockedMatchTimer(double time);
+		void blockedMatch();
+
 	protected:
 		boost::shared_ptr<PlayerAction> switchState(boost::shared_ptr<AIState> newstate, double time);
 		void setNewState(boost::shared_ptr<AIState> newstate);
@@ -41,6 +44,7 @@ class AIState {
 		Player* mPlayer;
 		AIPlayController* mPlayController;
 		std::string mDescription;
+		Countdown mBlockedMatchTimer;
 };
 
 class AIGoalkeeperState : public AIState {

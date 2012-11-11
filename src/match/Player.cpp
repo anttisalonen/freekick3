@@ -87,12 +87,12 @@ double Player::getRunSpeed() const
 
 double Player::getMaximumShotPower() const
 {
-	return 30.0f + 20.0f * mSkills.ShotPower;
+	return 40.0f + 12.0f * mSkills.ShotPower;
 }
 
 double Player::getMaximumHeadingPower() const
 {
-	return 10.0f + 20.0f * mSkills.Heading;
+	return 20.0f + 20.0f * mSkills.Heading;
 }
 
 void Player::setController(PlayerController* c)

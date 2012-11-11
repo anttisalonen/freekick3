@@ -404,6 +404,16 @@ float MatchHelpers::distanceToOppositeGoal(const Player& p)
 	return (p.getPosition() - oppositeGoalPosition(p)).length();
 }
 
+float MatchHelpers::distanceToOwnGoal(const Player& p, const Common::Vector3& v)
+{
+	return (v - ownGoalPosition(p)).length();
+}
+
+float MatchHelpers::distanceToOppositeGoal(const Player& p, const Common::Vector3& v)
+{
+	return (v - oppositeGoalPosition(p)).length();
+}
+
 bool MatchHelpers::playerBlockingRestart(const Player& p)
 {
 	const Player* restarter;
