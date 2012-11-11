@@ -281,34 +281,74 @@ void MatchSDLGUI::drawTexts()
 
 const boost::shared_ptr<Texture> MatchSDLGUI::playerTexture(const Player* p)
 {
+	/* Mapping:
+	 * 0  => Stand, direction north
+	 * 1  => Stand, direction west
+	 * 2  => Stand, direction south
+	 * 3  => Stand, direction east
+	 * 4  => Fallen, direction north (unused)
+	 * 5  => Fallen, direction west
+	 * 6  => Fallen, direction south (unused)
+	 * 7  => Fallen, direction east (unused)
+	 * 8  => Tackling, direction north
+	 * 9  => Tackling, direction west
+	 * 10 => Tackling, direction south
+	 * 11 => Tackling, direction east
+	 * 12 => Run, direction north, frame 1
+	 * 13 => Run, direction north, frame 2
+	 * 14 => Run, direction west, frame 1
+	 * 15 => Run, direction west, frame 2
+	 * 16 => Run, direction south, frame 1
+	 * 17 => Run, direction south, frame 2
+	 * 18 => Run, direction east, frame 1
+	 * 19 => Run, direction east, frame 2
+	 */
 	Vector3 vec = p->getVelocity();
 	if(vec.null()) {
 		vec = MatchEntity::vectorFromTo(*p, *mMatch->getBall());
 	}
-	int dir = 0;
+	int index = 0;
 	if(vec.x > fabs(vec.y)) {
-		dir = 1; // west
+		index = 1; // west
 	}
 	else if(vec.x < -fabs(vec.y)) {
-		dir = 3; // east
+		index = 3; // east
 	}
 	else if(vec.y < 0) {
-		dir = 2; // south
+		index = 2; // south
 	}
 	if(p->tackling()) {
-		dir += 8;
+		index += 8;
 	}
 	else if(!p->standing()) {
 		// Just pick one of the images. We don't want the fallen player
 		// to turn to look at the ball.
-		dir = 5;
+		index = 5;
+	}
+
+	if(index < 4 && p->getVelocity().length() > 0.2f) {
+		index = 12 + index * 2;
+		auto it = mAnimationStep.find(p);
+		if(it == mAnimationStep.end()) {
+			mAnimationStep[p] = 0;
+		} else {
+			unsigned int& s = it->second;
+			if(!mPaused)
+				s++;
+			if(s > 24) {
+				s = 0;
+			}
+			if(s >= 12) {
+				index++;
+			}
+		}
 	}
 
 	if(p->getTeam()->isFirst()) {
-		return mPlayerTextureHome[dir];
+		return mPlayerTextureHome[index];
 	}
 	else {
-		return mPlayerTextureAway[dir];
+		return mPlayerTextureAway[index];
 	}
 }
 
@@ -517,17 +557,32 @@ void MatchSDLGUI::loadTextures()
 		SDLSurface("share/player1-tackle-s.png"),
 		SDLSurface("share/player1-tackle-e.png") };
 
-	std::pair<const Soccer::Kit, const Soccer::Kit> kits = getKits();
-	int i = 0;
-	for(auto& s : surfs) {
-		SDLSurface homes(s);
-		SDLSurface aways(s);
-		homes.mapPixelColor( [&] (const Color& c) { return mapKitColor(kits.first, c); } );
-		aways.mapPixelColor( [&] (const Color& c) { return mapKitColor(kits.second, c); } );
-		mPlayerTextureHome[i] = boost::shared_ptr<Texture>(new Texture(homes, 0, 32));
-		mPlayerTextureAway[i] = boost::shared_ptr<Texture>(new Texture(aways, 0, 32));
+	std::vector<SDLSurface> homes;
+	std::vector<SDLSurface> aways;
 
-		i++;
+	std::pair<const Soccer::Kit, const Soccer::Kit> kits = getKits();
+	for(auto& s : surfs) {
+		SDLSurface hs(s);
+		SDLSurface as(s);
+		hs.mapPixelColor( [&] (const Color& c) { return mapKitColor(kits.first, c); } );
+		as.mapPixelColor( [&] (const Color& c) { return mapKitColor(kits.second, c); } );
+		homes.push_back(hs);
+		aways.push_back(as);
+	}
+
+	for(unsigned int i = 0; i < 12; i++) {
+		mPlayerTextureHome[i] = boost::shared_ptr<Texture>(new Texture(homes[i], 0, 32));
+		mPlayerTextureAway[i] = boost::shared_ptr<Texture>(new Texture(aways[i], 0, 32));
+	}
+
+	// n, w, s, e
+	for(unsigned int j = 0; j < 4; j++) {
+		// frame 1
+		mPlayerTextureHome[12 + j * 2] = boost::shared_ptr<Texture>(new Texture(homes[j], 32, 32));
+		mPlayerTextureAway[12 + j * 2] = boost::shared_ptr<Texture>(new Texture(aways[j], 32, 32));
+		// frame 2
+		mPlayerTextureHome[12 + j * 2 + 1] = boost::shared_ptr<Texture>(new Texture(homes[j], 64, 32));
+		mPlayerTextureAway[12 + j * 2 + 1] = boost::shared_ptr<Texture>(new Texture(aways[j], 64, 32));
 	}
 	mPitchTexture = boost::shared_ptr<Texture>(new Texture("share/grass1.png", 0, 0));
 	mPlayerShadowTexture = boost::shared_ptr<Texture>(new Texture("share/player1shadow.png", 0, 32));

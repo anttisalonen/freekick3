@@ -61,8 +61,8 @@ class MatchSDLGUI : public MatchGUI, public PlayerController {
 		bool kitConflict(const Soccer::Kit& kit0, const Soccer::Kit& kit1) const;
 		Clock mClock;
 		SDL_Surface* mScreen;
-		boost::shared_ptr<Common::Texture> mPlayerTextureHome[12];
-		boost::shared_ptr<Common::Texture> mPlayerTextureAway[12];
+		boost::shared_ptr<Common::Texture> mPlayerTextureHome[20];
+		boost::shared_ptr<Common::Texture> mPlayerTextureAway[20];
 		boost::shared_ptr<Common::Texture> mPlayerShadowTexture;
 		boost::shared_ptr<Common::Texture> mPitchTexture;
 		boost::shared_ptr<Common::Texture> mBallTexture;
@@ -92,6 +92,8 @@ class MatchSDLGUI : public MatchGUI, public PlayerController {
 		bool mRandomise;
 		bool mDisableGUI;
 		bool mCamFollowsPlayer;
+
+		std::map<const Player*, unsigned int> mAnimationStep;
 };
 
 #endif
