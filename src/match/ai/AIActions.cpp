@@ -129,7 +129,7 @@ AIShootAction::AIShootAction(const Player* p)
 					thistgt,
 					op->getPosition());
 			if(dist < maxOppDist) {
-				thisscore -= riskcoeff * ((maxOppDist - dist) / maxOppDist);
+				thisscore -= riskcoeff * AIHelpers::scaledCoefficient(dist, maxOppDist);
 				if(thisscore <= 0.0) {
 					thisscore = 0.0f;
 					break;
@@ -141,7 +141,7 @@ AIShootAction::AIShootAction(const Player* p)
 		if(thisscore > maxscore) {
 			if((thistgt - p->getPosition()).length() > 15.0f)
 				thistgt.z = (thistgt - p->getPosition()).length() *
-					(0.04f + 0.1f * (1.0f - p->getSkills().ShotPower));
+					(0.04f + 0.08f * (1.0f - p->getSkills().ShotPower));
 			maxscore = thisscore;
 			tgt = thistgt;
 		}
@@ -369,8 +369,8 @@ AILongPassAction::AILongPassAction(const Player* p)
 	if(mScore >= 0.0f) {
 		mScore *= mPlayer->getTeam()->getAITacticParameters().LongPassActionCoefficient;
 		/* TODO: these coefficients should be dependent on air viscosity */
-		tgt.z += tgt.length() * 0.4f;
-		tgt *= 0.4f;
+		tgt.z += tgt.length() * 0.5f;
+		tgt *= 0.5f;
 		mAction = boost::shared_ptr<PlayerAction>(new KickBallPA(tgt, tgtPlayer));
 	}
 }
