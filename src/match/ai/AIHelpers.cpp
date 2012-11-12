@@ -44,8 +44,19 @@ boost::shared_ptr<PlayerAction> AIHelpers::createMoveActionToBall(const Player& 
 {
 	Common::Steering s(p);
 	const Ball* b = p.getMatch()->getBall();
-	auto vec = s.pursuit(*b);
-	return createMoveActionTo(p, vec);
+	float ret1, ret2;
+	auto pos = b->getPosition() - p.getPosition();
+	auto vel = b->getVelocity();
+	auto c = p.getRunSpeed();
+	bool ret = Common::Math::tps(pos, vel, c, ret1, ret2);
+	if(!ret || (ret1 <= 0.0f && ret2 <= 0.0f)) {
+		auto vec = s.pursuit(*b);
+		return createMoveActionTo(p, vec);
+	} else {
+		auto t = ret1 > 0.0f && ret1 < ret2 ? ret1 : ret2;
+		auto intersectionPoint = pos + vel * t;
+		return createMoveActionTo(p, p.getPosition() + intersectionPoint);
+	}
 }
 
 Vector3 AIHelpers::getShotPosition(const Player& p)
