@@ -269,7 +269,6 @@ AIPassAction::AIPassAction(const Player* p)
 {
 	mScore = -1.0;
 	Vector3 tgt;
-	Vector3 thistgt;
 	Player* tgtPlayer = nullptr;
 	mAction = boost::shared_ptr<PlayerAction>(new KickBallPA(MatchHelpers::oppositeGoalPosition(*p),
 				nullptr, true));
@@ -286,36 +285,43 @@ AIPassAction::AIPassAction(const Player* p)
 		if(dist > 35.0)
 			continue;
 
-		float depthCoeff = AIHelpers::getDepthCoefficient(*p, p->getPosition());
-		double thisscore = (AIHelpers::getPassForwardCoefficient(*p, *sp) +
-			mPlayer->getTeam()->getAITacticParameters().PassActionCoefficient) * 0.5f;
+		Vector3 breakPassPosition = sp->getPosition();
+		if(MatchHelpers::attacksUp(*p))
+			breakPassPosition.y += sp->getRunSpeed() * 1.0f;
+		else
+			breakPassPosition.y -= sp->getRunSpeed() * 1.0f;
 
-		if(sp->isGoalkeeper())
-			thisscore *= 0.2f;
+		Vector3 passPositions[] = {sp->getPosition(), breakPassPosition};
 
-		if(thisscore > mScore) {
-			for(auto op : MatchHelpers::getOpposingPlayers(*sp)) {
-				float oppdist = Common::Math::pointToLineDistance(p->getPosition(),
-						sp->getPosition(),
-						op->getPosition());
-				float angToMe = p->getPosition().dot(op->getPosition());
-				float maxoppdist = Common::clamp(4.0f, dist * 0.3f, 10.0f);
+		for(auto& pos : passPositions) {
+			double thisscore = AIHelpers::getPassForwardCoefficient(*p, pos);
 
-				if(p->isGoalkeeper())
-					maxoppdist *= 2.0f;
+			if(sp->isGoalkeeper())
+				thisscore *= 0.2f;
 
-				if(angToMe > 0.0f && oppdist < maxoppdist) {
-					float decr = riskcoeff * (maxoppdist - oppdist) / maxoppdist;
-					decr *= 1.0f + 8.0f * AIHelpers::scaledCoefficient(MatchHelpers::distanceToOwnGoal(*sp), 50.0f);
-					thisscore -= decr * (1.0f - depthCoeff);
-				}
-			}
-			thistgt = AIHelpers::getPassKickVector(*mPlayer, *sp);
-			thisscore = AIHelpers::checkKickSuccess(*mPlayer, thistgt, thisscore);
 			if(thisscore > mScore) {
-				mScore = thisscore;
-				tgtPlayer = sp.get();
-				tgt = thistgt;
+				/* if the opponent is farther away from the pass line than maxoppdist,
+				 * ignore the opponent. */
+				float maxoppdist = Common::clamp(1.0f, (p->getPosition() - pos).length() * 0.2f, 10.0f);
+				for(auto op : MatchHelpers::getOpposingPlayers(*p)) {
+					float oppdist = Common::Math::pointToLineDistance(p->getPosition(),
+							pos,
+							op->getPosition());
+
+					if(oppdist < maxoppdist) {
+						float decr = riskcoeff * AIHelpers::scaledCoefficient(oppdist, maxoppdist);
+						decr *= 1.0f + 8.0f *
+							AIHelpers::scaledCoefficient(MatchHelpers::distanceToOwnGoal(*p, pos), 50.0f);
+						thisscore -= decr;
+					}
+				}
+				Vector3 thistgt = AIHelpers::getPassKickVector(*mPlayer, pos, Vector3());
+				thisscore = AIHelpers::checkKickSuccess(*mPlayer, thistgt, thisscore);
+				if(thisscore > mScore) {
+					mScore = thisscore;
+					tgtPlayer = sp.get();
+					tgt = thistgt;
+				}
 			}
 		}
 	}

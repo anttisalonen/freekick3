@@ -176,9 +176,9 @@ float AIHelpers::checkKickSuccess(const Player& p, const Vector3& v, float score
 	}
 }
 
-float AIHelpers::getPassForwardCoefficient(const Player& p, const Player& tp)
+float AIHelpers::getPassForwardCoefficient(const Player& p, const Vector3& v)
 {
-	Vector3 tovec = MatchEntity::vectorFromTo(p, tp);
+	Vector3 tovec = v - p.getPosition();
 	if(!tovec.null()) {
 		tovec.normalize();
 		if(!MatchHelpers::attacksUp(p))
@@ -190,6 +190,11 @@ float AIHelpers::getPassForwardCoefficient(const Player& p, const Player& tp)
 	else {
 		return 0.0f;
 	}
+}
+
+float AIHelpers::getPassForwardCoefficient(const Player& p, const Player& tp)
+{
+	return getPassForwardCoefficient(p, tp.getPosition());
 }
 
 float AIHelpers::getDepthCoefficient(const Team& p, const Vector3& v)
