@@ -343,7 +343,7 @@ int Match::kickBall(Player* p, const Vector3& v)
 		if(failpoints == 0)
 			mBall->setVelocity(ballvel);
 		else
-			mBall->addVelocity(Vector3(ballvel * (1.0f / (failpoints + 3))));
+			mBall->addVelocity(Vector3(ballvel / (failpoints + 3.0f)));
 		mBall->kicked(p);
 		mReferee.ballKicked(*p);
 		for(auto t : mTeams)

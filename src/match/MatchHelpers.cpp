@@ -389,9 +389,7 @@ bool MatchHelpers::canGrabBall(const Player& p)
 
 bool MatchHelpers::goodKickingPosition(const Player& p, const Vector3& v)
 {
-	Vector3 pb = p.getMatch()->getBall()->getPosition() - p.getPosition();
-	Vector3 pt = (p.getMatch()->getBall()->getPosition() + v) - p.getPosition();
-	return pt.dot(pb) >= 0.0f;
+	return true;
 }
 
 float MatchHelpers::distanceToOwnGoal(const Player& p)
