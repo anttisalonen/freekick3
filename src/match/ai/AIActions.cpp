@@ -356,8 +356,13 @@ AILongPassAction::AILongPassAction(const Player* p)
 		if(MatchHelpers::distanceToOwnGoal(*sp) < 30.0f)
 			continue;
 
-		double thisscore = (AIHelpers::getPassForwardCoefficient(*p, *sp) +
-				mPlayer->getTeam()->getAITacticParameters().LongPassActionCoefficient) * 0.5f;
+		double othershotscore = mPlayer->getTeam()->getShotScoreAt(sp->getPosition());
+		double otherpassscore = mPlayer->getTeam()->getPassScoreAt(sp->getPosition());
+		if(othershotscore < myshotscore && otherpassscore < mypassscore)
+			continue;
+
+		double thisscore = AIHelpers::getPassForwardCoefficient(*p, *sp) *
+				mPlayer->getTeam()->getAITacticParameters().LongPassActionCoefficient * 0.5f;
 
 		thisscore *= std::max(mPlayer->getTeam()->getShotScoreAt(sp->getPosition()) - myshotscore,
 				0.5f * (mPlayer->getTeam()->getPassScoreAt(sp->getPosition()) - mypassscore));
