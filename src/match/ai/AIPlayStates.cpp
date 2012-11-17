@@ -90,13 +90,43 @@ boost::shared_ptr<PlayerAction> AIPlayController::actOnRestart(double time)
 
 	// if we're blocking the game, move away from the ball
 	if(MatchHelpers::playerBlockingRestart(*mPlayer)) {
-		Vector3 dir = MatchEntity::vectorFromTo(*mPlayer->getMatch()->getBall(),
-				*mPlayer);
+		Vector3 startPoint = mPlayer->getMatch()->getBall()->getPosition();
+		Vector3 dir;
+		/* NOTE: this must be kept somewhat aligned with
+		 * MatchHelpers::playerPositionedForRestart to prevent blocking */
+		switch(mPlayer->getMatch()->getPlayState()) {
+			case PlayState::OutKickoff:
+				/* run towards own goal */
+				dir = MatchHelpers::ownGoalPosition(*mPlayer) - mPlayer->getPosition();
+				break;
 
-		if(dir.null() || mPlayer->getMatch()->getPlayState() == PlayState::OutPenaltykick) {
-			dir = mPlayer->getMatch()->getBall()->getPosition();
-			dir *= -1.0f;
+			case PlayState::OutIndirectFreekick:
+			case PlayState::OutDirectFreekick:
+			case PlayState::OutDroppedball:
+				/* run away from ball */
+				dir = startPoint * -1.0f;
+				break;
+
+			case PlayState::OutThrowin:
+			case PlayState::OutCornerkick:
+				/* run away from ball, except when not on pitch,
+				 * then run towards middle */
+				dir = startPoint * -1.0f;
+				if(!MatchHelpers::onPitch(*mPlayer))
+					dir = mPlayer->getPosition() * -1.0f;
+				break;
+
+			case PlayState::InPlay:
+			case PlayState::OutGoalkick:
+			case PlayState::OutPenaltykick:
+				/* in play when the keeper holds the ball */
+				/* run towards middle */
+				dir = mPlayer->getPosition() * -1.0f;
+				break;
 		}
+		if(dir.null())
+			dir.x = 0.1f;
+
 		dir.normalize();
 
 		mCurrentState->blockedMatch();

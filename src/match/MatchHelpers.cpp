@@ -213,6 +213,8 @@ bool MatchHelpers::playersOnPause(const Match& m)
 	return true;
 }
 
+/* NOTE: this must be kept somewhat aligned with
+ * AIPlayStates::actOnRestart to prevent blocking */
 bool MatchHelpers::playerPositionedForRestart(const Player& restarter, const Player& p)
 {
 	switch(p.getMatch()->getPlayState()) {
