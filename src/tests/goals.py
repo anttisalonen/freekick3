@@ -65,17 +65,25 @@ class RunMatches(unittest.TestCase):
         gpm = []
         for seed in [21, 22, 23, 24]:
             sys.stdout.write('%s %d' % (matchDir, seed))
+            i = 0
             for datafile in glob.glob('test_cases/%s/*.xml' % matchDir) + glob.glob('test_cases/%s/*.xml.bz2' % matchDir):
                 sys.stdout.flush()
                 ms = self.runMatch(datafile, seed)
                 allMatchStats.append(ms)
                 sys.stdout.write(' %d-%d' % (ms.homegoals, ms.awaygoals))
+                i += 1
+                if i % 10 == 0:
+                    self.printGpmStats(allMatchStats)
             if allMatchStats:
-                goalsPerMatch = sum([s.homegoals + s.awaygoals for s in allMatchStats]) / float(len(allMatchStats))
-                print
-                print goalsPerMatch, 'goals per match.'
+                goalsPerMatch = self.printGpmStats(allMatchStats)
                 gpm.append(goalsPerMatch)
         self.checkGPMList(gpm)
+
+    def printGpmStats(self, allMatchStats):
+        goalsPerMatch = sum([s.homegoals + s.awaygoals for s in allMatchStats]) / float(len(allMatchStats))
+        print
+        print goalsPerMatch, 'goals per match.'
+        return goalsPerMatch
 
     def checkGPMList(self, gpm):
         self.assertTrue(gpm, 'No match results available.')
