@@ -63,6 +63,7 @@ void KickBallPA::applyPlayerAction(Match& match, Player& p, double time)
 		mDiff.normalize();
 
 	Vector3 v(mDiff);
+	printf("Kicking ball with %d%% power\n", (int)(v.length() * 100));
 	if(!MatchHelpers::ballInHeadingHeight(p)) {
 		v *= p.getMaximumShotPower();
 	}
