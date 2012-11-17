@@ -24,6 +24,7 @@ class AIHelpers {
 		static float checkKickSuccess(const Player& p, const Common::Vector3& v, float score);
 		static float getPassForwardCoefficient(const Player& p, const Common::Vector3& v);
 		static float getPassForwardCoefficient(const Player& p, const Player& tp);
+		static float getDepthCoefficient(const Player& p);
 		static float getDepthCoefficient(const Team& p, const Common::Vector3& v);
 		static float getDepthCoefficient(const Player& p, const Common::Vector3& v);
 		static bool opponentAttacking(const Player& p);

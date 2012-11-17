@@ -206,6 +206,11 @@ float AIHelpers::getDepthCoefficient(const Team& p, const Vector3& v)
 	return depthCoeff;
 }
 
+float AIHelpers::getDepthCoefficient(const Player& p)
+{
+	return getDepthCoefficient(*p.getTeam(), p.getPosition());
+}
+
 float AIHelpers::getDepthCoefficient(const Player& p, const Vector3& v)
 {
 	return getDepthCoefficient(*p.getTeam(), v);

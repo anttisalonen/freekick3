@@ -230,17 +230,21 @@ AIDribbleAction::AIDribbleAction(const Player* p)
 		if(!MatchHelpers::onPitch(*p->getMatch(), tgtpos))
 			continue;
 
-		float goalDistCoeff = AIHelpers::scaledCoefficient(MatchHelpers::distanceToOwnGoal(*p, tgtpos), 60.0f);
-		float thisscore = 0.5f + goalDistCoeff * 0.5f;
-		float depthCoeff = AIHelpers::getDepthCoefficient(*p, tgtpos);
 		/* rather dribble towards opponent goal than away from it */
+		float goalDistCoeff = AIHelpers::scaledCoefficient(MatchHelpers::distanceToOppositeGoal(*p, tgtpos), 100.0f);
+		/* rather don't dribble near own goal */
+		float ownGoalDistCoeff = AIHelpers::scaledCoefficient(MatchHelpers::distanceToOwnGoal(*p, tgtpos), 20.0f);
+		float thisscore = (1.0f - ownGoalDistCoeff) * 0.5f + goalDistCoeff * 0.5f;
 		for(auto op : MatchHelpers::getOpposingPlayers(*p)) {
 			float dist = Common::Math::pointToLineDistance(p->getPosition(),
 					tgtpos,
 					op->getPosition());
 			static const float maxdist = dribblelen;
 			if(dist < maxdist) {
-				thisscore -= AIHelpers::scaledCoefficient(dist, maxdist) * (1.0f - depthCoeff);
+				auto po = MatchEntity::vectorFromTo(*p, *op);
+				po.normalize();
+				auto dot = std::max(0.1, po.dot(vec.normalized()));
+				thisscore -= AIHelpers::scaledCoefficient(dist, maxdist) * dot;
 				if(thisscore <= 0.0) {
 					break;
 				}
@@ -294,7 +298,13 @@ AIPassAction::AIPassAction(const Player* p)
 		Vector3 passPositions[] = {sp->getPosition(), breakPassPosition};
 
 		for(auto& pos : passPositions) {
+			if(!MatchHelpers::onPitch(*mPlayer->getMatch(), pos))
+				continue;
+
 			double thisscore = AIHelpers::getPassForwardCoefficient(*p, pos);
+
+			float ownGoalDistCoeff = AIHelpers::scaledCoefficient(MatchHelpers::distanceToOwnGoal(*p), 20.0f);
+			thisscore *= (1.0f - ownGoalDistCoeff);
 
 			if(sp->isGoalkeeper())
 				thisscore *= 0.2f;
@@ -342,33 +352,34 @@ AILongPassAction::AILongPassAction(const Player* p)
 	mAction = boost::shared_ptr<PlayerAction>(new KickBallPA(MatchHelpers::oppositeGoalPosition(*p),
 				nullptr, true));
 
-	const float myshotscore = mPlayer->getTeam()->getShotScoreAt(p->getPosition());
-	const float mypassscore = mPlayer->getTeam()->getPassScoreAt(p->getPosition());
+	float myDepthCoeff = AIHelpers::getDepthCoefficient(*p) - 0.05f;
 
 	for(auto sp : MatchHelpers::getOwnPlayers(*p)) {
 		if(sp.get() == p) {
 			continue;
 		}
 		double dist = MatchEntity::distanceBetween(*p, *sp);
-		if(dist < 30.0)
+		if(dist < 25.0)
+			continue;
+
+		if(dist > 60.0)
 			continue;
 
 		if(MatchHelpers::distanceToOwnGoal(*sp) < 30.0f)
 			continue;
 
-		double othershotscore = mPlayer->getTeam()->getShotScoreAt(sp->getPosition());
-		double otherpassscore = mPlayer->getTeam()->getPassScoreAt(sp->getPosition());
-		if(othershotscore < myshotscore && otherpassscore < mypassscore)
+		if(AIHelpers::getDepthCoefficient(*sp) < myDepthCoeff)
 			continue;
 
-		double thisscore = AIHelpers::getPassForwardCoefficient(*p, *sp) *
-				mPlayer->getTeam()->getAITacticParameters().LongPassActionCoefficient * 0.5f;
-
-		thisscore *= std::max(mPlayer->getTeam()->getShotScoreAt(sp->getPosition()) - myshotscore,
-				0.5f * (mPlayer->getTeam()->getPassScoreAt(sp->getPosition()) - mypassscore));
-
 		Vector3 thistgt = AIHelpers::getPassKickVector(*mPlayer, *sp);
-		thisscore = AIHelpers::checkKickSuccess(*mPlayer, thistgt, thisscore);
+
+		auto shotAction = AIShootAction(sp.get());
+		auto passAction = AIPassAction(sp.get());
+		auto myShotAction = AIShootAction(p);
+		auto shotScore = shotAction.getScore() - std::max(0.0, myShotAction.getScore());
+		auto passScore = passAction.getScore();
+		float thisscore = AIHelpers::checkKickSuccess(*mPlayer, thistgt,
+				std::max(shotScore, passScore));
 
 		if(thisscore > mScore) {
 			mScore = thisscore;
