@@ -309,7 +309,7 @@ int Match::kickBall(Player* p, const Vector3& v)
 
 		if(playing(getPlayState())) {
 			if(!MatchHelpers::ballInHeadingHeight(*p) &&
-					!(mBall->getVelocity().length() / 80.0f < p->getSkills().BallControl)) {
+					!(mBall->getVelocity().length() / 80.0f < (0.1f + p->getSkills().BallControl))) {
 				failpoints++;
 				if(MatchEntity::distanceBetween(*mBall, *p) < MAX_KICK_DISTANCE * 0.5f) {
 					failpoints++;
