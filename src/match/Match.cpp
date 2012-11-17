@@ -305,7 +305,6 @@ int Match::kickBall(Player* p, const Vector3& v)
 {
 	if(MatchHelpers::canKickBall(*p) && mReferee.canKickBall(*p)) {
 		int failpoints = 0;
-		std::cout << "Ball kicked by " << p->getName() << "\n";
 		p->ballKicked();
 
 		if(playing(getPlayState())) {
@@ -327,6 +326,8 @@ int Match::kickBall(Player* p, const Vector3& v)
 		}
 
 		Vector3 ballvel(v);
+		std::cout << "Ball kicked by " << p->getName() <<
+			" (power: " << ballvel.length() << ") - failpoints: " << failpoints << "\n";
 
 		if(getPlayState() == PlayState::OutThrowin) {
 			Vector3 pos = mBall->getPosition();
