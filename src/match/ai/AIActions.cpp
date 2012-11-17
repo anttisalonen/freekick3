@@ -439,7 +439,7 @@ AIGuardAction::AIGuardAction(const Player* p)
 	}
 	mScore = highestdangerousness;
 	/* drop guard score as it should be seen as backup action */
-	mScore *= mPlayer->getTeam()->getAITacticParameters().GuardActionCoefficient * 0.5f;
+	mScore *= mPlayer->getTeam()->getAITacticParameters().GuardActionCoefficient * 0.2f;
 	mAction = AIHelpers::createMoveActionTo(*p, tgtpos, 1.0f);
 }
 
