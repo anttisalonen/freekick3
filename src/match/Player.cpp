@@ -123,14 +123,16 @@ bool Player::canKickBall() const
 void Player::update(float time)
 {
 	MatchEntity::update(time);
+
 	Vector3 planevel(mVelocity);
 	planevel.z = 0.0f;
-	if(planevel.length() > getRunSpeed()) {
+	if(!isAirborne() && planevel.length() > getRunSpeed()) {
 		planevel.normalize();
 		planevel *= getRunSpeed();
 		mVelocity.x = planevel.x;
 		mVelocity.y = planevel.y;
 	}
+
 	if(!isAirborne()) {
 		mVelocity.z = std::max(0.0f, mVelocity.z);
 		mPosition.z = std::max(0.0f, mPosition.z);
@@ -199,7 +201,7 @@ bool Player::tackling() const
 
 bool Player::isAirborne() const
 {
-	return mPosition.z > 0.05f;
+	return mPosition.z > 0.05f || mVelocity.z > 0.05f;
 }
 
 Soccer::PlayerPosition Player::getPlayerPosition() const

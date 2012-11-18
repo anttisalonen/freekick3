@@ -51,10 +51,15 @@ boost::shared_ptr<PlayerAction> AIGoalkeeperState::actNearBall(double time)
 	float disttoball = MatchEntity::distanceBetween(*mPlayer, *mPlayer->getMatch()->getBall());
 	float disttogoal = MatchHelpers::distanceToOwnGoal(*mPlayer);
 
-	if(disttonearestdef < disttoball && disttogoal < 15.0f)
+	if(disttonearestdef < disttoball && disttogoal < 15.0f) {
 		return AIHelpers::createMoveActionToBall(*mPlayer);
+	}
 
-	if(MatchHelpers::canGrabBall(*mPlayer) || MatchHelpers::canKickBall(*mPlayer)) {
+	if(MatchHelpers::canGrabBall(*mPlayer) && ballvel > 1.0f) {
+		mHoldBallTimer.rewind();
+		return boost::shared_ptr<PlayerAction>(new GrabBallPA());
+	}
+	if(MatchHelpers::canKickBall(*mPlayer)) {
 		return actOnBall(time);
 	}
 	else if((balltogoaldist < 5.0f &&
@@ -92,22 +97,22 @@ boost::shared_ptr<PlayerAction> AIGoalkeeperState::actOffBall(double time)
 				// jump
 				tgtpos -= mPlayer->getPosition();
 				tgtpos.z = fabs(futureballpos.z);
-				return boost::shared_ptr<PlayerAction>(new JumpToPA(Vector3(tgtpos)));
+				return boost::shared_ptr<PlayerAction>(new JumpToPA(tgtpos));
 			}
 			else {
-				return AIHelpers::createMoveActionTo(*mPlayer, Vector3(tgtpos));
+				return jumpToBall();
 			}
 		}
 	}
 
-	Vector3 diffvec = ballpos - mPivotPoint;
 	Vector3 vectoball = MatchEntity::vectorFromTo(*mPlayer, *mPlayer->getMatch()->getBall());
 	if(vectoball.length() < 10.0f) {
 		Vector3 vectogoal = MatchHelpers::ownGoalPosition(*mPlayer) - mPlayer->getPosition();
 		if(vectogoal.length() < 10.0f) {
-			return AIHelpers::createMoveActionTo(*mPlayer, ballpos);
+			return AIHelpers::createMoveActionToBall(*mPlayer);
 		}
 	}
+	Vector3 diffvec = ballpos - mPivotPoint;
 	Vector3 point = mPivotPoint + diffvec.normalized() * mDistanceFromPivot;
 	point.x = Common::clamp(-3.0f, point.x, 3.0f);
 	if(mPivotPoint.y > 0)
@@ -132,6 +137,32 @@ void AIGoalkeeperState::setPivotPoint()
 		mPivotPoint = mPlayer->getMatch()->convertRelativeToAbsoluteVector(RelVector3(0, 1.2, 0));
 	}
 	mDistanceFromPivot = mPlayer->getMatch()->getPitchHeight() * 0.13f;
+}
+
+boost::shared_ptr<PlayerAction> AIGoalkeeperState::jumpToBall()
+{
+	if(!MatchHelpers::grabBallAllowed(*mPlayer)) {
+		return AIHelpers::createMoveActionToBall(*mPlayer);
+	} else {
+		// run, jump or dive
+		const Ball* b = mPlayer->getMatch()->getBall();
+		auto ballpos = b->getPosition();
+		auto futureBallPos = ballpos + b->getVelocity() * 0.5f;
+		auto myPos = mPlayer->getPosition();
+		Vector3 intersectionPoint;
+		Common::Math::pointToSegmentDistance(ballpos, futureBallPos, myPos, &intersectionPoint);
+		Vector3 jumpPoint;
+		if(intersectionPoint.null()) {
+			jumpPoint = ballpos;
+		} else {
+			jumpPoint = intersectionPoint;
+		}
+		jumpPoint -= myPos;
+		if(jumpPoint.length() > 12.0f)
+			return AIHelpers::createMoveActionToBall(*mPlayer);
+		else
+			return boost::shared_ptr<PlayerAction>(new JumpToPA(jumpPoint));
+	}
 }
 
 

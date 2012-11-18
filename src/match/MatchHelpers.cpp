@@ -368,19 +368,31 @@ bool MatchHelpers::isOpposingPlayer(const Player& p1, const Player& p2)
 	return p1.getTeam()->isFirst() != p2.getTeam()->isFirst();
 }
 
-bool MatchHelpers::canGrabBall(const Player& p)
+bool MatchHelpers::grabBallAllowed(const Player& p)
 {
-	const Ball* b = p.getMatch()->getBall();
-	if(p.isGoalkeeper() && !b->grabbed() &&
+	if(p.isGoalkeeper() && !p.getMatch()->getBall()->grabbed() &&
 			!myTeamInControl(p) &&
 			inOwnPenaltyArea(p) &&
 			onPitch(p) && playing(p.getMatch()->getPlayState())) {
+		return true;
+	} else {
+		return false;
+	}
+}
+
+bool MatchHelpers::canGrabBall(const Player& p)
+{
+	const Ball* b = p.getMatch()->getBall();
+	if(grabBallAllowed(p)) {
+		if(canKickBall(p))
+			return true;
+
 		float distToBall = MatchEntity::distanceBetween(p, *b);
 		float maxDist = p.standing() ? 0.5f : 0.0f;
 		maxDist += sqrt(p.getSkills().GoalKeeping);
 		float ballHeight = b->getPosition().z;
 		float maxBallHeight = p.isAirborne() ? p.getPosition().z + 2.0f : p.standing() ? 2.0f : 0.5f;
-		float minBallHeight = p.isAirborne() ? p.getPosition().z : 0.0f;
+		float minBallHeight = p.isAirborne() ? p.getPosition().z - 0.5f : 0.0f;
 		if(maxDist >= distToBall && maxBallHeight >= ballHeight && minBallHeight <= ballHeight) {
 			return true;
 		}

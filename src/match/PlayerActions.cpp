@@ -13,7 +13,8 @@ using Common::Vector3;
 void IdlePA::applyPlayerAction(Match& match, Player& p, double time)
 {
 	Vector3 v = p.getVelocity();
-	p.setVelocity(Vector3(0.0f, 0.0f, v.z));
+	if(!p.isAirborne())
+		p.setVelocity(Vector3(0.0f, 0.0f, v.z));
 	return;
 }
 
@@ -134,12 +135,19 @@ void JumpToPA::applyPlayerAction(Match& match, Player& p, double time)
 {
 	if(!time)
 		return;
-	if(!p.standing() || p.isAirborne() || mDiff.z < 0.01f)
+	if(!p.standing() || p.isAirborne() || mDiff.z < 0.01f) {
 		return;
-	if(mDiff.length() < 0.1f)
+	}
+	if(mDiff.length() < 0.1f) {
 		return;
+	}
 	Vector3 v(mDiff.normalized());
-	v *= 3.0f / time;
+	if(p.isGoalkeeper())
+		v *= 200.0f + 50.0f * p.getSkills().GoalKeeping;
+	else
+		v *= 200.0f + 50.0f * p.getSkills().Heading;
+	v.z = std::max(v.z, 100.0f);
+	p.setVelocity(Vector3());
 	p.setAcceleration(v);
 }
 

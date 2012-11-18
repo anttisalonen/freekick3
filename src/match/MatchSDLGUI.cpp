@@ -302,44 +302,75 @@ const boost::shared_ptr<Texture> MatchSDLGUI::playerTexture(const Player* p)
 	 * 17 => Run, direction south, frame 2
 	 * 18 => Run, direction east, frame 1
 	 * 19 => Run, direction east, frame 2
+	 * 20 => Diving, facing north, diving west, frame 1
+	 * 21 => Diving, facing north, diving west, frame 2
+	 * 22 => Diving, facing north, diving east, frame 1
+	 * 23 => Diving, facing north, diving east, frame 2
+	 * 24 => Diving, facing south, diving west, frame 1
+	 * 25 => Diving, facing south, diving west, frame 2
+	 * 26 => Diving, facing south, diving east, frame 1
+	 * 27 => Diving, facing south, diving east, frame 2
+	 * The textures are mirrored on the y-axis.
+	 * The second diving frames are not used (yet).
 	 */
-	Vector3 vec = p->getVelocity();
-	if(vec.null()) {
-		vec = MatchEntity::vectorFromTo(*p, *mMatch->getBall());
-	}
 	int index = 0;
-	if(vec.x > fabs(vec.y)) {
-		index = 1; // west
-	}
-	else if(vec.x < -fabs(vec.y)) {
-		index = 3; // east
-	}
-	else if(vec.y < 0) {
-		index = 2; // south
-	}
-	if(p->tackling()) {
-		index += 8;
-	}
-	else if(!p->standing()) {
-		// Just pick one of the images. We don't want the fallen player
-		// to turn to look at the ball.
-		index = 5;
-	}
-
-	if(index < 4 && p->getVelocity().length() > 0.2f) {
-		index = 12 + index * 2;
-		auto it = mAnimationStep.find(p);
-		if(it == mAnimationStep.end()) {
-			mAnimationStep[p] = 0;
-		} else {
-			unsigned int& s = it->second;
-			if(!mPaused)
-				s++;
-			if(s > 24) {
-				s = 0;
+	Vector3 vec = p->getVelocity();
+	if(p->isGoalkeeper() && p->getPosition().z > 0.1f &&
+			(fabs(vec.x) > 0.1f || fabs(vec.y) > 0.1f)) {
+		// diving
+		auto vecToBall = MatchEntity::vectorFromTo(*p, *mMatch->getBall());
+		if(vecToBall.y > 0.0f) {
+			// facing north
+			if(vec.x > 0.0f) {
+				// diving east
+				index = 20;
+			} else {
+				index = 22;
 			}
-			if(s >= 12) {
-				index++;
+		} else {
+			if(vec.x > 0.0f) {
+				index = 24;
+			} else {
+				index = 26;
+			}
+		}
+	} else {
+		if(vec.null()) {
+			vec = MatchEntity::vectorFromTo(*p, *mMatch->getBall());
+		}
+		if(vec.x > fabs(vec.y)) {
+			index = 1; // west
+		}
+		else if(vec.x < -fabs(vec.y)) {
+			index = 3; // east
+		}
+		else if(vec.y < 0) {
+			index = 2; // south
+		}
+		if(p->tackling()) {
+			index += 8;
+		}
+		else if(!p->standing()) {
+			// Just pick one of the images. We don't want the fallen player
+			// to turn to look at the ball.
+			index = 5;
+		}
+
+		if(index < 4 && p->getVelocity().length() > 0.2f) {
+			index = 12 + index * 2;
+			auto it = mAnimationStep.find(p);
+			if(it == mAnimationStep.end()) {
+				mAnimationStep[p] = 0;
+			} else {
+				unsigned int& s = it->second;
+				if(!mPaused)
+					s++;
+				if(s > 24) {
+					s = 0;
+				}
+				if(s >= 12) {
+					index++;
+				}
 			}
 		}
 	}
@@ -544,7 +575,7 @@ void MatchSDLGUI::loadTextures()
 {
 	mBallTexture = boost::shared_ptr<Texture>(new Texture("share/ball1.png", 0, 8));
 	mBallShadowTexture = boost::shared_ptr<Texture>(new Texture("share/ball1shadow.png", 0, 8));
-	SDLSurface surfs[12] = { SDLSurface("share/player1-n.png"),
+	SDLSurface surfs[16] = { SDLSurface("share/player1-n.png"),
 		SDLSurface("share/player1-w.png"),
 		SDLSurface("share/player1-s.png"),
 		SDLSurface("share/player1-e.png"),
@@ -555,7 +586,12 @@ void MatchSDLGUI::loadTextures()
 		SDLSurface("share/player1-tackle-n.png"),
 		SDLSurface("share/player1-tackle-w.png"),
 		SDLSurface("share/player1-tackle-s.png"),
-		SDLSurface("share/player1-tackle-e.png") };
+		SDLSurface("share/player1-tackle-e.png"),
+		SDLSurface("share/player1-dive-n-w.png"),
+		SDLSurface("share/player1-dive-n-e.png"),
+		SDLSurface("share/player1-dive-s-w.png"),
+		SDLSurface("share/player1-dive-s-e.png"),
+       	};
 
 	std::vector<SDLSurface> homes;
 	std::vector<SDLSurface> aways;
@@ -583,6 +619,18 @@ void MatchSDLGUI::loadTextures()
 		// frame 2
 		mPlayerTextureHome[12 + j * 2 + 1] = boost::shared_ptr<Texture>(new Texture(homes[j], 64, 32));
 		mPlayerTextureAway[12 + j * 2 + 1] = boost::shared_ptr<Texture>(new Texture(aways[j], 64, 32));
+	}
+
+	// diving
+	for(unsigned int j = 0; j < 2; j++) {
+		for(unsigned int k = 0; k < 2; k++) {
+			// frame 1
+			mPlayerTextureHome[20 + j * 4 + k * 2] = boost::shared_ptr<Texture>(new Texture(homes[12 + j * 2 + k], 32, 32));
+			mPlayerTextureAway[20 + j * 4 + k * 2] = boost::shared_ptr<Texture>(new Texture(aways[12 + j * 2 + k], 32, 32));
+			// frame 2
+			mPlayerTextureHome[20 + j * 4 + k * 2 + 1] = boost::shared_ptr<Texture>(new Texture(homes[12 + j * 2 + k], 64, 32));
+			mPlayerTextureAway[20 + j * 4 + k * 2 + 1] = boost::shared_ptr<Texture>(new Texture(aways[12 + j * 2 + k], 64, 32));
+		}
 	}
 	mPitchTexture = boost::shared_ptr<Texture>(new Texture("share/grass1.png", 0, 0));
 	mPlayerShadowTexture = boost::shared_ptr<Texture>(new Texture("share/player1shadow.png", 0, 32));

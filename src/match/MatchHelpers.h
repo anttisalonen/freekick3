@@ -44,6 +44,7 @@ class MatchHelpers {
 		static bool inOwnPenaltyArea(const Player& p);
 		static bool inOpposingPenaltyArea(const Player& p);
 		static bool isOpposingPlayer(const Player& p1, const Player& p2);
+		static bool grabBallAllowed(const Player& p);
 		static bool canGrabBall(const Player& p);
 		static bool goodKickingPosition(const Player& p, const Common::Vector3& v);
 		static float distanceToOwnGoal(const Player& p);

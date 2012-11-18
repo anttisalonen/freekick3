@@ -54,8 +54,11 @@ class AIGoalkeeperState : public AIState {
 		boost::shared_ptr<PlayerAction> actNearBall(double time);
 		boost::shared_ptr<PlayerAction> actOffBall(double time);
 		void matchHalfChanged(MatchHalf m) override;
+
 	private:
 		void setPivotPoint();
+		boost::shared_ptr<PlayerAction> jumpToBall();
+
 		Common::Vector3 mPivotPoint;
 		float mDistanceFromPivot;
 		Countdown mHoldBallTimer;
