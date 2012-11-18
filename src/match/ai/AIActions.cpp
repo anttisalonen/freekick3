@@ -164,7 +164,7 @@ AIClearAction::AIClearAction(const Player* p)
 
 	const float maxDist = 20.0f;
 
-	if(distToOpposingPlayer < 10.0f)
+	if(distToOpposingPlayer < 10.0f && distToOwnGoal < 50.0f)
 		mScore = AIHelpers::scaledCoefficient(distToOwnGoal, maxDist);
 	else
 		mScore = -1.0f;
