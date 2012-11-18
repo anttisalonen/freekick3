@@ -389,10 +389,11 @@ bool MatchHelpers::canGrabBall(const Player& p)
 
 		float distToBall = MatchEntity::distanceBetween(p, *b);
 		float maxDist = p.standing() ? 0.5f : 0.0f;
-		maxDist += sqrt(p.getSkills().GoalKeeping);
+		float gk = p.getSkills().GoalKeeping;
+		maxDist += sqrt(gk);
 		float ballHeight = b->getPosition().z;
 		float maxBallHeight = p.isAirborne() ? p.getPosition().z + 2.0f : p.standing() ? 2.0f : 0.5f;
-		float minBallHeight = p.isAirborne() ? p.getPosition().z - 0.5f : 0.0f;
+		float minBallHeight = p.isAirborne() ? p.getPosition().z - (0.5f * gk) : 0.0f;
 		if(maxDist >= distToBall && maxBallHeight >= ballHeight && minBallHeight <= ballHeight) {
 			return true;
 		}

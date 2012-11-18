@@ -143,9 +143,9 @@ void JumpToPA::applyPlayerAction(Match& match, Player& p, double time)
 	}
 	Vector3 v(mDiff.normalized());
 	if(p.isGoalkeeper())
-		v *= 200.0f + 50.0f * p.getSkills().GoalKeeping;
+		v *= 100.0f + 150.0f * p.getSkills().GoalKeeping;
 	else
-		v *= 200.0f + 50.0f * p.getSkills().Heading;
+		v *= 150.0f + 100.0f * p.getSkills().Heading;
 	v.z = std::max(v.z, 100.0f);
 	p.setVelocity(Vector3());
 	p.setAcceleration(v);
