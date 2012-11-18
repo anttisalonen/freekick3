@@ -9,6 +9,7 @@ import os
 import sys
 from lxml import etree
 import bz2
+import collections
 
 class MatchStats:
     def __init__(self):
@@ -26,16 +27,7 @@ class MatchStats:
 
 class RunMatches(unittest.TestCase):
 
-    def test_runSkill25(self):
-        self.runLeague('skill25')
-
-    def test_runSkill12(self):
-        self.runLeague('skill12')
-
-    def test_runSkill1(self):
-        self.runLeague('skill1')
-
-    def runMatch(self, datafile, seed, debug = False):
+    def runMatch(self, datafile, seed, numFPS, debug = False):
         f = bz2.BZ2File(datafile, 'r') if datafile.lower().endswith('.bz2') else open(datafile, 'r')
         datacontents = f.read()
         f.close()
@@ -45,12 +37,14 @@ class RunMatches(unittest.TestCase):
             tmpfilename = tmpfile.name
             tmpfile.write(datacontents)
             tmpfile.close()
+            cmd = ['bin/freekick3-match', tmpfile.name, '-o', '-x', '-f', str(numFPS), '-s', str(seed)]
             if debug:
                 print tmpfile.name
-                retcode = subprocess.call(['bin/freekick3-match', tmpfile.name, '-o', '-x', '-f', '60', '-s', '%d' % seed])
+                print cmd
+                retcode = subprocess.call(cmd)
             else:
                 with open(os.devnull, "w") as fnull:
-                    retcode = subprocess.call(['bin/freekick3-match', tmpfile.name, '-o', '-x', '-f', '60', '-s', '%d' % seed], stdout = fnull)
+                    retcode = subprocess.call(cmd, stdout = fnull)
             self.assertEqual(retcode, 0)
             result = etree.parse(tmpfile.name)
             ms = MatchStats()
@@ -60,24 +54,32 @@ class RunMatches(unittest.TestCase):
             if tmpfilename:
                 os.remove(tmpfilename)
 
-    def runLeague(self, matchDir):
-        allMatchStats = []
-        gpm = []
-        for seed in [21, 22, 23, 24]:
-            sys.stdout.write('%s %d' % (matchDir, seed))
-            i = 0
-            for datafile in glob.glob('test_cases/%s/*.xml' % matchDir) + glob.glob('test_cases/%s/*.xml.bz2' % matchDir):
-                sys.stdout.flush()
-                ms = self.runMatch(datafile, seed)
-                allMatchStats.append(ms)
-                sys.stdout.write(' %d-%d' % (ms.homegoals, ms.awaygoals))
-                i += 1
-                if i % 10 == 0:
-                    self.printGpmStats(allMatchStats)
-            if allMatchStats:
-                goalsPerMatch = self.printGpmStats(allMatchStats)
-                gpm.append(goalsPerMatch)
-        self.checkGPMList(gpm)
+    def runLeagues(self, leagues, numSeeds = 4, maxNumMatches = None, numFPS = 60):
+        gpm = collections.defaultdict(list)
+        for seed in xrange(21, 21 + numSeeds):
+            allMatchStats = []
+            for matchDir in leagues:
+                sys.stdout.write('%s %d' % (matchDir, seed))
+                allMatches = sorted(glob.glob('test_cases/%s/*.xml' % matchDir) + glob.glob('test_cases/%s/*.xml.bz2' % matchDir))
+                if maxNumMatches:
+                    allMatches = allMatches[:maxNumMatches]
+                i = 0
+                for datafile in allMatches:
+                    sys.stdout.flush()
+                    ms = self.runMatch(datafile, seed, numFPS)
+                    allMatchStats.append(ms)
+                    sys.stdout.write(' %d-%d' % (ms.homegoals, ms.awaygoals))
+                    i += 1
+                    if i % 10 == 0:
+                        self.printGpmStats(allMatchStats)
+                if allMatchStats:
+                    goalsPerMatch = self.printGpmStats(allMatchStats)
+                    gpm[matchDir].append(goalsPerMatch)
+        for matchDir in leagues:
+            self.checkGPMList(gpm[matchDir])
+ 
+    def runLeague(self, matchDir, numSeeds = 4, numFPS = 60):
+        self.runLeagues([matchDir], numSeeds, None, numFPS)
 
     def printGpmStats(self, allMatchStats):
         goalsPerMatch = sum([s.homegoals + s.awaygoals for s in allMatchStats]) / float(len(allMatchStats))
@@ -97,6 +99,12 @@ class RunMatches(unittest.TestCase):
         self.assertLessEqual(maxGpm - minGpm, 0.4)
         self.assertGreaterEqual(minGpm, 2.0)
         self.assertLessEqual(maxGpm, 4.0)
+
+    def test_Smoke(self):
+        self.runLeagues(['skill1', 'skill12', 'skill25'], 2, None, 30)
+
+    def test_Full(self):
+        self.runLeagues(['skill1', 'skill12', 'skill25'])
 
 if __name__ == '__main__':
     unittest.main()
