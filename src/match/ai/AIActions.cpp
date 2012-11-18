@@ -255,8 +255,8 @@ AIDribbleAction::AIDribbleAction(const Player* p)
 
 		if(thisscore > bestscore) {
 			bestscore = thisscore;
-			/* TODO: make scaling depend on player skill */
-			bestvec = Vector3(vec.normalized() * 0.3f);
+			bestvec = Vector3(vec.normalized() * (0.35f +
+					0.15f * (1.0f - mPlayer->getSkills().ShotPower)));
 		}
 	}
 	mScore = bestscore;

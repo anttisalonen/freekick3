@@ -87,7 +87,8 @@ double Player::getRunSpeed() const
 
 double Player::getMaximumShotPower() const
 {
-	return 40.0f + 10.0f * mSkills.ShotPower;
+	/* NOTE: when changing this, also change power coefficient in AIDribbleAction::AIDribbleAction */
+	return 20.0f + 30.0f * mSkills.ShotPower;
 }
 
 double Player::getMaximumHeadingPower() const
