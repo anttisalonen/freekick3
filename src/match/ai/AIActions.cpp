@@ -289,13 +289,16 @@ AIPassAction::AIPassAction(const Player* p)
 		if(dist > 35.0)
 			continue;
 
-		Vector3 breakPassPosition = sp->getPosition();
-		if(MatchHelpers::attacksUp(*p))
-			breakPassPosition.y += sp->getRunSpeed() * 1.0f;
-		else
-			breakPassPosition.y -= sp->getRunSpeed() * 1.0f;
+		std::vector<Vector3> passPositions = { sp->getPosition() };
+		if(mPlayer->getMatch()->getPlayState() != PlayState::OutKickoff) {
+			Vector3 breakPassPosition = sp->getPosition();
+			if(MatchHelpers::attacksUp(*p))
+				breakPassPosition.y += sp->getRunSpeed() * 1.0f;
+			else
+				breakPassPosition.y -= sp->getRunSpeed() * 1.0f;
 
-		Vector3 passPositions[] = {sp->getPosition(), breakPassPosition};
+			passPositions.push_back(breakPassPosition);
+		}
 
 		for(auto& pos : passPositions) {
 			if(!MatchHelpers::onPitch(*mPlayer->getMatch(), pos))
