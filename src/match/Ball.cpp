@@ -5,6 +5,7 @@
 #include "match/Match.h"
 #include "match/Player.h"
 #include "match/Team.h"
+#include "match/MatchHelpers.h"
 
 using Common::Vector3;
 
@@ -138,7 +139,7 @@ void Ball::update(float time)
 		mAcceleration = Vector3();
 		mVelocity = mGrabber->getVelocity();
 		mPosition = mGrabber->getPosition();
-		mPosition.z = std::max(minimumBallHeight, mPosition.z);
+		mPosition.z = std::max<float>(minimumBallHeight, mPosition.z + MAX_KICK_HEIGHT * 0.5f);
 	}
 }
 

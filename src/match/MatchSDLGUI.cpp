@@ -427,7 +427,9 @@ void MatchSDLGUI::drawPlayers()
 
 void MatchSDLGUI::drawBall()
 {
-	const Vector3& v(mMatch->getBall()->getPosition());
+	Vector3 v(mMatch->getBall()->getPosition());
+	if(mMatch->getBall()->grabbed())
+		v.z += 1.0f;
 
 	drawSprite(*mBallShadowTexture, Rectangle((-mCamera.x + v.x - 0.2f + v.z * 0.3f) * mScaleLevel + screenWidth * 0.5f,
 				(-mCamera.y + v.y - 0.2f - v.z * 0.4f) * mScaleLevel + screenHeight * 0.5f,

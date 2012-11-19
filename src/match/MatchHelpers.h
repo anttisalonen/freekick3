@@ -5,6 +5,7 @@
 #include "match/Distance.h"
 
 #define MAX_KICK_DISTANCE 1.0
+#define MAX_KICK_HEIGHT   0.7
 
 class MatchHelpers {
 	public:
