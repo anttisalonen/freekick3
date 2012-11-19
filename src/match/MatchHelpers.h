@@ -52,6 +52,7 @@ class MatchHelpers {
 		static float distanceToOwnGoal(const Player& p, const Common::Vector3& v);
 		static float distanceToOppositeGoal(const Player& p, const Common::Vector3& v);
 		static bool playerBlockingRestart(const Player& p);
+		static Common::Vector3 playerJumpVelocity(const Player& p, const Common::Vector3& dir);
 };
 
 #endif

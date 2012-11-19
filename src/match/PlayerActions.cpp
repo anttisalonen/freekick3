@@ -133,22 +133,11 @@ JumpToPA::JumpToPA(const Vector3& v)
 
 void JumpToPA::applyPlayerAction(Match& match, Player& p, double time)
 {
-	if(!time)
+	Vector3 v = MatchHelpers::playerJumpVelocity(p, mDiff);
+	if(v.null())
 		return;
-	if(!p.standing() || p.isAirborne() || mDiff.z < 0.01f) {
-		return;
-	}
-	if(mDiff.length() < 0.1f) {
-		return;
-	}
-	Vector3 v(mDiff.normalized());
-	if(p.isGoalkeeper())
-		v *= 100.0f + 150.0f * p.getSkills().GoalKeeping;
-	else
-		v *= 150.0f + 100.0f * p.getSkills().Heading;
-	v.z = std::max(v.z, 100.0f);
-	p.setVelocity(Vector3());
-	p.setAcceleration(v);
+	p.setVelocity(v);
+	p.setAcceleration(Vector3());
 }
 
 std::string JumpToPA::getDescription() const

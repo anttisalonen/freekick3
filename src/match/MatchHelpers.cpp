@@ -393,7 +393,7 @@ bool MatchHelpers::canGrabBall(const Player& p)
 		maxDist += sqrt(gk);
 		float ballHeight = b->getPosition().z;
 		float maxBallHeight = p.isAirborne() ? p.getPosition().z + 2.0f : p.standing() ? 2.0f : 0.5f;
-		float minBallHeight = p.isAirborne() ? p.getPosition().z - (0.5f * gk) : 0.0f;
+		float minBallHeight = p.isAirborne() ? p.getPosition().z - (0.7f * gk) : 0.0f;
 		if(maxDist >= distToBall && maxBallHeight >= ballHeight && minBallHeight <= ballHeight) {
 			return true;
 		}
@@ -443,4 +443,21 @@ bool MatchHelpers::playerBlockingRestart(const Player& p)
 		 inOpposingPenaltyArea(p)));
 }
 
+Common::Vector3 MatchHelpers::playerJumpVelocity(const Player& p, const Common::Vector3& dir)
+{
+	if(!p.standing() || p.isAirborne() || dir.z < 0.01f) {
+		return Vector3();
+	}
+	if(dir.length() < 0.1f) {
+		return Vector3();
+	}
+	Vector3 v(dir.normalized());
+	if(p.isGoalkeeper())
+		v *= 1.0f + 2.0f * p.getSkills().GoalKeeping;
+	else
+		v *= 1.5f + 1.0f * p.getSkills().Heading;
+	v *= 3.0f;
+	v.z = Common::clamp(1.5f, v.length(), 4.5f);
+	return v;
+}
 

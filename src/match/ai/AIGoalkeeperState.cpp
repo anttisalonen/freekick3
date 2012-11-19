@@ -100,7 +100,7 @@ boost::shared_ptr<PlayerAction> AIGoalkeeperState::actOffBall(double time)
 				return boost::shared_ptr<PlayerAction>(new JumpToPA(tgtpos));
 			}
 			else {
-				return jumpToBall();
+				return jumpToBall(time);
 			}
 		}
 	}
@@ -139,7 +139,7 @@ void AIGoalkeeperState::setPivotPoint()
 	mDistanceFromPivot = mPlayer->getMatch()->getPitchHeight() * 0.13f;
 }
 
-boost::shared_ptr<PlayerAction> AIGoalkeeperState::jumpToBall()
+boost::shared_ptr<PlayerAction> AIGoalkeeperState::jumpToBall(double time)
 {
 	if(!MatchHelpers::grabBallAllowed(*mPlayer)) {
 		return AIHelpers::createMoveActionToBall(*mPlayer);
@@ -151,17 +151,29 @@ boost::shared_ptr<PlayerAction> AIGoalkeeperState::jumpToBall()
 		auto myPos = mPlayer->getPosition();
 		Vector3 intersectionPoint;
 		Common::Math::pointToSegmentDistance(ballpos, futureBallPos, myPos, &intersectionPoint);
-		Vector3 jumpPoint;
+
+		Vector3 jumpVector;
 		if(intersectionPoint.null()) {
-			jumpPoint = ballpos;
+			jumpVector = ballpos;
 		} else {
-			jumpPoint = intersectionPoint;
+			jumpVector = intersectionPoint;
 		}
-		jumpPoint -= myPos;
-		if(jumpPoint.length() > 12.0f)
+		jumpVector -= myPos;
+		if(jumpVector.length() > 12.0f) {
 			return AIHelpers::createMoveActionToBall(*mPlayer);
-		else
-			return boost::shared_ptr<PlayerAction>(new JumpToPA(jumpPoint));
+		} else {
+			Vector3 jumpVelocity = MatchHelpers::playerJumpVelocity(*mPlayer, jumpVector);
+			if(jumpVelocity.null())
+				return AIHelpers::createMoveActionToBall(*mPlayer);
+
+			float ballFlyTime = (intersectionPoint - ballpos).length() / b->getSpeed();
+			float myFlyTime = jumpVector.length() / jumpVelocity.length();
+			if(myFlyTime + time > ballFlyTime) {
+				return boost::shared_ptr<PlayerAction>(new JumpToPA(jumpVector));
+			} else {
+				return AIHelpers::createMoveActionToBall(*mPlayer);
+			}
+		}
 	}
 }
 

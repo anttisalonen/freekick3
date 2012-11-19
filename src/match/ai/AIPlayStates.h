@@ -57,7 +57,7 @@ class AIGoalkeeperState : public AIState {
 
 	private:
 		void setPivotPoint();
-		boost::shared_ptr<PlayerAction> jumpToBall();
+		boost::shared_ptr<PlayerAction> jumpToBall(double time);
 
 		Common::Vector3 mPivotPoint;
 		float mDistanceFromPivot;
