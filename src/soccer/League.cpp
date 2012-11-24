@@ -71,36 +71,42 @@ void StatefulLeague::setRoundRobin(std::vector<boost::shared_ptr<StatefulTeam>>&
 		mEntries.insert(std::make_pair(t, LeagueEntry()));
 	}
 
-	int odd = 0;
 	if((teams.size() & 1) != 0) {
-		odd = 1;
+		// add dummy team
+		teams.push_back(boost::shared_ptr<StatefulTeam>());
 	}
 
-	unsigned int numrounds = mNumCycles * (odd ? teams.size() : teams.size() - 1);
-	for(unsigned int j = 0; j < numrounds; j++) {
-		Round r;
+	unsigned int numrounds = teams.size() - 1;
 
-		for(unsigned int i = 0; i < (teams.size() + odd) / 2; i++) {
-			unsigned int other = teams.size() + odd - 1 - i;
-			if(other < teams.size()) {
-				unsigned int ind1, ind2;
-				if(j & 1) {
-					ind1 = other;
-					ind2 = i;
-				}
-				else {
-					ind1 = i;
-					ind2 = other;
-				}
+	for(unsigned int k = 0; k < mNumCycles; k++) {
+		for(unsigned int j = 0; j < numrounds; j++) {
+			Round r;
 
-				r.addMatch(boost::shared_ptr<Match>(new Match(teams[ind1], teams[ind2], MatchRules(false, false, false))));
-				printf("%5d-%-5d ", teams[ind1]->getId(), teams[ind2]->getId());
+			for(unsigned int i = 0; i < teams.size() / 2; i++) {
+				unsigned int other = teams.size() - 1 - i;
+				if(i < teams.size() && i != other && teams[i] && teams[other]) {
+					unsigned int ind1, ind2;
+					if((j + k) & 1) {
+						ind1 = other;
+						ind2 = i;
+					}
+					else {
+						ind1 = i;
+						ind2 = other;
+					}
+
+					r.addMatch(boost::shared_ptr<Match>(new Match(teams[ind1], teams[ind2], MatchRules(false, false, false))));
+					printf("%5d-%-5d ", teams[ind1]->getId(), teams[ind2]->getId());
+				}
 			}
+			printf("\n");
+			mSchedule.addRound(r);
+			std::rotate(teams.begin() + 1, teams.begin() + 2, teams.end());
 		}
-		printf("\n");
-		mSchedule.addRound(r);
-		std::rotate(teams.begin() + 1, teams.begin() + 2, teams.end());
 	}
+
+	// remove dummy team
+	std::remove_if(teams.begin(), teams.end(), [](boost::shared_ptr<Team> p) { return p; } );
 }
 
 StatefulLeague::StatefulLeague()
