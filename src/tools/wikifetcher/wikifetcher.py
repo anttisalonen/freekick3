@@ -7,6 +7,7 @@ import glob
 from lxml import etree
 import random
 import re
+import collections
 
 def mkdir_p(path):
     try:
@@ -234,6 +235,151 @@ class PlayerStrengthSetup:
             self.used[p] = self.used[p] + 1
         return coeff
 
+def mapConfederationName(c):
+    if c in confederationMapping:
+        return confederationMapping[c]
+    else:
+        return (c, [])
+
+class Competition:
+    def __init__(self, name, competitors, stages):
+        self.name = name
+        self.stages = stages
+        numCompetitors = sum([b for x, a, b, c in competitors])
+        assert self.stages[0].numTeams == numCompetitors, '%s has %d competitors but should be %d' % (self.name,
+                numCompetitors, self.stages[0].numTeams)
+        for i in xrange(len(self.stages) - 1):
+            self.stages[i].setFollowingStage(self.stages[i + 1])
+
+        self.stages[0].setCompetitors(competitors)
+
+    def toXML(self):
+        node = etree.Element('Competition')
+        node.set('name', self.name)
+        for p in self.stages:
+            node.append(p.toXML())
+        return node
+
+class Stage:
+    def __init__(self, numTeams, numCountries, maxTeamsFromCountry):
+        self.numTeams = numTeams
+        self.numContinuingTeams = 1
+        self.followingStage = None
+        self.numCountries = numCountries
+        self.maxTeamsFromCountry = maxTeamsFromCountry
+        self.competitors = []
+
+    def setCompetitors(self, c):
+        self.competitors = c
+
+    def setFollowingStage(self, p):
+        self.followingStage = p
+        self.numContinuingTeams = p.numTeams
+
+    def toXML(self, name):
+        node = etree.Element(name)
+        node.set('numTeams', str(self.numTeams))
+        node.set('numContinuingTeams', str(self.numContinuingTeams))
+        if self.numCountries:
+            node.set('numCountries', str(self.numCountries))
+        if self.maxTeamsFromCountry:
+            node.set('maxTeamsFromCountry', str(self.maxTeamsFromCountry))
+
+        for continent, leaguesystem, num, skip in self.competitors:
+            tn = etree.SubElement(node, 'Teams')
+            tn.set('continent', continent)
+            tn.set('leagueSystem', leaguesystem)
+            tn.set('number', str(num))
+            tn.set('skip', str(skip))
+
+        return node
+
+class GroupStage(Stage):
+    def __init__(self, numGroups, numTeams, numRounds, numCountries = None, maxTeamsFromCountry = None):
+        Stage.__init__(self, numTeams, numCountries, maxTeamsFromCountry)
+        self.numGroups = numGroups
+        self.numRounds = numRounds
+
+    def toXML(self):
+        node = Stage.toXML(self, 'GroupStage')
+        node.set('numGroups', str(self.numGroups))
+        node.set('numRounds', str(self.numRounds))
+        return node
+
+class KnockoutStage(Stage):
+    def __init__(self, numTeams, numLegs, awayGoals = True, numCountries = None, maxTeamsFromCountry = None):
+        Stage.__init__(self, numTeams, numCountries, maxTeamsFromCountry)
+        self.numLegs = numLegs
+        self.awayGoals = awayGoals
+
+    def toXML(self):
+        node = Stage.toXML(self, 'KnockoutStage')
+        node.set('numLegs', str(self.numLegs))
+        node.set('awayGoals', str(int(self.awayGoals)))
+        return node
+
+UEFAChampionsLeagueParticipants = [('Europe', 'England', 4, 1),
+        ('Europe', 'Spain', 4, 1),
+        ('Europe', 'Germany', 3, 1),
+        ('Europe', 'Portugal', 3, 1),
+        ('Europe', 'Italy', 2, 1),
+        ('Europe', 'Ukraine', 2, 1),
+        ('Europe', 'Russia', 2, 1),
+        ('Europe', 'Greece', 1, 1),
+        ('Europe', 'Netherlands', 1, 1),
+        ('Europe', 'Belgium', 1, 1),
+        ('Europe', 'France', 3, 1),
+        ('Europe', 'Turkey', 1, 1),
+        ('Europe', 'Scotland', 1, 1),
+        ('Europe', 'Belarus', 1, 1),
+        ('Europe', 'Croatia', 1, 1),
+        ('Europe', 'Romania', 1, 1),
+        ('Europe', 'Denmark', 1, 1)]
+
+UEFAEuropaLeagueParticipants = [('Europe', 'England', 2, 5),
+        ('Europe', 'Spain', 2, 5),
+        ('Europe', 'Germany', 3, 4),
+        ('Europe', 'Portugal', 1, 4),
+        ('Europe', 'Italy', 2, 3),
+        ('Europe', 'Ukraine', 2, 3),
+        ('Europe', 'Russia', 2, 3),
+        ('Europe', 'Switzerland', 2, 1),
+        ('Europe', 'Czech Republic', 2, 1),
+        ('Europe', 'Netherlands', 1, 2),
+        ('Europe', 'Belgium', 2, 2),
+        ('Europe', 'France', 2, 4),
+        ('Europe', 'Turkey', 1, 2),
+        ('Europe', 'Romania', 1, 2),
+        ('Europe', 'Denmark', 1, 2),
+        ('Europe', 'Sweden', 1, 1),
+        ('Europe', 'Hungary', 1, 1),
+        ('Europe', 'Azerbaijan', 1, 1),
+        ('Europe', 'Israel', 1, 1),
+        ('Europe', 'Slovenia', 1, 1),
+        ('Europe', 'Norway', 1, 1)]
+
+
+UEFAChampionsLeague = Competition('UEFA Champions League', UEFAChampionsLeagueParticipants, [GroupStage(8, 32, 2, 17, 4),
+    KnockoutStage(16, 2, True),
+    KnockoutStage(2, 1, False)])
+
+UEFAEuropaLeague = Competition('UEFA Europa League', UEFAEuropaLeagueParticipants, [KnockoutStage(32, 2, True, 23, 3),
+        KnockoutStage(2, 1, False)])
+
+europeCompetitions = [UEFAChampionsLeague, UEFAEuropaLeague]
+asiaCompetitions = []
+africaCompetitions = []
+northAmericaCompetitions = []
+southAmericaCompetitions = []
+oceaniaCompetitions = []
+
+confederationMapping = { 'UEFA' : ('Europe', europeCompetitions),
+        'AFC' : ('Asia', asiaCompetitions),
+        'CAF' : ('Africa', africaCompetitions),
+        'CONCACAF' : ('North America', northAmericaCompetitions),
+        'CONMEBOL' : ('South America', southAmericaCompetitions),
+        'OFC' : ('Oceania', oceaniaCompetitions) }
+
 class Converter:
     def __init__(self):
         self.nextteamid = 1
@@ -245,12 +391,15 @@ class Converter:
         out_leaguenode = etree.Element('League')
         title = in_leagueroot.get('title')
         out_leaguenode.set('name', title)
+
         for in_groupnode in in_leagueroot.xpath('/League/Group'):
             if len(out_leaguenode) > 0:
                 print "Warning: already have a group, won't include group '%s'." % in_groupnode.get('title')
                 continue
             in_teamnodes = in_groupnode.xpath('Team')
             num_teams = len(in_teamnodes)
+            teamnodes = collections.defaultdict(list)
+
             for in_teamnode in in_teamnodes:
                 teamname = in_teamnode.get('name')
                 teamname = re.sub(' F\.C\.$', '', teamname)
@@ -264,7 +413,8 @@ class Converter:
                 if teampos <= 0:
                     teampos = num_teams / 2
                 this_team_strength = topteam_strength - ((topteam_strength - bottomteam_strength) * (teampos / float(num_teams)))
-                out_teamnode = etree.SubElement(out_leaguenode, 'Team')
+                out_teamnode = etree.Element('Team')
+                teamnodes[this_team_strength].append(out_teamnode)
                 out_teamnode.set('id', str(self.nextteamid))
                 self.nextteamid += 1
                 etree.SubElement(out_teamnode, 'Name').text = teamname
@@ -298,6 +448,12 @@ class Converter:
                 for in_kitnode in in_teamnode.xpath('Kit'):
                     out_kitnode = createKitNode(in_kitnode)
                     out_kitsnode.append(out_kitnode)
+
+            # append teams in the order best-worst
+            for s, tn in sorted(teamnodes.items(), reverse = True):
+                for t in tn:
+                    out_leaguenode.append(t)
+
         return out_leaguenode, out_playernodes
 
     def collect(self, orderingfile, indir, outdir):
@@ -322,7 +478,16 @@ class Converter:
         for confederation in confederations:
             continentnode = etree.SubElement(teamsroot, 'Continent')
             assert confederation
-            continentnode.set('name', os.path.basename(confederation))
+            confData = mapConfederationName(os.path.basename(confederation))
+            continentnode.set('name', confData[0])
+
+            competitions = confData[1]
+            competitionsNode = etree.SubElement(continentnode, 'Competitions')
+            for c in competitions:
+                competitionsNode.append(c.toXML())
+
+            lsnode = etree.SubElement(continentnode, 'LeagueSystems')
+
             countries = glob.glob(os.path.join(confederation, '*'))
             countries = [l for l in countries if os.path.isdir(l)]
             leaguesystemnodes = dict()
@@ -360,7 +525,7 @@ class Converter:
                     leaguesystemnode.append(league)
 
             for leaguesystem_strength, leaguesystemnode in sorted(leaguesystemnodes.items(), reverse = True):
-                continentnode.append(leaguesystemnode)
+                lsnode.append(leaguesystemnode)
 
         mkdir_p(outdir)
         with open(os.path.join(outdir, 'Teams.xml'), 'w') as f:
