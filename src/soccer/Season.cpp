@@ -1,4 +1,6 @@
-#include "Season.h"
+#include "soccer/Season.h"
+#include "soccer/Match.h"
+#include "soccer/Team.h"
 
 namespace Soccer {
 

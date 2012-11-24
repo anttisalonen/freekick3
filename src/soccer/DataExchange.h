@@ -6,6 +6,7 @@
 
 #include <tinyxml.h>
 
+#include "soccer/Player.h"
 #include "soccer/Continent.h"
 
 namespace Soccer {
@@ -14,6 +15,7 @@ class Match;
 class Player;
 class Team;
 class TeamTactics;
+class TeamDatabase;
 
 class DataExchange {
 	public:
@@ -24,7 +26,7 @@ class DataExchange {
 
 		static void updateTeamDatabase(const char* fn, TeamDatabase& db);
 		static void updatePlayerDatabase(const char* fn, PlayerDatabase& db);
-		static boost::shared_ptr<Team> parseTeam(const TiXmlElement* teamelem);
+		static boost::shared_ptr<Team> parseTeam(const TiXmlElement* teamelem, unsigned int position);
 		static TiXmlElement* createTeamElement(const Team& t, bool reference_players);
 		static TiXmlElement* createPlayerElement(const Player& p);
 		

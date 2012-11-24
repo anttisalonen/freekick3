@@ -8,7 +8,6 @@
 #include "common/Serialization.h"
 
 #include "soccer/Competition.h"
-#include "soccer/Match.h"
 #include "soccer/League.h"
 #include "soccer/Cup.h"
 
@@ -17,6 +16,25 @@ namespace Soccer {
 
 class StatefulTournament;
 
+struct TeamSourceDescriptor {
+	unsigned int Teams = 0;
+	unsigned int Skip = 0;
+	std::string Continent;
+	std::string LeagueSystem;
+	std::string League;
+
+	friend class boost::serialization::access;
+	template<class Archive>
+	void serialize(Archive& ar, const unsigned int version)
+	{
+		ar & Teams;
+		ar & Skip;
+		ar & Continent;
+		ar & LeagueSystem;
+		ar & League;
+	}
+};
+
 class TournamentStage {
 	public:
 		virtual ~TournamentStage() { }
@@ -24,12 +42,18 @@ class TournamentStage {
 		virtual void addStage(StatefulTournament& t) { assert(0); }
 		virtual unsigned int getTotalTeams() const { assert(0); return 0; }
 		virtual unsigned int getContinuingTeams() const { assert(0); return 0; }
+		virtual void addTeamSource(const TeamSourceDescriptor& tsd);
+		const std::vector<TeamSourceDescriptor>& getTeamSources() const;
+
+	protected:
+		std::vector<TeamSourceDescriptor> mTeamSources;
 
 	private:
 		friend class boost::serialization::access;
 		template<class Archive>
 		void serialize(Archive& ar, const unsigned int version)
 		{
+			ar & mTeamSources;
 		}
 };
 
@@ -91,11 +115,14 @@ class KnockoutStage : public TournamentStage {
 
 class TournamentConfig {
 	public:
-		TournamentConfig();
+		TournamentConfig(const std::string& tname);
+		const std::string& getName() const;
 		void pushStage(boost::shared_ptr<TournamentStage> r);
+		const std::vector<boost::shared_ptr<TournamentStage>>& getTournamentStages() const;
 
 	private:
 		std::vector<boost::shared_ptr<TournamentStage>> mStages;
+		std::string mName;
 
 		friend class StatefulTournament;
 
@@ -104,6 +131,7 @@ class TournamentConfig {
 		void serialize(Archive& ar, const unsigned int version)
 		{
 			ar & mStages;
+			ar & mName;
 		}
 };
 

@@ -8,6 +8,16 @@ using namespace Common;
 
 namespace Soccer {
 
+void TournamentStage::addTeamSource(const TeamSourceDescriptor& tsd)
+{
+	mTeamSources.push_back(tsd);
+}
+
+const std::vector<TeamSourceDescriptor>& TournamentStage::getTeamSources() const
+{
+	return mTeamSources;
+}
+
 GroupStage::GroupStage(unsigned int numGroups, unsigned int numTeams, unsigned int numWinners, unsigned int legs)
 	: mNumGroups(numGroups),
 	mNumTeams(numTeams),
@@ -73,13 +83,24 @@ bool KnockoutStage::getAwayGoals() const
 	return mAwayGoals;
 }
 
-TournamentConfig::TournamentConfig()
+TournamentConfig::TournamentConfig(const std::string& tname)
+	: mName(tname)
 {
+}
+
+const std::string& TournamentConfig::getName() const
+{
+	return mName;
 }
 
 void TournamentConfig::pushStage(boost::shared_ptr<TournamentStage> r)
 {
 	mStages.push_back(r);
+}
+
+const std::vector<boost::shared_ptr<TournamentStage>>& TournamentConfig::getTournamentStages() const
+{
+	return mStages;
 }
 
 StatefulTournamentStage::StatefulTournamentStage(const std::vector<boost::shared_ptr<StatefulCompetition>>& p)
@@ -296,6 +317,7 @@ std::vector<boost::shared_ptr<Match>> StatefulTournament::getCurrentRoundMatches
 }
 
 StatefulTournament::StatefulTournament()
+	: mConfig(TournamentConfig("Unnamed"))
 {
 }
 

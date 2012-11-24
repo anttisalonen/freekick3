@@ -737,7 +737,7 @@ int FreekickWriter::write()
 		boost::shared_ptr<Soccer::Team> t(new Soccer::Team(mCurrentTeamId,
 					mScramble ? scramble(league->getContainer().size(),
 						st.team_name).c_str() : st.team_name,
-					homekit, awaykit, players));
+					homekit, awaykit, players, 0));
 		league->addT(t);
 		mCurrentTeamId++;
 	}

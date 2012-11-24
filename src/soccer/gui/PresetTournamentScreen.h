@@ -12,7 +12,8 @@ class PresetTournamentScreen : public Screen {
 		const std::string& getName() const;
 
 	private:
-		std::vector<boost::shared_ptr<Team>> getUEFAChampionsLeagueTeams();
+		std::vector<boost::shared_ptr<Team>> getTournamentTeams(const TournamentConfig& tc);
+		std::map<boost::shared_ptr<Button>, TournamentConfig> mTournamentButtons;
 
 		static const std::string ScreenName;
 };

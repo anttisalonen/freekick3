@@ -1,5 +1,10 @@
+#include <string.h>
+
 #include <algorithm>
-#include "League.h"
+
+#include "soccer/League.h"
+#include "soccer/Match.h"
+#include "soccer/Team.h"
 
 namespace Soccer {
 

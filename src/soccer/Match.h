@@ -5,10 +5,12 @@
 #include <boost/shared_ptr.hpp>
 
 #include "soccer/PlayerTactics.h"
-#include "soccer/Team.h"
 #include "soccer/Player.h"
 
 namespace Soccer {
+
+class StatefulTeam;
+class Match;
 
 class MatchRules {
 	public:

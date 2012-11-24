@@ -6,10 +6,12 @@
 
 #include "common/Serialization.h"
 
-#include "soccer/Match.h"
-
 
 namespace Soccer {
+
+class Match;
+struct MatchResult;
+class StatefulTeam;
 
 class Round {
 	public:

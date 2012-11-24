@@ -6,7 +6,7 @@ CXXFLAGS += -Wall -Wshadow
 CXXFLAGS += $(shell sdl-config --cflags)
 
 FREEKICKLIBS = $(shell sdl-config --libs) -lSDL_image -lSDL_ttf -lGL -ltinyxml -lboost_serialization -lboost_iostreams
-SWOS2FKLIBS = -ltinyxml
+SWOS2FKLIBS = -ltinyxml -lboost_serialization
 
 
 CXXFLAGS += -Isrc
@@ -26,6 +26,8 @@ COMMONLIB = $(COMMONSRCDIR)/libcommon.a
 # Libsoccer
 
 LIBSOCCERSRCFILES = Player.cpp Team.cpp Match.cpp \
+		    Competition.cpp League.cpp Cup.cpp Season.cpp Tournament.cpp \
+		    ai/AITactics.cpp \
 		    Continent.cpp DataExchange.cpp
 LIBSOCCERSRCDIR = src/soccer
 LIBSOCCERSRCS = $(addprefix $(LIBSOCCERSRCDIR)/, $(LIBSOCCERSRCFILES))
@@ -39,9 +41,7 @@ LIBSOCCERLIB = $(LIBSOCCERSRCDIR)/libsoccer.a
 SOCCERBINNAME = freekick3
 SOCCERBIN     = $(BINDIR)/$(SOCCERBINNAME)
 SOCCERSRCDIR  = src/soccer
-SOCCERSRCFILES = Competition.cpp League.cpp Cup.cpp Season.cpp Tournament.cpp \
-		 ai/AITactics.cpp \
-		 gui/Widget.cpp gui/Button.cpp gui/Image.cpp gui/Slider.cpp \
+SOCCERSRCFILES = gui/Widget.cpp gui/Button.cpp gui/Image.cpp gui/Slider.cpp \
 		 gui/Screen.cpp gui/ScreenManager.cpp \
 		 gui/MatchResultScreen.cpp gui/MainMenuScreen.cpp gui/TeamBrowser.cpp \
 		 gui/FriendlyScreen.cpp gui/PresetLeagueScreen.cpp \

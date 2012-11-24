@@ -7,6 +7,7 @@
 #include <boost/archive/binary_oarchive.hpp>
 
 #include "soccer/Match.h"
+#include "soccer/Team.h"
 #include "soccer/League.h"
 #include "soccer/DataExchange.h"
 #include "soccer/gui/Menu.h"

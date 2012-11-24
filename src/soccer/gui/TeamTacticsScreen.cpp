@@ -1,5 +1,8 @@
 #include <algorithm>
 
+#include "soccer/Match.h"
+#include "soccer/Team.h"
+
 #include "soccer/gui/TeamTacticsScreen.h"
 #include "soccer/gui/Menu.h"
 

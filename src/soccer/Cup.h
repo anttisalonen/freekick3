@@ -13,6 +13,9 @@
 namespace Soccer {
 
 class StatefulLeagueSystem;
+class LeagueSystem;
+class Team;
+class CupEntry;
 
 class StatefulCup : public StatefulCompetition {
 	public:

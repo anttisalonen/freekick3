@@ -1,3 +1,6 @@
+#include "soccer/Match.h"
+#include "soccer/Team.h"
+
 #include "soccer/gui/TournamentScreen.h"
 
 using namespace Common;

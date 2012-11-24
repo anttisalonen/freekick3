@@ -7,10 +7,11 @@
 #include "common/Serialization.h"
 
 #include "soccer/Competition.h"
-#include "soccer/Match.h"
 
 
 namespace Soccer {
+
+class StatefulTeam;
 
 struct LeagueEntry {
 	LeagueEntry()

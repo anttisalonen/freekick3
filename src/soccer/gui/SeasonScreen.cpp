@@ -5,6 +5,9 @@
 #include <boost/archive/binary_iarchive.hpp>
 #include <boost/archive/binary_oarchive.hpp>
 
+#include "soccer/Match.h"
+#include "soccer/Team.h"
+
 #include "soccer/gui/Menu.h"
 #include "soccer/gui/LeagueScreen.h"
 #include "soccer/gui/CupScreen.h"

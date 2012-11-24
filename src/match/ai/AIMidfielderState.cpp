@@ -1,3 +1,5 @@
+#include <sstream>
+
 #include "match/ai/AIPlayStates.h"
 #include "match/PlayerActions.h"
 #include "match/MatchHelpers.h"

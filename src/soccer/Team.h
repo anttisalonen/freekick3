@@ -7,7 +7,6 @@
 #include "common/Color.h"
 #include "common/Serialization.h"
 
-#include "soccer/DataExchange.h"
 #include "soccer/Player.h"
 #include "soccer/Continent.h"
 #include "soccer/PlayerTactics.h"
@@ -101,27 +100,34 @@ class Kit {
 
 class Team {
 	public:
-		Team(int id, const char* name, const Kit& homekit, const Kit& awaykit, const std::vector<int>& players);
-		Team(int id, const char* name, const Kit& homekit, const Kit& awaykit, const std::vector<boost::shared_ptr<Player>>& players);
+		Team(int id, const char* name, const Kit& homekit, const Kit& awaykit, const std::vector<int>& players,
+				unsigned int position);
+		Team(int id, const char* name, const Kit& homekit, const Kit& awaykit, const std::vector<boost::shared_ptr<Player>>& players,
+				unsigned int position);
 		Team(); // serialization
 		virtual ~Team() { }
 		void addPlayer(boost::shared_ptr<Player> p);
 		const boost::shared_ptr<Player> getPlayer(unsigned int i) const;
 		void fetchPlayersFromDB(const PlayerDatabase& db);
 		int getId() const;
+		unsigned int getPosition() const;
+		void setPosition(unsigned int p);
 		const std::string& getName() const;
 		const std::vector<boost::shared_ptr<Player>>& getPlayers() const;
 		const boost::shared_ptr<Player> getPlayerById(int i) const;
 		const Kit& getHomeKit() const;
 		const Kit& getAwayKit() const;
+
 	protected:
 		int mId;
 		std::string mName;
+
 	private:
 		std::vector<int> mPlayerIds;
 		std::vector<boost::shared_ptr<Player>> mPlayers;
 		Kit mHomeKit;
 		Kit mAwayKit;
+		unsigned int mPosition;
 
 		friend class boost::serialization::access;
 		template<class Archive>

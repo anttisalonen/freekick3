@@ -6,6 +6,8 @@
 #include "common/Math.h"
 
 #include "soccer/Match.h"
+#include "soccer/DataExchange.h"
+#include "soccer/Team.h"
 
 // #define DEBUG_SIMULATION
 
@@ -33,6 +35,7 @@ bool CupEntry::firstWon() const
 	} else {
 		auto agg = aggregate();
 		auto pen = penalties();
+
 		if(agg.first > agg.second || pen.first > pen.second) {
 			return true;
 		} else if(agg.second > agg.first || pen.second > pen.first) {
@@ -321,7 +324,7 @@ MatchResult SimulationStrength::simulateAgainst(const SimulationStrength& t2, co
 
 	bool tie;
 	if(!r.AwayGoals)
-		tie = homegoals == awaygoals;
+		tie = homegoals + r.HomeAggregate == awaygoals + r.AwayAggregate;
 	else
 		tie = homegoals == r.AwayAggregate && awaygoals == r.HomeAggregate;
 
@@ -332,7 +335,7 @@ MatchResult SimulationStrength::simulateAgainst(const SimulationStrength& t2, co
 	}
 
 	if(!r.AwayGoals)
-		tie = homegoals == awaygoals;
+		tie = homegoals + r.HomeAggregate == awaygoals + r.AwayAggregate;
 	else
 		tie = homegoals == r.AwayAggregate && awaygoals == r.HomeAggregate;
 

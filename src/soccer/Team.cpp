@@ -56,21 +56,25 @@ const Color& Kit::getSocksColor() const
 }
 
 
-Team::Team(int id, const char* name, const Kit& homekit, const Kit& awaykit, const std::vector<int>& players)
+Team::Team(int id, const char* name, const Kit& homekit, const Kit& awaykit,
+		const std::vector<int>& players, unsigned int position)
 	: mId(id),
 	mName(name),
 	mPlayerIds(players),
 	mHomeKit(homekit),
-	mAwayKit(awaykit)
+	mAwayKit(awaykit),
+	mPosition(position)
 {
 }
 
-Team::Team(int id, const char* name, const Kit& homekit, const Kit& awaykit, const std::vector<boost::shared_ptr<Player>>& players)
+Team::Team(int id, const char* name, const Kit& homekit, const Kit& awaykit,
+		const std::vector<boost::shared_ptr<Player>>& players, unsigned int position)
 	: mId(id),
 	mName(name),
 	mPlayers(players),
 	mHomeKit(homekit),
-	mAwayKit(awaykit)
+	mAwayKit(awaykit),
+	mPosition(position)
 {
 }
 
@@ -104,6 +108,16 @@ void Team::fetchPlayersFromDB(const PlayerDatabase& db)
 int Team::getId() const
 {
 	return mId;
+}
+
+unsigned int Team::getPosition() const
+{
+	return mPosition;
+}
+
+void Team::setPosition(unsigned int p)
+{
+	mPosition = p;
 }
 
 const std::string& Team::getName() const

@@ -6,6 +6,7 @@
 #include <boost/shared_ptr.hpp>
 
 #include "soccer/Container.h"
+#include "soccer/Tournament.h"
 
 
 namespace Soccer {
@@ -34,6 +35,11 @@ class Continent : public Container<LeagueSystem> {
 	public:
 		Continent(const char* name)
 			: Container<LeagueSystem>(name) { }
+		const std::vector<TournamentConfig>& getTournaments() const { return mTournaments; }
+		void addTournament(const TournamentConfig& t) { mTournaments.push_back(t); }
+
+	private:
+		std::vector<TournamentConfig> mTournaments;
 };
 
 class TeamDatabase : public Container<Continent> {
@@ -47,8 +53,6 @@ class TeamDatabase : public Container<Continent> {
 		boost::shared_ptr<League> getOrCreateLeague(const char* continentName,
 				const char* countryName, const char* leagueName, unsigned int level);
 };
-
-typedef std::map<int, boost::shared_ptr<Player>> PlayerDatabase;
 
 }
 

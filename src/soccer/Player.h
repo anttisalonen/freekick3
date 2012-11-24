@@ -69,6 +69,8 @@ class Player {
 		}
 };
 
+typedef std::map<int, boost::shared_ptr<Player>> PlayerDatabase;
+
 }
 
 #endif

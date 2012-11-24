@@ -6,6 +6,7 @@
 #include "soccer/DataExchange.h"
 #include "soccer/Match.h"
 #include "soccer/Player.h"
+#include "soccer/Team.h"
 
 namespace Soccer {
 
@@ -47,7 +48,7 @@ boost::shared_ptr<Player> DataExchange::parsePlayer(const TiXmlElement* pelem)
 	return boost::shared_ptr<Player>(new Player(id, name, sk));
 }
 
-boost::shared_ptr<Team> DataExchange::parseTeam(const TiXmlElement* teamelem)
+boost::shared_ptr<Team> DataExchange::parseTeam(const TiXmlElement* teamelem, unsigned int position)
 {
 	int id;
 
@@ -118,10 +119,10 @@ boost::shared_ptr<Team> DataExchange::parseTeam(const TiXmlElement* teamelem)
 
 	boost::shared_ptr<Team> team;
 	if(playerids.empty()) {
-		team.reset(new Team(id, name, kits[0], kits[1], players));
+		team.reset(new Team(id, name, kits[0], kits[1], players, position));
 	}
 	else {
-		team.reset(new Team(id, name, kits[0], kits[1], playerids));
+		team.reset(new Team(id, name, kits[0], kits[1], playerids, position));
 		for(auto p : players)
 			team->addPlayer(p);
 	}
@@ -191,7 +192,7 @@ boost::shared_ptr<Match> DataExchange::parseMatchDataFile(const char* fn)
 		if(teams.size() > 2) {
 			throw std::runtime_error(ss.str());
 		}
-		teams.push_back(parseTeam(teamelem));
+		teams.push_back(parseTeam(teamelem, 0));
 	}
 	if(teams.size() != 2) {
 		throw std::runtime_error(ss.str());
@@ -514,7 +515,7 @@ void DataExchange::updateTeamDatabase(const char* fn, TeamDatabase& db)
 
 	TiXmlElement* continentelem = handle.FirstChild("Teams").FirstChild("Continent").ToElement();
 	if(!continentelem) {
-		ss << "no Teams/Continent";
+		ss << "no Teams or Continent tag";
 		throw std::runtime_error(ss.str());
 	}
 
@@ -522,8 +523,92 @@ void DataExchange::updateTeamDatabase(const char* fn, TeamDatabase& db)
 		std::string continentname;
 		if(continentelem->QueryStringAttribute("name", &continentname) != TIXML_SUCCESS)
 			throw std::runtime_error("Error parsing continent name");
+		auto continent = db.getOrCreateContinent(continentname.c_str());
 
-		for(const TiXmlElement* countryelem = continentelem->FirstChildElement(); countryelem;
+		TiXmlElement* competitionselem = continentelem->FirstChildElement("Competitions");
+		if(competitionselem) {
+			for(TiXmlElement* celem = competitionselem->FirstChildElement();
+					celem;
+					celem = celem->NextSiblingElement()) {
+				std::string compname;
+				if(celem->QueryStringAttribute("name", &compname) != TIXML_SUCCESS)
+					throw std::runtime_error("Error parsing competition name");
+
+				TournamentConfig tc(compname);
+
+				// add stages from back to front
+				for(auto stagenode = celem->LastChild();
+						stagenode;
+						stagenode = stagenode->PreviousSibling()) {
+					auto stageelem = stagenode->ToElement();
+					// common attributes
+					unsigned int continuingteams = 1;
+					unsigned int teams;
+					stageelem->QueryUnsignedAttribute("numContinuingTeams", &continuingteams);
+					if(stageelem->QueryUnsignedAttribute("numTeams", &teams) != TIXML_SUCCESS)
+						throw std::runtime_error("Error parsing number of teams in tournament stage");
+
+					boost::shared_ptr<TournamentStage> ts;
+
+					if(stageelem->ValueStr() == "KnockoutStage") {
+						unsigned int legs = 1;
+						unsigned int awaygoals = 0;
+						// optional attributes
+						stageelem->QueryUnsignedAttribute("numLegs", &legs);
+						stageelem->QueryUnsignedAttribute("awayGoals", &awaygoals);
+						while(teams > continuingteams) {
+							// store first stage in ts for the team source list
+							if(!ts) {
+								ts = boost::shared_ptr<TournamentStage>(new KnockoutStage(legs,
+											awaygoals, continuingteams));
+								tc.pushStage(ts);
+							} else {
+								tc.pushStage(boost::shared_ptr<KnockoutStage>(new KnockoutStage(legs,
+												awaygoals, continuingteams)));
+							}
+							continuingteams *= 2;
+						}
+					} else if(stageelem->ValueStr() == "GroupStage") {
+						unsigned int rounds = 1, groups = 1;
+						// optional attributes
+						stageelem->QueryUnsignedAttribute("numGroups", &groups);
+						stageelem->QueryUnsignedAttribute("numRounds", &rounds);
+						ts = boost::shared_ptr<TournamentStage>(new GroupStage(groups,
+										teams, continuingteams, rounds));
+						tc.pushStage(ts);
+					} else {
+						ss << "Unknown competition type: " << stageelem->ValueStr();
+						throw std::runtime_error(ss.str());
+					}
+
+					// add teams in the first created tournament stage
+					for(TiXmlElement* teamelem = stageelem->FirstChildElement();
+							teamelem;
+							teamelem = teamelem->NextSiblingElement()) {
+						TeamSourceDescriptor tsd;
+						if(teamelem->QueryStringAttribute("continent", &tsd.Continent) != TIXML_SUCCESS)
+							throw std::runtime_error("Error parsing team source in tournament stage");
+						teamelem->QueryStringAttribute("leagueSystem", &tsd.LeagueSystem);
+						teamelem->QueryStringAttribute("league", &tsd.League);
+						teamelem->QueryUnsignedAttribute("number", &tsd.Teams);
+						teamelem->QueryUnsignedAttribute("skip", &tsd.Skip);
+						if(tsd.Teams) {
+							ts->addTeamSource(tsd);
+						}
+					}
+				}
+
+				continent->addTournament(tc);
+			}
+		}
+
+		TiXmlElement* leaguesystemselem = continentelem->FirstChildElement("LeagueSystems");
+		if(!leaguesystemselem) {
+			ss << "no league systems";
+			throw std::runtime_error(ss.str());
+		}
+
+		for(const TiXmlElement* countryelem = leaguesystemselem->FirstChildElement(); countryelem;
 				countryelem = countryelem->NextSiblingElement()) {
 			std::string countryname;
 			unsigned int level = 0;
@@ -540,9 +625,12 @@ void DataExchange::updateTeamDatabase(const char* fn, TeamDatabase& db)
 				boost::shared_ptr<Soccer::League> league = db.getOrCreateLeague(continentname.c_str(),
 						countryname.c_str(), leaguename.c_str(), level);
 
+				unsigned int position = 1;
+
 				for(const TiXmlElement* teamelem = leagueelem->FirstChildElement(); teamelem;
 						teamelem = teamelem->NextSiblingElement()) {
-					boost::shared_ptr<Team> t = parseTeam(teamelem);
+					boost::shared_ptr<Team> t = parseTeam(teamelem, position);
+					position++;
 					league->addT(t);
 				}
 

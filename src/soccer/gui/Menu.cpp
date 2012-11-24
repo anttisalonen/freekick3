@@ -14,6 +14,7 @@
 #include "soccer/DataExchange.h"
 #include "soccer/Player.h"
 #include "soccer/Match.h"
+#include "soccer/Team.h"
 
 #include "soccer/gui/MainMenuScreen.h"
 #include "soccer/gui/ScreenManager.h"
