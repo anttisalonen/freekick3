@@ -261,12 +261,10 @@ class Competition:
         return node
 
 class Stage:
-    def __init__(self, numTeams, numCountries, maxTeamsFromCountry):
+    def __init__(self, numTeams):
         self.numTeams = numTeams
         self.numContinuingTeams = 1
         self.followingStage = None
-        self.numCountries = numCountries
-        self.maxTeamsFromCountry = maxTeamsFromCountry
         self.competitors = []
 
     def setCompetitors(self, c):
@@ -280,10 +278,6 @@ class Stage:
         node = etree.Element(name)
         node.set('numTeams', str(self.numTeams))
         node.set('numContinuingTeams', str(self.numContinuingTeams))
-        if self.numCountries:
-            node.set('numCountries', str(self.numCountries))
-        if self.maxTeamsFromCountry:
-            node.set('maxTeamsFromCountry', str(self.maxTeamsFromCountry))
 
         for continent, leaguesystem, num, skip in self.competitors:
             tn = etree.SubElement(node, 'Teams')
@@ -295,8 +289,8 @@ class Stage:
         return node
 
 class GroupStage(Stage):
-    def __init__(self, numGroups, numTeams, numRounds, numCountries = None, maxTeamsFromCountry = None):
-        Stage.__init__(self, numTeams, numCountries, maxTeamsFromCountry)
+    def __init__(self, numGroups, numTeams, numRounds):
+        Stage.__init__(self, numTeams)
         self.numGroups = numGroups
         self.numRounds = numRounds
 
@@ -307,8 +301,8 @@ class GroupStage(Stage):
         return node
 
 class KnockoutStage(Stage):
-    def __init__(self, numTeams, numLegs, awayGoals = True, numCountries = None, maxTeamsFromCountry = None):
-        Stage.__init__(self, numTeams, numCountries, maxTeamsFromCountry)
+    def __init__(self, numTeams, numLegs, awayGoals = True):
+        Stage.__init__(self, numTeams)
         self.numLegs = numLegs
         self.awayGoals = awayGoals
 
@@ -317,6 +311,19 @@ class KnockoutStage(Stage):
         node.set('numLegs', str(self.numLegs))
         node.set('awayGoals', str(int(self.awayGoals)))
         return node
+
+CONCACAFChampionsLeagueParticipants = [('North America', 'United States & Canada', 5, 1),
+        ('North America', 'Mexico', 4, 1),
+        ('North America', 'Honduras', 2, 1),
+        ('North America', 'Panama', 2, 1),
+        ('North America', 'El Salvador', 3, 1),
+        ('North America', 'Trinidad and Tobago', 2, 1),
+        ('North America', 'Puerto Rico', 1, 1),
+        ('North America', 'Antigua and Barbuda', 1, 1),
+        ('North America', 'Cayman Islands', 1, 1),
+        ('North America', 'French Guiana', 1, 1),
+        ('North America', 'Jamaica', 1, 1),
+        ('North America', 'Suriname', 1, 1)]
 
 UEFAChampionsLeagueParticipants = [('Europe', 'England', 4, 1),
         ('Europe', 'Spain', 4, 1),
@@ -359,17 +366,21 @@ UEFAEuropaLeagueParticipants = [('Europe', 'England', 2, 5),
         ('Europe', 'Norway', 1, 1)]
 
 
-UEFAChampionsLeague = Competition('UEFA Champions League', UEFAChampionsLeagueParticipants, [GroupStage(8, 32, 2, 17, 4),
+UEFAChampionsLeague = Competition('UEFA Champions League', UEFAChampionsLeagueParticipants, [GroupStage(8, 32, 2),
     KnockoutStage(16, 2, True),
     KnockoutStage(2, 1, False)])
 
-UEFAEuropaLeague = Competition('UEFA Europa League', UEFAEuropaLeagueParticipants, [KnockoutStage(32, 2, True, 23, 3),
+UEFAEuropaLeague = Competition('UEFA Europa League', UEFAEuropaLeagueParticipants, [KnockoutStage(32, 2, True),
         KnockoutStage(2, 1, False)])
+
+CONCACAFChampionsLeague = Competition('CONCACAF Champions League', CONCACAFChampionsLeagueParticipants,
+        [GroupStage(8, 24, 2),
+         KnockoutStage(8, 2, True)])
 
 europeCompetitions = [UEFAChampionsLeague, UEFAEuropaLeague]
 asiaCompetitions = []
 africaCompetitions = []
-northAmericaCompetitions = []
+northAmericaCompetitions = [CONCACAFChampionsLeague]
 southAmericaCompetitions = []
 oceaniaCompetitions = []
 
