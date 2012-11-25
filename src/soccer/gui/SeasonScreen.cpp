@@ -160,6 +160,18 @@ void SeasonScreen::nextRound()
 void SeasonScreen::finishSeason()
 {
 	assert(mSeason->getLeagueSystem());
+	// play all the matches of the divisions
+	for(auto& l : mSeason->getLeagueSystem()->getLeagues()) {
+		while(1) {
+			const boost::shared_ptr<Match> m = l->getNextMatch();
+			if(!m)
+				break;
+			MatchResult r = m->play(false);
+			assert(r.Played);
+			m->setResult(r);
+			l->matchPlayed(r);
+		}
+	}
 	mSeason->getLeagueSystem()->promoteAndRelegateTeams();
 	mSeason = Season::createSeason(mSeason->getTeam(), mSeason->getLeagueSystem());
 	mFinishButton->hide();
