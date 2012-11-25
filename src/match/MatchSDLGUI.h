@@ -57,6 +57,8 @@ class MatchSDLGUI : public MatchGUI, public PlayerController {
 		void drawGoals();
 		const boost::shared_ptr<Common::Texture> playerTexture(const Player* p);
 		std::pair<const Soccer::Kit, const Soccer::Kit> getKits() const;
+		static Common::Color mapPitchColor(const Common::Color& c1, const Common::Color& c2,
+				const Common::Color& c);
 		static Common::Color mapKitColor(const Soccer::Kit& kit, const Common::Color& c);
 		bool kitConflict(const Soccer::Kit& kit0, const Soccer::Kit& kit1) const;
 		Clock mClock;

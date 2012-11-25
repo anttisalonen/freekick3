@@ -153,9 +153,9 @@ void MatchSDLGUI::drawEnvironment()
 	float pheight = mMatch->getPitchHeight();
 	drawSprite(*mPitchTexture, Rectangle((-mCamera.x - pwidth) * mScaleLevel + screenWidth * 0.5f,
 				(-mCamera.y - pheight) * mScaleLevel + screenHeight * 0.5f,
-				mScaleLevel * pwidth * 2.0f,
-				mScaleLevel * pheight * 2.0f),
-			Rectangle(0, 0, 20, 20), pitchHeight);
+				mScaleLevel * pwidth * 4.0f,
+				mScaleLevel * pheight * 4.0f),
+			Rectangle(0, 0, 22, 22), pitchHeight);
 	drawPitchLines();
 	drawGoals();
 
@@ -537,6 +537,16 @@ std::pair<const Soccer::Kit, const Soccer::Kit> MatchSDLGUI::getKits() const
 				Common::Color::Blue, Common::Color::Blue, Common::Color::Blue, Common::Color::Blue));
 }
 
+Common::Color MatchSDLGUI::mapPitchColor(const Common::Color& c1, const Common::Color& c2,
+		const Common::Color& c)
+{
+	unsigned int r = c1.r + (float)(c.r / 255.0f) * (c2.r - c1.r);
+	unsigned int g = c1.g + (float)(c.r / 255.0f) * (c2.g - c1.g);
+	unsigned int b = c1.b + (float)(c.r / 255.0f) * (c2.b - c1.b);
+
+	return Common::Color(r, g, b);
+}
+
 Common::Color MatchSDLGUI::mapKitColor(const Soccer::Kit& kit, const Common::Color& c)
 {
 	if(c.r == 255) {
@@ -634,7 +644,23 @@ void MatchSDLGUI::loadTextures()
 			mPlayerTextureAway[20 + j * 4 + k * 2 + 1] = boost::shared_ptr<Texture>(new Texture(aways[12 + j * 2 + k], 64, 32));
 		}
 	}
-	mPitchTexture = boost::shared_ptr<Texture>(new Texture("share/grass1.png", 0, 0));
+
+	int grassValue = rand() % 2 + 1;
+	std::stringstream ss;
+	ss << "share/grass" << grassValue << ".png";
+	Common::Color color1(6, 100, 9);
+	Common::Color color2(25, 162, 20);
+
+	color1.r += rand() % 10 - 5;
+	color1.g += rand() % 10 - 5;
+	color1.b += rand() % 10 - 5;
+	color2.r += rand() % 10 - 5;
+	color2.g += rand() % 10 - 5;
+	color2.b += rand() % 10 - 5;
+
+	SDLSurface pitchSurface = SDLSurface(ss.str().c_str());
+	pitchSurface.mapPixelColor( [&] (const Color& c) { return mapPitchColor(color1, color2, c); } );
+	mPitchTexture = boost::shared_ptr<Texture>(new Texture(pitchSurface, 0, 0));
 	mPlayerShadowTexture = boost::shared_ptr<Texture>(new Texture("share/player1shadow.png", 0, 32));
 
 	mGoal1Texture = boost::shared_ptr<Texture>(new Texture("share/goal1.png", 0, 0));
