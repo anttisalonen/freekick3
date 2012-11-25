@@ -36,8 +36,10 @@ void StatefulLeagueSystem::promoteAndRelegateTeams()
 		/* Relegate three teams from this league, promote three teams from the next league */
 		auto thisLeague = *it;
 		++it;
-		if(it == oldLeagueTeams.end())
+		if(it == oldLeagueTeams.end()) {
+			newLeagueTeams.push_back(thisLeague);
 			break;
+		}
 		auto nextLeague = *it;
 
 		std::vector<boost::shared_ptr<StatefulTeam>> newThisLeague;
