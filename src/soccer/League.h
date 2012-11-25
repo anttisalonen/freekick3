@@ -46,19 +46,22 @@ struct LeagueEntry {
 
 class StatefulLeague : public StatefulCompetition {
 	public:
-		StatefulLeague(std::vector<boost::shared_ptr<StatefulTeam>>& teams, unsigned int numCycles = 2);
+		StatefulLeague(std::vector<boost::shared_ptr<StatefulTeam>>& teams,
+				unsigned int level, unsigned int numCycles = 2);
 		void resetTeams(std::vector<boost::shared_ptr<StatefulTeam>>& teams);
 		const std::map<boost::shared_ptr<StatefulTeam>, LeagueEntry>& getEntries() const;
 		void matchPlayed(const MatchResult& res) override;
 		virtual CompetitionType getType() const override;
 		virtual unsigned int getNumberOfTeams() const override;
 		virtual std::vector<boost::shared_ptr<StatefulTeam>> getTeamsByPosition() const override;
+		unsigned int getLevel() const;
 
 	private:
 		void setRoundRobin(std::vector<boost::shared_ptr<StatefulTeam>>& teams);
 		std::map<boost::shared_ptr<StatefulTeam>, LeagueEntry> mEntries;
 		const int mPointsPerWin;
 		const int mNumCycles;
+		const int mLevel;
 
 		friend class boost::serialization::access;
 		StatefulLeague(); // serialization

@@ -37,7 +37,7 @@ static unsigned int pow2roundup(unsigned int x)
 	return x + 1;
 }
 
-static unsigned int pow2rounddown(unsigned int x)
+unsigned int pow2rounddown(unsigned int x)
 {
 	if(ispow2(x))
 		return x;
@@ -132,54 +132,6 @@ void StatefulCup::setupNextRound(std::vector<boost::shared_ptr<StatefulTeam>>& t
 
 StatefulCup::StatefulCup()
 {
-}
-
-std::vector<boost::shared_ptr<StatefulTeam>> StatefulCup::collectTeamsFromCountry(const boost::shared_ptr<StatefulLeagueSystem> s)
-{
-	std::vector<boost::shared_ptr<StatefulTeam>> teams;
-	unsigned int numTeams = 0;
-	for(auto league : s->getLeagues()) {
-		numTeams += league->getNumberOfTeams();
-	}
-
-	numTeams = pow2rounddown(numTeams);
-
-	for(auto league : s->getLeagues()) {
-		if(numTeams == 0)
-			break;
-		for(auto t : league->getTeamsByPosition()) {
-			if(numTeams == 0)
-				break;
-			teams.push_back(t);
-			numTeams--;
-		}
-	}
-
-	return teams;
-}
-
-std::vector<boost::shared_ptr<Team>> StatefulCup::collectTeamsFromCountry(const boost::shared_ptr<LeagueSystem> s)
-{
-	std::vector<boost::shared_ptr<Team>> teams;
-	unsigned int numTeams = 0;
-	for(auto league : s->getContainer()) {
-		numTeams += league.second->getContainer().size();
-	}
-
-	numTeams = pow2rounddown(numTeams);
-
-	for(auto league : s->getContainer()) {
-		if(numTeams == 0)
-			break;
-		for(auto t : league.second->getContainer()) {
-			if(numTeams == 0)
-				break;
-			teams.push_back(t.second);
-			numTeams--;
-		}
-	}
-
-	return teams;
 }
 
 CompetitionType StatefulCup::getType() const

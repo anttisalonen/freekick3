@@ -8,13 +8,20 @@
 
 namespace Soccer {
 
-StatefulLeague::StatefulLeague(std::vector<boost::shared_ptr<StatefulTeam>>& teams, unsigned int numCycles)
+StatefulLeague::StatefulLeague(std::vector<boost::shared_ptr<StatefulTeam>>& teams,
+		unsigned int level, unsigned int numCycles)
 	: StatefulCompetition(),
 	mPointsPerWin(3),
-	mNumCycles(numCycles)
+	mNumCycles(numCycles),
+	mLevel(level)
 {
 	setRoundRobin(teams);
 	setNextMatch();
+}
+
+unsigned int StatefulLeague::getLevel() const
+{
+	return mLevel;
 }
 
 void StatefulLeague::resetTeams(std::vector<boost::shared_ptr<StatefulTeam>>& teams)
@@ -111,7 +118,8 @@ void StatefulLeague::setRoundRobin(std::vector<boost::shared_ptr<StatefulTeam>>&
 
 StatefulLeague::StatefulLeague()
 	: mPointsPerWin(3),
-	mNumCycles(2)
+	mNumCycles(2),
+	mLevel(0)
 {
 }
 

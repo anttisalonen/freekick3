@@ -72,7 +72,7 @@ void StatefulLeagueSystem::promoteAndRelegateTeams()
 	assert(mLeagues.size() == newLeagueTeams.size());
 
 	for(unsigned int i = 0; i < mLeagues.size(); i++) {
-		mLeagues[i] = boost::shared_ptr<StatefulLeague>(new StatefulLeague(newLeagueTeams[i]));
+		mLeagues[i] = boost::shared_ptr<StatefulLeague>(new StatefulLeague(newLeagueTeams[i], mLeagues[i]->getLevel()));
 	}
 }
 
@@ -192,7 +192,8 @@ boost::shared_ptr<Season> Season::createSeason(boost::shared_ptr<StatefulTeam> t
 	assert(plleague);
 
 	{
-		std::vector<boost::shared_ptr<StatefulTeam>> cupteams = StatefulCup::collectTeamsFromCountry(leaguesystem);
+		std::vector<boost::shared_ptr<StatefulTeam>> cupteams = collectTeamsFromCountry<StatefulLeagueSystem,
+			StatefulLeague, StatefulTeam>(leaguesystem);
 		cup = boost::shared_ptr<StatefulCup>(new StatefulCup(cupteams));
 		leaguesystem->setCup(cup);
 	}
@@ -236,7 +237,8 @@ boost::shared_ptr<Season> Season::createSeason(boost::shared_ptr<Team> plteam,
 			}
 			leagueteams.push_back(st);
 		}
-		boost::shared_ptr<StatefulLeague> league = boost::shared_ptr<StatefulLeague>(new StatefulLeague(leagueteams));
+		boost::shared_ptr<StatefulLeague> league = boost::shared_ptr<StatefulLeague>(new
+				StatefulLeague(leagueteams, l.second->getLevel()));
 		leagues.insert({l.second->getLevel(), league});
 
 		if(playerLeagueFound) {
@@ -255,7 +257,7 @@ boost::shared_ptr<Season> Season::createSeason(boost::shared_ptr<Team> plteam,
 	{
 		std::vector<boost::shared_ptr<StatefulTeam>> cupteams;
 		std::vector<boost::shared_ptr<Team>> cupteamentries;
-		cupteamentries = StatefulCup::collectTeamsFromCountry(country);
+		cupteamentries = collectTeamsFromCountry<LeagueSystem, League, Team>(country);
 		for(auto t : cupteamentries) {
 			auto it = allteams.find(t);
 			if(it == allteams.end()) {

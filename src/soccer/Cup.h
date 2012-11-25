@@ -22,8 +22,6 @@ class StatefulCup : public StatefulCompetition {
 		StatefulCup(std::vector<boost::shared_ptr<StatefulTeam>>& teams, bool onlyoneround = false,
 				unsigned int legs = 1, bool awaygoals = false);
 		void matchPlayed(const MatchResult& res) override;
-		static std::vector<boost::shared_ptr<StatefulTeam>> collectTeamsFromCountry(const boost::shared_ptr<StatefulLeagueSystem> s);
-		static std::vector<boost::shared_ptr<Team>> collectTeamsFromCountry(const boost::shared_ptr<LeagueSystem> s);
 		virtual CompetitionType getType() const override;
 		unsigned int getTotalNumberOfRounds() const;
 		virtual unsigned int getNumberOfTeams() const override;
@@ -52,6 +50,38 @@ class StatefulCup : public StatefulCompetition {
 			ar & mAwayGoals;
 		}
 };
+
+unsigned int pow2rounddown(unsigned int x);
+
+template<typename T, typename T2, typename T1>
+std::vector<boost::shared_ptr<T1>> collectTeamsFromCountry(boost::shared_ptr<T> s)
+{
+	std::vector<boost::shared_ptr<T1>> teams;
+	unsigned int numTeams = 0;
+	for(auto league : s->getLeagues()) {
+		numTeams += league->getNumberOfTeams();
+	}
+
+	numTeams = pow2rounddown(numTeams);
+
+	auto leagues = s->getLeagues();
+	std::sort(leagues.begin(), leagues.end(),
+			[](const boost::shared_ptr<T2>& l1, const boost::shared_ptr<T2>& l2) {
+			return l1->getLevel() < l2->getLevel(); });
+
+	for(auto league : leagues) {
+		if(numTeams == 0)
+			break;
+		for(auto t : league->getTeamsByPosition()) {
+			if(numTeams == 0)
+				break;
+			teams.push_back(t);
+			numTeams--;
+		}
+	}
+
+	return teams;
+}
 
 }
 

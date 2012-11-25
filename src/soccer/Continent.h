@@ -7,6 +7,7 @@
 
 #include "soccer/Container.h"
 #include "soccer/Tournament.h"
+#include "soccer/Team.h"
 
 
 namespace Soccer {
@@ -20,6 +21,8 @@ class League : public Container<Team> {
 			: Container<Team>(name),
 			mLevel(level) { }
 		unsigned int getLevel() const { return mLevel; }
+		std::vector<boost::shared_ptr<Team>> getTeamsByPosition() const;
+		unsigned int getNumberOfTeams() const;
 
 	private:
 		unsigned int mLevel;
@@ -29,6 +32,13 @@ class LeagueSystem : public Container<League> {
 	public:
 		LeagueSystem(const char* name)
 			: Container<League>(name) { }
+		std::vector<boost::shared_ptr<League>> getLeagues() const
+		{
+			std::vector<boost::shared_ptr<League>> ret;
+			for(auto& t : getContainer())
+				ret.push_back(t.second);
+			return ret;
+		}
 };
 
 class Continent : public Container<LeagueSystem> {

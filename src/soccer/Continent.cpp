@@ -2,6 +2,22 @@
 
 namespace Soccer {
 
+std::vector<boost::shared_ptr<Team>> League::getTeamsByPosition() const
+{
+	std::vector<boost::shared_ptr<Team>> ret;
+	for(auto t : mTs) {
+		ret.push_back(t.second);
+	}
+	std::sort(ret.begin(), ret.end(), [](boost::shared_ptr<Team> t1, boost::shared_ptr<Team> t2) {
+			return t1->getPosition() < t2->getPosition(); });
+	return ret;
+}
+
+unsigned int League::getNumberOfTeams() const
+{
+	return mTs.size();
+}
+
 boost::shared_ptr<Continent> TeamDatabase::getOrCreateContinent(const char* n)
 {
 	boost::shared_ptr<Soccer::Continent> cont = getT(n);

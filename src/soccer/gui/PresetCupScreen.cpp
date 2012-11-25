@@ -18,7 +18,7 @@ PresetCupScreen::PresetCupScreen(boost::shared_ptr<ScreenManager> sm)
 
 bool PresetCupScreen::enteringCountry(boost::shared_ptr<LeagueSystem> p)
 {
-	auto teams = StatefulCup::collectTeamsFromCountry(p);
+	auto teams = collectTeamsFromCountry<LeagueSystem, League, Team>(p);
 
 	mSelectedTeams.clear();
 	for(auto t : teams) {

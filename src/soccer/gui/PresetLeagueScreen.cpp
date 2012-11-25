@@ -18,6 +18,7 @@ bool PresetLeagueScreen::enteringLeague(boost::shared_ptr<League> p)
 	for(auto t : p->getContainer()) {
 		mSelectedTeams.insert(std::make_pair(t.second, TeamSelection::Computer));
 	}
+	mLeague = p;
 	return true;
 }
 
@@ -32,7 +33,9 @@ void PresetLeagueScreen::clickedDone()
 
 	teams = createStatefulTeams();
 
-	boost::shared_ptr<StatefulLeague> league(new StatefulLeague(teams));
+	assert(mLeague);
+
+	boost::shared_ptr<StatefulLeague> league(new StatefulLeague(teams, mLeague->getLevel()));
 	mScreenManager->addScreen(boost::shared_ptr<Screen>(new LeagueScreen(mScreenManager, league)));
 }
 
