@@ -22,11 +22,15 @@ SeasonScreen::SeasonScreen(boost::shared_ptr<ScreenManager> sm, boost::shared_pt
 	mPlanPos(0)
 {
 	addButton("Back",  Common::Rectangle(0.01f, 0.90f, 0.23f, 0.06f));
-	addButton("Save",  Common::Rectangle(0.01f, 0.83f, 0.23f, 0.06f));
-	mNextRoundButton  = addButton("Next Round",    Common::Rectangle(0.26f, 0.90f, 0.73f, 0.06f));
-	mScrollUpButton   = addButton("Prev",          Common::Rectangle(0.65f, 0.04f, 0.20f, 0.04f));
-	mScrollDownButton = addButton("Next",          Common::Rectangle(0.65f, 0.83f, 0.20f, 0.04f));
-	mFinishButton     = addButton("Finish Season", Common::Rectangle(0.26f, 0.90f, 0.73f, 0.06f));
+	addButton("Save",  Common::Rectangle(0.01f, 0.83f, 0.23f, 0.06f), true, SDLK_s, KMOD_CTRL);
+	mNextRoundButton  = addButton("Next Round",    Common::Rectangle(0.26f, 0.90f, 0.73f, 0.06f),
+			true, SDLK_n);
+	mScrollUpButton   = addButton("Prev",          Common::Rectangle(0.65f, 0.04f, 0.20f, 0.04f),
+			true, SDLK_UP);
+	mScrollDownButton = addButton("Next",          Common::Rectangle(0.65f, 0.83f, 0.20f, 0.04f),
+			true, SDLK_DOWN);
+	mFinishButton     = addButton("Finish Season", Common::Rectangle(0.26f, 0.90f, 0.73f, 0.06f),
+			true, SDLK_f);
 	mFinishButton->hide();
 	addMatchPlan();
 }
@@ -102,6 +106,83 @@ void SeasonScreen::addMatchPlan()
 
 std::string SeasonScreen::ScreenName = std::string("Season Screen");
 
+void SeasonScreen::nextRound()
+{
+	unsigned int i = 0;
+	for(i = 0; i < mSeason->getSchedule().size(); i++) {
+		RoundTuple ct = getRound(i);
+		assert(std::get<2>(ct));
+		assert(std::get<2>(ct)->getMatches().size());
+		if(!std::get<2>(ct)->getMatches()[std::get<2>(ct)->getMatches().size() - 1]->getResult().Played) {
+			if(i > 15)
+				mPlanPos = i - 10;
+			else
+				mPlanPos = 0;
+
+			switch(std::get<0>(ct)) {
+				case CompetitionType::League:
+				{
+					mScreenManager->addScreen(boost::shared_ptr<Screen>(new LeagueScreen(mScreenManager,
+									mSeason->getLeague(),
+									true)));
+				}
+				break;
+
+				case CompetitionType::Cup:
+				{
+					mScreenManager->addScreen(boost::shared_ptr<Screen>(new CupScreen(mScreenManager,
+									mSeason->getCup(),
+									true)));
+				}
+				break;
+
+				case CompetitionType::Tournament:
+				{
+					mScreenManager->addScreen(boost::shared_ptr<Screen>(new TournamentScreen(mScreenManager,
+									mSeason->getTournament(),
+									true)));
+				}
+				break;
+			}
+			break;
+		}
+	}
+
+	if(i >= mSeason->getSchedule().size() - 1) {
+		/* no more matches */
+		mNextRoundButton->hide();
+		if(mSeason->getLeagueSystem())
+			mFinishButton->show();
+		/* TODO: display season summary */
+	}
+}
+
+void SeasonScreen::finishSeason()
+{
+	assert(mSeason->getLeagueSystem());
+	mSeason->getLeagueSystem()->promoteAndRelegateTeams();
+	mSeason = Season::createSeason(mSeason->getTeam(), mSeason->getLeagueSystem());
+	mFinishButton->hide();
+	mNextRoundButton->show();
+	mPlanPos = 0;
+	addMatchPlan();
+}
+
+void SeasonScreen::scrollUp()
+{
+	if(mPlanPos < 10)
+		mPlanPos = 0;
+	else
+		mPlanPos -= 10;
+	addMatchPlan();
+}
+
+void SeasonScreen::scrollDown()
+{
+	mPlanPos += 10;
+	addMatchPlan();
+}
+
 void SeasonScreen::buttonPressed(boost::shared_ptr<Button> button)
 {
 	const std::string& buttonText = button->getText();
@@ -112,70 +193,13 @@ void SeasonScreen::buttonPressed(boost::shared_ptr<Button> button)
 		save();
 	}
 	else if(buttonText == "Next Round") {
-		unsigned int i = 0;
-		for(i = 0; i < mSeason->getSchedule().size(); i++) {
-			RoundTuple ct = getRound(i);
-			assert(std::get<2>(ct));
-			assert(std::get<2>(ct)->getMatches().size());
-			if(!std::get<2>(ct)->getMatches()[std::get<2>(ct)->getMatches().size() - 1]->getResult().Played) {
-				if(i > 15)
-					mPlanPos = i - 10;
-				else
-					mPlanPos = 0;
-
-				switch(std::get<0>(ct)) {
-					case CompetitionType::League:
-					{
-						mScreenManager->addScreen(boost::shared_ptr<Screen>(new LeagueScreen(mScreenManager,
-										mSeason->getLeague(),
-										true)));
-					}
-					break;
-
-					case CompetitionType::Cup:
-					{
-						mScreenManager->addScreen(boost::shared_ptr<Screen>(new CupScreen(mScreenManager,
-										mSeason->getCup(),
-										true)));
-					}
-					break;
-
-					case CompetitionType::Tournament:
-					{
-						mScreenManager->addScreen(boost::shared_ptr<Screen>(new TournamentScreen(mScreenManager,
-										mSeason->getTournament(),
-										true)));
-					}
-					break;
-				}
-				break;
-			}
-		}
-
-		if(i >= mSeason->getSchedule().size() - 1) {
-			/* no more matches */
-			mNextRoundButton->hide();
-			if(mSeason->getLeagueSystem())
-				mFinishButton->show();
-			/* TODO: display season summary */
-		}
+		nextRound();
 	} else if(buttonText == "Finish Season") {
-		assert(mSeason->getLeagueSystem());
-		mSeason->getLeagueSystem()->promoteAndRelegateTeams();
-		mSeason = Season::createSeason(mSeason->getTeam(), mSeason->getLeagueSystem());
-		mFinishButton->hide();
-		mNextRoundButton->show();
-		mPlanPos = 0;
-		addMatchPlan();
+		finishSeason();
 	} else if(buttonText == "Prev") {
-		if(mPlanPos < 10)
-			mPlanPos = 0;
-		else
-			mPlanPos -= 10;
-		addMatchPlan();
+		scrollUp();
 	} else if(buttonText == "Next") {
-		mPlanPos += 10;
-		addMatchPlan();
+		scrollDown();
 	}
 }
 

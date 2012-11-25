@@ -137,9 +137,16 @@ bool ScreenManager::handleEvents()
 			return recordMouseMovement(ev.motion.state & SDL_BUTTON(1), ev.motion.x, ev.motion.y);
 
 		case SDL_KEYDOWN:
-			if(ev.key.keysym.sym == SDLK_ESCAPE)
-			{
+			if(ev.key.keysym.sym == SDLK_ESCAPE) {
 				dropScreen();
+			} else {
+				boost::shared_ptr<Screen> currentScreen = getCurrentScreen();
+				if(currentScreen) {
+					auto modstate = SDL_GetModState();
+					auto b = currentScreen->getKeyboardShortcuts(ev.key.keysym.sym, modstate);
+					if(b && b->visible())
+						currentScreen->buttonPressed(b);
+				}
 			}
 			return true;
 

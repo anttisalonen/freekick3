@@ -49,6 +49,10 @@ class CompetitionScreen : public Screen {
 		void saveCompetition() const;
 		void updateNextRoundButton();
 		void skipMatches();
+		void nextRound();
+		void skip();
+		void result();
+		void match();
 
 		const std::string mCompetitionName;
 		const std::string mScreenName;

@@ -22,6 +22,10 @@ class SeasonScreen : public Screen {
 	private:
 		void save();
 		void addMatchPlan();
+		void nextRound();
+		void finishSeason();
+		void scrollUp();
+		void scrollDown();
 
 		typedef std::tuple<CompetitionType, unsigned int, const Round*> RoundTuple;
 		RoundTuple getRound(unsigned int i) const;

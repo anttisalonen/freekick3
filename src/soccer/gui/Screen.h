@@ -22,12 +22,15 @@ class Screen {
 		std::vector<boost::shared_ptr<Slider>>& getSliders();
 		std::vector<boost::shared_ptr<Image>>& getImages();
 		virtual void buttonPressed(boost::shared_ptr<Button> button) = 0;
+		boost::shared_ptr<Button> getKeyboardShortcuts(SDLKey k, SDLMod m) const;
 		virtual const std::string& getName() const = 0;
 		virtual void onReentry() { }
 		boost::shared_ptr<Button> addLabel(const char* text, float x, float y,
 				TextAlignment centered = TextAlignment::Centered,
 				float fsize = 1.0f, Common::Color col = Common::Color::White);
-		boost::shared_ptr<Button> addButton(const char* text, const Common::Rectangle& dim);
+		boost::shared_ptr<Button> addButton(const char* text, const Common::Rectangle& dim,
+				bool keyShortcut = false, SDLKey shortcutKey = SDLK_0,
+				int modifier = KMOD_NONE);
 		bool removeButton(boost::shared_ptr<Button> b);
 
 	protected:
@@ -44,6 +47,7 @@ class Screen {
 		std::vector<boost::shared_ptr<Slider>> mSliders;
 		std::vector<boost::shared_ptr<Image>> mImages;
 
+		std::map<int, std::vector<std::pair<int, boost::shared_ptr<Button>>>> mKeyShortcuts;
 };
 
 

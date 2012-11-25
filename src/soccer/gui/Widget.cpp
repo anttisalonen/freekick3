@@ -30,6 +30,11 @@ void Widget::setRectangle(const Common::Rectangle& r)
 	mRectangle = r;
 }
 
+bool Widget::visible() const
+{
+	return !mHidden;
+}
+
 bool Widget::hidden() const
 {
 	return mHidden;

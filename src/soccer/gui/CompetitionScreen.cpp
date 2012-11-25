@@ -25,14 +25,20 @@ CompetitionScreen::CompetitionScreen(boost::shared_ptr<ScreenManager> sm, const 
 	mTextSize(0.048f),
 	mOneRound(onlyOneRound)
 {
-	addButton("Back",  Common::Rectangle(0.01f, 0.90f, 0.23f, 0.06f));
+	addButton("Back",  Common::Rectangle(0.01f, 0.90f, 0.23f, 0.06f),
+			true, SDLK_b);
 	if(!mOneRound)
-		addButton("Save",   Common::Rectangle(0.01f, 0.83f, 0.23f, 0.06f));
-	mSkipButton         = addButton("Skip",       Common::Rectangle(0.26f, 0.90f, 0.23f, 0.06f));
-	mResultButton       = addButton("Result",     Common::Rectangle(0.51f, 0.90f, 0.23f, 0.06f));
-	mMatchButton        = addButton("Match",      Common::Rectangle(0.76f, 0.90f, 0.23f, 0.06f));
+		addButton("Save",   Common::Rectangle(0.01f, 0.83f, 0.23f, 0.06f),
+				true, SDLK_s, KMOD_CTRL);
+	mSkipButton         = addButton("Skip",       Common::Rectangle(0.26f, 0.90f, 0.23f, 0.06f),
+			true, SDLK_s);
+	mResultButton       = addButton("Result",     Common::Rectangle(0.51f, 0.90f, 0.23f, 0.06f),
+			true, SDLK_r);
+	mMatchButton        = addButton("Match",      Common::Rectangle(0.76f, 0.90f, 0.23f, 0.06f),
+			true, SDLK_m);
 	if(!mOneRound)
-		mNextRoundButton = addButton("Next Round", Common::Rectangle(0.26f, 0.90f, 0.73f, 0.06f));
+		mNextRoundButton = addButton("Next Round", Common::Rectangle(0.26f, 0.90f, 0.73f, 0.06f),
+				true, SDLK_n);
 
 	updateRoundMatches();
 }
@@ -233,6 +239,29 @@ void CompetitionScreen::skipMatches()
 	}
 }
 
+void CompetitionScreen::nextRound()
+{
+	updateRoundMatches();
+	updateScreenElements();
+}
+
+void CompetitionScreen::skip()
+{
+	skipMatches();
+	updateScreenElements();
+}
+
+void CompetitionScreen::result()
+{
+	playNextMatch(false);
+	updateScreenElements();
+}
+
+void CompetitionScreen::match()
+{
+	playNextMatch(true);
+}
+
 void CompetitionScreen::buttonPressed(boost::shared_ptr<Button> button)
 {
 	const std::string& buttonText = button->getText();
@@ -248,19 +277,16 @@ void CompetitionScreen::buttonPressed(boost::shared_ptr<Button> button)
 		saveCompetition();
 	}
 	else if(buttonText == "Next Round") {
-		updateRoundMatches();
-		updateScreenElements();
+		nextRound();
 	}
 	else if(buttonText == "Skip") {
-		skipMatches();
-		updateScreenElements();
+		skip();
 	}
 	else if(buttonText == "Result") {
-		playNextMatch(false);
-		updateScreenElements();
+		result();
 	}
 	else if(buttonText == "Match") {
-		playNextMatch(true);
+		match();
 	}
 }
 

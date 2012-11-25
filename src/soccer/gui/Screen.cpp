@@ -9,7 +9,8 @@ Screen::Screen(boost::shared_ptr<ScreenManager> sm)
 {
 }
 
-boost::shared_ptr<Button> Screen::addButton(const char* text, const Rectangle& dim)
+boost::shared_ptr<Button> Screen::addButton(const char* text, const Rectangle& dim,
+		bool keyShortcut, SDLKey shortcutKey, int modifier)
 {
 	boost::shared_ptr<Button> b(new Button(text, mScreenManager->getFont(),
 					Rectangle(dim.x * mScreenManager->getScreenWidth(),
@@ -18,7 +19,24 @@ boost::shared_ptr<Button> Screen::addButton(const char* text, const Rectangle& d
 						dim.h * mScreenManager->getScreenHeight())));
 	setButtonTextSize(b);
 	mButtons.push_back(b);
+	if(keyShortcut) {
+		auto& v = mKeyShortcuts[shortcutKey];
+		v.push_back({modifier, b});
+	}
 	return b;
+}
+
+boost::shared_ptr<Button> Screen::getKeyboardShortcuts(SDLKey k, SDLMod m) const
+{
+	auto it = mKeyShortcuts.find(k);
+	if(it != mKeyShortcuts.end()) {
+		for(auto& p : it->second) {
+			if((p.first == m) || (p.first & m))
+				return p.second;
+		}
+	}
+
+	return boost::shared_ptr<Button>();
 }
 
 bool Screen::removeButton(boost::shared_ptr<Button> b)

@@ -22,6 +22,7 @@ class Widget {
 		const Common::Rectangle& getRectangle() const;
 		void setRectangle(const Common::Rectangle& r);
 		bool hidden() const;
+		bool visible() const;
 		void hide();
 		void show();
 		bool active() const;

@@ -26,7 +26,7 @@ TeamTacticsScreen::TeamTacticsScreen(boost::shared_ptr<ScreenManager> sm, Match&
 	mTeamLabels[1] = addButton(m.getTeam(1)->getName().c_str(), Common::Rectangle(0.40f, 0.05f, 0.23f, 0.06f));
 	mTeamLabels[1]->hide();
 
-	addButton("Match",  Common::Rectangle(0.76f, 0.90f, 0.23f, 0.06f));
+	addButton("Match",  Common::Rectangle(0.76f, 0.90f, 0.23f, 0.06f), true, SDLK_m);
 
 	addImage("share/pitch.png", mPitchRect);
 
