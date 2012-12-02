@@ -142,8 +142,9 @@ bool ScreenManager::handleEvents()
 			} else {
 				boost::shared_ptr<Screen> currentScreen = getCurrentScreen();
 				if(currentScreen) {
-					auto modstate = SDL_GetModState();
-					auto b = currentScreen->getKeyboardShortcuts(ev.key.keysym.sym, modstate);
+					int modstate = SDL_GetModState();
+					modstate &= KMOD_CTRL | KMOD_SHIFT | KMOD_ALT;
+					auto b = currentScreen->getKeyboardShortcuts(ev.key.keysym.sym, SDLMod(modstate));
 					if(b && b->visible())
 						currentScreen->buttonPressed(b);
 				}
