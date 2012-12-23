@@ -1,3 +1,3 @@
 [submodule "src/common"]
 	path = src/common
-	url = file:///home/antti/programmierung/own/common.git
+	url = git://github.com/anttisalonen/libcommon.git
