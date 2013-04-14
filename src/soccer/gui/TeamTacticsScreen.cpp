@@ -13,7 +13,6 @@ TeamTacticsScreen::TeamTacticsScreen(boost::shared_ptr<ScreenManager> sm, Match&
 	: Screen(sm),
 	mMatch(m),
 	mChosenplnum(0),
-	mShowHome(true),
 	mHumanTeam(-1),
 	mPitchRect(0.61f, 0.12f, 0.35f, 0.58f),
 	mCont(cont)

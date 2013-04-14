@@ -343,7 +343,7 @@ bool MatchHelpers::inOpposingPenaltyArea(const Player& p)
 
 bool MatchHelpers::onOwnSide(const Player& p)
 {
-	if(fabs(p.getPosition().y > 1.0f) && attacksUp(p) != (p.getPosition().y < 0.0f)) {
+	if(fabs(p.getPosition().y) > 1.0f && attacksUp(p) != (p.getPosition().y < 0.0f)) {
 		return false;
 	}
 	if(!onPitch(*p.getMatch(), p.getPosition())) {

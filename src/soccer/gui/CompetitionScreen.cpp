@@ -22,7 +22,6 @@ CompetitionScreen::CompetitionScreen(boost::shared_ptr<ScreenManager> sm, const 
 	mCompetitionName(name),
 	mScreenName(name + " Screen"),
 	mCompetition(l),
-	mTextSize(0.048f),
 	mOneRound(onlyOneRound)
 {
 	addButton("Back",  Common::Rectangle(0.01f, 0.90f, 0.23f, 0.06f),

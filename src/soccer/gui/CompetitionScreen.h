@@ -57,7 +57,6 @@ class CompetitionScreen : public Screen {
 		const std::string mCompetitionName;
 		const std::string mScreenName;
 		boost::shared_ptr<StatefulCompetition> mCompetition;
-		const float mTextSize;
 		boost::shared_ptr<Button> mSkipButton;
 		boost::shared_ptr<Button> mResultButton;
 		boost::shared_ptr<Button> mMatchButton;

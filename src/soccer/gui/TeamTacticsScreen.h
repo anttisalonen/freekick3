@@ -28,7 +28,6 @@ class TeamTacticsScreen : public Screen {
 		static const std::string ScreenName;
 		Match& mMatch;
 		int mChosenplnum;
-		bool mShowHome;
 		int mHumanTeam;
 		Common::Rectangle mPitchRect;
 		std::map<boost::shared_ptr<Button>, int> mPlayers[2];

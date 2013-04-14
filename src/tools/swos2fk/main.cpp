@@ -210,7 +210,6 @@ class FreekickWriter {
 		const std::vector<s_team>& mTeams;
 		int mCurrentTeamId;
 		std::map<std::pair<int, int>, int> mLeagues;
-		int mCurrentLeagueId;
 		std::map<int, std::string> mNationalities;
 		bool mScramble;
 };
@@ -221,7 +220,6 @@ FreekickWriter::FreekickWriter(const std::string& outputDir, const std::string& 
 	 mTeamFile(teamFile),
 	 mTeams(teams),
 	 mCurrentTeamId(1),
-	 mCurrentLeagueId(1),
 	 mScramble(scrambl)
 {
 	if(mTeamFile.empty()) {
