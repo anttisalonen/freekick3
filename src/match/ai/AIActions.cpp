@@ -218,7 +218,7 @@ AIDribbleAction::AIDribbleAction(const Player* p)
 	/* TODO: this constant should depend on pitch */
 	float dribblelen = 10.0f;
 	const unsigned int numDirections = 16;
-	for(int i = 0; i < numDirections; i++) {
+	for(unsigned int i = 0; i < numDirections; i++) {
 		Vector3 vec;
 		vec.x = dribblelen * sin(i * 2 * PI / float(numDirections));
 		vec.y = dribblelen * cos(i * 2 * PI / float(numDirections));

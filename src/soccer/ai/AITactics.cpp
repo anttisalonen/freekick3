@@ -221,8 +221,8 @@ TeamTactics AITactics::createTeamTactics(const Team& team, unsigned int def, uns
 	float tackdiff = tacklingavg - totalavg;
 	float speddiff = speedavg - totalavg;
 
-	std::vector<float> diffs = {fabs(passdiff), fabs(headdiff), fabs(contdiff),
-		fabs(shotdiff), fabs(tackdiff), fabs(speddiff)};
+	std::vector<float> diffs = {fabsf(passdiff), fabsf(headdiff), fabsf(contdiff),
+		fabsf(shotdiff), fabsf(tackdiff), fabsf(speddiff)};
 	auto maxdiff = *std::max_element(diffs.begin(), diffs.end());
 
 	float var = maxdiff > 0.001f ? 0.25f / maxdiff : 5.0f;

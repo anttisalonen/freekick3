@@ -60,7 +60,7 @@ class StatefulLeague : public StatefulCompetition {
 		void setRoundRobin(std::vector<boost::shared_ptr<StatefulTeam>>& teams);
 		std::map<boost::shared_ptr<StatefulTeam>, LeagueEntry> mEntries;
 		const int mPointsPerWin;
-		const int mNumCycles;
+		const unsigned int mNumCycles;
 		const int mLevel;
 
 		friend class boost::serialization::access;
@@ -72,7 +72,7 @@ class StatefulLeague : public StatefulCompetition {
 			ar & BOOST_SERIALIZATION_BASE_OBJECT_NVP(StatefulCompetition);
 			ar & mEntries;
 			ar & const_cast<int&>(mPointsPerWin);
-			ar & const_cast<int&>(mNumCycles);
+			ar & const_cast<unsigned int&>(mNumCycles);
 		}
 };
 
