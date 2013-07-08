@@ -9,7 +9,7 @@
 
 using Common::Vector3;
 
-static const float collisionIgnoreDistance = 1.5f;
+static const float collisionIgnoreDistance = 3.0f;
 
 static const float minimumBallHeight = 0.10f;
 
