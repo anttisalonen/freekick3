@@ -112,6 +112,8 @@ bool MatchSDLGUI::play()
 			add -= 0.5f;
 			add *= 0.01f * mFixedFrameTime;
 			frameTime += add;
+		} else {
+			frameTime *= 1.3f;
 		}
 		prevTime = newTime;
 
