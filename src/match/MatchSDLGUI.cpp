@@ -490,21 +490,51 @@ void MatchSDLGUI::finishFrame()
 	SDL_GL_SwapBuffers();
 }
 
+bool MatchSDLGUI::colorConflict(const Common::Color& c1, const Common::Color& c2)
+{
+	// luminance difference is in range [0, 255].
+	// hue difference is in range [0, pi].
+	static const float lumCoeff = 1.0 / 80.0;
+	static const float hueCoeff = 1.0 / PI;
+
+	int lum1 = c1.luminance();
+	int lum2 = c2.luminance();
+
+	float lumDiff = abs(lum1 - lum2) * lumCoeff;
+
+	float hue1 = c1.hue();
+	float hue2 = c2.hue();
+
+	if(hue2 < hue1)
+		std::swap(hue1, hue2);
+
+	if(hue2 > 0.5 * PI && hue1 <= -0.5 * PI)
+		hue1 += 2.0 * PI;
+
+	float hueDiff = fabs(hue1 - hue2) * hueCoeff;
+
+	return lumDiff + hueDiff < 1.0f;
+}
+
 bool MatchSDLGUI::kitConflict(const Soccer::Kit& kit0, const Soccer::Kit& kit1) const
 {
-	static const int colorThreshold = 160;
-
-	if(kit0.getPrimaryShirtColor() - kit1.getPrimaryShirtColor() < colorThreshold)
+	if(MatchSDLGUI::colorConflict(kit0.getPrimaryShirtColor(), kit1.getPrimaryShirtColor()))
 		return true;
 
-	if(kit0.getPrimaryShirtColor() - kit1.getSecondaryShirtColor() < colorThreshold)
-		return true;
+	if(kit0.getKitType() != Soccer::Kit::KitType::Plain) {
+		if(MatchSDLGUI::colorConflict(kit0.getSecondaryShirtColor(), kit1.getPrimaryShirtColor()))
+			return true;
 
-	if(kit0.getSecondaryShirtColor() - kit1.getPrimaryShirtColor() < colorThreshold)
-		return true;
+		if(kit1.getKitType() != Soccer::Kit::KitType::Plain) {
+			if(MatchSDLGUI::colorConflict(kit0.getSecondaryShirtColor(), kit1.getSecondaryShirtColor()))
+				return true;
+		}
+	}
 
-	if(kit0.getSecondaryShirtColor() - kit1.getSecondaryShirtColor() < colorThreshold)
-		return true;
+	if(kit1.getKitType() != Soccer::Kit::KitType::Plain) {
+		if(MatchSDLGUI::colorConflict(kit0.getPrimaryShirtColor(), kit1.getSecondaryShirtColor()))
+			return true;
+	}
 
 	return false;
 }
@@ -532,9 +562,9 @@ std::pair<const Soccer::Kit, const Soccer::Kit> MatchSDLGUI::getKits() const
 				mMatch->getTeam(1)->getAwayKit());
 
 	return std::make_pair(Soccer::Kit(Soccer::Kit::KitType::Plain,
-				Common::Color::Red, Common::Color::Red, Common::Color::Red, Common::Color::Red),
+				Common::Color::Blue, Common::Color::Blue, Common::Color::Blue, Common::Color::Blue),
 			Soccer::Kit(Soccer::Kit::KitType::Plain,
-				Common::Color::Blue, Common::Color::Blue, Common::Color::Blue, Common::Color::Blue));
+				Common::Color::Green, Common::Color::Green, Common::Color::Green, Common::Color::Green));
 }
 
 Common::Color MatchSDLGUI::mapPitchColor(const Common::Color& c1, const Common::Color& c2,

@@ -61,6 +61,8 @@ class MatchSDLGUI : public MatchGUI, public PlayerController {
 				const Common::Color& c);
 		static Common::Color mapKitColor(const Soccer::Kit& kit, const Common::Color& c);
 		bool kitConflict(const Soccer::Kit& kit0, const Soccer::Kit& kit1) const;
+		static bool colorConflict(const Common::Color& c1, const Common::Color& c2);
+
 		Clock mClock;
 		SDL_Surface* mScreen;
 		boost::shared_ptr<Common::Texture> mPlayerTextureHome[28];
