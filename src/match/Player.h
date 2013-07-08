@@ -51,7 +51,9 @@ class Player : public MatchEntity, public Soccer::Player {
 		bool isAirborne() const;
 		Soccer::PlayerPosition getPlayerPosition() const;
 		bool isGoalkeeper() const;
+		float getTacticsWidthPosition() const;
 	private:
+
 		Team* mTeam;
 		PlayerController* mController;
 		PlayerAIController* mAIController;

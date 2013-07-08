@@ -3,6 +3,7 @@
 #include "match/Player.h"
 #include "match/ai/PlayerAIController.h"
 #include "match/Match.h"
+#include "match/MatchHelpers.h"
 #include "match/Team.h"
 
 using Common::Vector3;
@@ -21,18 +22,17 @@ Player::Player(Match* match, Team* team, const Soccer::Player& p,
 	mAIController = new PlayerAIController(this);
 	setAIControlled();
 
-	if(mShirtNumber == 1) {
+	if(mTactics.Position == Soccer::PlayerPosition::Goalkeeper) {
 		setHomePosition(RelVector3(0, -0.95f * (mTeam->isFirst() ? 1 : -1), 0));
 	}
 	else {
-		if(mShirtNumber >= 10) {
-			setHomePosition(RelVector3(mShirtNumber == 10 ? -0.1f : 0.1f,
+		if(mTactics.Position == Soccer::PlayerPosition::Forward) {
+			setHomePosition(RelVector3(getTacticsWidthPosition(),
 						0.20f * (mTeam->isFirst() ? -1 : 1), 0));
 		}
 		else {
-			int hgt = mShirtNumber > 5 ? 1 : 0;
-			float widthpos = ((mShirtNumber - 2) % 4 - 1.5f) * 0.5f;
-			setHomePosition(RelVector3(widthpos,
+			int hgt = mTactics.Position == Soccer::PlayerPosition::Defender ? 0 : 1;
+			setHomePosition(RelVector3(getTacticsWidthPosition(),
 						(mTeam->isFirst() ? 1 : -1) * (-0.7f + hgt * 0.4f),
 						0));
 		}
@@ -213,6 +213,14 @@ Soccer::PlayerPosition Player::getPlayerPosition() const
 bool Player::isGoalkeeper() const
 {
 	return getPlayerPosition() == Soccer::PlayerPosition::Goalkeeper;
+}
+
+float Player::getTacticsWidthPosition() const
+{
+	float pnx = getTactics().WidthPosition;
+	if(!MatchHelpers::attacksUp(*this))
+		pnx = -pnx;
+	return pnx;
 }
 
 

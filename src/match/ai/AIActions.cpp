@@ -525,7 +525,7 @@ AIGuardAreaAction::AIGuardAreaAction(const Player* p)
 	: AIAction(mActionName, p)
 {
 	// action to move to the correct X position
-	float bestx = p->getMatch()->getPitchWidth() * 0.5f * p->getTactics().WidthPosition;
+	float bestx = p->getMatch()->getPitchWidth() * 0.5f * p->getTacticsWidthPosition();
 	mScore = 0.05f;
 	Vector3 tgtpos = p->getPosition();
 	tgtpos.x = bestx;

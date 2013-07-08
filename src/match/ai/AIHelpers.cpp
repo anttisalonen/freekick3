@@ -132,7 +132,7 @@ Vector3 AIHelpers::getPassKickVector(const Player& from, const Vector3& to)
 
 float AIHelpers::checkTacticArea(const Player& p, float score, const Vector3& pos)
 {
-	float bestx = p.getMatch()->getPitchWidth() * 0.5f * p.getTactics().WidthPosition;
+	float bestx = p.getMatch()->getPitchWidth() * 0.5f * p.getTacticsWidthPosition();
 	float maxDist = p.getMatch()->getPitchWidth() * 0.5f * p.getTactics().Radius;
 	assert(maxDist != 0.0f);
 	float dist = fabs(pos.x - bestx);
