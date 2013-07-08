@@ -1,3 +1,8 @@
+Paper cuts:
+Visual output after saving a game
+AI should not steal the ball when it's already controlled by its team
+Dribbling should be more effective (don't stop the ball right after dribble)
+
 Smaller tasks:
 Display the players by the correct Z coordinate
 Player home positions for the kickoff should correspond to lineup
@@ -12,6 +17,7 @@ Display match statistics during match on key press
 Team tactics screen: Ability to set and see offensive flag on players
 Offsides
 Tactics AI should consider opponent and opponent's tactics
+More information in season screen - e.g. next opponent league position, tactics, weather
 
 Larger tasks:
 Match weather
