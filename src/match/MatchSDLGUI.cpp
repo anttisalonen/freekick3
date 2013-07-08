@@ -950,7 +950,6 @@ boost::shared_ptr<PlayerAction> MatchSDLGUI::act(double time)
 	if(heading) {
 		Vector3 jump = mPlayerControlVelocity;
 		jump.z = 1.0f;
-		std::cout << "Heading: " << jump << "\n";
 		return boost::shared_ptr<PlayerAction>(new JumpToPA(jump));
 	}
 
@@ -1020,7 +1019,6 @@ void MatchSDLGUI::setPlayerController(double frameTime)
 				!MatchHelpers::playerBlockingRestart(*mPlayer))) {
 			mPlayer->setController(this);
 			mPlayerKickPower = 0.0f;
-			printf("Now controlling\n");
 		}
 		if(mControlledPlayerIndex == -1) {
 			Player* pl = MatchHelpers::nearestOwnPlayerToBall(*mMatch->getTeam(mControlledTeamIndex));

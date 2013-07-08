@@ -71,7 +71,6 @@ void KickBallPA::applyPlayerAction(Match& match, Player& p, double time)
 	}
 	else {
 		v *= p.getMaximumHeadingPower();
-		std::cout << "Header!\n";
 	}
 
 	int failpoints = match.kickBall(&p, v);
