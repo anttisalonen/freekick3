@@ -973,15 +973,23 @@ boost::shared_ptr<PlayerAction> MatchSDLGUI::act(double time)
 			if(goaldiff < 10.0f && goaldiff < passdiff) {
 				// full power
 				Vector3 kicktgt = getMousePositionOnPitch();
-				if(mPlayerKickPowerVelocity > 0.5f)
-					kicktgt.z = kicktgt.length() * 0.1f;
+				if(mPlayerKickPowerVelocity > 0.5f) {
+					if(goaldiff < 10.0f) {
+						kicktgt.z = kicktgt.length() * 0.05f;
+					} else {
+						kicktgt.z = kicktgt.length() * 0.6f;
+						kicktgt *= 0.8f;
+					}
+				}
 				return boost::shared_ptr<PlayerAction>(new KickBallPA(kicktgt, nullptr, true));
 			}
 			else if(passdiff < 5.0f) {
 				// pass
 				Vector3 kicktgt = AIHelpers::getPassKickVector(*mPlayer, *passtgt);
-				if(mPlayerKickPowerVelocity > 0.5f)
-					kicktgt.z += kicktgt.length() * 0.3f;
+				if(mPlayerKickPowerVelocity > 0.5f) {
+					kicktgt.z += kicktgt.length() * 0.6f;
+					kicktgt *= 0.8f;
+				}
 				return boost::shared_ptr<PlayerAction>(new KickBallPA(kicktgt, passtgt));
 			}
 			else {
