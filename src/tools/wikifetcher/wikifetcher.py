@@ -507,8 +507,8 @@ class Converter:
                 assert country
                 countryname = os.path.basename(country).decode('utf-8')
                 if countryname not in ordering:
-                    print >> sys.stderr, 'Country "%s" not found in the ordering file - aborting.' % countryname
-                    sys.exit(1)
+                    print >> sys.stderr, 'Warning: country "%s" not found in the ordering file - ignoring.' % countryname
+                    continue
 
                 leaguesystem_strength = ordering[countryname]
                 leaguesystemnodes[leaguesystem_strength] = leaguesystemnode
