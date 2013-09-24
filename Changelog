@@ -1,8 +1,8 @@
-0.0.1 - 2012-07-26
+0.2.1 - 2013-09-24
 ==================
-- First release
-- SWOS team import option
-- Leagues
+- Fix compile errors
+- Speed up the match
+- Minor input and AI bug fixes
 
 0.2 - 2012-02-12
 ================
@@ -11,3 +11,11 @@
 - Wikifetcher team import option
 - Improved AI
 - Goalkeeper dives
+
+0.0.1 - 2012-07-26
+==================
+- First release
+- SWOS team import option
+- Leagues
+
+
