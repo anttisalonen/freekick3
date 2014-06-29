@@ -38,7 +38,7 @@ class PlayerPosition:
                 self.pos = self.DF
             else:
                 self.pos = self.BK
-        elif string == 'MF':
+        elif string == 'MF' or string == 'MD':
             if random.choice([True, False]):
                 self.pos = self.MF
             else:
@@ -47,7 +47,7 @@ class PlayerPosition:
             self.pos = self.MF
         elif string == 'LM' or string == 'RM' or string == 'WI':
             self.pos = self.WI
-        elif string == 'FW':
+        elif string == 'FW' or string == 'ST':
             self.pos = self.FW
         else:
             if string != '--':
