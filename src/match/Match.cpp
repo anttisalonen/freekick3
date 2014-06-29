@@ -233,7 +233,7 @@ float Match::getPitchHeight() const
 
 std::ostream& operator<<(std::ostream& out, const MatchHalf& m)
 {
-	const char* str;
+	const char* str = "";
 	switch(m) {
 		case MatchHalf::NotStarted:
 			str = "Not started"; break;
@@ -271,7 +271,7 @@ bool playing(MatchHalf h)
 
 std::ostream& operator<<(std::ostream& out, const PlayState& m)
 {
-	const char* str;
+	const char* str = "";
 	switch(m) {
 		case PlayState::InPlay:
 			str = "In play"; break;
