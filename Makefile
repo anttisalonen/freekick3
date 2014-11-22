@@ -1,6 +1,6 @@
 CXX      ?= g++
 AR       ?= ar
-CXXFLAGS ?= -std=c++11 -O2 -g3 -Werror
+CXXFLAGS ?= -std=c++11 -O2 -g3 -Werror -ftemplate-depth=512
 CXXFLAGS += -Wall -Wshadow
 
 CXXFLAGS += $(shell sdl-config --cflags)
@@ -98,8 +98,9 @@ all: $(SWOS2FKBIN) $(SOCCERBIN) $(MATCHBIN)
 $(BINDIR):
 	mkdir -p $(BINDIR)
 
-$(COMMONLIB): $(COMMONOBJS)
-	$(AR) rcs $(COMMONLIB) $(COMMONOBJS)
+$(COMMONLIB):
+	git submodule update --init
+	make -C $(COMMONSRCDIR)
 
 $(LIBSOCCERLIB): $(LIBSOCCEROBJS)
 	$(AR) rcs $(LIBSOCCERLIB) $(LIBSOCCEROBJS)
