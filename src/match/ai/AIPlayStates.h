@@ -50,9 +50,9 @@ class AIState {
 class AIGoalkeeperState : public AIState {
 	public:
 		AIGoalkeeperState(Player* p, AIPlayController* m);
-		boost::shared_ptr<PlayerAction> actOnBall(double time);
-		boost::shared_ptr<PlayerAction> actNearBall(double time);
-		boost::shared_ptr<PlayerAction> actOffBall(double time);
+		boost::shared_ptr<PlayerAction> actOnBall(double time) override;
+		boost::shared_ptr<PlayerAction> actNearBall(double time) override;
+		boost::shared_ptr<PlayerAction> actOffBall(double time) override;
 		void matchHalfChanged(MatchHalf m) override;
 
 	private:
@@ -67,27 +67,27 @@ class AIGoalkeeperState : public AIState {
 class AIDefendState : public AIState {
 	public:
 		AIDefendState(Player* p, AIPlayController* m);
-		boost::shared_ptr<PlayerAction> actOffBall(double time);
+		boost::shared_ptr<PlayerAction> actOffBall(double time) override;
 };
 
 class AIKickBallState : public AIState {
 	public:
 		AIKickBallState(Player* p, AIPlayController* m);
-		boost::shared_ptr<PlayerAction> actOnBall(double time);
-		boost::shared_ptr<PlayerAction> actNearBall(double time);
-		boost::shared_ptr<PlayerAction> actOffBall(double time);
+		boost::shared_ptr<PlayerAction> actOnBall(double time) override;
+		boost::shared_ptr<PlayerAction> actNearBall(double time) override;
+		boost::shared_ptr<PlayerAction> actOffBall(double time) override;
 };
 
 class AIOffensiveState : public AIState {
 	public:
 		AIOffensiveState(Player* p, AIPlayController* m);
-		boost::shared_ptr<PlayerAction> actOffBall(double time);
+		boost::shared_ptr<PlayerAction> actOffBall(double time) override;
 };
 
 class AIMidfielderState : public AIState {
 	public:
 		AIMidfielderState(Player* p, AIPlayController* m);
-		boost::shared_ptr<PlayerAction> actOffBall(double time);
+		boost::shared_ptr<PlayerAction> actOffBall(double time) override;
 };
 
 

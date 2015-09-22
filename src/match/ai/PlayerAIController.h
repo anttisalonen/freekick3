@@ -9,7 +9,7 @@
 class PlayerAIController : public PlayerController {
 	public:
 		PlayerAIController(Player* p);
-		boost::shared_ptr<PlayerAction> act(double time);
+		boost::shared_ptr<PlayerAction> act(double time) override;
 		const std::string& getDescription() const;
 		virtual void matchHalfChanged(MatchHalf m) override;
 	protected:

@@ -17,7 +17,7 @@ class Slider : public Button {
 	public:
 		Slider(const char* text, TTF_Font* font, const Common::Rectangle& dim, float value);
 		virtual bool clicked(int x, int y) override;
-		virtual void draw(int screenWidth, int screenHeight);
+		virtual void draw(int screenWidth, int screenHeight) override;
 		float getValue();
 
 	private:
