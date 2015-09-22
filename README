@@ -24,6 +24,7 @@ library binaries and header files.
 - get the source using git (git clone
 git://github.com/anttisalonen/freekick3.git).
 - change to the cloned directory.
+- fetch the git submodule by running: git submodule update --init
 - to compile, run make.
 - to run, use bin/freekick3 (there's no make install yet).
 
