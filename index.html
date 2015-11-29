@@ -1,0 +1,112 @@
+<!doctype html>
+<html>
+  <head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="chrome=1">
+    <title>Freekick3 by anttisalonen</title>
+
+    <link rel="stylesheet" href="stylesheets/styles.css">
+    <link rel="stylesheet" href="stylesheets/github-light.css">
+    <meta name="viewport" content="width=device-width">
+    <!--[if lt IE 9]>
+    <script src="//html5shiv.googlecode.com/svn/trunk/html5.js"></script>
+    <![endif]-->
+  </head>
+  <body>
+    <div class="wrapper">
+      <header>
+        <h1>Freekick3</h1>
+        <p>One simple soccer game more</p>
+
+        <p class="view"><a href="https://github.com/anttisalonen/freekick3">View the Project on GitHub <small>anttisalonen/freekick3</small></a></p>
+
+
+        <ul>
+          <li><a href="https://github.com/anttisalonen/freekick3/zipball/master">Download <strong>ZIP File</strong></a></li>
+          <li><a href="https://github.com/anttisalonen/freekick3/tarball/master">Download <strong>TAR Ball</strong></a></li>
+          <li><a href="https://github.com/anttisalonen/freekick3">View On <strong>GitHub</strong></a></li>
+        </ul>
+      </header>
+      <section>
+        <h1>
+<a id="freekick-3" class="anchor" href="#freekick-3" aria-hidden="true"><span class="octicon octicon-link"></span></a>Freekick 3</h1>
+
+<p>Freekick 3 is an open source soccer game.</p>
+
+<h1>
+<a id="license" class="anchor" href="#license" aria-hidden="true"><span class="octicon octicon-link"></span></a>License</h1>
+
+<p>The Freekick 3 source code is licensed under GPLv3+. See LICENSE for more
+details.</p>
+
+<p>For the artwork licenses, see the file "licenses". Unless otherwise noted,
+the artwork is licensed under Creative Commons Attribution-ShareAlike 3.0
+(cc-by-sa-3.0) license. See <a href="http://creativecommons.org/licenses/by-sa/3.0/">http://creativecommons.org/licenses/by-sa/3.0/</a>
+for more details. For the license on DejaVu Sans font, see
+<a href="http://dejavu-fonts.org/wiki/License">http://dejavu-fonts.org/wiki/License</a>.</p>
+
+<h1>
+<a id="installation" class="anchor" href="#installation" aria-hidden="true"><span class="octicon octicon-link"></span></a>Installation</h1>
+
+<ul>
+<li>make sure you have the dependencies. These include the Boost C++
+libraries, SDL, SDL_image and SDL_ttf, OpenGL and tinyxml. You need both
+library binaries and header files.</li>
+<li>get the source using git (git clone
+git://github.com/anttisalonen/freekick3.git).</li>
+<li>change to the cloned directory.</li>
+<li>fetch the git submodule by running: git submodule update --init</li>
+<li>to compile, run make.</li>
+<li>to run, use bin/freekick3 (there's no make install yet).</li>
+</ul>
+
+<h1>
+<a id="playing" class="anchor" href="#playing" aria-hidden="true"><span class="octicon octicon-link"></span></a>Playing</h1>
+
+<p>Use mouse to control the kick direction and keyboard (w/a/s/d) to control
+the run direction. See the in-game help for more information.</p>
+
+<h1>
+<a id="teams" class="anchor" href="#teams" aria-hidden="true"><span class="octicon octicon-link"></span></a>Teams</h1>
+
+<p>Freekick 3 includes some made up teams. If you want to use more realistic
+teams, you can either convert Sensible World of Soccer teams to Frekick 3
+teams or use football-data-fetcher
+(<a href="https://github.com/anttisalonen/football-data-fetcher">https://github.com/anttisalonen/football-data-fetcher</a>) to fetch team
+data from Wikipedia and convert that data to Freekick 3 teams.</p>
+
+<p>To use Sensible World of Soccer teams (PC format), use the utility swos2fk
+(compiled using make). Usage:</p>
+
+<p>$ mkdir ~/.freekick/share/teams
+  $ bin/swos2fk ~/.freekick3/share/teams/ path/to/swos/PC/Data/TEAM.*</p>
+
+<p>This will create the Freekick 3 teams in directory ~/.freekick3/share/teams.</p>
+
+<p>To use the data from football-data-fetcher, you can use the script
+wikifetcher under src/tools, which will convert the data to Freekick 3
+teams. Usage:</p>
+
+<p>$ cd src/tools/wikifetcher
+  $ python2 wikifetcher.py ordering.txt /path/to/fetcher/output \
+         ~/.freekick3/share/teams</p>
+
+<p>The fetcher output path is the directory with subdirectories like UEFA,
+CONMEBOL etc.</p>
+
+<h1>
+<a id="contact" class="anchor" href="#contact" aria-hidden="true"><span class="octicon octicon-link"></span></a>Contact</h1>
+
+<p>For any bug reports, feedback or questions: </p>
+
+<p>Antti Salonen</p>
+      </section>
+      <footer>
+        <p>This project is maintained by <a href="https://github.com/anttisalonen">anttisalonen</a></p>
+        <p><small>Hosted on GitHub Pages &mdash; Theme by <a href="https://github.com/orderedlist">orderedlist</a></small></p>
+      </footer>
+    </div>
+    <script src="javascripts/scale.fix.js"></script>
+    
+  </body>
+</html>
